@@ -6,9 +6,8 @@
     "python": 3
   },
   "violations": {
-    "app/modules/accessibility.js:createAccessibility#1:max-lines-per-function": 187,
+    "app/modules/accessibility.js:createAccessibility#1:max-lines-per-function": 173,
     "app/modules/address_parser.js:initAddressParser#1:max-lines-per-function": 106,
-    "app/modules/administration.js:initAdministration#1:max-lines-per-function": 94,
     "app/modules/automatic_recovery.js:createAutomaticRecovery#1:max-lines-per-function": 166,
     "app/modules/case_activity.js:createCaseActivity#1:max-lines-per-function": 122,
     "app/modules/case_folder_workflow.js:createCaseFolderWorkflow#1:max-lines-per-function": 118,
@@ -21,7 +20,7 @@
     "app/modules/correction_events.js:createCorrectionEvents#1:max-lines-per-function": 155,
     "app/modules/correction_ui.js:createCorrectionUI#1:max-lines-per-function": 122,
     "app/modules/deadline_assignment.js:createDeadlineAssignment#1:max-lines-per-function": 132,
-    "app/modules/document_delivery.js:createDocumentDelivery#1:max-lines-per-function": 176,
+    "app/modules/document_delivery.js:createDocumentDelivery#1:max-lines-per-function": 150,
     "app/modules/document_pagination.js:createDocumentPagination#1:max-lines-per-function": 97,
     "app/modules/import_events.js:createImportEvents#1:max-lines-per-function": 112,
     "app/modules/initial_citations.js:initInitialCitations#1:max-lines-per-function": 180,
@@ -31,7 +30,7 @@
     "app/modules/record_integrity.js:initRecordIntegrity#1:max-lines-per-function": 90,
     "app/modules/recovery_events.js:createRecoveryEvents#1:max-lines-per-function": 167,
     "app/modules/reinspection_events.js:createReinspectionEvents#1:max-lines-per-function": 201,
-    "app/modules/reports_services.js:createReportsServices#1:max-lines-per-function": 167,
+    "app/modules/reports_services.js:createReportsServices#1:max-lines-per-function": 138,
     "app/modules/shared_case_storage.js:createSharedCaseStorage#1:max-lines-per-function": 99,
     "app/modules/storage_status.js:createStorageStatus#1:max-lines-per-function": 87,
     "app/modules/utility_events.js:createUtilityEvents#1:max-lines-per-function": 84,

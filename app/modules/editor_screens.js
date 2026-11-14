@@ -15,24 +15,36 @@ import { localSaveText } from "./saved_work.js";
 
 const CARRIED_ITEMS_HINT = " Violations are carried from the earlier document; edit their due dates in the item rows.";
 
+function editorCorrectionButtons(d, unavailable) {
+  return (
+    (!d.draft && !unavailable
+      ? html`<button class="btn" id="btn-correct">${d.void ? "Restore with correction" : "Correct document"}</button>` +
+        (d.void ? "" : html`<button class="btn" id="btn-void">Withdraw…</button>`)
+      : "") + (unavailable ? html`<p class="hint" id="correct-unavailable">Correct and Withdraw are unavailable: ${unavailable}</p>` : "")
+  );
+}
+
+// Without a linked shared folder saveCaseFile downloads a workspace backup instead, so say so.
+function editorSaveCaseButtons(d) {
+  return workspace.CASEDIR
+    ? html`<button class="btn" id="btn-savecase">Save case to shared folder</button>`
+    : html`<button class="btn" id="btn-savecase" aria-describedby="savecase-note">Download workspace backup</button>` +
+        html`<p class="hint" id="savecase-note">Shared folder not connected — this downloads a backup; it does not save the shared case record.</p>` +
+        html`<button class="btn" data-safety-case="${d.caseId}" data-safety-action="storage">Connect shared folder</button>`;
+}
+
+function editorMoreActions(d, unavailable) {
+  return (
+    editorCorrectionButtons(d, unavailable) +
+    editorSaveCaseButtons(d) +
+    (isEffective(d) ? html`<button class="btn" id="btn-email">Email…</button>` : "")
+  );
+}
+
 function editorActionsHTML({ d, locked, primary, services }) {
   // One eligibility read: its sentence explains the missing Correct and Withdraw buttons.
   const unavailable = locked && !d.pendingAmendment && !d.draft ? services.record.correctionEligibility(d) : "";
-  const more =
-    locked && !d.pendingAmendment
-      ? (!d.draft && !unavailable
-          ? html`<button class="btn" id="btn-correct">${d.void ? "Restore with correction" : "Correct document"}</button>` +
-            (d.void ? "" : html`<button class="btn" id="btn-void">Withdraw…</button>`)
-          : "") +
-        (unavailable ? html`<p class="hint" id="correct-unavailable">Correct and Withdraw are unavailable: ${unavailable}</p>` : "") +
-        // Without a linked shared folder saveCaseFile downloads a workspace backup instead, so say so.
-        (workspace.CASEDIR
-          ? html`<button class="btn" id="btn-savecase">Save case to shared folder</button>`
-          : html`<button class="btn" id="btn-savecase" aria-describedby="savecase-note">Download workspace backup</button>` +
-            html`<p class="hint" id="savecase-note">Shared folder not connected — this downloads a backup; it does not save the shared case record.</p>` +
-            html`<button class="btn" data-safety-case="${d.caseId}" data-safety-action="storage">Connect shared folder</button>`) +
-        (isEffective(d) ? html`<button class="btn" id="btn-email">Email…</button>` : "")
-      : "";
+  const more = locked && !d.pendingAmendment ? editorMoreActions(d, unavailable) : "";
   return (
     (d.draft
       ? html`<button class="btn" id="btn-save">Save draft &amp; return to Workspace</button>`
@@ -195,8 +207,8 @@ function edCheckMessagesHTML(readiness) {
   return readiness.list.map((c, ix) => (!c.ok ? html`<span id="editor-check-msg-doc-${ix}">${c.t}</span>` : "")).join("");
 }
 
-function edPrimary(services, d, ready = edReadiness(services, d)) {
-  const locked = services.edit.isLocked(d);
+// The primary action while a record save is unresolved, or null when none is pending.
+function edPendingPrimary(services, d) {
   if (services.record.recordIntegrity.status(kase(d.caseId)).valid === false)
     return { label: "Review record problem", attrs: `data-sync-safety="${esc(d.caseId)}"` };
   const pending = Object.values(editor.RECORD_ATTEMPTS).find((x) => x.cid === d.caseId && x.pendingAmendment?.payload?.docId === d.id);
@@ -205,12 +217,21 @@ function edPrimary(services, d, ready = edReadiness(services, d)) {
     return { label: "Confirm save", attrs: 'data-editor-command="' + (d.correction ? "btn-retrycorrection" : "btn-retrypublish") + '"' };
   if (editor.state.publicationBusy && doc(editor.state.publicationBusy)?.caseId === d.caseId)
     return { label: "Finishing document save…", attrs: "disabled" };
+  return null;
+}
+
+// An issued, current document whose PDF has not been filed (a citation delivered with its notice is filed with it).
+const edFilingPending = (d) => !d.void && !d.superseded && !d.filedAt && !deliveredByCitation(d);
+
+function edPrimary(services, d, ready = edReadiness(services, d)) {
+  const locked = services.edit.isLocked(d);
+  const pending = edPendingPrimary(services, d);
+  if (pending) return pending;
   if (d.draft && locked) return { label: "Review saved work", attrs: `data-sync-safety="${esc(d.caseId)}"` };
   if (!locked)
     // R59: Issue always opens the final confirmation, which re-runs blockers() and lists anything still to fix.
     return { label: ready.held ? "Review held draft" : "Issue", attrs: 'id="btn-final"' };
-  if (!d.void && !d.superseded && !d.filedAt && !deliveredByCitation(d))
-    return { label: "File issued PDF", attrs: 'data-editor-command="btn-retryfiling"' };
+  if (edFilingPending(d)) return { label: "File issued PDF", attrs: 'data-editor-command="btn-retryfiling"' };
   return { label: "Print issued PDF", attrs: 'id="btn-print"' };
 }
 
@@ -222,6 +243,16 @@ function edEnhance() {
     parent
       .querySelectorAll(".cit")
       .forEach((face, index) => face.toggleAttribute("data-editor-extra-copy", editor.state.compactCitationCopies === d.id && index % count !== 0));
+  }
+}
+
+// Replace only on change, so a focused bar button keeps its focus.
+function edSyncMobileBar(services, d, readiness) {
+  const bar = document.querySelector(".editor-mobile-actions"),
+    barKey = edMobileBarKey(services, d, readiness);
+  if (bar && bar.dataset.barKey !== barKey) {
+    bar.innerHTML = edMobileBarActionsHTML(services, d, readiness);
+    bar.dataset.barKey = barKey;
   }
 }
 
@@ -242,13 +273,7 @@ function edSync(services) {
   if (messages) messages.innerHTML = edCheckMessagesHTML(readiness);
   const button = document.getElementById("btn-final");
   if (button) button.innerHTML = edPrimary(services, d, readiness).label;
-  const bar = document.querySelector(".editor-mobile-actions"),
-    barKey = edMobileBarKey(services, d, readiness);
-  // Replace only on change, so a focused bar button keeps its focus.
-  if (bar && bar.dataset.barKey !== barKey) {
-    bar.innerHTML = edMobileBarActionsHTML(services, d, readiness);
-    bar.dataset.barKey = barKey;
-  }
+  edSyncMobileBar(services, d, readiness);
   const review = document.getElementById("btn-review");
   if (review) review.textContent = "Review";
   edEnhance();
@@ -321,6 +346,14 @@ function edRenumber(d) {
   });
 }
 
+// Focus follows the moved item: its grip, or the arrow button that moved it (else its grip).
+function focusMovedItem(id, direction, grip) {
+  const target = document.querySelector(
+    grip ? '[data-grip="' + checkAttr(id) + '"]' : '[data-move="' + checkAttr(id) + '"][data-direction="' + direction + '"]',
+  );
+  (target || document.querySelector('[data-grip="' + checkAttr(id) + '"]'))?.focus();
+}
+
 function edMoveItem(services, refreshSheet, id, direction, grip = false) {
   const d = doc(editor.state.docId);
   if (!d || !services.edit.structEditable(d)) return false;
@@ -331,10 +364,7 @@ function edMoveItem(services, refreshSheet, id, direction, grip = false) {
   edRenumber(d);
   workspace.DIRTY = true;
   refreshSheet();
-  const target = document.querySelector(
-    grip ? '[data-grip="' + checkAttr(id) + '"]' : '[data-move="' + checkAttr(id) + '"][data-direction="' + direction + '"]',
-  );
-  (target || document.querySelector('[data-grip="' + checkAttr(id) + '"]'))?.focus();
+  focusMovedItem(id, direction, grip);
   services.ui.toast("Item " + (to + 1) + " moved " + direction);
   return true;
 }

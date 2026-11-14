@@ -154,24 +154,47 @@ function snowChecks(services, d, letter) {
   const f = d.snow || {},
     out = [],
     check = (ok, t, key) => out.push({ ok: !!ok, t, targets: key ? [checkTarget('[data-snow="' + key + '"]', t)] : [] });
+  snowFactChecks(services, d, f, check);
+  snowTimingCheck(services, d, f, check);
+  snowLetterCheck(d, letter, out);
+  return out;
+}
+
+const SNOW_CONDITIONS = ["snow covered", "ice covered", "snow and ice covered"];
+
+function snowFactChecks(services, d, f, check) {
   check(d.type === "citation" && d.items.length === 1 && itemLibraryKey(d.items[0]) === SNOW_KEY, mixed);
   check(services.validISO(f.snowfallDate), "Enter the snowfall / accumulation date.", "snowfallDate");
   check(typeof f.inches === "number" && Number.isFinite(f.inches) && f.inches > 0, "Snowfall inches must be a decimal greater than zero.", "inches");
-  check(["snow covered", "ice covered", "snow and ice covered"].includes(f.condition), "Choose the observed sidewalk condition.", "condition");
+  check(SNOW_CONDITIONS.includes(f.condition), "Choose the observed sidewalk condition.", "condition");
   check(f.photographed === true, "Confirm the violation was photographed before citation.", "photographed");
   check(services.validISO(d.inspDate) && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(d.inspTime || ""), "Enter the snow inspection date and time.");
-  if (services.validISO(f.snowfallDate) && services.validISO(d.inspDate)) {
-    const due = addDays(f.snowfallDate, 1);
-    check(
-      d.inspDate > due || (d.inspDate === due && d.inspTime >= "12:00"),
-      "Under MGO 10.28(1) the owner has until noon on " + services.fmtDate(due) + "; inspect at or after that time.",
-      "snowfallDate",
-    );
-  }
+}
+
+// MGO 10.28(1): the owner has until noon on the day after the snowfall.
+function snowTimingCheck(services, d, f, check) {
+  if (!(services.validISO(f.snowfallDate) && services.validISO(d.inspDate))) return;
+  const due = addDays(f.snowfallDate, 1);
+  check(
+    d.inspDate > due || (d.inspDate === due && d.inspTime >= "12:00"),
+    "Under MGO 10.28(1) the owner has until noon on " + services.fmtDate(due) + "; inspect at or after that time.",
+    "snowfallDate",
+  );
+}
+
+function snowLetterCheck(d, letter, out) {
   const used = d.frozen?.snowLetter || correctionSource(d)?.frozen?.snowLetter || letter;
   if (used.season !== snowSeason(d.inspDate || recordDay(new Date())))
     out.push({ ok: false, soft: true, t: "Sand-site list was last confirmed for " + used.season + "." });
-  return out;
+}
+
+// One citation per snow inspection: already issued here, or already counted as a prior offense at the property.
+function snowDuplicateFaults(d, ids, faults) {
+  if (ids.some((x) => (x.snowInspectionId || x.inspDate + "T" + x.inspTime) === d.snowInspectionId))
+    faults.push("This snow inspection already has a citation. Use its correction history.");
+  const c = Object.values(d.cits || {})[0];
+  if (c?.countedOffenses?.some((x) => x.inspectionId === d.snowInspectionId))
+    faults.push("This snow inspection at the property already has a citation.");
 }
 
 function snowLifecycle(d, checks) {
@@ -179,11 +202,7 @@ function snowLifecycle(d, checks) {
       .filter((x) => !x.ok && !x.soft)
       .map((x) => x.t),
     ids = (docsFor(d.caseId) || []).filter((x) => !x.draft && !x.void && !x.superseded && isSnowDraft(x));
-  if (!d.correction && ids.some((x) => (x.snowInspectionId || x.inspDate + "T" + x.inspTime) === d.snowInspectionId))
-    faults.push("This snow inspection already has a citation. Use its correction history.");
-  const c = Object.values(d.cits || {})[0];
-  if (!d.correction && c?.countedOffenses?.some((x) => x.inspectionId === d.snowInspectionId))
-    faults.push("This snow inspection at the property already has a citation.");
+  if (!d.correction) snowDuplicateFaults(d, ids, faults);
   if (d.fromDocId || d.fromReinspId || d.issuanceGroup) faults.push("Snow citations have no Official Notice or reinspection.");
   if (Array.isArray(d.expectedHead) && stableJSON(d.expectedHead) !== stableJSON(recordHead(d.caseId)))
     faults.push("The case record changed after this draft began. Reopen it before issuing.");
@@ -193,7 +212,13 @@ function snowLifecycle(d, checks) {
 function snowCoverFormat(d) {
   const recorded = d?.frozen?.snowCoverFormat ?? correctionSource(d)?.frozen?.snowCoverFormat;
   if (recorded === 9 || recorded === 10) return recorded;
-  return d?.correction || correctionSource(d) ? 9 : d?.authoringVersion >= 10 ? 10 : 9;
+  return snowDefaultCoverFormat(d);
+}
+
+// A correction keeps the authoring-9 cover; a new draft uses the authoring-10 cover from version 10.
+function snowDefaultCoverFormat(d) {
+  if (d?.correction || correctionSource(d)) return 9;
+  return d?.authoringVersion >= 10 ? 10 : 9;
 }
 
 function snowBody(d, letter) {
@@ -238,28 +263,42 @@ const snowFreeze = (d, letter) => ({
   ...(d.authoringVersion >= 10 ? { snowCoverFormat: snowCoverFormat(d) } : {}),
 });
 
+const snowRemoveButton = (locked, d) =>
+  !locked && !d.correction ? '<button class="btn btn-sm" type="button" data-remove-snow>Remove snow item</button>' : "";
+const snowConditionOptions = (f) => SNOW_CONDITIONS.map((x) => "<option " + (f.condition === x ? "selected" : "") + ">" + x + "</option>").join("");
+
+function snowConfirmationsHTML(f, disabled) {
+  return html`<label><input type="checkbox" data-snow="photographed" ${raw(f.photographed ? "checked" : "")} ${raw(disabled)}> Violation photographed before citation</label><label><input type="checkbox" data-snow="cornerNotCleared" ${raw(f.cornerNotCleared ? "checked" : "")} ${raw(disabled)}> Corner lot, curb ramp or crosswalk border not cleared</label>`;
+}
+
 function snowFactsForm(services, d) {
   if (!isSnowDraft(d)) return "";
   const f = d.snow || {},
     locked = !d.draft || services.isLocked(d),
     disabled = locked ? "disabled" : "";
-  return html`<section class="card no-print" id="snow-facts"><div class="card-h"><h2>Snow citation · MGO 10.28</h2></div><div class="card-b"><p>Snow removal cases issue a citation for one documented inspection. No warning notice, due-date assignment or reinspection is required.</p>${raw(!locked && !d.correction ? '<button class="btn btn-sm" type="button" data-remove-snow>Remove snow item</button>' : "")}<button class="btn btn-sm" type="button" data-refresh-snow-letter>Refresh seasonal letter</button><p class="snow-action"><strong>Action:</strong> Snow citation</p><div class="grid g2"><label class="f"><span>Snowfall / accumulation date</span><input type="date" data-snow="snowfallDate" value="${f.snowfallDate || ""}" ${raw(disabled)}></label><label class="f"><span>Snowfall amount (inches)</span><input type="number" data-snow="inches" min="0" step="any" value="${f.inches ?? ""}" ${raw(disabled)}></label><label class="f"><span>Condition observed</span><select data-snow="condition" ${raw(disabled)}><option value="">Choose the observed condition</option>${raw(
-    ["snow covered", "ice covered", "snow and ice covered"]
-      .map((x) => "<option " + (f.condition === x ? "selected" : "") + ">" + x + "</option>")
-      .join(""),
-  )}</select></label></div><label><input type="checkbox" data-snow="photographed" ${raw(f.photographed ? "checked" : "")} ${raw(disabled)}> Violation photographed before citation</label><label><input type="checkbox" data-snow="cornerNotCleared" ${raw(f.cornerNotCleared ? "checked" : "")} ${raw(disabled)}> Corner lot, curb ramp or crosswalk border not cleared</label><p class="hint">Snow season: ${snowSeason(d.inspDate || recordDay(new Date()))}. Prior citations at this property in the season count, including a previous owner by default.</p></div></section>`;
+  return html`<section class="card no-print" id="snow-facts"><div class="card-h"><h2>Snow citation · MGO 10.28</h2></div><div class="card-b"><p>Snow removal cases issue a citation for one documented inspection. No warning notice, due-date assignment or reinspection is required.</p>${raw(snowRemoveButton(locked, d))}<button class="btn btn-sm" type="button" data-refresh-snow-letter>Refresh seasonal letter</button><p class="snow-action"><strong>Action:</strong> Snow citation</p><div class="grid g2"><label class="f"><span>Snowfall / accumulation date</span><input type="date" data-snow="snowfallDate" value="${f.snowfallDate || ""}" ${raw(disabled)}></label><label class="f"><span>Snowfall amount (inches)</span><input type="number" data-snow="inches" min="0" step="any" value="${f.inches ?? ""}" ${raw(disabled)}></label><label class="f"><span>Condition observed</span><select data-snow="condition" ${raw(disabled)}><option value="">Choose the observed condition</option>${raw(snowConditionOptions(f))}</select></label></div>${raw(snowConfirmationsHTML(f, disabled))}<p class="hint">Snow season: ${snowSeason(d.inspDate || recordDay(new Date()))}. Prior citations at this property in the season count, including a previous owner by default.</p></div></section>`;
 }
 
 // R36: an SSRS Record Category of "Snow Removal" makes the import a snow case immediately (10.28 citation draft).
+const snowImportType = (row) => String(row?.caseType || row?.CaseType || row?.CaseTypeName || "").trim();
+const snowImportCategory = (row) => String(row?.recordCategory || row?.RecordCategory || "").trim();
+
 function snowMatchesImport(row) {
   const configured = CITATION_POLICY.snowAccelaCaseTypes || [],
-    type = String(row?.caseType || row?.CaseType || row?.CaseTypeName || "").trim(),
-    category = String(row?.recordCategory || row?.RecordCategory || "").trim();
+    type = snowImportType(row),
+    category = snowImportCategory(row);
   return (
     editor.WORK.entry?.["new-case-type"] === SNOW_TYPE ||
     /^snow removal$/i.test(category) ||
     configured.some((x) => String(x).toLowerCase() === type.toLowerCase())
   );
+}
+
+// Checkboxes record their state; inches a number (or blank); every other field its text.
+function snowFieldValue(el, key) {
+  if (el.type === "checkbox") return el.checked;
+  if (key === "inches") return el.value === "" ? "" : Number(el.value);
+  return el.value;
 }
 
 function snowEdit(services, e, prepare) {
@@ -269,7 +308,7 @@ function snowEdit(services, e, prepare) {
   const d = doc(editor.state.docId);
   if (!d?.draft || services.isLocked(d) || d.pendingAmendment) return;
   d.snow = d.snow || {};
-  d.snow[key] = el.type === "checkbox" ? el.checked : key === "inches" ? (el.value === "" ? "" : Number(el.value)) : el.value;
+  d.snow[key] = snowFieldValue(el, key);
   workspace.DIRTY = true;
   prepare(d);
   services.citationPricing.refresh(d);
@@ -338,6 +377,25 @@ function snowMethods(services, currentLetter, prepare) {
   };
 }
 
+// A new snow citation; numbered only when the item has none yet.
+function snowNewCitation(services, d) {
+  return {
+    num: services.citationNumber(),
+    ord: "10.28",
+    preparedSections: ["10.28"],
+    desc: CITATION_POLICY.snowDefaultDescription,
+    deptId: docInsp(d).badge || "",
+    issued: d.mailed,
+    issuedAutomatic: true,
+    courtDate: services.nextCourtDate(d.mailed),
+    courtTime: courtTime(),
+    depositMode: "schedule",
+  };
+}
+
+const snowCommentReady = (services, d) =>
+  services.validISO(d.snow.snowfallDate) && Number(d.snow.inches) > 0 && SNOW_CONDITIONS.includes(d.snow.condition);
+
 export function initSnow(services) {
   let letter = JSON.parse(JSON.stringify(DEFAULT_SNOW_LETTER)),
     letterLoaded = false,
@@ -349,12 +407,15 @@ export function initSnow(services) {
     (d) => prepare(d),
   );
   const { comment } = methods;
-  function prepare(d) {
-    if (!d?.draft || !is(d) || d.pendingAmendment) return;
+  function loadLetterFor(d) {
     if (startup.HELPER?.ok && !letterLoaded && !loading)
       void loadLetter().then((ok) => {
         if (ok && editor.state.docId === d.id) services.renderKeep();
       });
+  }
+  function prepare(d) {
+    if (!d?.draft || !is(d) || d.pendingAmendment) return;
+    loadLetterFor(d);
     prepareSnowInspection(d);
     if (d.items.length !== 1) return;
     const i = d.items[0];
@@ -363,27 +424,11 @@ export function initSnow(services) {
     i.dueExempt = SNOW_TYPE;
     i.cite = true;
     d.cits = d.cits || {};
-    const c = d.cits[i.id] || {
-      num: services.citationNumber(),
-      ord: "10.28",
-      preparedSections: ["10.28"],
-      desc: CITATION_POLICY.snowDefaultDescription,
-      deptId: docInsp(d).badge || "",
-      issued: d.mailed,
-      issuedAutomatic: true,
-      courtDate: services.nextCourtDate(d.mailed),
-      courtTime: courtTime(),
-      depositMode: "schedule",
-    };
+    const c = d.cits[i.id] || snowNewCitation(services, d);
     d.cits[i.id] = c;
     c.violDate = d.inspDate;
     c.violTime = d.inspTime;
-    if (
-      services.validISO(d.snow.snowfallDate) &&
-      Number(d.snow.inches) > 0 &&
-      ["snow covered", "ice covered", "snow and ice covered"].includes(d.snow.condition)
-    )
-      c.comment = comment(d);
+    if (snowCommentReady(services, d)) c.comment = comment(d);
     else c.comment = "";
   }
   async function loadLetter(force = false) {

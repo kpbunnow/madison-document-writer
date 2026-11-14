@@ -50,17 +50,20 @@ async function postPdf(services, jb, operation) {
 }
 
 // A filed copy becomes a record event once per document hash, and only for a live issued document.
-async function recordFiled(services, d, j) {
+const liveIssued = (d) => !d.draft && !d.void && !d.superseded;
+const filedEventRecorded = (d, j) =>
+  eventsFor(d.caseId).some((e) => e.type === "document.filed" && e.payload.docId === d.id && e.payload.sha256 === j.sha256);
+
+function announceFiling(services, j) {
   if (j.local) {
     startup.HELPER.outbox = (startup.HELPER.outbox || 0) + 1;
     services.toast("PDF filing needed. Original saved in the local outbox. Open Saved work & connection to transfer it.");
   } else services.toast("Filed " + j.name);
-  if (
-    !d.draft &&
-    !d.void &&
-    !d.superseded &&
-    !eventsFor(d.caseId).some((e) => e.type === "document.filed" && e.payload.docId === d.id && e.payload.sha256 === j.sha256)
-  ) {
+}
+
+async function recordFiled(services, d, j) {
+  announceFiling(services, j);
+  if (liveIssued(d) && !filedEventRecorded(d, j)) {
     services.appendEvent(d.caseId, "document.filed", {
       docId: d.id,
       reference: j.path || j.name,
@@ -70,11 +73,53 @@ async function recordFiled(services, d, j) {
     });
     project();
   }
-  if (!d.draft && !d.void && !d.superseded) {
+  if (liveIssued(d)) {
     await services.saveCaseFile(d.caseId);
     await services.refreshArtifactLocations();
   }
 }
+
+// The verified PDF opens in a viewer; a blocked pop-up downloads it instead. The object URL is released later.
+function showArchivedPdf(services, url, artifact) {
+  const windowCopy = services.window.open(url, "_blank");
+  if (windowCopy) {
+    services.toast("Opened the verified archived PDF. Print it from the PDF viewer.");
+    services.setTimeout(() => services.URL.revokeObjectURL(url), 300000);
+    return;
+  }
+  const a = services.document.createElement("a");
+  a.href = url;
+  a.download = artifact.filename;
+  services.document.body.appendChild(a);
+  a.click();
+  a.remove();
+  services.toast("Pop-up blocked — downloaded the verified archived PDF.");
+  services.setTimeout(() => services.URL.revokeObjectURL(url), 300000);
+}
+
+const archiveUnavailableMessage = (artifact) =>
+  artifact
+    ? "Exact issued PDF unavailable: start the local helper."
+    : "This historical version has no recorded PDF checksum, so its original bytes cannot be verified.";
+
+// Only on request, a copy rebuilt from saved data and labeled as not the original.
+function offerReconstructedCopy(services, d) {
+  if (services.confirm("The exact issued PDF could not be verified. Open a clearly labeled RECONSTRUCTED copy from saved data instead?")) {
+    const job = services.printJob(d);
+    if (job) {
+      job.html = job.html.replace(
+        "<body>",
+        '<body><div style="font: bold 14px sans-serif;padding:12px;border:2px solid #900">RECONSTRUCTED COPY — NOT VERIFIED ORIGINAL ISSUED PDF</div>',
+      );
+      services.printNotice(job);
+    }
+  }
+}
+
+const emailTypeLabel = (d) => (DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type;
+const inspectorSignature = (i) => [i.name || "", i.title || "", i.phone || "", i.email || ""];
+const emailNotReady = (d) => !d || d.draft || d.pendingAmendment;
+const emailFileName = (services, d, jb) => (jb && jb.name) || services.documentFileName(d) + ".pdf";
 
 export function createDocumentDelivery(services) {
   async function checkHelper() {
@@ -97,7 +142,7 @@ export function createDocumentDelivery(services) {
   function emailBody(d) {
     const k = docCase(d),
       i = docInsp(d),
-      ty = (DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type;
+      ty = emailTypeLabel(d);
     return [
       "Attached is a " + ty.toLowerCase() + " for " + (k.address || "the property above") + ".",
       "",
@@ -107,15 +152,12 @@ export function createDocumentDelivery(services) {
       "",
       "Please contact the inspector below with any questions.",
       "",
-      i.name || "",
-      i.title || "",
-      i.phone || "",
-      i.email || "",
+      ...inspectorSignature(i),
     ].join("\r\n");
   }
 
   async function emailDocument(d, picked, reuse, job) {
-    if (!d || d.draft || d.pendingAmendment) {
+    if (emailNotReady(d)) {
       services.toast("Issue and confirm the document before preparing an email.");
       return false;
     }
@@ -133,20 +175,26 @@ export function createDocumentDelivery(services) {
     }
     const jb = job && job.docId === d.id ? job : { docId: d.id, name: artifact.filename, html: "" };
     const useFiled = true;
-    if (!picked && list.length) {
-      editor.state.modal = "sendto";
-      editor.state.sendDoc = d.id;
-      editor.state.sendJob = jb;
-      editor.state.sendReuse = useFiled;
-      services.render();
-      return false;
-    }
+    if (!picked && list.length) return chooseEmailRecipients(d, jb, useFiled);
     const to = (picked || []).filter((e) => String(e.addr || "").trim());
     if (!startup.HELPER) {
       services.toast("Emailing needs Document Writer started from the Document Writer icon on the desktop");
       return false;
     }
+    return sendDocumentEmail(d, jb, artifact, to, useFiled);
+  }
 
+  function chooseEmailRecipients(d, jb, useFiled) {
+    editor.state.modal = "sendto";
+    editor.state.sendDoc = d.id;
+    editor.state.sendJob = jb;
+    editor.state.sendReuse = useFiled;
+    services.render();
+    return false;
+  }
+
+  // Opens a compose window with the filed PDF attached; that is not confirmation of delivery.
+  async function sendDocumentEmail(d, jb, artifact, to, useFiled) {
     services.toastHold("Preparing the email — this takes a few seconds");
     editor.FILING_ACTIVE = (editor.FILING_ACTIVE || 0) + 1;
     try {
@@ -154,7 +202,7 @@ export function createDocumentDelivery(services) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          filename: (jb && jb.name) || services.documentFileName(d) + ".pdf",
+          filename: emailFileName(services, d, jb),
           html: "",
           reuse: useFiled,
           sha256: artifact.sha256,
@@ -200,20 +248,7 @@ export function createDocumentDelivery(services) {
         if (reply.ok) {
           const bytes = Uint8Array.from(services.atob(reply.pdf), (c) => c.charCodeAt(0));
           url = services.URL.createObjectURL(new services.Blob([bytes], { type: "application/pdf" }));
-          const windowCopy = services.window.open(url, "_blank");
-          if (windowCopy) {
-            services.toast("Opened the verified archived PDF. Print it from the PDF viewer.");
-            services.setTimeout(() => services.URL.revokeObjectURL(url), 300000);
-            return true;
-          }
-          const a = services.document.createElement("a");
-          a.href = url;
-          a.download = artifact.filename;
-          services.document.body.appendChild(a);
-          a.click();
-          a.remove();
-          services.toast("Pop-up blocked — downloaded the verified archived PDF.");
-          services.setTimeout(() => services.URL.revokeObjectURL(url), 300000);
+          showArchivedPdf(services, url, artifact);
           return true;
         }
         services.toast("Exact issued PDF unavailable: " + (reply.error || "verification failed"));
@@ -222,22 +257,8 @@ export function createDocumentDelivery(services) {
         if (url) services.URL.revokeObjectURL(url);
         services.toast("Exact issued PDF unavailable: the local helper or archive could not be reached.");
       }
-    } else
-      services.toast(
-        artifact
-          ? "Exact issued PDF unavailable: start the local helper."
-          : "This historical version has no recorded PDF checksum, so its original bytes cannot be verified.",
-      );
-    if (services.confirm("The exact issued PDF could not be verified. Open a clearly labeled RECONSTRUCTED copy from saved data instead?")) {
-      const job = services.printJob(d);
-      if (job) {
-        job.html = job.html.replace(
-          "<body>",
-          '<body><div style="font: bold 14px sans-serif;padding:12px;border:2px solid #900">RECONSTRUCTED COPY — NOT VERIFIED ORIGINAL ISSUED PDF</div>',
-        );
-        services.printNotice(job);
-      }
-    }
+    } else services.toast(archiveUnavailableMessage(artifact));
+    offerReconstructedCopy(services, d);
     return false;
   }
 

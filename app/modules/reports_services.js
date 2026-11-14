@@ -27,7 +27,7 @@ function mergeParcelLookup(services, lk) {
   if (!lk.ok) ReportsState.S.parcelNote = lk.error || "the parcel lookup did not complete";
 }
 
-function reportCaseFields(k, pk) {
+function reportCaseIdentity(k, pk) {
   return {
     caseType: k.caseType || "",
     number: String(k.number || ""),
@@ -36,6 +36,11 @@ function reportCaseFields(k, pk) {
     parcelKey: pk,
     zip: k.zip || "",
     description: k.description || "",
+  };
+}
+
+function reportCaseProgress(k) {
+  return {
     inspector: k.inspector || k.inspectorId || "",
     opened: k.opened || "",
     noticeIssued: k.noticeIssued || "",
@@ -45,6 +50,10 @@ function reportCaseFields(k, pk) {
     owner: k.owner || "",
     ownerAddr: k.ownerAddr || [],
   };
+}
+
+function reportCaseFields(k, pk) {
+  return { ...reportCaseIdentity(k, pk), ...reportCaseProgress(k) };
 }
 
 function reportCoordinateFields(now) {
@@ -83,21 +92,36 @@ function linkReportRecords(s, c, ownerKey, reportOrdinance) {
   c.documents = s.documents || [];
 }
 
+const summaryOutdated = (s) => (s.summaryVersion ?? s.version ?? 0) < SUMMARY_VERSION;
+
+// The district when the case opened: the parcel as last seen on or before that date; later observations cannot
+// establish earlier boundaries.
+function parcelAtOpen(services, hist, k) {
+  let at = null;
+  hist.forEach((h) => {
+    if (services.validISO(h.fetched) && h.fetched <= String(k.opened || "")) at = h;
+  });
+  return at;
+}
+
+// A located case without a recorded ZIP takes the ZIP area it falls in.
+function fillReportZip(services, c, { zipFC, zipField, polyHas }) {
+  if (!c.zip && zipField && c.located) {
+    const f = (zipFC.features || []).find((ft) => polyHas(ft.geometry, c.lon, c.lat));
+    if (f) c.zip = services.areaIdOf(f, zipField);
+  }
+}
+
 function appendReportSummary({ s, services, parcels, zipFC, zipField, cases, versionStale, ownerKey, polyHas, reportOrdinance }) {
   const k = s["case"] || {};
-  if ((s.summaryVersion ?? s.version ?? 0) < SUMMARY_VERSION) {
+  if (summaryOutdated(s)) {
     versionStale.push(k.number || "?");
     return;
   }
   const pk = normParcel(k.parcel),
     hist = (parcels[pk] && parcels[pk].history) || [];
   const now = hist[hist.length - 1] || null;
-  // the district when the case opened: the parcel as last seen on or
-  // before that date; later observations cannot establish earlier boundaries
-  let at = null;
-  hist.forEach((h) => {
-    if (services.validISO(h.fetched) && h.fetched <= String(k.opened || "")) at = h;
-  });
+  const at = parcelAtOpen(services, hist, k);
   const c = {
     ...reportCaseFields(k, pk),
     integrity: s.integrity || { label: "Shared integrity not checked" },
@@ -105,10 +129,7 @@ function appendReportSummary({ s, services, parcels, zipFC, zipField, cases, ver
     ...reportParcelFields(now, at, pk),
     summary: s,
   };
-  if (!c.zip && zipField && c.located) {
-    const f = (zipFC.features || []).find((ft) => polyHas(ft.geometry, c.lon, c.lat));
-    if (f) c.zip = services.areaIdOf(f, zipField);
-  }
+  fillReportZip(services, c, { zipFC, zipField, polyHas });
   linkReportRecords(s, c, ownerKey, reportOrdinance);
   cases.push(c);
 }
@@ -457,31 +478,40 @@ function scopedDeleteReportView(services) {
   services.render();
 }
 
+// A Writer reply about the case request this Reports tab is waiting for.
+const handoffMessage = (e, kind) => e.data?.kind === kind && e.data.request === ReportsState.S.handoff?.request;
+
+function reportHandoffAccepted(services) {
+  ReportsState.S.handoff.accepted = true;
+  ReportsState.S.reportNotice = "Existing Writer tab received the case request…";
+  services.render();
+}
+
+function reportHandoffResult(services, data) {
+  ReportsState.S.reportNotice = data.ok
+    ? "Case " + ReportsState.S.handoff.number + " opened in the existing Writer tab. Switch to that tab."
+    : "Writer could not open the case: " + data.error;
+  ReportsState.S.handoff = null;
+  services.render();
+}
+
+// Restore the context saved by Open case in Writer before acknowledging; without one the current view stays.
+function reportReturnFromWriter(services, data) {
+  const restored = services.restoreReportReturn();
+  ReportsState.REPORT_LINK.postMessage({ kind: "return-ack", request: data.request });
+  window.focus();
+  ReportsState.S.reportNotice = restored ? "Returned from Writer to the saved report context." : "Returned from Writer.";
+  services.render();
+}
+
 function scopedReportsChannel(services) {
   if (!("BroadcastChannel" in window)) return null;
   if (!ReportsState.REPORT_LINK) {
     ReportsState.REPORT_LINK = new BroadcastChannel(services.REPORT_CHANNEL);
     ReportsState.REPORT_LINK.onmessage = (e) => {
-      if (e.data?.kind === "accepted" && e.data.request === ReportsState.S.handoff?.request) {
-        ReportsState.S.handoff.accepted = true;
-        ReportsState.S.reportNotice = "Existing Writer tab received the case request…";
-        services.render();
-      }
-      if (e.data?.kind === "result" && e.data.request === ReportsState.S.handoff?.request) {
-        ReportsState.S.reportNotice = e.data.ok
-          ? "Case " + ReportsState.S.handoff.number + " opened in the existing Writer tab. Switch to that tab."
-          : "Writer could not open the case: " + e.data.error;
-        ReportsState.S.handoff = null;
-        services.render();
-      }
-      if (e.data?.kind === "return") {
-        // Restore the context saved by Open case in Writer before acknowledging; without one the current view stays.
-        const restored = services.restoreReportReturn();
-        ReportsState.REPORT_LINK.postMessage({ kind: "return-ack", request: e.data.request });
-        window.focus();
-        ReportsState.S.reportNotice = restored ? "Returned from Writer to the saved report context." : "Returned from Writer.";
-        services.render();
-      }
+      if (handoffMessage(e, "accepted")) reportHandoffAccepted(services);
+      if (handoffMessage(e, "result")) reportHandoffResult(services, e.data);
+      if (e.data?.kind === "return") reportReturnFromWriter(services, e.data);
     };
   }
   return ReportsState.REPORT_LINK;
@@ -573,15 +603,26 @@ function noticeAt(c, date) {
   return c.documents.length ? c.documents.some((d) => d.type === "notice" && versionAt(d, date)) : !!c.noticeIssued && c.noticeIssued <= date;
 }
 
+// A summary without its documents: closed as of its closing date; a later-closed case was still at its notice.
+function legacyStatusAt(c, date) {
+  if (c.closedOn && c.closedOn <= date) return "Closed";
+  return c.status === "Closed" ? "Notice" : c.status;
+}
+
+// An occupancy restriction in force on the day: issued and not yet released by then.
+function restrictedAt(docs) {
+  const restrictions = docs.filter((d) => d.type === "noOccupancy" && d.special?.mode !== "release"),
+    releases = new Set(docs.filter((d) => d.type === "noOccupancy" && d.special?.mode === "release").map((d) => d.special.releases));
+  return restrictions.some((d) => !releases.has(d.id));
+}
+
 function statusAt(c, date) {
-  if (!c.documents.length) return c.closedOn && c.closedOn <= date ? "Closed" : c.status === "Closed" ? "Notice" : c.status;
+  if (!c.documents.length) return legacyStatusAt(c, date);
   const docs = c.documents.filter((d) => versionAt(d, date)),
     last = docs[docs.length - 1];
   if (!last) return "Not issued";
   if (c.caseType === "snow-10.28") return "Cited – snow";
-  const restrictions = docs.filter((d) => d.type === "noOccupancy" && d.special?.mode !== "release"),
-    releases = new Set(docs.filter((d) => d.type === "noOccupancy" && d.special?.mode === "release").map((d) => d.special.releases));
-  if (restrictions.some((d) => !releases.has(d.id))) return "Occupancy restricted";
+  if (restrictedAt(docs)) return "Occupancy restricted";
   if (last.allWithdrawn) return "Withdrawn";
   if (docs.some((d) => d.type === "compliance")) return "Closed";
   if (docs.some((d) => d.type === "referral")) return "Referred";
@@ -622,6 +663,49 @@ function renderReports(services) {
   if (ReportsState.S.phase === "ready" && ReportsState.S.view === "map" && services.reportById(ReportsState.S.screen)) services.drawMap();
 }
 
+// Batches of 500 parcels; a failed lookup leaves the rest unlocated. False when this load was superseded.
+async function lookUpReportParcels(services, get, need, refreshParcels, superseded) {
+  ReportsState.S.msg = "Looking up " + services.plural(need.length, "parcel") + " on the city parcel layer…";
+  services.render();
+  try {
+    for (let offset = 0; offset < need.length; offset += 500) {
+      ReportsState.S.msg = "Looking up parcels " + (offset + 1) + "–" + Math.min(offset + 500, need.length) + " of " + need.length + "…";
+      services.render();
+      const lk = await get("/reporting/parcels", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: need.slice(offset, offset + 500), refresh: !!refreshParcels }),
+      });
+      mergeParcelLookup(services, lk);
+    }
+  } catch (e) {
+    if (superseded()) return false;
+    ReportsState.S.parcelNote = "The parcel lookup failed (" + (e.message || e) + "). Cases not yet looked up are shown as unlocated.";
+  }
+  return true;
+}
+
+// Area outlines are optional: without them areas are not shaded. False when this load was superseded.
+async function loadReportAreas(services, get, superseded) {
+  ReportsState.S.msg = "Loading area outlines…";
+  services.render();
+  try {
+    ReportsState.S.areas = await get("/reporting/areas");
+  } catch (e) {
+    if (superseded()) return false;
+    ReportsState.S.areas = { ok: false, notes: ["Area outlines could not be loaded (" + (e.message || e) + ")."] };
+  }
+  return true;
+}
+
+function reportLoadError(e) {
+  return location.protocol === "file:"
+    ? "This page was opened as a file. Open it from the Document Writer (Reports, in the left rail) so it can read the case folder."
+    : "The reporting data could not be read: " +
+        (e.message || e) +
+        ". Check that the Document Writer window is open and the share is reachable, then try again.";
+}
+
 export function createReportsServices(services) {
   /* Reports owner: load/model/filter stay here (their retained references are spliced into this factory);
      the other operations are module functions that receive this owner's scoped services. */
@@ -656,44 +740,15 @@ export function createReportsServices(services) {
       services.render();
       const pc = await get("/reporting/parcels");
       const need = prepareReportParcelCache(services, idx, pc, refreshParcels);
-      if (need.length) {
-        ReportsState.S.msg = "Looking up " + services.plural(need.length, "parcel") + " on the city parcel layer…";
-        services.render();
-        try {
-          for (let offset = 0; offset < need.length; offset += 500) {
-            ReportsState.S.msg = "Looking up parcels " + (offset + 1) + "–" + Math.min(offset + 500, need.length) + " of " + need.length + "…";
-            services.render();
-            const lk = await get("/reporting/parcels", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ ids: need.slice(offset, offset + 500), refresh: !!refreshParcels }),
-            });
-            mergeParcelLookup(services, lk);
-          }
-        } catch (e) {
-          if (sequence !== loadSequence) return;
-          ReportsState.S.parcelNote = "The parcel lookup failed (" + (e.message || e) + "). Cases not yet looked up are shown as unlocated.";
-        }
-      }
-      ReportsState.S.msg = "Loading area outlines…";
-      services.render();
-      try {
-        ReportsState.S.areas = await get("/reporting/areas");
-      } catch (e) {
-        if (sequence !== loadSequence) return;
-        ReportsState.S.areas = { ok: false, notes: ["Area outlines could not be loaded (" + (e.message || e) + ")."] };
-      }
+      const superseded = () => sequence !== loadSequence;
+      if (need.length && !(await lookUpReportParcels(services, get, need, refreshParcels, superseded))) return;
+      if (!(await loadReportAreas(services, get, superseded))) return;
       ReportsState.S.M = buildModel(idx.summaries, ReportsState.S.parcels, ReportsState.S.areas);
       ReportsState.S.phase = "ready";
     } catch (e) {
       if (sequence !== loadSequence) return;
       ReportsState.S.phase = "error";
-      ReportsState.S.error =
-        location.protocol === "file:"
-          ? "This page was opened as a file. Open it from the Document Writer (Reports, in the left rail) so it can read the case folder."
-          : "The reporting data could not be read: " +
-            (e.message || e) +
-            ". Check that the Document Writer window is open and the share is reachable, then try again.";
+      ReportsState.S.error = reportLoadError(e);
     }
     services.render();
   }

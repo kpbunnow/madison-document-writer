@@ -78,20 +78,8 @@ function enhanceDocumentControls() {
     el.tabIndex = 0;
   });
   document.querySelectorAll("#app input,#app select,#overlay input,#overlay select").forEach((el, index) => {
-    if (
-      el.type === "hidden" ||
-      el.hasAttribute("aria-label") ||
-      el.hasAttribute("aria-labelledby") ||
-      el.closest("label") ||
-      (el.id && document.querySelector(`label[for="${el.id}"]`))
-    )
-      return;
-    el.setAttribute(
-      "aria-label",
-      String(
-        el.dataset.ph || el.placeholder || el.title || el.dataset.case || el.dataset.doc || el.dataset.field || el.id || "Option " + (index + 1),
-      ).replace(/[-_]/g, " "),
-    );
+    if (!controlNeedsName(el)) return;
+    el.setAttribute("aria-label", controlFallbackName(el, index));
   });
   document.querySelectorAll("#app table,#overlay table").forEach((table, index) => {
     if (!table.querySelector("caption") && typeof table.prepend === "function") {
@@ -108,6 +96,23 @@ function enhanceDocumentControls() {
   });
 }
 
+// A visible control with no accessible name of its own, from an attribute or a label.
+function controlNeedsName(el) {
+  return !(
+    el.type === "hidden" ||
+    el.hasAttribute("aria-label") ||
+    el.hasAttribute("aria-labelledby") ||
+    el.closest("label") ||
+    (el.id && document.querySelector(`label[for="${el.id}"]`))
+  );
+}
+
+function controlFallbackName(el, index) {
+  return String(
+    el.dataset.ph || el.placeholder || el.title || el.dataset.case || el.dataset.doc || el.dataset.field || el.id || "Option " + (index + 1),
+  ).replace(/[-_]/g, " ");
+}
+
 const bannerKey = (b) => (b.textContent || "").replace(/\s+/g, " ").trim().slice(0, 400);
 
 const topBanners = () => [...document.querySelectorAll("#app .banner")].filter((b) => !b.closest(".card, .sheet, .desk, dialog, .modal, #overlay"));
@@ -116,34 +121,30 @@ function enhanceScreenGroups() {
   document.querySelectorAll(".applied-filters[aria-label], .initial-citation-previews[aria-label]").forEach((el) => el.setAttribute("role", "group"));
 }
 
-// Queue, repeat or replace one message (R59 timing and grouping rules); st is the owner's message state.
-function a11yQueueMessage(st, text, options = {}) {
-  const severity = messageSeverity(text, options);
-  const key = options.key || "",
-    value = String(text);
-  if (key && st.dismissedKeys.has(key)) return;
-  const duplicate =
+// An error, warning or progress message already shown with this key (or text and severity); undo offers are never merged.
+function repeatedMessage(st, options, { key, value, severity }) {
+  return (
     !options.undo &&
     ["error", "warning", "progress"].includes(severity) &&
-    st.messages.find((m) => (key ? m.key === key : m.text === value && m.severity === severity));
-  if (duplicate) {
-    duplicate.scope = document.querySelector("#utility-title")?.textContent || "";
-    if (duplicate.severity !== "progress") {
-      // Shown again: a fresh 15-second interval, still paused while the message is hovered or focused.
-      const paused = !duplicate.started;
-      clearTimeout(duplicate.timer);
-      duplicate.started = 0;
-      duplicate.remaining = lifetime(duplicate.severity);
-      if (!paused) st.resume(duplicate);
-    }
-    st.requestPaint();
-    return;
+    st.messages.find((m) => (key ? m.key === key : m.text === value && m.severity === severity))
+  );
+}
+
+function showMessageAgain(st, duplicate) {
+  duplicate.scope = document.querySelector("#utility-title")?.textContent || "";
+  if (duplicate.severity !== "progress") {
+    // Shown again: a fresh 15-second interval, still paused while the message is hovered or focused.
+    const paused = !duplicate.started;
+    clearTimeout(duplicate.timer);
+    duplicate.started = 0;
+    duplicate.remaining = lifetime(duplicate.severity);
+    if (!paused) st.resume(duplicate);
   }
-  st.messages.filter((m) => m.severity === "progress").forEach((m) => st.dismiss(m.id));
-  const scope = document.querySelector("#utility-title")?.textContent || "";
-  const routine = routineMessage(severity, options);
-  if (routine) consolidateRoutine(st.messages, scope, st.dismiss);
-  const m = {
+  st.requestPaint();
+}
+
+function queuedMessage(st, { routine, key, options, value, severity }) {
+  return {
     routine,
     id: st.nextId(),
     key,
@@ -155,6 +156,24 @@ function a11yQueueMessage(st, text, options = {}) {
     started: 0,
     at: new Date().toISOString(),
   };
+}
+
+// Queue, repeat or replace one message (R59 timing and grouping rules); st is the owner's message state.
+function a11yQueueMessage(st, text, options = {}) {
+  const severity = messageSeverity(text, options);
+  const key = options.key || "",
+    value = String(text);
+  if (key && st.dismissedKeys.has(key)) return;
+  const duplicate = repeatedMessage(st, options, { key, value, severity });
+  if (duplicate) {
+    showMessageAgain(st, duplicate);
+    return;
+  }
+  st.messages.filter((m) => m.severity === "progress").forEach((m) => st.dismiss(m.id));
+  const scope = document.querySelector("#utility-title")?.textContent || "";
+  const routine = routineMessage(severity, options);
+  if (routine) consolidateRoutine(st.messages, scope, st.dismiss);
+  const m = queuedMessage(st, { routine, key, options, value, severity });
   st.messages.push(m);
   if (options.undo) st.callbacks.set(m.id, options.undo);
   // Messages remain visible and announced in this tab if optional history storage fails.
@@ -248,22 +267,26 @@ function createA11yBannerSweep(remember) {
       return b.contains(document.activeElement);
     }
   };
+  // A banner shown long enough without being hovered or focused is cleared once and recorded in the history.
+  function sweepBanner(b, key, now) {
+    if (!bannerSeen.has(key) || engaged(b)) bannerSeen.set(key, now);
+    if (!bannerCleared.has(key) && now - bannerSeen.get(key) >= BANNER_MS) {
+      bannerCleared.add(key);
+      // Optional history storage; the warning was already shown and announced.
+      remember({ text: key, severity: "warning", at: new Date(now).toISOString() });
+    }
+    if (bannerCleared.has(key)) {
+      b.hidden = true;
+      b.setAttribute("data-auto-cleared", "");
+    }
+  }
   function bannerSweep(now = Date.now()) {
     const present = new Set();
     for (const b of topBanners()) {
       const key = bannerKey(b);
       if (!key) continue;
       present.add(key);
-      if (!bannerSeen.has(key) || engaged(b)) bannerSeen.set(key, now);
-      if (!bannerCleared.has(key) && now - bannerSeen.get(key) >= BANNER_MS) {
-        bannerCleared.add(key);
-        // Optional history storage; the warning was already shown and announced.
-        remember({ text: key, severity: "warning", at: new Date(now).toISOString() });
-      }
-      if (bannerCleared.has(key)) {
-        b.hidden = true;
-        b.setAttribute("data-auto-cleared", "");
-      }
+      sweepBanner(b, key, now);
     }
     for (const key of [...bannerSeen.keys()])
       if (!present.has(key)) {
@@ -274,25 +297,35 @@ function createA11yBannerSweep(remember) {
   return bannerSweep;
 }
 
+// A dismissed keyed message stays dismissed until its condition is resolved.
+function dismissMessage(api, id) {
+  const m = api.messages.find((m) => m.id === id);
+  if (m?.key) api.dismissedKeys.add(m.key);
+  api.dismiss(id);
+}
+
+function undoMessage(api, id) {
+  const fn = api.callbacks.get(id);
+  api.dismiss(id);
+  fn?.();
+}
+
+// A dialog with a running (disabled) action stays open.
+function closeUtilityDialog() {
+  const dialog = document.getElementById("utility-dialog");
+  if (!dialog?.querySelector("form button[disabled]")) dialog?.close();
+}
+
 // Document-level message, history, shortcut and theme controls, registered in their original order.
 function registerA11yDocumentEvents(api) {
   document.addEventListener("click", (e) => {
     const t = e.target.closest?.("[data-message-dismiss],[data-message-undo],[data-a11y-history],[data-a11y-help],[data-utility-close]");
     if (!t) return;
-    if (t.dataset.messageDismiss) {
-      const m = api.messages.find((m) => m.id === t.dataset.messageDismiss);
-      if (m?.key) api.dismissedKeys.add(m.key);
-      api.dismiss(t.dataset.messageDismiss);
-    } else if (t.dataset.messageUndo) {
-      const fn = api.callbacks.get(t.dataset.messageUndo);
-      api.dismiss(t.dataset.messageUndo);
-      fn?.();
-    } else if (t.hasAttribute("data-a11y-history")) api.showHistory();
+    if (t.dataset.messageDismiss) dismissMessage(api, t.dataset.messageDismiss);
+    else if (t.dataset.messageUndo) undoMessage(api, t.dataset.messageUndo);
+    else if (t.hasAttribute("data-a11y-history")) api.showHistory();
     else if (t.hasAttribute("data-a11y-help")) api.shortcuts();
-    else {
-      const dialog = document.getElementById("utility-dialog");
-      if (!dialog?.querySelector("form button[disabled]")) dialog?.close();
-    }
+    else closeUtilityDialog();
   });
   document.addEventListener("change", (e) => {
     if (e.target.hasAttribute?.("data-a11y-theme")) api.setTheme(e.target.value);
@@ -357,6 +390,33 @@ function a11yBindMessageTimers(messages, pause, resume) {
     });
     if (el.matches(":hover") || el.contains(document.activeElement)) pause(m);
   }
+}
+
+// The page's message stack, created on first use and kept first in the main content.
+function messageHost() {
+  let host = document.getElementById("toast");
+  if (!host && document.body) {
+    host = document.createElement("div");
+    host.id = "toast";
+    document.body.append(host);
+  }
+  if (!host) return null;
+  host.classList?.add("message-stack");
+  const main = document.querySelector("#app .main");
+  if (main && main.firstElementChild !== host) main.prepend(host);
+  return host;
+}
+
+// The open utility dialog's own message stack, under its title; undefined when no dialog is open.
+function utilityMessageStack(dialog) {
+  let local = dialog?.querySelector("[data-utility-messages]");
+  if (dialog && !local) {
+    local = document.createElement("div");
+    local.dataset.utilityMessages = "";
+    local.className = "message-stack";
+    dialog.querySelector("#utility-title")?.after(local);
+  }
+  return local;
 }
 
 export function createAccessibility() {
@@ -446,25 +506,11 @@ export function createAccessibility() {
     const active = document.activeElement,
       focusedMessage = active?.closest?.("[data-message]"),
       focusedAction = messageFocusAction(active);
-    let host = document.getElementById("toast");
-    if (!host && document.body) {
-      host = document.createElement("div");
-      host.id = "toast";
-      document.body.append(host);
-    }
+    const host = messageHost();
     if (!host) return;
-    host.classList?.add("message-stack");
-    const main = document.querySelector("#app .main");
-    if (main && main.firstElementChild !== host) main.prepend(host);
     const dialog = document.getElementById("utility-dialog"),
       title = dialog?.querySelector("#utility-title")?.textContent;
-    let local = dialog?.querySelector("[data-utility-messages]");
-    if (dialog && !local) {
-      local = document.createElement("div");
-      local.dataset.utilityMessages = "";
-      local.className = "message-stack";
-      dialog.querySelector("#utility-title")?.after(local);
-    }
+    const local = utilityMessageStack(dialog);
     const markup = (m) => messageMarkup(m, callbacks, safe);
     const visible = messages.filter((m) => !m.inline);
     host.innerHTML = visible

@@ -77,3 +77,120 @@ What each calculation phase reaches before editing:
 | Long JS factories (> 80 nonblank/noncomment lines) | 32 | 32 | ≤ 20, by cohesive extraction |
 | JS nesting above 4 | 0 | 0 | 0 |
 | Import cycles | 0 | 0 | 0 |
+
+## Delivered work
+
+| Package | Scope | PR |
+| --- | --- | --- |
+| D0 | Phase 2 review, workflow locality census, pre-edit record | #517 (merged) |
+| D1 | Correction preparation calculations over explicit lookups | #518 (merged) |
+| D2 | Document eligibility, follow-up drafting and repaint decisions | #519 (merged) |
+| D3 | Complexity batch over 19 owners, change exercises, this record | this PR |
+
+Each workflow extraction follows the same pattern:
+
+- **Retained original.** The original owner is kept as a hash-checked fixture, committed before the production change.
+- **Calculations.** The new calculations take the draft or visit and an explicit lookup view.
+- **Provider.** One named provider per workflow builds that view. Each lookup resolves its service binding or live read when called, at the original point and in the original order. Laziness and short-circuits are unchanged.
+- **Public interface.** Public operations, lifted-splice names and signatures are unchanged.
+- **Authorities.** Expected-head comparison, worksheet faults, source changes, eligibility and the case-folder check run on every attempt. Nothing is cached across asynchronous work.
+
+## Workflow locality results
+
+| Workflow | Calculation access (before → after) | Workflow total | Calculation functions |
+| --- | ---: | ---: | ---: |
+| document-eligibility | 8 → 0 | 8 → 8 | 6 → 12 |
+| followup-drafting | 17 → 0 | 29 → 29 | 6 → 19 |
+| correction-preparation | 11 → 0 | 17 → 17 | 6 → 22 |
+| live-field-repaint | 4 → 0 | 5 → 5 | 1 → 3 |
+| import-plan (comparison) | 5 → 5 | 22 → 22 | 6 → 6 |
+
+In the four changed workflows, calculation-phase mutable peer access falls by 100%. The target was at least 20%.
+
+Workflow totals are unchanged, and that is deliberate. Every live read is still counted at its provider or coordinator. `tests/unit/audit_workflow_locality.js` now refuses any pre-edit dependency that leaves a workflow's census without a recorded removal. All five workflows keep exactly their pre-edit dependency sets.
+
+That guard had a real case to catch. When the import share phases were split, the import-plan total briefly fell from 22 to 19, only because the new phases were not yet listed. They are now listed as coordinators, and the total is back to 22.
+
+No dependency was removed by renaming, bagging or an uncounted façade. The improvement is that the decisions can now be read, tested and changed with a plain lookup object, without the workspace, the services object or the whole owner.
+
+## Change exercises
+
+`tests/unit/audit_locality_change_exercises.js` makes two realistic rule changes to in-memory copies of the modules. Each is verified at the calculation level only:
+
+- live workspace state is poisoned, so any read or write throws;
+- no services object exists;
+- a plain object supplies the lookups.
+
+| Exercise | Change | Verified | Owners/fixtures needed before → after |
+| --- | --- | --- | --- |
+| A | A correction explanation needs at least 20 characters (was 10) | 600 generated drafts; the reason check changes only for 10–19 characters (122 changed), every other check identical | Whole correction owner, workspace DOCS/CASES/REINSP/EVENTS/CASEDIR and a services object → `correctionCheckList` with a plain view |
+| B | The compliance refusal says what to do with the remaining items | 600 generated permission scenarios; only the compliance refusal changes, every other refusal and permission identical | Whole reinspection owner with `ui`/`inspection`/`authoring` services and workspace state → `followupDraftRefusal` with a plain view |
+
+Neither exercise needed a browser, the services object or live state. Before Phase 3, both checks were reachable only through owners that read live workspace collections and a services object.
+
+## Complexity results
+
+| Measurement | Plan baseline | Now | Target |
+| --- | ---: | ---: | --- |
+| JS functions above complexity 10 | 261 | 129 | ≤ 130 (met) |
+| JS functions above complexity 20 | 0 | 0 | 0 |
+| Long JS factories (> 80 lines) | 32 | 30 | ≤ 20 (not reached) |
+| JS nesting above 4 | 0 | 0 | 0 |
+| Import cycles | 0 | 0 | 0 |
+
+These owners now have every function at complexity 10 or below:
+
+- the workflow owners: `correction_preparation`, `new_documents`, `reinspection`, `app_screens`;
+- `document_render`, `snow_cases`, `reports_screens`, `deposit_step`, `case_status`, `inspection_history`, `accela_import`, `accessibility`, `reports_services`;
+- `case_file_rules`, `document_delivery`, `editor_screens`, `language_discovery`, `saved_work`, `citation_workflow`, `administration`.
+
+The splits follow three rules:
+
+- **Builders** become same-order sub-builders. Concatenation is identical, and all 69 historical print variants stay byte-exact.
+- **Handlers** become ordered guard and effect phases.
+- **Object construction** uses spread phases that keep key order and `uid` call order.
+
+Long-function baselines fell for these factories:
+
+| Factory | Lines before → after |
+| --- | --- |
+| `createCorrectionPreparation` | 233 → below the limit |
+| `initAdministration` | 94 → below the limit |
+| `createAccessibility` | 187 → 173 |
+| `createDocumentDelivery` | 176 → 150 |
+| `createReportsServices` | 167 → 138 |
+
+### Targets not reached and remaining debt
+
+- **Long factories: 30, against an aim of 20.** The remaining factories mostly hold ordered listener registration and instance state. The plan allows constructors to keep these, and splitting them further would not improve comprehension. Each needs its own cohesive extraction; none is claimed here.
+- **Remaining complex functions.** These owners still have functions above 10, chiefly:
+  - pricing: `citation_policy`, `citation_pricing`;
+  - JS projection: `case_projection`;
+  - catalog review: `language_catalog`.
+
+  They carry JS/Python parity and historical pricing contracts, so they are left for separately reviewed work with their own differential evidence.
+- **Python:** unchanged in Phase 3.
+- **Service-area coupling:** unchanged. `app_core.js` was not edited.
+
+## Defects found before commit
+
+The comparison suites caught four behaviour differences introduced during extraction, before any was committed:
+
+- **Due-spacing service order.** The extracted due-spacing lookup resolved its service after evaluating its argument; the original resolved it before. Ordered service-get comparison caught it; the lookup now keeps the original expression.
+- **Extra case read.** The split case-file validator read `f.case` one extra time. The retained-validator comparison caught it through its observed-read check.
+- **Shadowed name.** A generic helper named `plural` would have shadowed an existing page-global name. It was renamed before commit.
+- **Census omission.** The census omission described above, which led to the new anti-omission guard.
+
+## Verification
+
+Each package records its own targeted results, local fast-tier result and exact-head GitHub checks. The fast tier gives reduced coverage only and is not merge evidence.
+
+This package ran:
+
+- every owner's referencing suites, all passing;
+- the full historical print-variant comparison (69 variants exact);
+- the retained-reference comparisons for correction, eligibility/follow-up, case-file validation, deposit completion, delivery, reports and import;
+- the census and change exercises;
+- the complexity ratchet, ESLint and the formatter.
+
+No City, staff, legal or native acceptance is claimed. Phase 3 does not by itself establish an overall maintainability score.

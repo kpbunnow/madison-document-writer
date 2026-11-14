@@ -34,7 +34,15 @@ function depositStepComplete(services, d, id, values) {
   delete c.ordEditingFrom;
   if (!ord) return false;
   c.ord = ord;
-  const priced = resolveCitationAmount({
+  const priced = depositPricing(services, i, c, d, ord);
+  const applied = c.depositMode === "schedule" ? applyScheduledDeposit(request, c, priced) : applyApprovedDeposit(services, c, d);
+  if (!applied) return false;
+  storeCompletedDeposit(d, id, c, i, ord);
+  return true;
+}
+
+function depositPricing(services, i, c, d, ord) {
+  return resolveCitationAmount({
     ordinance: ord,
     libraryItem: itemLibraryKey(i),
     tier: c.tier || 1,
@@ -42,16 +50,22 @@ function depositStepComplete(services, d, id, values) {
     entryId: c.scheduleEntryId,
     measurements: c.measurements || {},
   });
-  if (c.depositMode === "schedule") {
-    if (priced.kind !== "priced") {
-      if (priced.kind === "needs-basis" && c.measurements) {
-        Object.assign(request, { measurements: c.measurements, reason: priced.reason, measurementFields: [], depositMode: "base" });
-      }
-      return false;
+}
+
+// The scheduled amount; an unpriced schedule keeps a measured request open for an approved basis instead.
+function applyScheduledDeposit(request, c, priced) {
+  if (priced.kind !== "priced") {
+    if (priced.kind === "needs-basis" && c.measurements) {
+      Object.assign(request, { measurements: c.measurements, reason: priced.reason, measurementFields: [], depositMode: "base" });
     }
-    Object.assign(c, priced);
-    delete c.kind;
-  } else if (!applyApprovedDeposit(services, c, d)) return false;
+    return false;
+  }
+  Object.assign(c, priced);
+  delete c.kind;
+  return true;
+}
+
+function storeCompletedDeposit(d, id, c, i, ord) {
   delete c.reason;
   delete c.reconfirmDeposit;
   c.preparedSections = (i.sections || []).map(canonicalOrdinance);
@@ -61,7 +75,6 @@ function depositStepComplete(services, d, id, values) {
   d.cits[id] = c;
   delete d.depositRequests[id];
   workspaceState.DIRTY = true;
-  return true;
 }
 
 function depositFindForm(id) {
@@ -118,33 +131,52 @@ function depositValues(node, c) {
   return result;
 }
 
-function depositUpdate(services, e) {
-  const ctx = depositContext(services, e.target);
-  if (!ctx) return;
-  const { node, c } = ctx;
+// Only the chosen method's fields are enabled and required; a scheduled amount needs no approval source.
+function syncDepositMethod(node) {
   const method = node.querySelector("[name=depositMode]");
-  if (method) {
-    for (const group of node.querySelectorAll("[data-deposit-mode]")) {
-      group.hidden = group.dataset.depositMode !== method.value;
-      for (const input of group.querySelectorAll("input")) {
-        input.disabled = group.hidden;
-        input.required = !group.hidden;
-      }
+  if (!method) return;
+  for (const group of node.querySelectorAll("[data-deposit-mode]")) {
+    group.hidden = group.dataset.depositMode !== method.value;
+    for (const input of group.querySelectorAll("input")) {
+      input.disabled = group.hidden;
+      input.required = !group.hidden;
     }
-    const source = node.querySelector("[data-deposit-source]");
-    source.hidden = method.value === "schedule";
-    source.querySelector("textarea").required = !source.hidden;
-    source.querySelector("textarea").disabled = source.hidden;
   }
+  const source = node.querySelector("[data-deposit-source]");
+  source.hidden = method.value === "schedule";
+  source.querySelector("textarea").required = !source.hidden;
+  source.querySelector("textarea").disabled = source.hidden;
+}
+
+// A tree recorded as not removed needs no diameter.
+function syncDiameterField(node) {
   const choice = node.querySelector("[name=measure-removed]"),
     diameter = node.querySelector("[name=measure-diameter]");
   if (choice && diameter) {
     diameter.required = choice.value !== "false";
     diameter.disabled = choice.value === "false";
   }
-  const ordField = /^(ord|ordOther)$/.test(e.target.name || "");
+}
+
+// Choosing a listed charge clears a different charge typed beside it.
+function clearOtherCharge(e, node, ordField) {
   if (ordField && e.type === "change" && e.target.name === "ord" && node.querySelector("[name=ordOther]"))
     node.querySelector("[name=ordOther]").value = "";
+}
+
+function keepTypedCharge(c, typed) {
+  if (!Object.hasOwn(c, "ordEditingFrom")) c.ordEditingFrom = c.ord;
+  c.ord = String(typed || "");
+}
+
+function depositUpdate(services, e) {
+  const ctx = depositContext(services, e.target);
+  if (!ctx) return;
+  const { node, c } = ctx;
+  syncDepositMethod(node);
+  syncDiameterField(node);
+  const ordField = /^(ord|ordOther)$/.test(e.target.name || "");
+  clearOtherCharge(e, node, ordField);
   const next = depositValues(node, c),
     typed = next.ord;
   // R59: the charge commits only on its change event, through changeCharge. While it is typed, the text is kept
@@ -152,10 +184,7 @@ function depositUpdate(services, e) {
   delete next.ord;
   Object.assign(c, next);
   workspaceState.DIRTY = true;
-  if (ordField && e.type === "input") {
-    if (!Object.hasOwn(c, "ordEditingFrom")) c.ordEditingFrom = c.ord;
-    c.ord = String(typed || "");
-  }
+  if (ordField && e.type === "input") keepTypedCharge(c, typed);
   if (ordField && e.type === "change") {
     depositChangeCharge(services, ctx, typed);
     return;
@@ -188,6 +217,18 @@ function depositChangeCharge(services, ctx, value) {
   depositSettle(services, ctx);
 }
 
+// Measurements that move a request to an approved basis reopen it; anything else explains what is missing.
+function depositIncomplete(services, state, { node, d, id, c }, wasMeasured) {
+  if (wasMeasured && !c.measurementFields?.length) {
+    services.saveDrafts();
+    services.render();
+    depositOpen(services, state, d, id);
+    return;
+  }
+  node.querySelector("[data-deposit-error]").textContent =
+    "Complete the ordinance, required measurements or positive approved amount, and an approval source of at least 10 characters. A zero forfeiture needs City Attorney approval.";
+}
+
 function depositSubmit(services, state, e) {
   if (!e.target.matches?.("[data-deposit-form]")) return;
   e.preventDefault();
@@ -198,26 +239,25 @@ function depositSubmit(services, state, e) {
   if (Object.hasOwn(c, "ordEditingFrom")) c.ord = c.ordEditingFrom;
   delete c.ordEditingFrom;
   // A charge changed without its change event is re-priced from nothing first, never completed with stale values.
-  if ((canonicalOrdinance(submitted.ord) || String(submitted.ord || "").trim()) !== (canonicalOrdinance(c.ord) || String(c.ord || "").trim())) {
+  if (chargeText(submitted.ord) !== chargeText(c.ord)) {
     depositChangeCharge(services, ctx, submitted.ord);
     return;
   }
   Object.assign(c, submitted);
   const wasMeasured = !!c.measurementFields?.length;
   if (!depositStepComplete(services, d, id, depositValues(node, c))) {
-    if (wasMeasured && !c.measurementFields?.length) {
-      services.saveDrafts();
-      services.render();
-      depositOpen(services, state, d, id);
-      return;
-    }
-    node.querySelector("[data-deposit-error]").textContent =
-      "Complete the ordinance, required measurements or positive approved amount, and an approval source of at least 10 characters. A zero forfeiture needs City Attorney approval.";
+    depositIncomplete(services, state, ctx, wasMeasured);
     return;
   }
   state.active = null;
   services.saveDrafts();
   services.render();
+  focusChargeCard(id);
+}
+
+const chargeText = (ord) => canonicalOrdinance(ord) || String(ord || "").trim();
+
+function focusChargeCard(id) {
   const card = [...document.querySelectorAll("[data-charge]")].find((el) => el.dataset.charge === id);
   if (card) {
     card.setAttribute("tabindex", "-1");
@@ -226,39 +266,49 @@ function depositSubmit(services, state, e) {
   }
 }
 
-function depositClick(services, state, e) {
+// The document a deposit control names: the draft itself, or the notice draft its initial citation is written with.
+const depositTargetDoc = (docId) => doc(docId) || workspaceState.DOCS.find((x) => x.initialCitationId === docId);
+
+function depositLater(services, e) {
   const later = e.target.closest?.("[data-deposit-later]");
-  if (later) {
-    const ctx = depositContext(services, later);
-    if (ctx) services.saveAndContinue();
+  if (!later) return false;
+  const ctx = depositContext(services, later);
+  if (ctx) services.saveAndContinue();
+  return true;
+}
+
+// An approved deposit is confirmed only with its source and a positive amount, and only when it has no fault.
+function confirmApprovedDeposit(services, d, id) {
+  const c = d.cits?.[id];
+  if (!c || String(c.depositSource || "").trim().length < 10 || !(cents(c.amount) > 0)) {
+    services.toast("Enter the approved source and amount before confirming.");
     return;
   }
+  delete c.reconfirmDeposit;
+  if (
+    services.citationDepositFault(
+      c,
+      d,
+      d.items.find((i) => i.id === id),
+    )
+  ) {
+    c.reconfirmDeposit = true;
+    services.toast("Correct the deposit basis before confirming.");
+    return;
+  }
+  services.saveDrafts();
+  services.render();
+}
+
+function depositClick(services, state, e) {
+  if (depositLater(services, e)) return;
   const t = e.target.closest?.("[data-open-deposit],[data-confirm-deposit]");
   if (!t) return;
   const [docId, id] = String(t.dataset.openDeposit || t.dataset.confirmDeposit).split("|"),
-    d = doc(docId) || workspaceState.DOCS.find((x) => x.initialCitationId === docId);
+    d = depositTargetDoc(docId);
   if (!d || services.isLocked(d) || d.pendingAmendment) return;
-  if (t.dataset.confirmDeposit) {
-    const c = d.cits?.[id];
-    if (!c || String(c.depositSource || "").trim().length < 10 || !(cents(c.amount) > 0)) {
-      services.toast("Enter the approved source and amount before confirming.");
-      return;
-    }
-    delete c.reconfirmDeposit;
-    if (
-      services.citationDepositFault(
-        c,
-        d,
-        d.items.find((i) => i.id === id),
-      )
-    ) {
-      c.reconfirmDeposit = true;
-      services.toast("Correct the deposit basis before confirming.");
-      return;
-    }
-    services.saveDrafts();
-    services.render();
-  } else if (id) depositOpen(services, state, d, id);
+  if (t.dataset.confirmDeposit) confirmApprovedDeposit(services, d, id);
+  else if (id) depositOpen(services, state, d, id);
   else depositOpenNext(services, state, d);
 }
 
@@ -269,6 +319,33 @@ function registerDepositEvents(services, state) {
   document.addEventListener("submit", (e) => depositSubmit(services, state, e));
   document.addEventListener("click", (e) => depositClick(services, state, e));
 }
+
+function depositChoiceMeasurement(esc, i, c, f) {
+  return screen`<label class="f"><span>${raw(esc(f.label))}</span><select name="measure-${String(f.key)}" aria-label="${raw(esc(f.label + " for item " + i.no))}" required><option value="">Choose</option><option value="true" ${raw(c.measurements?.[f.key] === true ? "selected" : "")}>Yes</option><option value="false" ${raw(c.measurements?.[f.key] === false ? "selected" : "")}>No</option></select></label>`;
+}
+
+// Numeric measurement bounds; a diameter is not asked for a tree recorded as not removed.
+function measurementLimits(f, c) {
+  return (
+    'min="' +
+    (f.min ?? 0) +
+    '" ' +
+    (f.max == null ? "" : 'max="' + f.max + '"') +
+    ' step="' +
+    (f.whole ? "1" : "any") +
+    '" ' +
+    (f.key === "diameter" && c.measurements?.removed === false ? "disabled" : "required")
+  );
+}
+
+function depositMethodFields(esc, input, i, c, mode) {
+  return screen`<label class="f"><span>Deposit method</span><select name="depositMode" aria-label="Deposit method for item ${raw(esc(i.no))}"><option value="schedule">Verified schedule</option><option value="base" ${raw(mode === "base" ? "selected" : "")}>Approved base + assessments</option><option value="total" ${raw(mode === "total" ? "selected" : "")}>Approved total, assessments included</option></select></label><div data-deposit-mode="base" ${raw(mode === "base" ? "" : "hidden")}>${raw(input("base", "Approved base", "number", 'min="0" step="0.01" ' + (mode === "base" ? "required" : "disabled")))}</div><div data-deposit-mode="total" ${raw(mode === "total" ? "" : "hidden")}>${raw(input("amount", "Approved total", "number", 'min="0.01" step="0.01" ' + (mode === "total" ? "required" : "disabled")))}</div><label class="f" data-deposit-source><span>Approved source / reason</span><textarea name="depositSource" aria-label="Approved source / reason for item ${raw(esc(i.no))}" rows="2" minlength="10" required>${raw(esc(c.depositSource || ""))}</textarea></label>`;
+}
+
+const depositFormHint = (measured) =>
+  measured
+    ? "Measurements calculate the approved scheduled amount. They do not authorize a manual amount."
+    : "A base adds the approved assessments. A total already includes them. Record the approval source; the program does not authorize an amount.";
 
 export function initDepositStep(services) {
   const state = { active: null };
@@ -308,33 +385,14 @@ export function initDepositStep(services) {
     const measurements = (c.measurementFields || [])
       .map((f) =>
         f.boolean
-          ? screen`<label class="f"><span>${raw(esc(f.label))}</span><select name="measure-${String(f.key)}" aria-label="${raw(esc(f.label + " for item " + i.no))}" required><option value="">Choose</option><option value="true" ${raw(c.measurements?.[f.key] === true ? "selected" : "")}>Yes</option><option value="false" ${raw(c.measurements?.[f.key] === false ? "selected" : "")}>No</option></select></label>`
-          : input(
-              "measure-" + f.key,
-              f.label,
-              "number",
-              'min="' +
-                (f.min ?? 0) +
-                '" ' +
-                (f.max == null ? "" : 'max="' + f.max + '"') +
-                ' step="' +
-                (f.whole ? "1" : "any") +
-                '" ' +
-                (f.key === "diameter" && c.measurements?.removed === false ? "disabled" : "required"),
-              c.measurements?.[f.key] ?? "",
-            ),
+          ? depositChoiceMeasurement(esc, i, c, f)
+          : input("measure-" + f.key, f.label, "number", measurementLimits(f, c), c.measurements?.[f.key] ?? ""),
       )
       .join("");
     // Keep the same required completion contract; no citation is created until complete succeeds.
     return screen`<form data-deposit-form="${raw(esc(i.id))}" data-deposit-doc="${raw(esc(d.id))}"><h3>${raw(measured ? "Complete measurements" : "Complete approved deposit")}</h3><p>${raw(esc(c.reason || "Choose an approved deposit basis."))}</p><div class="grid g2">${raw(services.choosesCharge(i) ? chargeSelect(i, c) : input("ord", "Charged ordinance", "text", "required"))}${raw(offenseSelect(i, c))}${raw(
-      measured
-        ? measurements
-        : screen`<label class="f"><span>Deposit method</span><select name="depositMode" aria-label="Deposit method for item ${raw(esc(i.no))}"><option value="schedule">Verified schedule</option><option value="base" ${raw(mode === "base" ? "selected" : "")}>Approved base + assessments</option><option value="total" ${raw(mode === "total" ? "selected" : "")}>Approved total, assessments included</option></select></label><div data-deposit-mode="base" ${raw(mode === "base" ? "" : "hidden")}>${raw(input("base", "Approved base", "number", 'min="0" step="0.01" ' + (mode === "base" ? "required" : "disabled")))}</div><div data-deposit-mode="total" ${raw(mode === "total" ? "" : "hidden")}>${raw(input("amount", "Approved total", "number", 'min="0.01" step="0.01" ' + (mode === "total" ? "required" : "disabled")))}</div><label class="f" data-deposit-source><span>Approved source / reason</span><textarea name="depositSource" aria-label="Approved source / reason for item ${raw(esc(i.no))}" rows="2" minlength="10" required>${raw(esc(c.depositSource || ""))}</textarea></label>`,
-    )}</div><p class="hint">${raw(
-      measured
-        ? "Measurements calculate the approved scheduled amount. They do not authorize a manual amount."
-        : "A base adds the approved assessments. A total already includes them. Record the approval source; the program does not authorize an amount.",
-    )}</p><p role="alert" data-deposit-error></p><button class="btn btn-primary" type="submit">Complete charge</button> <button class="btn" type="button" data-deposit-later>Save unfinished draft</button></form>`;
+      measured ? measurements : depositMethodFields(esc, input, i, c, mode),
+    )}</div><p class="hint">${raw(depositFormHint(measured))}</p><p role="alert" data-deposit-error></p><button class="btn btn-primary" type="submit">Complete charge</button> <button class="btn" type="button" data-deposit-later>Save unfinished draft</button></form>`;
   }
   registerDepositEvents(services, state);
   return {

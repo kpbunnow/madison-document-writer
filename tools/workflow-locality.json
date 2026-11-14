@@ -415,6 +415,18 @@
         {
           "identity": "acceptImportPlan#1",
           "role": "coordinator"
+        },
+        {
+          "identity": "importFromHelperShare#1",
+          "role": "coordinator"
+        },
+        {
+          "identity": "importFromLocalShare#1",
+          "role": "coordinator"
+        },
+        {
+          "identity": "mergeLocalShareFile#1",
+          "role": "coordinator"
         }
       ]
     }
