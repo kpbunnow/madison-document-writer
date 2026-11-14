@@ -210,15 +210,28 @@ function pickerSelections(R, current) {
   return entries;
 }
 
+// What a picker card shows for one catalog entry: its selection on this draft and any retained draft wording.
+function pickerCardFacts(R, i, selected, current, selections) {
+  const key = R.catalogKey(i);
+  return {
+    key,
+    copies: selections.get(key)?.copies || 0,
+    added: selected.has(key),
+    working: selections.get(key)?.item || current?.selectionCache?.[key],
+    e: R.effectiveCatalog(i),
+    blocked: BLOCKED.includes(R.catalogStatus(i).code),
+    pick: String(i.ci) + ":" + String(i.gi) + ":" + String(i.o),
+  };
+}
+
+function pickerCardMain(R, i, { copies, added, working, e, blocked }, equivalent) {
+  return screen`<div class="gitem-main"><div class="language-entry-head">${raw(sectionTags(R, working?.sections || e.s))}<h4>${raw(R.esc(i.t))} ${raw(selectedLabel(added ? copies : 0))}</h4></div><p class="language-preview">${raw(R.markBlanks(working?.text || e.a))}</p>${raw(blocked && !added ? unavailableNote(R, i) : "")}${raw(alsoNote(R, equivalent(i)))}${raw(working ? '<div class="chipbar"><span class="tag">Draft item retained</span></div>' : "")}</div>`;
+}
+
 function languagePickerCard(R, i, selected, current, equivalent, selections) {
-  const key = R.catalogKey(i),
-    copies = selections.get(key)?.copies || 0,
-    added = selected.has(key),
-    working = selections.get(key)?.item || current?.selectionCache?.[key],
-    e = R.effectiveCatalog(i),
-    blocked = BLOCKED.includes(R.catalogStatus(i).code),
-    pick = String(i.ci) + ":" + String(i.gi) + ":" + String(i.o);
-  return screen`<article class="language-pick-row" data-language-key="${raw(R.esc(key))}"><button class="gitem ${String(added ? "added" : "")}" data-pick="${pick}" aria-pressed="${String(added)}" ${String(blocked && !added ? "disabled" : "")}><div class="gitem-main"><div class="language-entry-head">${raw(sectionTags(R, working?.sections || e.s))}<h4>${raw(R.esc(i.t))} ${raw(selectedLabel(added ? copies : 0))}</h4></div><p class="language-preview">${raw(R.markBlanks(working?.text || e.a))}</p>${raw(blocked && !added ? unavailableNote(R, i) : "")}${raw(alsoNote(R, equivalent(i)))}${raw(working ? '<div class="chipbar"><span class="tag">Draft item retained</span></div>' : "")}</div></button><div class="language-card-actions">${raw(addAgainButton(R, i, pick, added && !blocked))}${raw(favoriteButton(R, i))}</div>${raw(languageDetails(R, i, working))}</article>`;
+  const f = pickerCardFacts(R, i, selected, current, selections);
+  const { key, added, working, blocked, pick } = f;
+  return screen`<article class="language-pick-row" data-language-key="${raw(R.esc(key))}"><button class="gitem ${String(added ? "added" : "")}" data-pick="${pick}" aria-pressed="${String(added)}" ${String(blocked && !added ? "disabled" : "")}>${raw(pickerCardMain(R, i, f, equivalent))}</button><div class="language-card-actions">${raw(addAgainButton(R, i, pick, added && !blocked))}${raw(favoriteButton(R, i))}</div>${raw(languageDetails(R, i, working))}</article>`;
 }
 
 function languagePickerResults(R, found, ranked, selected, current, filter, selections) {
@@ -319,29 +332,12 @@ export function languagePicker(R) {
   const visible = (i) => (filter === "selected" ? selected.has(R.catalogKey(i)) : R.catalogVisible(i, filter)),
     browsed = pickerChecklists(R);
   const list = activeShortcutList(R.state);
-  const found = list
-      ? { matches: shortcutItems(R, all, visible, list), related: [], sections: [] }
-      : languageSearch(
-          R,
-          inChecklistOrder(
-            R,
-            all.filter(
-              (i) =>
-                visible(i) && (q || filter === "selected" || (R.state.cl < 0 ? browsed.includes(i.ci) : i.ci === R.state.cl && i.gi === R.state.grp)),
-            ),
-          ),
-          q,
-        ),
+  const found = pickerFound(R, { all, visible, list, q, filter, browsed }),
     items = found.matches;
   // Selecting language for the open draft, distinct from browsing or reviewing the catalog.
   const pickerTitle = "Select for this " + (current?.type === "notice" ? "notice" : "document");
   const group = R.LIBRARY[R.state.cl]?.groups[R.state.grp] ? groupName(R, R.state.cl, R.state.grp) : "",
-    label = countLine(
-      q,
-      found.sections,
-      items.length,
-      group || SHORTCUT_LABELS[list] || (filter === "selected" ? "Selected on this notice" : "All violation categories"),
-    );
+    label = countLine(q, found.sections, items.length, group || pickerScopeLabel(list, filter));
   const tree = languagePickerTree(R, all, visible, q);
   return screen`<div class="picker" id="picker-bg"><div class="picker-box" role="dialog" aria-modal="true" aria-label="${String(pickerTitle)}" data-language-context="picker|${raw(R.esc(R.state.docId))}">
  <div class="picker-h"><h2>${String(pickerTitle)}</h2><button class="btn btn-sm" data-close="picker">Close</button></div>
@@ -349,7 +345,28 @@ export function languagePicker(R) {
  <select id="pk-grp" class="pk-grp" aria-label="Browse violation category" style="display:none;margin-top:10px"><option value="-1:0" ${String(R.state.cl < 0 ? "selected" : "")}>All violation categories</option>${raw(languagePickerGroupOptions(R, all, visible, q))}</select></div>
  <div class="picker-cols"><div class="picker-tree">${raw(languageShortcutButtons(R, all, visible))}<button class="tree-g" data-language-all>All violation categories <span class="n">${String(all.filter((i) => visible(i) && browsed.includes(i.ci)).length)}</span></button>${raw(tree)}</div><div class="picker-list"><div class="pane-h" role="status">${raw(R.esc(label))}</div>
  ${raw(languagePickerResults(R, found, !!q || !!list, selected, current, filter, selections))}
- </div></div><div class="picker-footer"><span data-language-selected role="status">${String(selected.size)} selected from library · ${String(current?.items.length || 0)} item${String(current?.items.length === 1 ? "" : "s")} on this notice</span><button class="btn btn-primary" data-close="picker">Done adding</button></div></div></div>`;
+ </div></div>${raw(pickerFooterHTML(selected, current))}</div></div>`;
+}
+
+// A shortcut list (Recent or Favorites), else the search over the browsed checklist or category.
+function pickerFound(R, { all, visible, list, q, filter, browsed }) {
+  if (list) return { matches: shortcutItems(R, all, visible, list), related: [], sections: [] };
+  return languageSearch(
+    R,
+    inChecklistOrder(
+      R,
+      all.filter(
+        (i) => visible(i) && (q || filter === "selected" || (R.state.cl < 0 ? browsed.includes(i.ci) : i.ci === R.state.cl && i.gi === R.state.grp)),
+      ),
+    ),
+    q,
+  );
+}
+
+const pickerScopeLabel = (list, filter) => SHORTCUT_LABELS[list] || (filter === "selected" ? "Selected on this notice" : "All violation categories");
+
+function pickerFooterHTML(selected, current) {
+  return screen`<div class="picker-footer"><span data-language-selected role="status">${String(selected.size)} selected from library · ${String(current?.items.length || 0)} item${String(current?.items.length === 1 ? "" : "s")} on this notice</span><button class="btn btn-primary" data-close="picker">Done adding</button></div>`;
 }
 
 function currentContext(R, picker) {
@@ -386,6 +403,14 @@ function languageControlSelector(R, active) {
   return selector;
 }
 
+// A selector that finds the focused control again after a repaint: its id, its language control, or its details summary.
+function focusedLanguageSelector(R, active) {
+  const selector = active.id ? "#" + active.id : languageControlSelector(R, active);
+  if (selector || !active.matches(".language-details>summary")) return selector;
+  const key = active.closest("[data-language-key]")?.dataset.languageKey;
+  return key ? '[data-language-key="' + R.checkAttr(key) + '"] .language-details>summary' : "";
+}
+
 export function rememberLanguageFocus(R) {
   const root = document.querySelector(".picker-box[data-language-context],.language-browser,.language-admin");
   if (!root) return null;
@@ -394,15 +419,7 @@ export function rememberLanguageFocus(R) {
   if (root.dataset.languageContext !== context) return null;
   const active = document.activeElement,
     inside = root.contains(active);
-  let selector = "";
-  if (inside) {
-    if (active.id) selector = "#" + active.id;
-    else selector = languageControlSelector(R, active);
-    if (!selector && active.matches(".language-details>summary")) {
-      const key = active.closest("[data-language-key]")?.dataset.languageKey;
-      if (key) selector = '[data-language-key="' + R.checkAttr(key) + '"] .language-details>summary';
-    }
-  }
+  const selector = inside ? focusedLanguageSelector(R, active) : "";
   return {
     context,
     picker,
@@ -420,9 +437,12 @@ export function restoreLanguageFocus(R, kept) {
     const d = root.querySelector('[data-language-key="' + R.checkAttr(key) + '"] .language-details');
     if (d) d.open = true;
   }
-  if (kept.selector) {
-    const f = root.querySelector(kept.selector) || root.querySelector("#pk-q");
-    f?.focus({ preventScroll: true });
-    if (f && Number.isInteger(kept.start) && Number.isInteger(kept.end) && f.setSelectionRange) f.setSelectionRange(kept.start, kept.end);
-  }
+  if (kept.selector) refocusLanguageControl(root, kept);
+}
+
+// The remembered control (else the search field) regains focus and, where it has one, its text selection.
+function refocusLanguageControl(root, kept) {
+  const f = root.querySelector(kept.selector) || root.querySelector("#pk-q");
+  f?.focus({ preventScroll: true });
+  if (f && Number.isInteger(kept.start) && Number.isInteger(kept.end) && f.setSelectionRange) f.setSelectionRange(kept.start, kept.end);
 }

@@ -44,11 +44,8 @@ function savedSharedCaseState(R, k, connected, result) {
   );
 }
 
-export function savedCaseState(R, k, available = !!R.CASEDIR && !R.NEEDGRANT) {
-  const st = R.caseState(k),
-    proof = R.recordIntegrity.status(k),
-    connected = available;
-  const result = (status, label, action, detail) => ({ status, label, action, detail });
+// Integrity, conflict and unconfirmed-save states, which stop all other work on the case.
+function savedReviewState(R, k, st, proof, result) {
   if (proof.valid === false)
     return result(
       "Record review needed",
@@ -72,22 +69,38 @@ export function savedCaseState(R, k, available = !!R.CASEDIR && !R.NEEDGRANT) {
     );
   if (proof.pendingTransaction)
     return result("Save confirmation needed", "Complete pending save", "save", "Continue the retained migration. No new baseline is created.");
-  if (st.draft || st.visit)
-    return result(
-      localSaveText(R),
-      st.draft ? "Continue draft" : "Continue inspection",
-      "document",
-      "Unfinished work is separate from the shared issued record. Device status is shown above.",
-    );
-  if (st.pendingSync || R.PENDING.some((p) => p.cid === k.id || p.name === R.caseFileName(k)))
-    return result(
-      connected ? "Shared save needed" : "Waiting for connection",
-      connected ? "Save case to shared folder" : "Connect shared folder",
-      connected ? "save" : "storage",
-      connected
-        ? "The queued case file is retained. Shared history will be checked before saving."
-        : "The queued case file is retained on this device only if device saving succeeded.",
-    );
+  return null;
+}
+
+function savedDraftState(R, st, result) {
+  if (!(st.draft || st.visit)) return null;
+  return result(
+    localSaveText(R),
+    st.draft ? "Continue draft" : "Continue inspection",
+    "document",
+    "Unfinished work is separate from the shared issued record. Device status is shown above.",
+  );
+}
+
+function savedSyncState(R, k, st, connected, result) {
+  if (!(st.pendingSync || R.PENDING.some((p) => p.cid === k.id || p.name === R.caseFileName(k)))) return null;
+  return connected
+    ? result(
+        "Shared save needed",
+        "Save case to shared folder",
+        "save",
+        "The queued case file is retained. Shared history will be checked before saving.",
+      )
+    : result(
+        "Waiting for connection",
+        "Connect shared folder",
+        "storage",
+        "The queued case file is retained on this device only if device saving succeeded.",
+      );
+}
+
+// An issued PDF still to verify or file, or one waiting in the local outbox for transfer.
+function savedPdfState(R, k, result) {
   const docs = R.docsFor(k.id).filter((d) => !d.draft && !d.void && !d.superseded && !R.deliveredByCitation(d));
   const needsPDF = docs.find((d) => !d.filedAt || !["shared", "local outbox"].includes(R.pdfTransferState(d)));
   if (needsPDF)
@@ -104,7 +117,21 @@ export function savedCaseState(R, k, available = !!R.CASEDIR && !R.NEEDGRANT) {
       "outbox",
       "Verified PDF bytes are in the local outbox. Transfer does not confirm delivery.",
     );
-  return savedSharedCaseState(R, k, connected, result);
+  return null;
+}
+
+export function savedCaseState(R, k, available = !!R.CASEDIR && !R.NEEDGRANT) {
+  const st = R.caseState(k),
+    proof = R.recordIntegrity.status(k),
+    connected = available;
+  const result = (status, label, action, detail) => ({ status, label, action, detail });
+  return (
+    savedReviewState(R, k, st, proof, result) ||
+    savedDraftState(R, st, result) ||
+    savedSyncState(R, k, st, connected, result) ||
+    savedPdfState(R, k, result) ||
+    savedSharedCaseState(R, k, connected, result)
+  );
 }
 
 function caseButton(R, k, s) {
@@ -143,12 +170,10 @@ function savedWorkDetailsHTML(R, esc, outbox, health) {
 
 export function savedWorkHTML(R, cid = "", health = {}) {
   const esc = R.esc,
-    connected = !!R.CASEDIR && !R.NEEDGRANT && !health.error && health.ok !== false && health.caseReachable !== false;
+    connected = savedConnected(R, health);
   const cases = R.CASES.filter((k) => !cid || k.id === cid);
   const status = savedConnectionStatus(health, connected);
-  const outbox = Number.isFinite(health.outbox)
-    ? `${health.outbox} PDF${health.outbox === 1 ? "" : "s"} reported in the local outbox.`
-    : "Outbox count not checked. Open the outbox to verify its contents.";
+  const outbox = savedOutboxText(health);
   const entries = cases.map((k) => ({ k, s: savedCaseState(R, k, connected) }));
   const rank = { integrity: 0, conflict: 1, pending: 2, save: 3, storage: 4, pdf: 5, outbox: 6, document: 7, check: 8 };
   entries.sort((a, b) => (rank[a.s.action] ?? 9) - (rank[b.s.action] ?? 9));
@@ -169,33 +194,47 @@ export function savedWorkHTML(R, cid = "", health = {}) {
   };
   const rows = entries.slice(0, 5).map(caseRow).join("");
   const remaining = entries.slice(5);
-  return html`<div data-saved-work-panel class="saved-work"><p>Device drafts, shared case records and issued PDFs are saved separately. Saving a draft does not issue a document.</p>\n    <section aria-labelledby="saved-device-title"><h3 id="saved-device-title">This device</h3><div class="saved-device" data-device-save>${raw(deviceSaveHTML(R))}</div></section>\n    <section aria-labelledby="saved-shared-title"><h3 id="saved-shared-title">Shared cases</h3><p>${raw(esc(status))}${raw(!connected ? " · New originals need a shared connection." : "")}</p>${raw(cid ? '<button class="btn" data-sync-safety>Show all saved work</button>' : "")}<ul class="saved-cases">${raw(rows || "<li>No cases in this workspace.</li>")}</ul>${raw(
-    "".concat(
-      remaining.length
-        ? '<details data-saved-detail="more-cases"><summary>' +
-            `${remaining.length}` +
-            " more case" +
-            `${remaining.length === 1 ? "" : "s"}` +
-            '</summary><ul class="saved-cases">' +
-            `${remaining.map(caseRow).join("")}` +
-            "</ul></details>"
-        : "",
-    ),
-  )}\n    ${raw(
-    "".concat(
-      !cid && R.PENDING.length
-        ? '<details data-saved-detail="queued"><summary>' +
-            `${R.PENDING.length}` +
-            " queued shared save" +
-            `${R.PENDING.length === 1 ? "" : "s"}` +
-            ", including cases outside this list</summary><ul>" +
-            `${R.PENDING.map((p) => `<li>${esc(p.name || R.kase(p.cid).number || "Queued case file")}</li>`).join("")}` +
-            '</ul><button class="btn" data-safety-pending>' +
-            `${connected ? "Review and retry queued shared saves" : "Connect storage for queued saves"}` +
-            "</button></details>"
-        : "",
-    ),
+  return html`<div data-saved-work-panel class="saved-work"><p>Device drafts, shared case records and issued PDFs are saved separately. Saving a draft does not issue a document.</p>\n    <section aria-labelledby="saved-device-title"><h3 id="saved-device-title">This device</h3><div class="saved-device" data-device-save>${raw(deviceSaveHTML(R))}</div></section>\n    <section aria-labelledby="saved-shared-title"><h3 id="saved-shared-title">Shared cases</h3><p>${raw(esc(status))}${raw(!connected ? " · New originals need a shared connection." : "")}</p>${raw(cid ? '<button class="btn" data-sync-safety>Show all saved work</button>' : "")}<ul class="saved-cases">${raw(rows || "<li>No cases in this workspace.</li>")}</ul>${raw("".concat(moreSavedCasesHTML(remaining, caseRow)))}\n    ${raw(
+    "".concat(!cid ? queuedSavesHTML(R, esc, connected) : ""),
   )}${raw(savedWorkDetailsHTML(R, esc, outbox, health))}`;
+}
+
+const savedConnected = (R, health) => !!R.CASEDIR && !R.NEEDGRANT && !health.error && health.ok !== false && health.caseReachable !== false;
+
+const savedOutboxText = (health) =>
+  Number.isFinite(health.outbox)
+    ? `${health.outbox} PDF${health.outbox === 1 ? "" : "s"} reported in the local outbox.`
+    : "Outbox count not checked. Open the outbox to verify its contents.";
+
+function moreSavedCasesHTML(remaining, caseRow) {
+  return remaining.length
+    ? '<details data-saved-detail="more-cases"><summary>' +
+        `${remaining.length}` +
+        " more case" +
+        `${remaining.length === 1 ? "" : "s"}` +
+        '</summary><ul class="saved-cases">' +
+        `${remaining.map(caseRow).join("")}` +
+        "</ul></details>"
+    : "";
+}
+
+function queuedSavesHTML(R, esc, connected) {
+  return R.PENDING.length
+    ? '<details data-saved-detail="queued"><summary>' +
+        `${R.PENDING.length}` +
+        " queued shared save" +
+        `${R.PENDING.length === 1 ? "" : "s"}` +
+        ", including cases outside this list</summary><ul>" +
+        `${R.PENDING.map((p) => `<li>${esc(p.name || R.kase(p.cid).number || "Queued case file")}</li>`).join("")}` +
+        '</ul><button class="btn" data-safety-pending>' +
+        `${connected ? "Review and retry queued shared saves" : "Connect storage for queued saves"}` +
+        "</button></details>"
+    : "";
+}
+
+function storageProblems(R, mode, problems) {
+  if (["folder-locked", "folder-not-linked", "download"].includes(mode)) problems.push("Waiting for connection");
+  if (mode === "folder" && R.DIRNAME !== R.CASEDIR_EXPECT) problems.push("Check shared folder destination");
 }
 
 export function connectionBanner(R) {
@@ -204,23 +243,26 @@ export function connectionBanner(R) {
   if (!R.LOCAL_SAVE.ok) problems.push("Device save failed — keep this tab open");
   if (R.PENDING.length) problems.push(`${R.PENDING.length} shared save${R.PENDING.length === 1 ? "" : "s"} waiting`);
   if (R.HELPER?.outbox) problems.push(`${R.HELPER.outbox} PDF${R.HELPER.outbox === 1 ? "" : "s"} awaiting transfer`);
-  if (["folder-locked", "folder-not-linked", "download"].includes(mode)) problems.push("Waiting for connection");
-  if (mode === "folder" && R.DIRNAME !== R.CASEDIR_EXPECT) problems.push("Check shared folder destination");
+  storageProblems(R, mode, problems);
   if (!problems.length) return "";
   return html`<div class="saved-connection banner warn no-print"><div><strong>${raw(R.esc(problems.join(" · ")))}.</strong> <button class="lnk" data-sync-safety>Review saved work &amp; connection</button></div></div>`;
 }
 
+// Repaint the device-save card only when it changed; a focused control in it keeps focus in the card.
+function refreshDeviceSave(R) {
+  const device = document.querySelector("[data-device-save]");
+  if (!device) return;
+  const html = deviceSaveHTML(R);
+  if (device.innerHTML !== html) {
+    const focused = device.contains(document.activeElement);
+    device.innerHTML = html;
+    if (focused) (device.querySelector("button") || document.querySelector("[data-utility-close]"))?.focus({ preventScroll: true });
+  }
+}
+
 export function updateLocalPresentation(R) {
   for (const el of document.querySelectorAll("[data-document-device-save]")) el.textContent = localSaveText(R);
-  const device = document.querySelector("[data-device-save]");
-  if (device) {
-    const html = deviceSaveHTML(R);
-    if (device.innerHTML !== html) {
-      const focused = device.contains(document.activeElement);
-      device.innerHTML = html;
-      if (focused) (device.querySelector("button") || document.querySelector("[data-utility-close]"))?.focus({ preventScroll: true });
-    }
-  }
+  refreshDeviceSave(R);
   const failure = document.getElementById("navigation-save-failure");
   if (R.LOCAL_SAVE.ok && !R.LOCAL_SAVE.saving && !R.draftTimer) {
     failure?.remove();
