@@ -63,7 +63,7 @@ subprocess.run(
         "ES2022",
         "--lib",
         "ES2022,DOM",
-        "app/modules/contracts.js",
+        *json.loads((ROOT / "tools/checked-js.json").read_text(encoding="utf-8"))["entries"],
     ],
     cwd=ROOT,
     check=True,

@@ -21,6 +21,8 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_maintainability_measurement.py` | Diagnostic measurement tooling: the Radon compatibility copy is accepted only when AST- and line-equivalent (raw strings refused); hotspot inventory reports only a function's own effects (os.replace, not str.replace); exact distributions, size-weighted MI and baseline scope |
+| `audit_maintainability_js.js` | Diagnostic JavaScript logic-line counting (blank, line and block comments excluded) and the shared type-checked entry list used by the gate |
 | `audit_ui_timer_settlement.js` | Isolated DOM rendering completion, every pending callback, and retained interval/callback/completion failure detection |
 | `audit_gate_stages.py` | Isolated gate evidence rejects missing, altered, cross-run, cross-source and cross-toolchain artifacts, linked paths and incomplete receipts |
 | `audit_gate_artifacts.py` | Authenticated same-run/head/producer-attempt pairs for gate-only retries, including cloned successful jobs and repeated attempts; failed/partial/skipped/mixed producers and changed execution identities/times/steps, metadata and ZIP digest/path/link/expansion refusal, scoped credentials/redirects |
