@@ -153,6 +153,34 @@ for (const [name, [file, ctor, fields]] of Object.entries(defs)) {
   assert.equal(caret.collapsed, true);
   assert.equal(caret.startContainer, field().firstChild);
   assert.equal(caret.startOffset, 1, "the caret follows the typed character");
+  // Native transactions may emit input themselves or omit it; both paths deliver one edit and restore inline style.
+  for (const mode of ["input", "silent", "refused", "throws"]) {
+    setup();
+    field().style.setProperty("white-space", "pre-line", "important");
+    field().style.setProperty("color", "red");
+    const originalStyle = field().getAttribute("style");
+    let nativeInputs = 0;
+    field().addEventListener("input", () => nativeInputs++);
+    dom.window.document.execCommand = (command, showUI, text) => {
+      assert.equal(command, "insertText");
+      assert.equal(showUI, false);
+      assert.equal(field().style.getPropertyValue("white-space"), "pre-wrap");
+      assert.equal(field().style.getPropertyPriority("white-space"), "important");
+      if (mode === "throws") throw new Error("Refused optional command");
+      if (mode === "refused") return false;
+      const selected = dom.window.document.getSelection().getRangeAt(0);
+      assert.equal(selected.cloneContents().textContent, "blank");
+      selected.deleteContents();
+      selected.insertNode(dom.window.document.createTextNode(text));
+      if (mode === "input") field().dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+      return true;
+    };
+    assert.equal(ui.fillBlank(blank(), "<detail>"), true);
+    assert.equal(field().textContent, "<detail>");
+    assert.equal(field().children.length, 0);
+    assert.equal(nativeInputs, 1, mode + " delivers one input");
+    assert.equal(field().getAttribute("style"), originalStyle, mode + " restores the existing inline style");
+  }
   for (const stale of [
     () => (s.state.screen = "home"),
     () => (s.state.docId = "other"),
