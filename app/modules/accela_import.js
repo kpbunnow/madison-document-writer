@@ -1118,7 +1118,7 @@ async function accelaImportFind(services) {
   const { number, serial, controller, active, timer } = lookup;
   try {
     const acc = await fetchCaseReport(services, number, controller, active);
-    if (!acc) return;
+    if (!acc || !active()) return;
     if (!(await checkRetrievedShare(services, acc, active))) return;
     if (!active()) return;
     await accelaImportOpenResult(services, acc, active);
@@ -1160,7 +1160,7 @@ async function accelaImportConfirm(services, LOOKUP_READY) {
   const active = () => serial === imports.LOOKUP_SERIAL && editor.state.screen === "import" && editor.state.acc === acc && sameSelection();
   services.render();
   try {
-    if (!(await confirmSharedRecord(services, acc, active))) return;
+    if (!(await confirmSharedRecord(services, acc, active)) || !active()) return;
     if (before !== accelaImportSignature(services, acc)) {
       services.toast("The shared record changed. Review the refreshed details and confirm again.");
       return;

@@ -676,6 +676,7 @@ async function lookUpReportParcels(services, get, need, refreshParcels, supersed
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ids: need.slice(offset, offset + 500), refresh: !!refreshParcels }),
       });
+      if (superseded()) return false;
       mergeParcelLookup(services, lk);
     }
   } catch (e) {
@@ -690,7 +691,9 @@ async function loadReportAreas(services, get, superseded) {
   ReportsState.S.msg = "Loading area outlines…";
   services.render();
   try {
-    ReportsState.S.areas = await get("/reporting/areas");
+    const areas = await get("/reporting/areas");
+    if (superseded()) return false;
+    ReportsState.S.areas = areas;
   } catch (e) {
     if (superseded()) return false;
     ReportsState.S.areas = { ok: false, notes: ["Area outlines could not be loaded (" + (e.message || e) + ")."] };
@@ -704,6 +707,15 @@ function reportLoadError(e) {
     : "The reporting data could not be read: " +
         (e.message || e) +
         ". Check that the Document Writer window is open and the share is reachable, then try again.";
+}
+
+function reportCaseOk(services, c, F, opt) {
+  if (!reportNoticeIncluded(c, opt, versionAt, noticeAt)) return false;
+  if (!reportIdentityIncluded(c, F, opt, areaKey)) return false;
+  const status = opt && opt.asOf ? statusAt(c, opt.asOf) : c.status;
+  if (!reportStatusIncluded(services, c, F, opt, status)) return false;
+  if (!reportViolationIncluded(services, c, F, opt, violationAt)) return false;
+  return true;
 }
 
 export function createReportsServices(services) {
@@ -734,15 +746,19 @@ export function createReportsServices(services) {
     services.render();
     try {
       const idx = await get("/reporting/index");
+      if (sequence !== loadSequence) return;
       if (!idx.ok) throw new Error(idx.error || "the index could not be read");
       ReportsState.S.raw = idx;
       ReportsState.S.msg = "Reading the parcel cache…";
       services.render();
       const pc = await get("/reporting/parcels");
+      if (sequence !== loadSequence) return;
       const need = prepareReportParcelCache(services, idx, pc, refreshParcels);
       const superseded = () => sequence !== loadSequence;
       if (need.length && !(await lookUpReportParcels(services, get, need, refreshParcels, superseded))) return;
+      if (superseded()) return;
       if (!(await loadReportAreas(services, get, superseded))) return;
+      if (superseded()) return;
       ReportsState.S.M = buildModel(idx.summaries, ReportsState.S.parcels, ReportsState.S.areas);
       ReportsState.S.phase = "ready";
     } catch (e) {
@@ -803,13 +819,9 @@ export function createReportsServices(services) {
   }
 
   function caseOk(c, F, opt) {
-    if (!reportNoticeIncluded(c, opt, versionAt, noticeAt)) return false;
-    if (!reportIdentityIncluded(c, F, opt, areaKey)) return false;
-    const status = opt && opt.asOf ? statusAt(c, opt.asOf) : c.status;
-    if (!reportStatusIncluded(services, c, F, opt, status)) return false;
-    if (!reportViolationIncluded(services, c, F, opt, violationAt)) return false;
-    return true;
+    return reportCaseOk(services, c, F, opt);
   }
+
   return {
     reportCellValue,
     currentReportRows: (...args) => scopedCurrentReportRows(services, ...args),

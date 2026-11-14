@@ -880,6 +880,7 @@
     "tests/unit/audit_pdf_publication.py",
     "tests/unit/audit_perm.js",
     "tests/unit/audit_phase1_review.py",
+    "tests/unit/audit_phase3_async_guards.js",
     "tests/unit/audit_policy_compilation_rules.py",
     "tests/unit/audit_policy_version_rules.py",
     "tests/unit/audit_presentation_escaping.js",

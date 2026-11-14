@@ -7,6 +7,11 @@ if (!scenario) {
   for (const [name, status, output] of [
     ["dom", 0, "PASS owned rendering and every pending callback"],
     ["closed", 0, "PASS owned rendering and every pending callback"],
+    ["nonvisual", 0, "PASS owned rendering and every pending callback"],
+    ["frames", 0, "PASS owned rendering and every pending callback"],
+    ["fast-interval", 1, "A referenced interval is still running"],
+    ["frame-loop", 1, "A referenced interval is still running"],
+    ["frame-interval", 1, "A referenced interval is still running"],
     ["interval", 1, "A referenced interval is still running"],
     ["timer-error", 1, "synthetic timer failure"],
     ["completion-error", 1, "synthetic completion failure"],
@@ -28,11 +33,31 @@ if (!scenario) {
     settle(Promise.resolve());
   } else {
     const { JSDOM } = require("jsdom");
-    const dom = new JSDOM('<!doctype html><input id="field">', { pretendToBeVisual: true });
+    const dom = new JSDOM('<!doctype html><input id="field">', { pretendToBeVisual: scenario !== "nonvisual" });
     dom.window.document.getElementById("field").focus();
     if (scenario === "closed") dom.window.close();
-    if (scenario === "interval") {
-      const handle = setInterval(() => {}, 1000);
+    if (scenario === "frame-loop") {
+      const frame = () => dom.window.requestAnimationFrame(frame);
+      frame();
+      settle(Promise.resolve(), dom.window).catch((error) => {
+        dom.window.close();
+        throw error;
+      });
+    } else if (scenario === "frame-interval") {
+      let handle;
+      const completion = new Promise((resolve) =>
+        dom.window.requestAnimationFrame(() => {
+          handle = setInterval(() => {}, 1);
+          resolve();
+        }),
+      );
+      settle(completion, dom.window).catch((error) => {
+        clearInterval(handle);
+        dom.window.close();
+        throw error;
+      });
+    } else if (scenario === "interval" || scenario === "fast-interval") {
+      const handle = setInterval(() => {}, scenario === "fast-interval" ? 1 : 1000);
       settle(Promise.resolve(), dom.window).catch((error) => {
         clearInterval(handle);
         dom.window.close();
@@ -40,10 +65,20 @@ if (!scenario) {
       });
     } else {
       const calls = [];
+      const frames = [];
+      if (scenario === "frames")
+        dom.window.requestAnimationFrame(() => {
+          frames.push(1);
+          dom.window.requestAnimationFrame(() => {
+            frames.push(2);
+            dom.window.requestAnimationFrame(() => frames.push(3));
+          });
+        });
       let closed = false;
       const close = dom.window.close.bind(dom.window);
       dom.window.close = () => {
         assert.deepEqual(calls, ["short", "long"], "Window closes only after every pending callback");
+        if (scenario === "frames") assert.deepEqual(frames, [1, 2, 3], "Every nested rendering callback completed before closing");
         closed = true;
         close();
       };
