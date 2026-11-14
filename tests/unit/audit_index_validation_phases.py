@@ -1,4 +1,5 @@
 """Index phase extraction preserves verified-source decisions and ordered partial errors."""
+import contextlib
 import copy
 import hashlib
 import json
@@ -18,7 +19,7 @@ def outcome(root, reference=False, failure=None):
     namespace = dict(vars(server))
     for name, function in vars(server).items():
         if isinstance(function, types.FunctionType) and function.__module__ == "server":
-            clone = types.FunctionType(function.__code__, namespace, function.__name__, function.__defaults__)
+            clone = types.FunctionType(function.__code__, namespace, function.__name__, function.__defaults__, function.__closure__)
             clone.__kwdefaults__ = function.__kwdefaults__
             namespace[name] = clone
     if reference:
@@ -38,9 +39,48 @@ def outcome(root, reference=False, failure=None):
         except Exception as error:
             return ("error", type(error).__name__, str(error)), trace
 
+def parcel_outcome(cache, found, refresh, reference=False):
+    namespace = dict(vars(server))
+    fn = server.lookup_parcels
+    namespace[fn.__name__] = types.FunctionType(fn.__code__, namespace, fn.__name__, fn.__defaults__)
+    if reference:
+        path = ROOT / "tests/fixtures/parcel_lookup_reference.py.txt"
+        exec(compile(path.read_text(), str(path), "exec"), namespace)
+    state, trace = copy.deepcopy(cache), []
+    def read():
+        trace.append("read")
+        return state
+    def city(ids):
+        trace.append(("city", ids))
+        if isinstance(found, Exception):
+            raise found
+        return copy.deepcopy(found)
+    def write(value):
+        trace.append(("write", copy.deepcopy(value)))
+    namespace.update(CACHE_LOCK=contextlib.nullcontext(), file_lock=lambda *args: contextlib.nullcontext(),
+                     gis_dir=lambda: Path("synthetic"), read_cache=read, write_cache=write, city_parcels=city)
+    with patch.object(server.time, "strftime", return_value="2026-11-14"):
+        try:
+            result = ("result", namespace[fn.__name__](["070822219103", "070822219104", "bad"], refresh))
+        except Exception as error:
+            result = ("error", type(error).__name__, str(error))
+    return result, state, trace
+
 class IndexValidationPhases(unittest.TestCase):
     def test_original_provenance(self):
         self.assertEqual(hashlib.sha256(REFERENCE.read_bytes()).hexdigest(), "14983ff1eda8fe719ab212e1e183a12863967eea81c7e2d28b7261a42b792766")
+
+    def test_parcel_history_and_partial_failure_order(self):
+        path = ROOT / "tests/fixtures/parcel_lookup_reference.py.txt"
+        self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), "f35fbd2ab9cfb9daa222b87e3ad492b9f2a5b9e9b4a47e401ad51d0be941f31c")
+        pid = "070822219103"
+        record = {"address": "Synthetic", "alder": 1, "building": 2, "lat": 43, "lon": -89}
+        for hist in [[], [dict(record, fetched="2026-11-13")], [{"alder": 3}], [None]]:
+            for missing in [{}, {pid: "2026-11-14"}, {pid: "2026-11-13"}]:
+                cache = {"format": "madison-parcel-cache", "parcels": {pid: {"history": hist}}, "missing": missing}
+                for found in [{}, {pid: record}, {pid: {}}, OSError("synthetic failure")]:
+                    for refresh in [False, True]:
+                        self.assertEqual(parcel_outcome(cache, found, refresh), parcel_outcome(cache, found, refresh, True))
 
     def test_original_decisions_and_ordered_interrupted_reads(self):
         with tempfile.TemporaryDirectory() as folder:

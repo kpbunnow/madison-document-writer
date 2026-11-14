@@ -1,0 +1,47 @@
+def lookup_parcels(ids, refresh=False):
+    """The history of each parcel's district and location. An entry is added
+    only when something changed, so the first entry is the parcel as it was
+    first seen and the last is the parcel as it is now."""
+    today = time.strftime("%Y-%m-%d")
+    want = sorted({x for x in (norm_parcel(i) for i in ids or []) if x})
+    bad = sorted({str(i) for i in ids or [] if not norm_parcel(i)})
+    with CACHE_LOCK, file_lock(gis_dir(), "parcel-cache"):
+        c = read_cache()
+        need = (
+            want
+            if refresh
+            else [x for x in want if (x not in c["parcels"] and x not in c["missing"]) or (x in c["missing"] and c["missing"][x] != today)]
+        )
+        error, got = "", None
+        if need:
+            try:
+                got = city_parcels(need)
+            except Exception as e:
+                got, error = None, "the city parcel layer could not be reached (%s)" % e
+            if got is not None:
+                failed = set(getattr(got, "failed", []))
+                if failed:
+                    error = "The city parcel layer could not be reached for some batches: " + "; ".join(got.errors)
+                for pid in need:
+                    if pid in failed:
+                        continue
+                    if pid not in got:
+                        c["missing"][pid] = today
+                        continue
+                    c["missing"].pop(pid, None)
+                    rec = got[pid]
+                    hist = c["parcels"].setdefault(pid, {"history": []})["history"]
+                    last = hist[-1] if hist else None
+                    if last and all(last.get(k) == rec[k] for k in ("alder", "building", "lat", "lon")):
+                        last["checked"] = today
+                    else:
+                        hist.append(dict(rec, fetched=today, checked=today))
+                write_cache(c)
+        return {
+            "ok": not error,
+            "error": error,
+            "invalid": bad,
+            "partial": bool(error and got),
+            "parcels": {x: c["parcels"][x] for x in want if x in c["parcels"] and x not in c["missing"]},
+            "missing": [x for x in want if x in c["missing"]],
+        }
