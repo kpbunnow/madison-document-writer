@@ -663,6 +663,41 @@ function renderReports(services) {
   if (ReportsState.S.phase === "ready" && ReportsState.S.view === "map" && services.reportById(ReportsState.S.screen)) services.drawMap();
 }
 
+// Batches of 500 parcels; a failed lookup leaves the rest unlocated. False when this load was superseded.
+async function lookUpReportParcels(services, get, need, refreshParcels, superseded) {
+  ReportsState.S.msg = "Looking up " + services.plural(need.length, "parcel") + " on the city parcel layer…";
+  services.render();
+  try {
+    for (let offset = 0; offset < need.length; offset += 500) {
+      ReportsState.S.msg = "Looking up parcels " + (offset + 1) + "–" + Math.min(offset + 500, need.length) + " of " + need.length + "…";
+      services.render();
+      const lk = await get("/reporting/parcels", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: need.slice(offset, offset + 500), refresh: !!refreshParcels }),
+      });
+      mergeParcelLookup(services, lk);
+    }
+  } catch (e) {
+    if (superseded()) return false;
+    ReportsState.S.parcelNote = "The parcel lookup failed (" + (e.message || e) + "). Cases not yet looked up are shown as unlocated.";
+  }
+  return true;
+}
+
+// Area outlines are optional: without them areas are not shaded. False when this load was superseded.
+async function loadReportAreas(services, get, superseded) {
+  ReportsState.S.msg = "Loading area outlines…";
+  services.render();
+  try {
+    ReportsState.S.areas = await get("/reporting/areas");
+  } catch (e) {
+    if (superseded()) return false;
+    ReportsState.S.areas = { ok: false, notes: ["Area outlines could not be loaded (" + (e.message || e) + ")."] };
+  }
+  return true;
+}
+
 function reportLoadError(e) {
   return location.protocol === "file:"
     ? "This page was opened as a file. Open it from the Document Writer (Reports, in the left rail) so it can read the case folder."
@@ -705,8 +740,9 @@ export function createReportsServices(services) {
       services.render();
       const pc = await get("/reporting/parcels");
       const need = prepareReportParcelCache(services, idx, pc, refreshParcels);
-      if (need.length && !(await lookUpReportParcels(get, need, refreshParcels, sequence))) return;
-      if (!(await loadReportAreas(get, sequence))) return;
+      const superseded = () => sequence !== loadSequence;
+      if (need.length && !(await lookUpReportParcels(services, get, need, refreshParcels, superseded))) return;
+      if (!(await loadReportAreas(services, get, superseded))) return;
       ReportsState.S.M = buildModel(idx.summaries, ReportsState.S.parcels, ReportsState.S.areas);
       ReportsState.S.phase = "ready";
     } catch (e) {
@@ -715,39 +751,6 @@ export function createReportsServices(services) {
       ReportsState.S.error = reportLoadError(e);
     }
     services.render();
-  }
-  // Batches of 500 parcels; a failed lookup leaves the rest unlocated. False when this load was superseded.
-  async function lookUpReportParcels(get, need, refreshParcels, sequence) {
-    ReportsState.S.msg = "Looking up " + services.plural(need.length, "parcel") + " on the city parcel layer…";
-    services.render();
-    try {
-      for (let offset = 0; offset < need.length; offset += 500) {
-        ReportsState.S.msg = "Looking up parcels " + (offset + 1) + "–" + Math.min(offset + 500, need.length) + " of " + need.length + "…";
-        services.render();
-        const lk = await get("/reporting/parcels", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ids: need.slice(offset, offset + 500), refresh: !!refreshParcels }),
-        });
-        mergeParcelLookup(services, lk);
-      }
-    } catch (e) {
-      if (sequence !== loadSequence) return false;
-      ReportsState.S.parcelNote = "The parcel lookup failed (" + (e.message || e) + "). Cases not yet looked up are shown as unlocated.";
-    }
-    return true;
-  }
-  // Area outlines are optional: without them areas are not shaded. False when this load was superseded.
-  async function loadReportAreas(get, sequence) {
-    ReportsState.S.msg = "Loading area outlines…";
-    services.render();
-    try {
-      ReportsState.S.areas = await get("/reporting/areas");
-    } catch (e) {
-      if (sequence !== loadSequence) return false;
-      ReportsState.S.areas = { ok: false, notes: ["Area outlines could not be loaded (" + (e.message || e) + ")."] };
-    }
-    return true;
   }
 
   function buildModel(summaries, parcels, areas) {

@@ -381,6 +381,21 @@ function depositRequestEntry(services, i, request, prefix) {
   return { ok: false, t, targets: [checkTarget(depositRequestSelector(i, request), "Item " + i.no + " · complete charge")] };
 }
 
+// The citation being edited; a charge still awaiting its deposit basis is edited on its request.
+const citationEditTarget = (d, id, field) => d.cits[id] || (field === "ord" ? d.depositRequests?.[id] : null);
+
+// What an accepted citation field edit changes next: its markers, the pricing it depends on, fees and review.
+function afterCitationFieldEdit(services, { d, id, c, field, value }) {
+  if (field === "amount") delete c.depositEditInvalid;
+  if (field === "issued") delete c.issuedAutomatic;
+  if (field === "desc") c.descEdited = true;
+  if (["violDate", "issued", "scheduleEntryId", "tierOverride", "tierOverrideSource"].includes(field)) services.citationPricing.refresh(d);
+  if (field === "depositMode") editCitationDepositMode(services, d, id, c, value);
+  updateCitationFees(services, c, field);
+  confirmEditedDepositBasis(services, d, c, field);
+  if (d.correction) d.correction.reviewed = false;
+}
+
 function chargeChecks(services, d, i, c, prefix, check) {
   check(
     !c.mandatoryAppearance,
@@ -405,34 +420,43 @@ function chargeChecks(services, d, i, c, prefix, check) {
     prefix + "complete all placeholder details in the citation fields.",
     ["desc", "comment"],
   );
-  check(!depositFault(services, c, d, i), prefix + (depositFault(services, c, d, i) || "deposit and its basis agree."), [
+  check(!depositFault(services, c, d, i), prefix + (depositFault(services, c, d, i) || "deposit and its basis agree."), chargeDepositFields(c));
+}
+
+// The fields a deposit check points to: the method, the charge, the amount or base for the method, and its source.
+function chargeDepositFields(c) {
+  return [
     "depositMode",
     "ord",
     ...(c.depositMode === "total" ? ["amount"] : c.depositMode === "base" ? ["base", "cc"] : []),
     ...(c.depositMode && c.depositMode !== "schedule" ? ["depositSource"] : []),
-  ]);
+  ];
 }
+
+// The violation is dated from the case's initial inspection through issuance.
+function violationDateInRange(d, c) {
+  return (
+    validISO(c.violDate || inspAt(d).date) &&
+    (c.violDate || inspAt(d).date) >= (docCase(d).date || "") &&
+    (c.violDate || inspAt(d).date) <= (c.issued || "")
+  );
+}
+
+// A correction keeps the original action date; otherwise the mailed date (from authoring 9, a revision's action date).
+function expectedIssueDate(d) {
+  if (d.correction) return d.correction.actionDate;
+  return d.authoringVersion >= 9 ? d.revision?.actionDate || d.mailed : d.mailed;
+}
+
+const issueDateMessage = (d) =>
+  d.correction ? "the issue date must match the original action date used in reports." : "the issue date must match this document’s mailed date.";
 
 function scheduleChecks(services, d, c, prefix, check) {
   check(!!parseTime(c.courtTime), prefix + "enter a valid court time in Citation review.", ["courtTime"]);
   check(!!parseTime(c.violTime || inspAt(d).time), prefix + "enter the inspection/violation time.", ["violTime"]);
-  check(
-    validISO(c.violDate || inspAt(d).date) &&
-      (c.violDate || inspAt(d).date) >= (docCase(d).date || "") &&
-      (c.violDate || inspAt(d).date) <= (c.issued || ""),
-    prefix + "the violation date must be on or before issuance.",
-    ["violDate"],
-  );
+  check(violationDateInRange(d, c), prefix + "the violation date must be on or before issuance.", ["violDate"]);
   check(validISO(c.issued) && c.issued <= recordDay(services.today), prefix + "the issue date must be no later than today.", ["issued"]);
-  check(
-    validISO(c.issued) &&
-      c.issued === (d.correction ? d.correction.actionDate : d.authoringVersion >= 9 ? d.revision?.actionDate || d.mailed : d.mailed),
-    prefix +
-      (d.correction
-        ? "the issue date must match the original action date used in reports."
-        : "the issue date must match this document’s mailed date."),
-    ["issued"],
-  );
+  check(validISO(c.issued) && c.issued === expectedIssueDate(d), prefix + issueDateMessage(d), ["issued"]);
   check(validISO(c.courtDate) && c.courtDate > c.issued, prefix + "the court date must follow issuance.", ["courtDate"]);
 }
 
@@ -701,7 +725,7 @@ export function createCitationWorkflow(services) {
     // R59: the different-charge ordinance input edits the same stored charge as the section select, and a
     // charge awaiting its deposit basis keeps an editable ordinance.
     if (field === "ordOther") field = "ord";
-    const c = d.cits[id] || (field === "ord" ? d.depositRequests?.[id] : null);
+    const c = citationEditTarget(d, id, field);
     if (!c) return;
     if (field === "offenseLevel") return editOffenseLevel(services, d, c, String(value || ""));
     value = normalizeCitationFieldValue(field, value);
@@ -709,14 +733,7 @@ export function createCitationWorkflow(services) {
     if (c[field] === value) return;
     if (rejectCitationFieldEdit(services, d, c, field, value)) return;
     c[field] = value;
-    if (field === "amount") delete c.depositEditInvalid;
-    if (field === "issued") delete c.issuedAutomatic;
-    if (field === "desc") c.descEdited = true;
-    if (["violDate", "issued", "scheduleEntryId", "tierOverride", "tierOverrideSource"].includes(field)) services.citationPricing.refresh(d);
-    if (field === "depositMode") editCitationDepositMode(services, d, id, c, value);
-    updateCitationFees(services, c, field);
-    confirmEditedDepositBasis(services, d, c, field);
-    if (d.correction) d.correction.reviewed = false;
+    afterCitationFieldEdit(services, { d, id, c, field, value });
   }
 
   function commitCitationEdits(d) {

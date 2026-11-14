@@ -10,31 +10,33 @@ import { itemLibraryKey } from "./document_rules.js";
 import { canonicalOrdinance, cents, resolveCitationAmount, tierOrdinal } from "./citation_policy.js";
 import { html, raw } from "./screen_html.js";
 /* Administrative deposit exceptions and seasonal letter review live only in Tools. */
+// A confirmed decision by a named administrator, with its reason and source.
+const overrideActorIncomplete = (b) =>
+  b.version !== 1 ||
+  !b.confirmed ||
+  String(b.administrator || "").trim().length < 2 ||
+  String(b.reason || "").trim().length < 20 ||
+  !String(b.sourceReference || "").trim();
+
+const overrideReceiptInvalid = (b) => !/^[0-9a-f]{32}$/.test(b.authorizationId || "") || !/^[0-9a-f]{64}$/.test(b.authorizationHash || "");
+
 function overrideAuthorizationFault(b) {
-  if (
-    b.version !== 1 ||
-    !b.confirmed ||
-    String(b.administrator || "").trim().length < 2 ||
-    String(b.reason || "").trim().length < 20 ||
-    !String(b.sourceReference || "").trim() ||
-    !/^[0-9a-f]{32}$/.test(b.authorizationId || "") ||
-    !/^[0-9a-f]{64}$/.test(b.authorizationHash || "")
-  )
-    return "Administrator override needs its named, confirmed helper authorization.";
+  if (overrideActorIncomplete(b) || overrideReceiptInvalid(b)) return "Administrator override needs its named, confirmed helper authorization.";
   return "";
 }
 
+// The override was authorized for this case, citation, charge and pricing date.
+const overrideIdentityChanged = (b, c, k) =>
+  b.caseNumber !== k.number || b.citationNumber !== c.num || b.ordinance !== canonicalOrdinance(c.ord) || b.pricingDate !== (c.pricedOn || c.issued);
+
+const overrideAmountChanged = (b, c) =>
+  b.mode !== c.depositMode ||
+  b.totalCents !== cents(c.amount) ||
+  b.policyVersionHash !== c.policyVersionHash ||
+  (b.mode === "base" && (b.baseCents !== cents(c.base) || b.courtCents !== cents(c.cc)));
+
 function overrideCitationFault(b, c, k) {
-  if (
-    b.caseNumber !== k.number ||
-    b.citationNumber !== c.num ||
-    b.ordinance !== canonicalOrdinance(c.ord) ||
-    b.pricingDate !== (c.pricedOn || c.issued) ||
-    b.mode !== c.depositMode ||
-    b.totalCents !== cents(c.amount) ||
-    b.policyVersionHash !== c.policyVersionHash ||
-    (b.mode === "base" && (b.baseCents !== cents(c.base) || b.courtCents !== cents(c.cc)))
-  )
+  if (overrideIdentityChanged(b, c, k) || overrideAmountChanged(b, c))
     return "Administrator override no longer matches this citation; authorize it again.";
   return "";
 }
@@ -48,6 +50,33 @@ function overrideHistoryFault(b, c) {
   )
     return "Administrator override pricing facts or citation history changed; authorize it again.";
   return "";
+}
+
+// A money deposit the schedule determines; mandatory appearances and unpriced charges cannot be overridden.
+function scheduledDeposit(i, c) {
+  if (!c || c.mandatoryAppearance) return false;
+  const priced = resolveCitationAmount({
+    ordinance: c.ord,
+    libraryItem: itemLibraryKey(i),
+    entryId: c.scheduleEntryId,
+    tier: c.tier || 1,
+    date: c.pricedOn || c.issued,
+    measurements: c.measurements || {},
+  });
+  return priced.kind === "priced";
+}
+
+// Every editable draft citation with a scheduled money deposit, each draft re-priced first.
+function overrideTargets(services) {
+  const targets = [];
+  for (const d of workspace.DOCS.filter((x) => x.draft && !x.pendingAmendment && !services.isLocked(x))) {
+    services.citationPricing.refresh(d);
+    for (const i of d.items || []) {
+      const c = d.cits?.[i.id];
+      if (scheduledDeposit(i, c)) targets.push({ d, i, c });
+    }
+  }
+  return targets;
 }
 
 function actorFields() {
@@ -131,23 +160,7 @@ export function initAdministration(services) {
       services.toast("Connect the local helper and case folder first.");
       return;
     }
-    const targets = [];
-    for (const d of workspace.DOCS.filter((x) => x.draft && !x.pendingAmendment && !services.isLocked(x))) {
-      services.citationPricing.refresh(d);
-      for (const i of d.items || []) {
-        const c = d.cits?.[i.id];
-        if (!c || c.mandatoryAppearance) continue;
-        const priced = resolveCitationAmount({
-          ordinance: c.ord,
-          libraryItem: itemLibraryKey(i),
-          entryId: c.scheduleEntryId,
-          tier: c.tier || 1,
-          date: c.pricedOn || c.issued,
-          measurements: c.measurements || {},
-        });
-        if (priced.kind === "priced") targets.push({ d, i, c });
-      }
-    }
+    const targets = overrideTargets(services);
     if (!targets.length) {
       services.toast("Open a draft with a determined money deposit before authorizing an exception.");
       return;
