@@ -1,0 +1,43 @@
+def _validate_cash_citation(*, amount, c, mode, check_date_window, snap, issued, item):
+    total = amount(c.get("amount"))
+    if total <= 0:
+        raise ValueError("A cash deposit must be positive")
+    if mode != "total" and (check_date_window or snap.get("authoringVersion", 0) < 6):
+        base, costs = (amount(c.get("base")), amount(c.get("cc")))
+        if snap.get("authoringVersion", 0) >= 8 and base == 0 and (not citation_pricing.policy().get("allowZeroBaseDeposits", False)):
+            raise ValueError("A zero forfeiture needs City Attorney approval")
+        if snap.get("authoringVersion", 0) >= 6:
+            lines = citation_pricing.assessment_cents(int(base * 100), int(costs * 100), at=c.get("pricedOn") or issued)
+            expected = Decimal(lines["total"]) / 100
+            if c.get("assessments") is not None and c["assessments"] != lines:
+                raise ValueError("The recorded jail/assessment figures do not match the shared policy")
+        else:
+            expected = Decimal(citation_pricing.assessment_cents(int(base * 100), int(costs * 100), legacy=True)["total"]) / 100
+        if (
+            not Decimal(15) <= costs <= Decimal(citation_pricing.policy_at(c.get("pricedOn") or issued)["fees"]["ccMaxCents"]) / 100
+            or total != expected
+        ):
+            raise ValueError("The citation deposit does not match its base and assessments")
+        if mode == "schedule" and snap.get("authoringVersion", 0) >= 5 and check_date_window:
+            current_policy = snap.get("authoringVersion", 0) >= 6
+            expected_base = (
+                (
+                    None
+                    if (
+                        b := citation_pricing.base_cents(
+                            citation_pricing.resolve(
+                                c["ord"], citation_pricing.item_key(item), c.get("scheduleEntryId", ""), at=c.get("pricedOn") or issued
+                            ),
+                            c.get("tier", "1st"),
+                            c.get("measurements"),
+                        )
+                    )
+                    is None
+                    else Decimal(b) / 100
+                )
+                if current_policy
+                else legacy_scheduled_citation_base(c["ord"], c.get("tier", "1st"))
+            )
+            expected_costs = Decimal(citation_pricing.court_cents(c.get("pricedOn") or issued)) / 100 if current_policy else Decimal(48)
+            if expected_base is None or base != expected_base or costs != expected_costs:
+                raise ValueError("Scheduled deposit does not match the selected ordinance and tier; use an approved base or total with its source")
