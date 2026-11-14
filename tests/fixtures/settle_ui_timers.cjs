@@ -10,6 +10,8 @@
    timer durations are unchanged. Finally the test window is closed. */
 "use strict";
 const LONG_MS = 1000;
+const MAX_RENDER_FRAMES = 10;
+const JSDOM_RENDER_CALL = "at scheduleRenderingUpdate (" + require.resolve("jsdom/lib/jsdom/browser/Window.js") + ":";
 const native = {
   setTimeout: global.setTimeout,
   clearTimeout: global.clearTimeout,
@@ -37,8 +39,10 @@ global.clearTimeout = function (handle) {
 };
 global.setInterval = function (fn, ms, ...args) {
   const delay = Number(ms) || 0;
+  // Only jsdom's pinned rendering scheduler owns this call site. Application intervals are never exempted.
+  const rendering = new Error().stack.includes(JSDOM_RENDER_CALL);
   const handle = native.setInterval(fn, delay, ...args);
-  pending.set(handle, { fn, args, delay, due: Date.now() + delay, interval: true });
+  pending.set(handle, { fn, args, delay, due: Date.now() + delay, interval: true, rendering });
   return handle;
 };
 global.clearInterval = function (handle) {
@@ -47,6 +51,7 @@ global.clearInterval = function (handle) {
 };
 
 async function drain(window) {
+  let renderingFrames = 0;
   for (let round = 0; round < 10000; round++) {
     // jsdom 31 uses an owned interval for a pending focus/rendering update. Let that real frame finish and
     // clear itself before testing for leaked application intervals; do not cancel or ignore any interval.
@@ -60,8 +65,14 @@ async function drain(window) {
     // Unreferenced timers never keep the process alive, so they are neither waited for nor run.
     const live = [...pending.entries()].filter(([handle]) => !handle.hasRef || handle.hasRef());
     if (!live.length) return;
-    if (live.some(([, timer]) => timer.interval))
+    if (live.some(([, timer]) => timer.interval && !timer.rendering))
       throw new Error("A referenced interval is still running after the suite completed; stop it explicitly.");
+    if (live.some(([, timer]) => timer.interval)) {
+      // Nested frames/focus fixups keep jsdom's scheduler alive briefly. Let it stop itself; never cancel it.
+      if (typeof window?.requestAnimationFrame === "function" && ++renderingFrames < MAX_RENDER_FRAMES) continue;
+      throw new Error("A referenced interval is still running after the suite completed; stop it explicitly.");
+    }
+    renderingFrames = 0;
     if (live.some(([, timer]) => timer.delay < LONG_MS)) {
       // Short timers are ordinary pending work: let them fire on their own.
       await new Promise((resolve) => native.setTimeout(resolve, 10));
