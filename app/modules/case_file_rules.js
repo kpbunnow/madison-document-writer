@@ -91,30 +91,33 @@ function issuedSnapshotFault(p, at) {
   if (!p.snapshot || typeof p.snapshot !== "object") return "an issued document carries no snapshot" + at;
   if (!Array.isArray(p.snapshot.items)) return "an issued document has no item list" + at;
   if (!p.snapshot.id || !p.snapshot.caseId) return "an issued document has no identity" + at;
-  if (
-    p.snapshot.items.some(
-      (it) => !it || typeof it !== "object" || !it.id || !Array.isArray(it.sections) || it.sections.some((x) => typeof x !== "string"),
-    )
-  )
-    return "an item has an invalid identity or ordinance list" + at;
-  if (
-    p.snapshot.frozen &&
-    p.snapshot.frozen.case &&
-    p.snapshot.frozen.case.ownerAddr !== undefined &&
-    !Array.isArray(p.snapshot.frozen.case.ownerAddr)
-  )
-    return "a frozen mailing address is invalid" + at;
+  if (p.snapshot.items.some(invalidSnapshotItem)) return "an item has an invalid identity or ordinance list" + at;
+  if (invalidFrozenAddress(p.snapshot)) return "a frozen mailing address is invalid" + at;
   return "";
 }
 
-function caseEventFault(e, seen, at) {
+const invalidSnapshotItem = (it) =>
+  !it || typeof it !== "object" || !it.id || !Array.isArray(it.sections) || it.sections.some((x) => typeof x !== "string");
+const invalidFrozenAddress = (snapshot) =>
+  snapshot.frozen && snapshot.frozen.case && snapshot.frozen.case.ownerAddr !== undefined && !Array.isArray(snapshot.frozen.case.ownerAddr);
+
+// A record with an id not seen before; the id is recorded as seen here, before any later check.
+function eventIdentityFault(e, seen, at) {
   if (!e || typeof e !== "object") return "an event is not a record" + at;
   if (!String(e.id || "").trim()) return "an event has no id" + at;
   if (seen[e.id]) return "two events share an id" + at;
   seen[e.id] = 1;
+  return "";
+}
+
+function eventShapeFault(e, at) {
   if (!String(e.at || "").trim() || isNaN(new Date(e.at).getTime())) return "an event has no usable date" + at;
   if (!String(e.type || "").trim()) return "an event has no type" + at;
   if (e.payload !== undefined && (!e.payload || typeof e.payload !== "object")) return "an event payload is not a record" + at;
+  return "";
+}
+
+function eventPayloadFault(e, at) {
   const p = e.payload || {};
   if (/\.issued$/.test(e.type)) {
     const fault = issuedSnapshotFault(p, at);
@@ -124,16 +127,19 @@ function caseEventFault(e, seen, at) {
   return "";
 }
 
-export function caseFileFault(f) {
-  if (!f || typeof f !== "object") return "it is not a record";
-  if (f.format !== "madison-case-file") return "it is not a Madison case file";
-  const k = f["case"];
+function caseEventFault(e, seen, at) {
+  return eventIdentityFault(e, seen, at) || eventShapeFault(e, at) || eventPayloadFault(e, at);
+}
+
+// The case record itself, then its recipients, in the original refusal order.
+function caseRecordFault(k) {
   if (!k || typeof k !== "object") return "it carries no case";
   if (!String(k.id || "").trim() || !String(k.number || "").trim()) return "the case has no number";
-  const recipientFault = caseRecipientFault(k);
-  if (recipientFault) return recipientFault;
-  const listsFault = caseListsFault(f);
-  if (listsFault) return listsFault;
+  return caseRecipientFault(k);
+}
+
+// The first fault among the events, in file order.
+function caseEventsFault(f) {
   const seen = {};
   const evs = f.events || [];
   for (let n = 0; n < evs.length; n++) {
@@ -142,8 +148,35 @@ export function caseFileFault(f) {
     const fault = caseEventFault(e, seen, at);
     if (fault) return fault;
   }
+  return "";
+}
+
+export function caseFileFault(f) {
+  if (!f || typeof f !== "object") return "it is not a record";
+  if (f.format !== "madison-case-file") return "it is not a Madison case file";
+  const caseFault = caseRecordFault(f["case"]);
+  if (caseFault) return caseFault;
+  const listsFault = caseListsFault(f);
+  if (listsFault) return listsFault;
+  const eventsFault = caseEventsFault(f);
+  if (eventsFault) return eventsFault;
   if (badIds(f)) return "it carries an identifier the program cannot use";
   return correctionHistoryFault(f.events || []);
+}
+
+// A correction must replace the current, unchanged version with a reason, a revision link, an allowed type and the
+// same item identities.
+function correctionEventFault(docs, changed, p) {
+  const old = docs.get(p.replaces);
+  if (!old || old.eventId !== p.baseEventId || changed.has(p.replaces))
+    return "Conflicting corrections: keep both drafts for review and reopen the current shared case";
+  if (!String(p.reason || "").trim() || !p.snapshot.revision) return "A correction is missing its reason or revision link";
+  if (
+    !recordCorrectionTypeAllowed(old, p.snapshot.type) ||
+    stableJSON(old.items.map((i) => [i.id, i.no])) !== stableJSON(p.snapshot.items.map((i) => [i.id, i.no]))
+  )
+    return "A correction changed the document type or item identities";
+  return "";
 }
 
 export function correctionHistoryFault(events) {
@@ -154,15 +187,8 @@ export function correctionHistoryFault(events) {
     if (/\.issued$/.test(ev.type) && p.snapshot) {
       if (docs.has(p.snapshot.id)) return "Two issued records share a document identity";
       if (ev.type === "correction.issued") {
-        const old = docs.get(p.replaces);
-        if (!old || old.eventId !== p.baseEventId || changed.has(p.replaces))
-          return "Conflicting corrections: keep both drafts for review and reopen the current shared case";
-        if (!String(p.reason || "").trim() || !p.snapshot.revision) return "A correction is missing its reason or revision link";
-        if (
-          !recordCorrectionTypeAllowed(old, p.snapshot.type) ||
-          stableJSON(old.items.map((i) => [i.id, i.no])) !== stableJSON(p.snapshot.items.map((i) => [i.id, i.no]))
-        )
-          return "A correction changed the document type or item identities";
+        const fault = correctionEventFault(docs, changed, p);
+        if (fault) return fault;
         changed.add(p.replaces);
       }
       docs.set(p.snapshot.id, Object.assign({}, p.snapshot, { eventId: ev.id }));
