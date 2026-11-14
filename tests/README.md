@@ -35,6 +35,7 @@ covers, or a new suite under its feature.
 | `audit_workflow_locality.js` | Diagnostic Phase 3 workflow locality census: peer, live-state, query and DOM counting rules; every configured workflow resolves, its calculation phases and totals never exceed the recorded pre-edit census, and no pre-edit dependency leaves the census without a recorded removal |
 | `audit_workflow_calculation_phases.js` | Phase 3 document eligibility, lifecycle faults, worksheet checks and follow-up permission/drafting: calculations over explicit lookups equal the retained original modules over 1,500 scenarios per operation, including ordered service gets/calls/toasts, interrupted effects, drafts and live state |
 | `audit_locality_change_exercises.js` | Phase 3 change exercises: two rule changes applied to in-memory module copies are verified with a plain lookup object, live workspace state poisoned and no services object; the intended effect appears and every other result is unchanged |
+| `audit_owner_migration_mutations.js` | Phase 4 negative evidence: each suite migrated from whole-application evaluation to real owners passes unmodified and fails with one deliberate regression in the rule it guards |
 | `audit_ui_timer_settlement.js` | Isolated DOM rendering completion, every pending callback, and retained interval/callback/completion failure detection |
 | `audit_gate_stages.py` | Isolated gate evidence rejects missing, altered, cross-run, cross-source and cross-toolchain artifacts, linked paths and incomplete receipts |
 | `audit_gate_artifacts.py` | Authenticated same-run/head/producer-attempt pairs for gate-only retries, including cloned successful jobs and repeated attempts; failed/partial/skipped/mixed producers and changed execution identities/times/steps, metadata and ZIP digest/path/link/expansion refusal, scoped credentials/redirects |
@@ -542,6 +543,8 @@ code; each scenario label starts with the former name. Release reviews cite them
 | `audit_r61_development.js` | `audit_feature_corrections.js`, `audit_feature_history_referrals.js` (history rendering; compliance generation), `audit_feature_language_catalog.js`, `audit_feature_extensions.js`, `audit_feature_citation_packets.js`, `audit_feature_editor_screens.js` | seven |
 | `audit_r60_development.js` | `audit_feature_editor_screens.js` (Workspace entry; inline fill-in entry), `audit_feature_history_referrals.js` (lineage → deadlines → referral, one dependent chain) | three |
 
+
+Phase 4 import migrations: `audit_r36.js`, `audit_r37.js`, `audit_lookup.js` and `audit_r59_import_selection.js` compose the real import, import-events, workspace click router, snow, pricing, court, document-creation, reinspection, worksheet, case-status, working-papers, address and test-build issuance owners through `import_workflow.cjs`; `audit_safety.js` composes the real language-catalog, record-integrity, working-papers and draft-persistence owners through `shared_case_workflow.cjs`. All 109 original assertion-call ASTs are unchanged and in order. Every other peer is bounded (`bounded_services.cjs`): an unbound use fails naming the service.
 
 `audit_shell_escaping.js` composes real shell, case-action and editor-screen owners via `writer_shell.cjs`; retained escaping assertions no longer start Writer. Peer renderers outside the title/crumb contract remain controlled adapters.
 
