@@ -131,16 +131,19 @@ def ruff_c901(files):
     return [{"file": f["filename"].replace(str(ROOT) + os.sep, ""), "message": f["message"]} for f in json.loads(result.stdout)]
 
 
+def mi_summary(rows, key):
+    return {**file_summary(rows, key, "sloc"), "zero": sorted(r["file"] for r in rows if r[key] == 0)}
+
+
 def python_group(cli, complete, members):
     members = set(members)
     rows = [r for r in complete["files"] if r["file"] in members]
     return {
         "radonCli": distribution([f["complexity"] for f in cli if f["file"] in members], 20),
         "radonComplete": distribution([f["complexity"] for f in complete["functions"] if f["file"] in members], 20),
-        "mi": {**file_summary(rows, "mi", "sloc"), "zero": sorted(r["file"] for r in rows if r["mi"] == 0)},
+        "mi": mi_summary(rows, "mi"),
         "miVariants": {
-            label: {**file_summary(rows, key, "sloc"), "zero": sorted(r["file"] for r in rows if r[key] == 0)}
-            for label, key in [("default", "mi"), ("regularComments", "miRegularComments"), ("codeOnly", "miCodeOnly")]
+            label: mi_summary(rows, key) for label, key in [("default", "mi"), ("regularComments", "miRegularComments"), ("codeOnly", "miCodeOnly")]
         },
         "sloc": sum(r["sloc"] for r in rows),
     }
