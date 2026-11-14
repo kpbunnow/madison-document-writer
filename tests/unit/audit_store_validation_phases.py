@@ -89,13 +89,16 @@ def legacy_outcome(policy, ordinance, tier, reference=False):
         path = ROOT / "tests/fixtures/legacy_schedule_reference.py.txt"
         exec(compile(path.read_text(), str(path), "exec"), namespace)
     trace = []
+
     class Resource:
         def read_text(self, **kwargs):
             trace.append(("read", kwargs))
             return json.dumps(policy)
+
     def resource(name):
         trace.append(("resource", name))
         return Resource()
+
     namespace["resource"] = resource
     original = copy.deepcopy(policy)
     try:
