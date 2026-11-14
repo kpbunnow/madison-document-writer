@@ -19,7 +19,10 @@ HOTSPOTS = [
     "helper/cash_validation.py",
     "helper/issuance_validation.py",
     "helper/server.py",
+    "helper/parcel_history.py",
+    "helper/index_validation.py",
     "helper/case_projection.py",
+    "helper/projection_values.py",
     "helper/citation_pricing.py",
 ]
 EFFECTS = {

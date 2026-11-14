@@ -49,7 +49,10 @@
     "runtime_identity.py",
     "runtime_paths.py",
     "desktop_launch.py",
-    "document-writer.ico"
+    "document-writer.ico",
+    "index_validation.py",
+    "parcel_history.py",
+    "projection_values.py"
   ],
   "optional": [
     "integrity_admin.py",
@@ -147,6 +150,9 @@
     "document-writer.ico": "app/assets/document-writer.ico",
     "integrity_verification.py": "helper/integrity_verification.py",
     "cash_validation.py": "helper/cash_validation.py",
-    "issuance_validation.py": "helper/issuance_validation.py"
+    "issuance_validation.py": "helper/issuance_validation.py",
+    "index_validation.py": "helper/index_validation.py",
+    "parcel_history.py": "helper/parcel_history.py",
+    "projection_values.py": "helper/projection_values.py"
   }
 }

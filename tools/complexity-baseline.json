@@ -3,7 +3,7 @@
     "complexity": 3,
     "max-depth": 0,
     "max-lines-per-function": 44,
-    "python": 4
+    "python": 3
   },
   "violations": {
     "app/modules/accessibility.js:createAccessibility#1:max-lines-per-function": 187,
@@ -40,7 +40,6 @@
     "app/modules/writer_handoff.js:createWriterHandoff#1:max-lines-per-function": 91,
     "helper/case_integrity.py:__init__:C901": 12,
     "helper/case_store.py:file_lock:C901": 13,
-    "helper/launch.py:main:C901": 17,
-    "helper/server.py:read_index:C901": 30
+    "helper/launch.py:main:C901": 17
   }
 }

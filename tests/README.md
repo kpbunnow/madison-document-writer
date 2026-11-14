@@ -21,6 +21,8 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_calculation_phases.py` | Historical pricing, interrupted dependencies, prior offense boundaries and JavaScript projection value semantics |
+| `audit_index_validation_phases.py` | Original index decisions and ordered interrupted case reads across malformed summary metadata |
 | `audit_store_validation_phases.py` | Retained/current cash validation across historical modes/windows, 2,400 malformed records, ordered pricing failures and isolated declared-runtime loading |
 | `audit_integrity_verification_phases.py` | Retained/current integrity verdicts and hash/context call order, 2,200 malformed/tampered records, every injected checkpoint failure, last-good progress and bypass mutations |
 | `audit_phase1_review.py` | Historical JS cohort filtering, invalid-mutant classification and selection, coverage language barriers, complete Python denominators and diagnostic source-change refusal |

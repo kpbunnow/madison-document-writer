@@ -5,7 +5,7 @@ def _validate_initial_notice_group(event, documents):
     snap = event.get("payload", {}).get("snapshot", {})
     if event["type"] != "notice.issued" or snap.get("authoringVersion", 0) < 5:
         return
-    selected = [i for i in snap.get("items", []) if i.get("cite") and not i.get("withdrawn")]
+    selected = _selected_citations(snap)
     if not selected:
         if snap.get("issuanceGroup"):
             raise ValueError("An initial issuance group requires selected citations on its Official Notice")
@@ -15,7 +15,7 @@ def _validate_initial_notice_group(event, documents):
         raise ValueError("The initial notice is missing a valid issuance group")
     companion = documents.get(group.get("citationId"), {})
     citation = companion.get("payload", {}).get("snapshot", {})
-    cited = [i for i in citation.get("items", []) if i.get("cite") and not i.get("withdrawn")]
+    cited = _selected_citations(citation)
     if (
         _group_identity_bad(group, event, snap)
         or _citation_header_bad(citation, companion, event)
@@ -63,3 +63,7 @@ def _citation_source_bad(citation, snap, group):
 
 def _selection_bad(cited, selected):
     return len(cited) != len(selected) or {i.get("srcItemId") for i in cited} != {i["id"] for i in selected} or any(i.get("done") for i in selected)
+
+
+def _selected_citations(snap):
+    return [i for i in snap.get("items", []) if i.get("cite") and not i.get("withdrawn")]
