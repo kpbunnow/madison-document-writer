@@ -23,7 +23,7 @@ covers, or a new suite under its feature.
 | --- | --- |
 | `audit_ui_timer_settlement.js` | Isolated DOM rendering completion, every pending callback, and retained interval/callback/completion failure detection |
 | `audit_gate_stages.py` | Isolated gate evidence rejects missing, altered, cross-run, cross-source and cross-toolchain artifacts, linked paths and incomplete receipts |
-| `audit_gate_artifacts.py` | Authenticated same-run/head/producer-attempt pairs for gate-only retries; failed/partial/skipped/mixed producers, metadata and ZIP digest/path/link/expansion refusal, scoped credentials/redirects |
+| `audit_gate_artifacts.py` | Authenticated same-run/head/producer-attempt pairs for gate-only retries, including cloned successful jobs and repeated attempts; failed/partial/skipped/mixed producers and changed execution identities/times/steps, metadata and ZIP digest/path/link/expansion refusal, scoped credentials/redirects |
 | `audit_citation_review_templates.js` | 4,096 complete retained citation review cards with exact state, peer reads, ordered effects and interruptions |
 | `audit_deposit_form_templates.js` | 4,096 complete retained deposit form HTML, state and callback/error comparisons |
 | `audit_recipient_lines.js` | 8,192 retained recipient-line output, access-order and error comparisons; public address formatter ownership |

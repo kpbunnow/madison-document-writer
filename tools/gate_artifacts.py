@@ -11,6 +11,7 @@ import re
 import shutil
 import stat
 import zipfile
+from datetime import datetime
 from http.client import HTTPException
 from pathlib import Path, PurePosixPath
 from urllib.error import HTTPError
@@ -110,10 +111,17 @@ def require_jobs(jobs, run, producer, head):
             raise ValueError("Missing, skipped, failed or mismatched producer job; rerun all jobs")
 
 
-def select(api, repository, run, attempt, head):
-    if not re.fullmatch(r"[1-9][0-9]*", str(run)) or not re.fullmatch(r"[1-9][0-9]*", str(attempt)) or not re.fullmatch(r"[0-9a-f]{40}", head):
-        raise ValueError("Identified GitHub run, attempt and source head required")
-    info = api.get("/actions/runs/" + str(run))
+def timestamp(value):
+    try:
+        parsed = datetime.fromisoformat(value)
+    except TypeError, ValueError:
+        raise ValueError("Missing or malformed GitHub execution timestamp; rerun all jobs") from None
+    if parsed.tzinfo is None:
+        raise ValueError("GitHub execution timestamp must have a timezone")
+    return parsed
+
+
+def require_run(info, repository, run, attempt, head):
     if (
         info["id"] != int(run)
         or info["run_attempt"] != int(attempt)
@@ -122,15 +130,50 @@ def select(api, repository, run, attempt, head):
         or info["path"] != ".github/workflows/verify.yml"
     ):
         raise ValueError("GitHub run does not match this reviewed source/workflow")
+    return timestamp(info.get("run_started_at"))
+
+
+def execution(jobs):
+    # GitHub clones carried jobs with new IDs/attempts/creation times. Their actual execution and steps stay intact.
+    return {j["name"]: {k: j[k] for k in ("run_id", "head_sha", "started_at", "completed_at", "steps")} for j in jobs}
+
+
+def is_carried_pair(jobs, attempt_started):
+    carried = []
+    for job in jobs:
+        begin, end = timestamp(job.get("started_at")), timestamp(job.get("completed_at"))
+        if end < begin:
+            raise ValueError("Invalid GitHub producer execution interval")
+        carried.append(end < attempt_started)
+        if begin < attempt_started <= end:
+            raise ValueError("Producer execution crosses attempt boundary; rerun all jobs")
+    if any(carried) and not all(carried):
+        raise ValueError("Mixed fresh and carried producers; rerun all jobs")
+    return all(carried)
+
+
+def select(api, repository, run, attempt, head):
+    if not re.fullmatch(r"[1-9][0-9]*", str(run)) or not re.fullmatch(r"[1-9][0-9]*", str(attempt)) or not re.fullmatch(r"[0-9a-f]{40}", head):
+        raise ValueError("Identified GitHub run, attempt and source head required")
+    info = api.get("/actions/runs/" + str(run))
+    require_run(info, repository, run, attempt, head)
     artifacts = pages(api, "/actions/runs/" + str(run) + "/artifacts", "artifacts")
+    carried = []
     for producer in range(int(attempt), max(0, int(attempt) - 20), -1):
+        prior = info if producer == int(attempt) else api.get("/actions/runs/" + str(run) + "/attempts/" + str(producer))
+        started = require_run(prior, repository, run, producer, head)
         jobs = pages(api, "/actions/runs/" + str(run) + "/attempts/" + str(producer) + "/jobs", "jobs")
         selected = [j for j in jobs if j["name"] in {"regression checks", "browser checks"}]
         if not selected:
-            continue  # A gate-only attempt has no producer jobs of its own.
+            continue  # Some API responses omit carried producer jobs entirely.
         if len(selected) != 2 or {j["name"] for j in selected} != {"regression checks", "browser checks"}:
             raise ValueError("Both complete producers must come from one attempt; rerun all jobs")
         require_jobs(selected, run, producer, head)
+        if is_carried_pair(selected, started):
+            carried.append((producer, selected))
+            continue
+        if any(execution(jobs) != execution(selected) for _, jobs in carried):
+            raise ValueError("Carried producers differ from their original execution; rerun all jobs")
         pair = {}
         for stage in ("regression", "browser"):
             name = "stage-" + stage + "-" + str(run) + "-" + str(producer)
@@ -158,6 +201,7 @@ def select(api, repository, run, attempt, head):
             "sourceCommit": head,
             "workflowId": info["workflow_id"],
             "producerJobs": {j["name"]: j["id"] for j in selected},
+            "carriedJobs": [{"attempt": str(p), "jobs": {j["name"]: j["id"] for j in jobs}} for p, jobs in carried],
             "artifacts": pair,
         }
     raise ValueError("No complete producer pair found; rerun all jobs")
