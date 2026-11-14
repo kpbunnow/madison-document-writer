@@ -115,6 +115,15 @@ const assert = require("node:assert/strict"),
     ["SECOND OWNER", "123 MAIN ST APT 2", "123 MAIN ST", "MADISON WI 53703"],
     "only an identical line is a repeat",
   );
+  for (const unit of ["2ND FLOOR", "3 FL", "4TH FLR", "5 ROOM", "6 SUITE"]) {
+    const lines = ["10 MAIN ST", unit, "20 OTHER ST", unit, "10 Main St.", "MADISON WI 53703"];
+    assert.deepEqual(
+      api.cleanOwnerAddress(lines),
+      lines.filter((_, index) => index !== 4),
+      "a numbered unit is not a street: " + unit,
+    );
+  }
+  assert.deepEqual(api.cleanOwnerAddress(["12 2ND ST", "UNIT 3", "12 2nd St."]), ["12 2ND ST", "UNIT 3"], "numbered streets still deduplicate");
   assert.equal(api.INSPECTORS.find((i) => i.name === "STEPHEN SUNDSTROM").badge, "5603");
 
   // Pricing respondent: shared cases, asserted identically in Python.

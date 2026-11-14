@@ -2081,18 +2081,20 @@ def _validate_owner_copy_lines(snap):
 
 
 _STREET_LINE = re.compile(r"^(\d|PO BOX\b)")
+_NUMBERED_UNIT = re.compile(r"^\d+(?:ST|ND|RD|TH)?\s+(?:FLOOR|FL|FLR|UNIT|APT|APARTMENT|SUITE|STE|ROOM|RM)\b")
 
 
-def _clean_owner_address(lines):
+def _clean_owner_address(lines, *, preserve_numbered_units=True):
     """Mirror of cleanOwnerAddress (app/modules/mailing_rules.js): a line repeating the line before it, or a street or PO
     Box line repeating anywhere, prints once. Keys ignore case, spacing, periods and commas."""
     kept, streets, previous = [], set(), ""
     for line in lines:
         line = str(line or "").strip()
         key = re.sub(r"^P ?O ?BOX\b", "PO BOX", re.sub(r"\s+", " ", re.sub(r"[.,]", " ", line)).strip().upper())
-        repeated = not key or key == previous or (_STREET_LINE.match(key) and key in streets)
+        street = _STREET_LINE.match(key) and (not preserve_numbered_units or not _NUMBERED_UNIT.match(key))
+        repeated = not key or key == previous or (street and key in streets)
         previous = key or previous
-        if _STREET_LINE.match(key):
+        if street:
             streets.add(key)
         if not repeated:
             kept.append(line)
@@ -2111,7 +2113,11 @@ def _validate_owner_mailing_lines(snap):
     owner = str(case.get("owner") or "").strip()
     expected = [line for line in [owner, *_clean_owner_address(raw)] if line]
     original = [line for line in (str(x or "").strip() for x in [owner, *raw]) if line]
-    if not expected or expected == original or frozen["ownerMailingLines"] != expected:
+    # Already issued snapshots retain the previous derived lines, even where it mistook a numbered floor/unit for
+    # a street. Accept only that exact legacy projection or the corrected projection, never arbitrary omissions.
+    legacy = [line for line in [owner, *_clean_owner_address(raw, preserve_numbered_units=False)] if line]
+    allowed = [lines for lines in (expected, legacy) if lines and lines != original]
+    if frozen["ownerMailingLines"] not in allowed:
         raise ValueError("Frozen owner mailing lines must match the property owner's mailing address")
 
 

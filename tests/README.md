@@ -179,7 +179,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
-| `audit_authoring.js`, `audit_authoring.py` | Reversible selection, grouped manual deadlines, write gates through the store |
+| `audit_authoring.js`, `audit_authoring.py` | Reversible selection, grouped manual deadlines, write gates through the store; numbered units and exact legacy/current frozen mailing projections |
 | `audit_data.js` | Language library integrity: codes, groups, titles, ordinances, provenance |
 | `audit_r26.js`, `audit_r26_helper.py` | Scoped new-document actions, restrictions and inspection reuse |
 | `audit_r42_editor.js` | Document tasks, readiness, publication routing, print packets |
@@ -482,7 +482,7 @@ workflow. Each receives the arguments named in its row.
 | `browser_accessibility.js` | Theme/forced-color focus, keyboard obscuration, relative typography, 320px reflow, 200% text resize/spacing, textarea feedback, dialog-listener lifetime, 4.5:1 row controls and Reports count links in every theme |
 | `axe_measure.cjs` (helper, `DW_AXE_DETAIL=1` only) | Evidence capture for axe manual-review contrast items: painted-pixel measurement and failure screenshots; asserts nothing |
 | `browser_long_session.js` | 120 production open/edit/print-layout-preview/review/close cycles; exactly-once edits, post-GC DOM/document/listener/heap bounds, live timers/intervals/object URLs, layout-frame teardown and real IndexedDB save/reload of final edits; restored Workspace accessibility |
-| `audit_browser.js` | Core production workflow (including correction typing across a held shared save), axe screens, PDFs, CSP; runs the suites below |
+| `audit_browser.js` | Core production workflow (including correction typing across a held shared save and native Undo/plain-text paste on fill-in bubbles), axe screens, PDFs, CSP; runs the suites below |
 | `browser_r26.js` | Scoped actions with review evidence |
 | `browser_r30.js`, `browser_r31.js`, `browser_r32.js` | Pricing and deposits through the loopback helper |
 | `browser_r33.js`, `browser_r33_focus.js`, `browser_r34.js` | Snow citations, covers and PDFs (`r33_focus` is called by `r33`) |

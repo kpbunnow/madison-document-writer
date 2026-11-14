@@ -103,6 +103,26 @@ class AuthoringStoreTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Frozen owner mailing"):
             self.save(value)  # nothing repeated that prints once, so the fact is not stored
 
+    def test_numbered_units_stay_and_earlier_issued_projections_remain_valid(self):
+        for unit in ["2ND FLOOR", "3 FL", "4TH FLR", "5 ROOM", "6 SUITE"]:
+            with self.subTest(unit=unit):
+                value = self.notice()
+                snap = value["events"][0]["payload"]["snapshot"]
+                case = snap["frozen"]["case"]
+                raw = ["10 MAIN ST", unit, "20 OTHER ST", unit, "10 Main St.", "MADISON WI 53703"]
+                case.update(owner="SYNTHETIC OWNER", ownerAddr=raw.copy())
+                current = ["SYNTHETIC OWNER", *raw[:4], raw[-1]]
+                legacy = ["SYNTHETIC OWNER", *raw[:3], raw[-1]]
+                self.assertEqual(case_store._clean_owner_address(raw), current[1:])
+                for expected in [current, legacy]:
+                    snap["frozen"]["ownerMailingLines"] = expected.copy()
+                    saved = self.save(value)["events"][0]["payload"]["snapshot"]
+                    self.assertEqual(saved["frozen"]["ownerMailingLines"], expected)
+                    self.assertEqual(saved["frozen"]["case"]["ownerAddr"], raw)
+                snap["frozen"]["ownerMailingLines"] = ["SYNTHETIC OWNER", "10 MAIN ST", "20 OTHER ST", raw[-1]]
+                with self.assertRaisesRegex(ValueError, "Frozen owner mailing"):
+                    self.save(value)
+
     def test_approved_base_math_uses_decimal_rounding(self):
         value = self.citation()
         c = next(iter(value["events"][-1]["payload"]["snapshot"]["cits"].values()))
