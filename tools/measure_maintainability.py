@@ -138,6 +138,10 @@ def python_group(cli, complete, members):
         "radonCli": distribution([f["complexity"] for f in cli if f["file"] in members], 20),
         "radonComplete": distribution([f["complexity"] for f in complete["functions"] if f["file"] in members], 20),
         "mi": {**file_summary(rows, "mi", "sloc"), "zero": sorted(r["file"] for r in rows if r["mi"] == 0)},
+        "miVariants": {
+            label: {**file_summary(rows, key, "sloc"), "zero": sorted(r["file"] for r in rows if r[key] == 0)}
+            for label, key in [("default", "mi"), ("regularComments", "miRegularComments"), ("codeOnly", "miCodeOnly")]
+        },
         "sloc": sum(r["sloc"] for r in rows),
     }
 
@@ -221,6 +225,10 @@ def markdown(m):
             f"complete series {g['radonComplete']['count']}, above 10: {g['radonComplete']['above10']}; MI mean {g['mi']['mean']}, median {g['mi']['median']}, "
             f"size-weighted {g['mi']['sizeWeighted']}; MI zero: {', '.join(g['mi']['zero']) or 'none'}."
         )
+        for variant, values in g["miVariants"].items():
+            rows.append(
+                f"  - {variant} MI: mean {values['mean']}, median {values['median']}, SLOC-weighted {values['sizeWeighted']}; zero {', '.join(values['zero']) or 'none'}."
+            )
     rows += ["", f"- Ruff C901 findings above 10 (separate tool): {py['ruffC901']}.", f"- Analyzer compatibility: {py['compatibility']}.", ""]
     rows += [
         "### Worst Python functions (Radon CLI series)",

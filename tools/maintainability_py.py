@@ -27,36 +27,61 @@ def compatible_text(text):
     return copy
 
 
-def functions(blocks, file, out, owner="", closure=False):
-    """Every function, method and closure; closures are marked so radon's top-level counts stay comparable."""
-    for block in blocks:
+def functions(blocks, file, out, owner="", closure=False, seen=None):
+    """Count each source function once, preferring its qualified class owner over Radon's bare duplicate."""
+    seen = set() if seen is None else seen
+    for block in sorted(blocks, key=lambda b: type(b).__name__ != "Class"):
         if type(block).__name__ == "Class":
-            functions(block.methods, file, out, block.name + ".")
+            functions(block.methods, file, out, owner + block.name + ".", closure, seen)
             continue
+        location = (file, block.lineno, block.col_offset, block.name)
+        if location in seen:
+            continue
+        seen.add(location)
         name = owner + block.name
         out.append({"file": file, "name": name, "line": block.lineno, "complexity": block.complexity, "closure": closure})
-        functions(getattr(block, "closures", []), file, out, name + ".", True)
+        functions(getattr(block, "closures", []), file, out, name + ".", True, seen)
+
+
+def file_statistics(text):
+    """Keep the original strict assessment's three MI variants separate; mi remains the default alias."""
+    from radon.metrics import mi_compute, mi_parameters
+    from radon.raw import analyze
+
+    volume, complexity, lloc, comments = mi_parameters(text, count_multi=True)
+    _, _, _, regular = mi_parameters(text, count_multi=False)
+    raw = analyze(text)
+    return {
+        "mi": round(mi_compute(volume, complexity, lloc, comments), 2),
+        "miCodeOnly": round(mi_compute(volume, complexity, lloc, 0), 2),
+        "miRegularComments": round(mi_compute(volume, complexity, lloc, regular), 2),
+        "halsteadVolume": volume,
+        "moduleComplexity": complexity,
+        "lloc": lloc,
+        "sloc": raw.sloc,
+        "loc": raw.loc,
+        "comments": raw.comments,
+        "multilineStringLines": raw.multi,
+    }
 
 
 def measure(root, files):
     # Radon exists only in the isolated analysis environment; the rest of this module imports anywhere.
     from radon.complexity import cc_visit
-    from radon.metrics import mi_visit
-    from radon.raw import analyze
 
     result = {"files": [], "functions": [], "compatibility": []}
     for file in files:
         text = (root / file).read_text(encoding="utf-8")
         functions(cc_visit(text), file, result["functions"])
         try:
-            mi, raw = mi_visit(text, True), analyze(text)
+            statistics = file_statistics(text)
         except SyntaxError:
             copy = compatible_text(text)
             if copy is None:
                 raise
-            mi, raw = mi_visit(copy, True), analyze(copy)
+            statistics = file_statistics(copy)
             result["compatibility"].append({"file": file, "treatment": "escaped Unicode line separators; AST and LF count verified"})
-        result["files"].append({"file": file, "mi": round(mi, 2), "sloc": raw.sloc, "loc": raw.loc, "comments": raw.comments})
+        result["files"].append({"file": file, **statistics})
     return result
 
 
