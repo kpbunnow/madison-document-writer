@@ -1,0 +1,295 @@
+{
+  "version": 1,
+  "identity": {
+    "release": "2026-11-13 R82",
+    "helperVersion": "2026.11.13.83",
+    "authoringVersion": 16,
+    "caseSchema": 5,
+    "summaryVersion": 6,
+    "backupVersion": 2,
+    "helperBuild": 83
+  },
+  "scope": "Reviewed policy mirrors. Exact lexical tool excludes tests/oracles/vendor/generated and cannot measure semantic or cross-language clones.",
+  "rules": [
+    {
+      "id": "parcel",
+      "authority": "City twelve-ASCII-digit parcel contract; shared browser normalization is the reference.",
+      "owners": [
+        {
+          "file": "app/assets/shared.js",
+          "symbols": [
+            "normParcel"
+          ]
+        },
+        {
+          "file": "helper/projection_values.py",
+          "symbols": [
+            "norm_parcel"
+          ]
+        },
+        {
+          "file": "helper/citation_pricing.py",
+          "symbols": [
+            "same_site",
+            "site_basis"
+          ]
+        }
+      ],
+      "consumers": [
+        "app/modules/citation_policy.js",
+        "helper/case_projection.py"
+      ],
+      "historicalVariants": "Issued parcel/pricing facts are immutable. server.norm_parcel is a distinct lenient GIS transport API, intentionally not consolidated.",
+      "suites": [
+        "audit_policy_mirrors.py",
+        "audit_case_projection.py",
+        "audit_citation_pricing_rules.py"
+      ]
+    },
+    {
+      "id": "mailing",
+      "authority": "Derived owner mailing projection; approved domain rules and frozen source facts.",
+      "owners": [
+        {
+          "file": "app/modules/mailing_rules.js",
+          "symbols": [
+            "cleanOwnerAddress"
+          ]
+        },
+        {
+          "file": "helper/case_store.py",
+          "symbols": [
+            "_clean_owner_address"
+          ]
+        }
+      ],
+      "consumers": [
+        "app/modules/address_format.js",
+        "helper/case_store.py"
+      ],
+      "historicalVariants": "preserve_numbered_units=False retains older duplicate-unit behavior. Optional frozen.ownerCopyLines freezes current cleanup; earlier documents without the fact retain original output. Raw owner addresses remain unchanged.",
+      "suites": [
+        "audit_policy_mirrors.py",
+        "audit_authoring.js",
+        "audit_authoring.py",
+        "audit_r31_address.js",
+        "audit_r31_address.py"
+      ]
+    },
+    {
+      "id": "calendar",
+      "authority": "America/Chicago civil days; build.py exports shared.js mailing limits to calendar_policy.json; helper independently validates.",
+      "owners": [
+        {
+          "file": "app/assets/shared.js",
+          "symbols": [
+            "recordDay",
+            "mailingMaxDay",
+            "mailingDateMessage"
+          ]
+        },
+        {
+          "file": "app/modules/calendar.js",
+          "symbols": [
+            "validISO"
+          ]
+        },
+        {
+          "file": "helper/case_store.py",
+          "symbols": [
+            "city_day",
+            "mailing_max_day",
+            "mailing_message",
+            "calendar_date"
+          ]
+        }
+      ],
+      "consumers": [
+        "app/modules/document_readiness.js",
+        "helper/case_store.py"
+      ],
+      "historicalVariants": "New-publication windows do not rewrite historical/correction source dates. Date parity covers operational years 1900\u20132200, not all representable Date/Python years.",
+      "suites": [
+        "audit_policy_mirrors.py",
+        "audit_r50_calendar.js",
+        "audit_authoring.py"
+      ]
+    },
+    {
+      "id": "deadlines",
+      "authority": "Seven-day spacing between distinct new ordinary due dates, independently enforced on publication.",
+      "owners": [
+        {
+          "file": "app/modules/deadline_assignment.js",
+          "symbols": [
+            "dueDateSpacingConflicts"
+          ]
+        },
+        {
+          "file": "helper/case_store.py",
+          "symbols": [
+            "_validate_due_spacing"
+          ]
+        }
+      ],
+      "consumers": [
+        "app/modules/document_readiness.js",
+        "helper/case_store.py"
+      ],
+      "historicalVariants": "Unchanged correction pairs, history, snow exceptions and read-only outstanding deadlines retain their rules.",
+      "suites": [
+        "audit_policy_mirrors.py",
+        "audit_authoring.js",
+        "audit_authoring.py",
+        "audit_r62_extensions_helper.py",
+        "audit_r62_extensions.js"
+      ]
+    },
+    {
+      "id": "pricing",
+      "authority": "Approved schedules/parameters compiled by existing pipeline; helper validates independently rather than trusting browser calculations.",
+      "owners": [
+        {
+          "file": "app/modules/citation_policy.js",
+          "symbols": [
+            "resolveCitationAmount"
+          ]
+        },
+        {
+          "file": "helper/citation_pricing.py",
+          "symbols": [
+            "policy_at",
+            "base_cents",
+            "assessment_cents",
+            "validate_pricing"
+          ]
+        }
+      ],
+      "consumers": [
+        "app/modules/citation_pricing.js",
+        "helper/case_store.py",
+        "helper/server.py"
+      ],
+      "historicalVariants": "Pre-2026-10-11 and current dated schedules retained. Corrections preserve source basis. Empty mandatory-appearance deposit may travel in drafts; issuance/legal wording hold remains in both runtimes.",
+      "suites": [
+        "audit_policy_mirrors.py",
+        "audit_citation_pricing_rules.py",
+        "audit_r32_pricing.py",
+        "audit_r32_pricing.js",
+        "audit_violator_pricing.py",
+        "audit_r34.py",
+        "audit_r34.js"
+      ]
+    },
+    {
+      "id": "projection",
+      "authority": "Browser reporting projection and independent helper replay; compare canonical JSON, never loose Python equality.",
+      "owners": [
+        {
+          "file": "app/modules/case_projection.js",
+          "symbols": [
+            "summarizeRecord"
+          ]
+        },
+        {
+          "file": "helper/case_projection.py",
+          "symbols": [
+            "project",
+            "mismatched_fields"
+          ]
+        },
+        {
+          "file": "helper/projection_values.py",
+          "symbols": [
+            "norm_parcel"
+          ]
+        }
+      ],
+      "consumers": [
+        "app/modules/reports_services.js",
+        "helper/inspector_cases.py"
+      ],
+      "historicalVariants": "Summary 6 required for current index; stale summaries rebuild from validated cases. JS undefined, boolean/number, UTF16 and civil-day semantics stay explicit.",
+      "suites": [
+        "audit_case_projection.py",
+        "audit_case_projection_phases.py",
+        "audit_report_facts.js",
+        "audit_report_projection.py"
+      ]
+    },
+    {
+      "id": "recovery",
+      "authority": "Complementary browser restoration and helper storage-envelope/deposit validation; each distrusts peer input.",
+      "owners": [
+        {
+          "file": "app/modules/case_recovery.js",
+          "symbols": [
+            "createCaseRecovery"
+          ]
+        },
+        {
+          "file": "helper/server.py",
+          "symbols": [
+            "_checked_backup",
+            "validate_draft_deposits"
+          ]
+        },
+        {
+          "file": "app/modules/workspace_backup.js",
+          "symbols": [
+            "createWorkspaceBackup"
+          ]
+        }
+      ],
+      "consumers": [
+        "app/modules/automatic_recovery.js",
+        "helper/server.py"
+      ],
+      "historicalVariants": "Draft envelope 1 differs from workspace backup 2 (reader retains 1 and 2). Browser full-shape/reference/history validation supplements helper checks. Import-only restore preserves unrelated work.",
+      "suites": [
+        "audit_policy_mirrors.py",
+        "audit_case_recovery.js",
+        "audit_workspace_backup.js",
+        "audit_workspace_backup_parity.js",
+        "audit_backup_integrity_records.js",
+        "audit_recovery_validation_parity.js"
+      ]
+    }
+  ],
+  "clones": [
+    {
+      "id": "58fe1da65288ca5d6df2939d1c3456b8beb5e2d2dc27388e1498aec228239341",
+      "disposition": "consolidated",
+      "reason": "Profiler input/page validation now shared in profile_support.cjs."
+    },
+    {
+      "id": "4d1ade287460b79a0ca90ba0c49fef52315200c7bbace38e809715bb78bd0797",
+      "disposition": "consolidated",
+      "reason": "Profiler HTTP routes shared in profile_support.cjs; workloads/assertions retained."
+    },
+    {
+      "id": "51824a27a5effb908de2c9e86d85ff38c5defe0c5089a64427f8efbf12e6f36e",
+      "disposition": "intentional",
+      "reason": "shared_case_storage.js case/index refusals remain with distinct write authorities, grant return shapes, committed revision proof and failure handling. Combining coordinators adds integrity risk without useful reuse."
+    }
+  ],
+  "manualCandidates": [
+    {
+      "files": [
+        "app/modules/citation_policy.js",
+        "app/assets/shared.js"
+      ],
+      "disposition": "consolidated",
+      "reason": "Duplicate parcel normalizer imports shared owner; below lexical threshold."
+    },
+    {
+      "files": [
+        "helper/citation_pricing.py",
+        "helper/case_projection.py",
+        "helper/projection_values.py"
+      ],
+      "disposition": "consolidated",
+      "reason": "Both consumers use existing deployed pure leaf; public aliases preserved."
+    }
+  ]
+}

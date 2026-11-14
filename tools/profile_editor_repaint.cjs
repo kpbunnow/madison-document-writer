@@ -3,16 +3,11 @@
    A 60-item Official Notice draft; each round alternates the two production pages and measures sheet refreshes, full
    renders and keep-renders, with model edits interleaved. Output digests, page counts and page text must match. */
 const fs = require("fs"),
-  http = require("http"),
   path = require("path"),
-  crypto = require("crypto"),
   assert = require("assert/strict"),
   { chromium } = require("playwright");
-const { assertProductionPage } = require("../tests/fixtures/built_bundle.cjs");
-const [before, after, output] = process.argv.slice(2);
-assert.ok(before && after && output, "before.html after.html output.json required");
-const pages = [before, after].map((p) => assertProductionPage(path.resolve(p))),
-  sha = (value) => crypto.createHash("sha256").update(value).digest("hex");
+const { readProfileInputs, pairedPageServer } = require("./profile_support.cjs");
+const { pages, output, sha, harnessSha256, supportSha256, verifySources } = readProfileInputs(process.argv.slice(2), __filename);
 
 async function workload() {
   const digest = async (text) =>
@@ -88,11 +83,7 @@ async function workload() {
 }
 
 (async () => {
-  const server = http.createServer((req, res) => {
-    const i = req.url === "/before" ? 0 : req.url === "/after" ? 1 : -1;
-    res.writeHead(i < 0 ? 404 : 200, { "Content-Type": i < 0 ? "application/json" : "text/html" });
-    res.end(i < 0 ? "{}" : pages[i]);
-  });
+  const server = pairedPageServer(pages);
   await new Promise((r) => server.listen(0, "127.0.0.1", r));
   let browser;
   const checks = [];
@@ -131,11 +122,13 @@ async function workload() {
       passed: true,
       browser: browser.version(),
       runtimeHashes: { before: sha(pages[0]), after: sha(pages[1]) },
-      harnessSha256: sha(fs.readFileSync(__filename)),
+      harnessSha256,
+      supportSha256,
       workload: "60-item notice; 60 sheet refreshes, 30 renders and 30 keep-renders, each with an edit every sixth step; four alternating rounds",
       summary,
       checks,
     };
+    verifySources();
     fs.mkdirSync(path.dirname(path.resolve(output)), { recursive: true });
     fs.writeFileSync(output, JSON.stringify(result, null, 2) + "\n");
     console.log(JSON.stringify({ browser: result.browser, summary }, null, 2));

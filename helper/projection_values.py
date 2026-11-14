@@ -164,3 +164,8 @@ def _number_text(v):
     if isinstance(v, float) and v.is_integer() and abs(v) < 1e21:
         return str(int(v))
     return repr(v)
+
+
+def norm_parcel(p):
+    digits = re.sub("[" + re.escape(JS_SPACE) + "-]", "", "" if p is UNDEF or p is None else jstr(p))
+    return digits if re.fullmatch(r"[0-9]{12}", digits) else ""

@@ -6,6 +6,7 @@ closed; it is never deleted merely because a writer is slow.
 """
 
 from runtime_paths import resource
+from projection_values import JS_SPACE, S
 
 import contextlib
 import copy
@@ -1960,19 +1961,19 @@ def _validate_owner_copy_lines(snap):
         raise ValueError("Frozen owner copy lines require the property owner's mailing address lines")
     copies = case.get("ccList") if isinstance(case.get("ccList"), list) else []
     active = case.get("caseType") != "snow-10.28" and any(isinstance(c, dict) and c.get("kind") == "Violator" for c in copies)
-    address = [str(line or "").strip() for line in case.get("ownerAddr", []) if str(line or "").strip()]
+    address = [str(line or "").strip(JS_SPACE) for line in case.get("ownerAddr", []) if str(line or "").strip(JS_SPACE)]
 
     def key(line):
-        return re.sub(r"\s+", " ", line).upper()
+        return re.sub(S + "+", " ", line).upper()
 
     clean = [line for n, line in enumerate(address) if not n or key(line) != key(address[n - 1])]
-    expected = [line for line in [str(case.get("owner") or "").strip(), *clean] if line]
+    expected = [line for line in [str(case.get("owner") or "").strip(JS_SPACE), *clean] if line]
     if not active or case.get("copyOwner") is False or not expected or frozen["ownerCopyLines"] != expected:
         raise ValueError("Frozen owner copy lines must match the property owner's mailing address")
 
 
-_STREET_LINE = re.compile(r"^(\d|PO BOX\b)")
-_NUMBERED_UNIT = re.compile(r"^\d+(?:ST|ND|RD|TH)?\s+(?:FLOOR|FL|FLR|UNIT|APT|APARTMENT|SUITE|STE|ROOM|RM)\b")
+_STREET_LINE = re.compile(r"^([0-9]|PO BOX\b)", re.ASCII)
+_NUMBERED_UNIT = re.compile(r"^[0-9]+(?:ST|ND|RD|TH)?" + S + r"+(?:FLOOR|FL|FLR|UNIT|APT|APARTMENT|SUITE|STE|ROOM|RM)\b", re.ASCII)
 
 
 def _clean_owner_address(lines, *, preserve_numbered_units=True):
@@ -1980,8 +1981,8 @@ def _clean_owner_address(lines, *, preserve_numbered_units=True):
     Box line repeating anywhere, prints once. Keys ignore case, spacing, periods and commas."""
     kept, streets, previous = [], set(), ""
     for line in lines:
-        line = str(line or "").strip()
-        key = re.sub(r"^P ?O ?BOX\b", "PO BOX", re.sub(r"\s+", " ", re.sub(r"[.,]", " ", line)).strip().upper())
+        line = str(line or "").strip(JS_SPACE)
+        key = re.sub(r"^P ?O ?BOX\b", "PO BOX", re.sub(S + "+", " ", re.sub(r"[.,]", " ", line)).strip(JS_SPACE).upper(), flags=re.ASCII)
         street = _STREET_LINE.match(key) and (not preserve_numbered_units or not _NUMBERED_UNIT.match(key))
         repeated = not key or key == previous or (street and key in streets)
         previous = key or previous
@@ -2001,9 +2002,9 @@ def _validate_owner_mailing_lines(snap):
     raw = case.get("ownerAddr")
     if not isinstance(raw, list):
         raise ValueError("Frozen owner mailing lines require the property owner's mailing address lines")
-    owner = str(case.get("owner") or "").strip()
+    owner = str(case.get("owner") or "").strip(JS_SPACE)
     expected = [line for line in [owner, *_clean_owner_address(raw)] if line]
-    original = [line for line in (str(x or "").strip() for x in [owner, *raw]) if line]
+    original = [line for line in (str(x or "").strip(JS_SPACE) for x in [owner, *raw]) if line]
     # Already issued snapshots retain the previous derived lines, even where it mistook a numbered floor/unit for
     # a street. Accept only that exact legacy projection or the corrected projection, never arbitrary omissions.
     legacy = [line for line in [owner, *_clean_owner_address(raw, preserve_numbered_units=False)] if line]

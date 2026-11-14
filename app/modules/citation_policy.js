@@ -1,4 +1,5 @@
 /* Browser interpretation of the exact generated policy also read by Python. */
+import { normParcel as normalizedParcel } from "../assets/shared.js";
 import { CITATION_POLICY as P } from "./data/citation_policy.js";
 import { violatorActive, violatorOf } from "./mailing_rules.js";
 export const CITATION_POLICY = P;
@@ -124,10 +125,6 @@ export function defendantKey(k) {
   return respondentKey({ ownerAddr: [v.addr, v.city], ownerAddressParsed: v.addressParsed });
 }
 /* R34: property matching for site and site-season windows; mirrored exactly by citation_pricing.py. */
-function normalizedParcel(value) {
-  const d = String(value == null ? "" : value).replace(/[\s-]/g, "");
-  return /^\d{12}$/.test(d) ? d : "";
-}
 function propertyKey(address) {
   const t = String(address || "")
     .split(",")[0]

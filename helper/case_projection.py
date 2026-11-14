@@ -35,6 +35,7 @@ from projection_values import (
     jstr,
     jtype,
     keys,
+    norm_parcel,
     plain,
     stringify,
     trim,
@@ -165,11 +166,6 @@ def money_num(v):
     text = re.sub(r"[^0-9.]", "", "" if v is UNDEF or v is None else jstr(v))
     m = re.match(r"\d+\.?\d*|\.\d+", text)
     return float(m[0]) if m else None
-
-
-def norm_parcel(p):
-    digits = re.sub("[" + re.escape(JS_SPACE) + "-]", "", "" if p is UNDEF or p is None else jstr(p))
-    return digits if re.fullmatch(r"[0-9]{12}", digits) else ""
 
 
 def respondent_key(k):

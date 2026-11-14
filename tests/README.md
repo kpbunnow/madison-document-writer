@@ -21,6 +21,10 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_policy_inventory.py` | Live rule owners, full-gate parity suite references and separately reviewed release/format identities; stale references fail |
+| `audit_duplication_measurement.py` | Exact lexical token/literal semantics, real hash collisions, overlap/threshold guards and explicit scan exclusions |
+| `audit_profile_support.js` | Shared production profiler input guards, source-change refusal and all real HTTP routes |
+| `audit_policy_mirrors.py` | Actual JS/Python parcel, mailing, calendar, deadline, historical pricing, recovery envelope and mandatory-appearance outcomes |
 | `audit_mutation_outcome.js` | Mutation evidence refuses non-normal exits and syntax-invalid owner bundles without masking runtime failures |
 | `audit_phase3_async_guards.js` | Helper-settlement cancellation interleavings for Reports loads and import lookup/confirmation, including current-request success |
 | `audit_calculation_phases.py` | Historical pricing, interrupted dependencies, prior offense boundaries and JavaScript projection value semantics |

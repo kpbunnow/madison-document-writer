@@ -4,6 +4,8 @@ language-order dependency barriers and exact input binding. No analysis dependen
 import copy
 import hashlib
 import json
+import subprocess
+from types import SimpleNamespace
 import tempfile
 import threading
 import unittest
@@ -63,6 +65,22 @@ class MutationValidity(unittest.TestCase):
             with patch.object(mutation_pilot, "run_suites", side_effect=run):
                 self.assertEqual(mutation_pilot.trial(root, {}, mutant)["outcome"], "killed")
             self.assertEqual(target.read_text(encoding="utf-8"), original)
+
+    def test_abnormal_process_outcomes_are_not_kills(self):
+        for code, expected in [(0, "passed"), (1, "failed:probe.py"), (-9, "invalid:probe.py"), (None, "invalid:probe.py")]:
+            with self.subTest(code=code), patch.object(mutation_pilot.subprocess, "run", return_value=SimpleNamespace(returncode=code)):
+                self.assertEqual(mutation_pilot.run_suites(Path("."), {}, ["probe.py"]), expected)
+        for error, expected in [(OSError("spawn"), "invalid:probe.py"), (subprocess.TimeoutExpired("probe", 1), "timeout:probe.py")]:
+            with patch.object(mutation_pilot.subprocess, "run", side_effect=error):
+                self.assertEqual(mutation_pilot.run_suites(Path("."), {}, ["probe.py"]), expected)
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / "mod.py").write_text("value = 1\n", encoding="utf-8")
+            mutant = {"file": "mod.py", "find": "1", "replace": "2", "suites": ["probe.py"]}
+            for result, expected in [("invalid:probe.py", "invalid"), ("timeout:probe.py", "timeout"), ("passed", "survived")]:
+                with patch.object(mutation_pilot, "run_suites", return_value=result):
+                    self.assertEqual(mutation_pilot.trial(root, {}, mutant)["outcome"], expected)
+                self.assertEqual((root / "mod.py").read_text(encoding="utf-8"), "value = 1\n")
 
     def test_unknown_and_empty_selection_cannot_report_zero_mutants_as_success(self):
         mutants = [{"id": "first"}, {"id": "second"}]
