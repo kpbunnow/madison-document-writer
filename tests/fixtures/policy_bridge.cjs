@@ -9,6 +9,7 @@ const fs = require("node:fs"),
       contents: `
 export {normParcel,recordDay,mailingMaxDay,mailingDateMessage} from '../assets/shared.js';
 export {cleanOwnerAddress} from './mailing_rules.js';
+export {ownerMailingLines} from './defendant_contact.js';
 export {validISO} from './calendar.js';
 export {dueDateSpacingConflicts} from './deadline_assignment.js';
 export {sameSite,siteBasis,resolveCitationAmount} from './citation_policy.js';
@@ -37,6 +38,7 @@ export {createCaseRecovery} from './case_recovery.js';`,
     parcels: (input.parcels || []).map((v) => [a.normParcel(v), a.siteBasis({ parcel: v })]),
     sites: (input.sites || []).map(([x, y]) => a.sameSite(x, y)),
     mailing: (input.mailing || []).map((v) => a.cleanOwnerAddress(v)),
+    frozenMailing: (input.frozenMailing || []).map((v) => a.ownerMailingLines(v)),
     dates: (input.dates || []).map((v) => a.validISO(v)),
     calendar: (input.calendar || []).map(({ type, at }) => [a.recordDay(at), a.mailingMaxDay(type, a.recordDay(at)), a.mailingDateMessage(type)]),
     due: (input.due || []).map((items) => a.dueDateSpacingConflicts(items.filter((i) => !i.done && !i.withdrawn)).length > 0),

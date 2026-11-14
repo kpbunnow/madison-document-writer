@@ -36,6 +36,28 @@ class PolicyMirrors(unittest.TestCase):
         self.assertEqual([pricing.same_site(*pair) for pair in sites], actual["sites"])
         self.assertEqual([store._clean_owner_address(lines) for lines in mailing], actual["mailing"])
 
+    def test_actual_browser_frozen_mailing_passes_helper(self):
+        cases = [
+            {"owner": w + "SYNTHETIC OWNER" + w, "ownerAddr": [w + "100 TEST ST" + w, w + "100 TEST ST" + w, "MADISON WI 53703"]}
+            for w in ["", "\ufeff", "\u0085", "\x1c", "\u00a0"]
+        ]
+        lines = browser({"frozenMailing": cases})["frozenMailing"]
+        for case, frozen in zip(cases, lines):
+            self.assertIsNotNone(frozen)
+            snap = {"frozen": {"case": case, "ownerMailingLines": frozen}}
+            store._validate_owner_mailing_lines(snap)
+            corrupted = copy.deepcopy(snap)
+            corrupted["frozen"]["ownerMailingLines"] = frozen[:-1]
+            with self.assertRaises(ValueError):
+                store._validate_owner_mailing_lines(corrupted)
+        # Older issued ownerCopyLines retained adjacent-only cleanup, not today's full street deduplication.
+        old = {
+            "owner": "\ufeffSYNTHETIC OWNER",
+            "ownerAddr": ["\ufeff100 TEST ST", "100 TEST ST", "MADISON WI 53703"],
+            "ccList": [{"kind": "Violator", "name": "SYNTHETIC"}],
+        }
+        store._validate_owner_copy_lines({"frozen": {"case": old, "ownerCopyLines": ["SYNTHETIC OWNER", "100 TEST ST", "MADISON WI 53703"]}})
+
     def test_calendar_and_new_due_spacing(self):
         dates = ["2024-02-29", "2025-02-29", "2026-02-31", "1900-02-29", "2000-02-29", "2026-11-14", "bad", "", None]
         calendar = [

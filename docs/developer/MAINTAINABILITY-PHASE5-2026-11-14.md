@@ -21,7 +21,7 @@ The new parity bridge bundles actual browser modules without startup, DOM, runti
 ## Confirmed production defects and consolidation
 
 1. Helper pricing's `\d` accepted full-width/Arabic parcel digits that the browser rejects. It now imports the existing projection leaf's ASCII normalization. `case_projection.norm_parcel` and `citation_pricing.normalized_parcel` remain available as imported aliases. The browser pricing duplicate imports `shared.normParcel`. The leaf was already deployed; no new runtime manifest surface was added.
-2. Helper owner mailing used Python's whitespace and word/digit semantics while the browser used JavaScript's. In particular, a BOM-prefixed street line followed by its ordinary duplicate survived helper cleanup. The helper now uses the already-defined JS whitespace set and ASCII street/unit boundaries. Raw addresses and issued facts remain unchanged. `preserve_numbered_units=False` still selects the historical unit behavior.
+2. Helper owner mailing used Python's whitespace and word/digit semantics while the browser used JavaScript's. In particular, a BOM-prefixed street line followed by its ordinary duplicate survived helper cleanup. The helper now uses the already-defined JS whitespace set and ASCII street/unit boundaries. Frozen owner mailing/copy validation also uses JS trimming and whitespace keys, so it accepts the actual browser-derived owner name/address lines, including BOM and Python-only whitespace boundaries; missing-line tampering remains rejected. Raw addresses and issued facts remain unchanged. `preserve_numbered_units=False` still selects the historical unit behavior.
 3. Both production profilers now share argument/page validation, page digests and the same before/after HTTP routes in `profile_support.cjs`. Their workloads, rounds, alternation, assertions and serial browser execution are unchanged. Both receipts capture the entry harness and shared helper digests before workloads and refuse source changes before writing results. This is diagnostic integrity, not release evidence.
 
 ## Duplication measurement and dispositions
@@ -39,7 +39,7 @@ Comparable working-tree measurements with Python 3.14.10, Node 24.19.0 and pinne
 | Measurement | Files | Tokens | Candidates |
 | --- | ---: | ---: | ---: |
 | Before runtime/profiler consolidation | 256 | 428,636 | 3 |
-| After consolidation and diagnostic tool refactor | 257 | 428,778 | 1 |
+| After consolidation and diagnostic tool refactor | 257 | 428,785 | 1 |
 
 The extra file is the shared profiler helper. Counts include diagnostic tools, whose implementation changed between measurements; this is not a controlled application-performance benchmark. Exact receipts are stored outside the checkout under `/workspace/scratch/work/phase5-2026-11-14/`. They truthfully record a dirty tree and input digests. No speed or maintainability-score claim follows from these counts.
 
@@ -63,6 +63,6 @@ The Unicode correction narrows new computed parcel acceptance to the existing br
 
 ## Verification and limits
 
-Targeted parity, compatibility, profiler, lexical-tool and report checks are recorded in the PR alongside exact-head required GitHub checks. Four additional syntax-valid hand-seeded mutations exercise Unicode parcel acceptance, BOM mailing cleanup, browser mandatory flag and recovery version drift. Each must fail the real parity suite after a passing unmutated baseline; abnormal/invalid outcomes are not success. The Python mutation pilot now also classifies signal termination or spawn failure as invalid, with explicit timeout/survivor/restoration regressions. This is targeted failure-detection evidence, not a global mutation score.
+Targeted parity, compatibility, profiler, lexical-tool and report checks are recorded in the PR alongside exact-head required GitHub checks. Five additional syntax-valid hand-seeded mutations exercise Unicode parcel acceptance, BOM mailing cleanup, frozen-owner trimming, browser mandatory flag and recovery version drift. Each must fail the real parity suite after a passing unmutated baseline; abnormal/invalid outcomes are not success. The Python mutation pilot now also classifies signal termination or spawn failure as invalid, with explicit timeout/survivor/restoration regressions. This is targeted failure-detection evidence, not a global mutation score.
 
 Full CI retains all existing assertions, frozen references, historical print variants, measured browser serialization, integrity and Windows recovery requirements. No fast-mode evidence approves merge. No release was packaged or deployed. Synthetic/Linux automation supplies no City/native hardware, Outlook, SMB, legal or accessibility acceptance. Broader coverage, checked-JS adoption, complexity and usability work in later plan phases remains separate; Phase 5 is not a claim of a 90-point score.

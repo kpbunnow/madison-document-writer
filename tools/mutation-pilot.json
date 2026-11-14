@@ -332,6 +332,16 @@
       "suites": [
         "audit_policy_mirrors.py"
       ]
+    },
+    {
+      "id": "policy-frozen-owner-trim",
+      "category": "Phase 5 cross-runtime policy parity",
+      "file": "helper/case_store.py",
+      "find": "owner = str(case.get(\"owner\") or \"\").strip(JS_SPACE)",
+      "replace": "owner = str(case.get(\"owner\") or \"\").strip()",
+      "suites": [
+        "audit_policy_mirrors.py"
+      ]
     }
   ]
 }
