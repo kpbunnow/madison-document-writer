@@ -1,26 +1,17 @@
-/* R37: the SQL case lookup returns Record Category; "Snow Removal" advances directly to the 10.28 snow citation draft. */
-globalThis.MADISON_TEST_DATA = true;
-const assert = require("assert/strict"),
-  { JSDOM } = require("jsdom");
-const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
-const payload = bundleSource(builtPage());
-const dom = new JSDOM('<!doctype html><div id="app"></div><div id="overlay"></div><div id="toast"></div>', {
-  url: "http://127.0.0.1:8777/",
-  pretendToBeVisual: true,
-});
-global.window = dom.window;
-global.document = dom.window.document;
-global.getSelection = () => window.getSelection();
-window.scrollTo = () => {};
-global.fetch = async () => {
-  throw new Error("offline");
-};
+/* R37: the SQL case lookup returns Record Category; "Snow Removal" advances directly to the 10.28 snow citation draft.
+   Runs against the real import, snow, pricing and document-creation owners (tests/fixtures/import_workflow.cjs);
+   the helper transport is the only network boundary and every other peer is bounded. */
+const assert = require("assert/strict");
+const createImportWorkflow = require("../fixtures/import_workflow.cjs");
 const test = async () => {
-  await new Promise((r) => setTimeout(r, 25));
-  render = () => {};
-  idbSet = async () => true;
-  saveDrafts = async () => true;
-  helperJSON = async () => ({ ok: true, files: [] });
+  const h = await createImportWorkflow(),
+    { WriterState, importer, snow, INSPECTORS, recordDay, today } = h,
+    { sqlReport, accelaPlan, lookupCanOpen, findDatabaseCase, confirmDatabaseCase } = importer,
+    { eventsFor } = h.queries;
+  global.fetch = async () => {
+    throw new Error("offline");
+  };
+  h.bound.helperJSON = async () => ({ ok: true, files: [] });
   const number = "CB2026-005-00048",
     day = recordDay(today);
   const row = {
@@ -103,4 +94,7 @@ const test = async () => {
   );
   process.exit(0);
 };
-eval(payload + "\n(" + test.toString() + ")().catch(e=>{console.error(e);process.exit(1);})");
+test().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

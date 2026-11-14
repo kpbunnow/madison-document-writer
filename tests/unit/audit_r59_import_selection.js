@@ -1,27 +1,18 @@
 /* R59: inspection candidates show four labelled facts, selection is a highlighted pressed state, any listed eligible
    candidate can be chosen, and validation always follows the current selection. R62: inspections already used on
-   the case are hidden and cannot be selected. Synthetic data. */
-const assert = require("assert/strict"),
-  { JSDOM } = require("jsdom");
-const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
-const payload = bundleSource(builtPage());
-const dom = new JSDOM('<!doctype html><div id="app"></div><div id="overlay"></div><div id="toast"></div>', {
-  url: "http://127.0.0.1:8777/",
-  pretendToBeVisual: true,
-});
-const w = dom.window;
-global.window = w;
-global.document = w.document;
-global.getSelection = () => w.getSelection();
-global.confirm = () => true;
-w.scrollTo = () => {};
+   the case are hidden and cannot be selected. Synthetic data.
+   Runs against the real import, import-events, reinspection, document-creation and test-build issuance owners
+   (tests/fixtures/import_workflow.cjs). Shared-case requests are the boundary; the screen is the import panel. */
+const assert = require("assert/strict");
+const createImportWorkflow = require("../fixtures/import_workflow.cjs");
 const tests = async function () {
-  await new Promise((r) => setTimeout(r, 25));
-  idbSet = async () => true;
-  saveDrafts = async () => true;
-  scheduleDraftSave = () => {};
+  const h = await createImportWorkflow(),
+    { WriterState, INSPECTORS, issueDocument, docFromReinspection, addDays, iso, today, fmtDate, fmtTime, stableJSON } = h,
+    { sqlReport, accelaPlan, acceptAccela, accelaPanel, selectImportInspection, confirmDatabaseCase, LOOKUP_READY } = h.importer,
+    { doc, reinsp } = h.queries;
+  global.confirm = () => true;
   const toasts = [];
-  toast = (message) => toasts.push(message);
+  h.bound.toast = (message) => toasts.push(message);
   let count = 0;
   const ok = (name, value, detail = "") => {
     assert.ok(value, name + (detail ? " " + detail : ""));
@@ -31,8 +22,8 @@ const tests = async function () {
   const paint = () => {
     document.getElementById("app").innerHTML = WriterState.state.screen === "import" && WriterState.state.acc ? accelaPanel() : "";
   };
-  render = paint;
-  renderKeep = paint;
+  h.bound.render = paint;
+  h.bound.renderKeep = paint;
   WriterState.CASES = [];
   WriterState.DOCS = [];
   WriterState.REINSP = [];
@@ -184,7 +175,7 @@ const tests = async function () {
     banner && banner.textContent.length > 0 && pressed.getAttribute("aria-describedby") === "acc-blockers",
   );
   ok("Import is disabled for the blank candidate", document.getElementById("acc-go").disabled);
-  helperJSON = async () => ({ files: [] });
+  h.bound.helperJSON = async () => ({ files: [] });
   WriterState.CASEDIR = { helper: true };
   await confirmDatabaseCase();
   ok("Confirming the blank candidate is refused and changes nothing", issued() === baseline && WriterState.state.acc === acc);
@@ -206,7 +197,7 @@ const tests = async function () {
 
   // An in-flight shared check for an earlier selection is ignored.
   let release;
-  helperJSON = () => new Promise((resolve) => (release = () => resolve({ files: [] })));
+  h.bound.helperJSON = () => new Promise((resolve) => (release = () => resolve({ files: [] })));
   const pending = confirmDatabaseCase();
   ok("The shared check is in flight for the unused candidate", WriterState.LOOKUP_BUSY && typeof release === "function");
   selectImportInspection(index(blank));
@@ -222,7 +213,7 @@ const tests = async function () {
   );
   ok("The current (blank) selection still shows its blocker", accelaPlan(acc).blockers.length && document.getElementById("acc-go").disabled);
   release = null;
-  helperJSON = () => new Promise((resolve) => (release = () => resolve({ files: [] })));
+  h.bound.helperJSON = () => new Promise((resolve) => (release = () => resolve({ files: [] })));
   const second = confirmDatabaseCase();
   selectImportInspection(index(unused));
   release();
@@ -230,7 +221,7 @@ const tests = async function () {
   ok("A check started for the blank candidate does not confirm the unused one", issued() === baseline && WriterState.state.acc === acc);
 
   // Confirming the current, unused selection imports exactly that inspection.
-  helperJSON = async () => ({ files: [] });
+  h.bound.helperJSON = async () => ({ files: [] });
   await confirmDatabaseCase();
   const opened = reinsp(WriterState.state.reinspId);
   ok(
@@ -240,4 +231,7 @@ const tests = async function () {
   console.log(count + " R59 import selection assertions passed.");
   process.exit(0);
 };
-eval(payload + "\n(" + tests.toString() + ")().catch(e=>{console.error(e);process.exit(1);})");
+tests().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

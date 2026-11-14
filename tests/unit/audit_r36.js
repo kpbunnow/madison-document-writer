@@ -1,23 +1,17 @@
 /* R36: discard Scheduled/Assist inspections, Inspection Time is authoritative, no Accela-document warning,
-   and Record Category "Snow Removal" builds the 10.28 snow citation draft immediately. */
-globalThis.MADISON_TEST_DATA = true;
-const assert = require("assert/strict"),
-  { JSDOM } = require("jsdom");
-const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
-const payload = bundleSource(builtPage());
-const dom = new JSDOM('<!doctype html><div id="app"></div><div id="overlay"></div><div id="toast"></div>', {
-  url: "http://127.0.0.1:8777/",
-  pretendToBeVisual: true,
-});
-global.window = dom.window;
-global.document = dom.window.document;
-global.getSelection = () => window.getSelection();
-window.scrollTo = () => {};
-global.fetch = async () => {
-  throw new Error("offline");
-};
+   and Record Category "Snow Removal" builds the 10.28 snow citation draft immediately.
+   Runs against the real import, snow, pricing and document-creation owners (tests/fixtures/import_workflow.cjs);
+   screen repaint and draft saving are bounded no-ops, as no assertion observes them. */
+const assert = require("assert/strict");
+const createImportWorkflow = require("../fixtures/import_workflow.cjs");
 const test = async () => {
-  await new Promise((r) => setTimeout(r, 25));
+  const h = await createImportWorkflow(),
+    { WriterState, snow, INSPECTORS, recordDay, today } = h,
+    { accelaTable, accelaPlan, acceptAccela } = h.importer,
+    { doc } = h.queries;
+  global.fetch = async () => {
+    throw new Error("offline");
+  };
   WriterState.DOCS = [];
   WriterState.EVENTS = {};
   WriterState.REINSP = [];
@@ -115,4 +109,7 @@ const test = async () => {
   );
   process.exit(0);
 };
-eval(payload + "\n(" + test.toString() + ")().catch(e=>{console.error(e);process.exit(1);})");
+test().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

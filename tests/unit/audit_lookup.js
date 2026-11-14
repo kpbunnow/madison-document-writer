@@ -1,25 +1,16 @@
-/* R5 SQL results -> existing lifecycle; network is synthetic, state logic is real. */
-globalThis.MADISON_TEST_DATA = true;
-const assert = require("assert/strict"),
-  { JSDOM } = require("jsdom");
-const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
-const html = builtPage(),
-  payload = bundleSource(html);
-const dom = new JSDOM('<!doctype html><div id="app"></div><div id="overlay"></div><div id="toast"></div>', {
-  url: "http://127.0.0.1:8777/",
-  pretendToBeVisual: true,
-});
-const w = dom.window;
-global.window = w;
-global.document = w.document;
-global.getSelection = () => w.getSelection();
-global.confirm = () => true;
-w.scrollTo = () => {};
+/* R5 SQL results -> existing lifecycle; network is synthetic, state logic is real.
+   Runs against the real import, snow, document-creation, working-papers and test-build issuance owners
+   (tests/fixtures/import_workflow.cjs). The helper transport and shared-case requests are the boundaries;
+   repaint and draft saving are bounded no-ops, as no assertion observes them. */
+const assert = require("assert/strict");
+const createImportWorkflow = require("../fixtures/import_workflow.cjs");
 const test = async function () {
-  await new Promise((r) => setTimeout(r, 25));
-  render = () => {};
-  idbSet = async () => true;
-  saveDrafts = async () => true;
+  const h = await createImportWorkflow(),
+    { WriterState, INSPECTORS, clone, captureWork, issueDocument } = h,
+    { sqlReport, accelaPlan, lookupCanOpen, findDatabaseCase, confirmDatabaseCase, acceptAccela, cancelCaseLookup } = h.importer,
+    { eventsFor, doc } = h.queries,
+    uid = h.uid;
+  global.confirm = () => true;
   let checks = 0;
   const ok = (name, test) => {
     assert.ok(test, name);
@@ -111,7 +102,7 @@ const test = async function () {
     ok("Invalid or incomplete source rejected", failed);
   }
   reset();
-  helperJSON = async () => ({ ok: true, files: [] });
+  h.bound.helperJSON = async () => ({ ok: true, files: [] });
   global.fetch = async () => ({ ok: true, json: async () => response() });
   await findDatabaseCase();
   ok("Find case opens the review window and creates nothing yet", WriterState.CASES.length === 0 && !!WriterState.state.acc);
@@ -148,7 +139,7 @@ const test = async function () {
       JSON.stringify(doc(d.id).frozen) === frozen,
   );
   reset();
-  helperJSON = async () => {
+  h.bound.helperJSON = async () => {
     throw new Error("Share offline");
   };
   global.fetch = async () => ({ ok: true, json: async () => response() });
@@ -163,11 +154,11 @@ const test = async function () {
   WriterState.WORK = saved;
   WriterState.state.acc = WriterState.WORK.acc;
   ok("Save/resume retains source and share blocker", WriterState.state.acc.source.database === "CityData" && !!WriterState.state.acc.shareError);
-  helperJSON = async () => ({ ok: true, files: [] });
+  h.bound.helperJSON = async () => ({ ok: true, files: [] });
   await confirmDatabaseCase();
   ok("Retry after share recovery accepts once", WriterState.CASES.length === 1 && WriterState.DOCS.length === 1);
   reset();
-  helperJSON = async () => ({ ok: true, files: [{ name: "A - " + number + ".json" }, { name: "B - " + number + ".json" }] });
+  h.bound.helperJSON = async () => ({ ok: true, files: [{ name: "A - " + number + ".json" }, { name: "B - " + number + ".json" }] });
   await findDatabaseCase();
   ok("Duplicate shared case files block creation", WriterState.CASES.length === 0 && /More than one/.test(WriterState.state.acc.shareError));
   reset();
@@ -190,9 +181,9 @@ const test = async function () {
     WriterState.state.screen === "cases" && WriterState.CASES.length === 0 && WriterState.state.acc === null,
   );
   reset();
-  helperJSON = async () => ({ ok: true, files: [{ name: "A - " + number + ".json" }] });
+  h.bound.helperJSON = async () => ({ ok: true, files: [{ name: "A - " + number + ".json" }] });
   let read = 0;
-  helperJSON = async (url) =>
+  h.bound.helperJSON = async (url) =>
     url === "/cases/list" ? { ok: true, files: [{ name: "A - " + number + ".json" }] } : { ok: true, file: { case: { number: "OTHER" } } };
   global.fetch = async () => ({ ok: true, json: async () => response() });
   await findDatabaseCase();
@@ -200,4 +191,7 @@ const test = async function () {
   console.log(checks + " R5 lookup assertions passed.");
   process.exit(0);
 };
-eval(payload + "\n(" + test.toString() + ")().catch(e=>{console.error(e);process.exit(1)});");
+test().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

@@ -1,22 +1,13 @@
-const assert = require("assert/strict"),
-  { JSDOM } = require("jsdom");
-const { builtPage, bundleSource } = require("../fixtures/built_bundle.cjs");
-const html = builtPage(),
-  payload = bundleSource(html);
-const dom = new JSDOM('<!doctype html><div id="app"></div><div id="overlay"></div><div id="toast"></div>', {
-  url: "http://127.0.0.1:8777",
-  pretendToBeVisual: true,
-});
-global.window = dom.window;
-global.document = window.document;
-global.localStorage = window.localStorage;
-global.getSelection = () => window.getSelection();
-window.scrollTo = () => {};
-global.fetch = async () => ({ ok: true, json: async () => ({ ok: true, caseStore: true, version: "2026.10.02.25" }) });
-globalThis.MADISON_TEST_DATA = true;
+/* Three-way shared case comparison, field choices and durable workspace staging, against the real language catalog
+   owner with the real record-integrity, working-papers and draft-persistence owners
+   (tests/fixtures/shared_case_workflow.cjs). Browser storage is the boundary. */
+const assert = require("assert/strict");
+const createSharedCaseWorkflow = require("../fixtures/shared_case_workflow.cjs");
 async function test() {
-  await new Promise((r) => setTimeout(r, 25));
-  render = () => {};
+  const h = await createSharedCaseWorkflow(),
+    { WriterState, clone } = h,
+    { compareSharedCase, resolvedCaseFields, persistWorkspacePatch } = h.catalog;
+  global.fetch = async () => ({ ok: true, json: async () => ({ ok: true, caseStore: true, version: "2026.10.02.25" }) });
   WriterState.CASEDIR = { helper: true };
   const local = { id: "case-merge", number: "QA-MERGE", owner: "Mine", address: "Base street", parcel: "Local parcel" },
     base = { ...local, owner: "Base", parcel: "Base parcel" },
@@ -42,7 +33,7 @@ async function test() {
   WriterState.RECORD_ATTEMPTS = {};
   WriterState.LOCAL_SAVE_CHAIN = Promise.resolve();
   let committed = false;
-  idbSet = async () => false;
+  h.bound.idbSet = async () => false;
   await assert.rejects(
     persistWorkspacePatch(
       (x) => x,
@@ -55,7 +46,7 @@ async function test() {
   assert.equal(WriterState.WORK_PATCH, null);
   assert.equal(WriterState.CASES[0].owner, "Mine");
   let stored = null;
-  idbSet = async (key, value) => {
+  h.bound.idbSet = async (key, value) => {
     stored = clone(value);
     return true;
   };
@@ -74,4 +65,7 @@ async function test() {
   console.log("PASS three-way field choices, independent changes, identity, type safety and durable workspace staging");
   process.exit(0);
 }
-eval(payload + "\n(" + test.toString() + ")().catch(e=>{console.error(e);process.exit(1);})");
+test().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

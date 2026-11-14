@@ -94,11 +94,6 @@
     "class": "integration",
     "reason": "creates, edits or issues documents across owners in the booted application (accTime, citationFaces, issueDocument, newDoc)"
   },
-  "tests/unit/audit_lookup.js": {
-    "count": 1,
-    "class": "migratable",
-    "owner": "Accela import lookup: accelaPlan, acceptAccela, lookup hooks"
-  },
   "tests/unit/audit_order_improvements.js": {
     "count": 1,
     "class": "integration",
@@ -174,16 +169,6 @@
     "class": "integration",
     "reason": "case folder and workspace lifecycle"
   },
-  "tests/unit/audit_r36.js": {
-    "count": 1,
-    "class": "migratable",
-    "owner": "Accela import: accelaTable, accelaPlan, acceptAccela"
-  },
-  "tests/unit/audit_r37.js": {
-    "count": 1,
-    "class": "migratable",
-    "owner": "Accela import lookup: findDatabaseCase, accelaPlan"
-  },
   "tests/unit/audit_r40.js": {
     "count": 1,
     "class": "integration",
@@ -249,11 +234,6 @@
     "class": "integration",
     "reason": "editor flow and review through real events"
   },
-  "tests/unit/audit_r59_import_selection.js": {
-    "count": 1,
-    "class": "migratable",
-    "owner": "Accela import: selection, accelaPanel"
-  },
   "tests/unit/audit_r62_extensions.js": {
     "count": 1,
     "class": "integration",
@@ -278,11 +258,6 @@
     "count": 1,
     "class": "integration",
     "reason": "creates, edits or issues documents across owners in the booted application (issueDocument, newDoc)"
-  },
-  "tests/unit/audit_safety.js": {
-    "count": 1,
-    "class": "migratable",
-    "owner": "shared case comparison: compareSharedCase, resolvedCaseFields"
   },
   "tests/unit/audit_snow_repaint.js": {
     "count": 1,
