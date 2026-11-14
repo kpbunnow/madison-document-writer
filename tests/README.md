@@ -21,6 +21,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_phase1_review.py` | Historical JS cohort filtering, invalid-mutant classification and selection, coverage language barriers, complete Python denominators and diagnostic source-change refusal |
 | `audit_presentation_escaping.js` | Output-safety primitives against literal strings (other suites compare against esc() itself): every HTML-special character, re-escaped entities, newlines, fill-in bubbles, selector quoting and money text |
 | `audit_coverage_js.js` | Diagnostic JavaScript coverage attribution: a bundled module run through new Function maps to its source file through the inline source map; unexecuted statements and branch arms and never-run files stay uncovered in the denominator |
 | `audit_checked_contracts.js` | Strict tsc --checkJs over the checked entries with no escape hatch or cast, and six deliberately wrong calls (mailing, copy, escaping and event-ordering contracts) rejected at the probe |
