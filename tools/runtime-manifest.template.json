@@ -19,6 +19,8 @@
     "ssrs_reports.py",
     "ssrs_fetch.ps1",
     "case_store.py",
+    "cash_validation.py",
+    "issuance_validation.py",
     "case_projection.py",
     "projection_tables.json",
     "citation_pricing.py",
@@ -143,6 +145,8 @@
     "prepare_deployment.py": "helper/prepare_deployment.py",
     "desktop_launch.py": "helper/desktop_launch.py",
     "document-writer.ico": "app/assets/document-writer.ico",
-    "integrity_verification.py": "helper/integrity_verification.py"
+    "integrity_verification.py": "helper/integrity_verification.py",
+    "cash_validation.py": "helper/cash_validation.py",
+    "issuance_validation.py": "helper/issuance_validation.py"
   }
 }

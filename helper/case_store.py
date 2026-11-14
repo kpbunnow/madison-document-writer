@@ -16,6 +16,8 @@ import json
 import case_integrity
 from plain_files import UNSAFE_NAME_CHARS, plain_json_files, require_plain_file, read_plain_bytes
 import citation_pricing
+import cash_validation
+from issuance_validation import _validate_initial_notice_group, _validate_initial_citation_group
 import os
 import re
 import tempfile
@@ -1040,53 +1042,6 @@ def validate_record_changes(current, incoming, output):
             raise ValueError("Reopen the complete shared case before correcting it")
 
 
-def _validate_initial_notice_group(event, documents):
-    snap = event.get("payload", {}).get("snapshot", {})
-    if event["type"] != "notice.issued" or snap.get("authoringVersion", 0) < 5:
-        return
-    selected = [i for i in snap.get("items", []) if i.get("cite") and not i.get("withdrawn")]
-    if not selected:
-        if snap.get("issuanceGroup"):
-            raise ValueError("An initial issuance group requires selected citations on its Official Notice")
-        return
-    group = snap.get("issuanceGroup") or {}
-    if not isinstance(group, dict):
-        raise ValueError("The initial notice is missing a valid issuance group")
-    companion = documents.get(group.get("citationId"), {})
-    citation = companion.get("payload", {}).get("snapshot", {})
-    cited = [i for i in citation.get("items", []) if i.get("cite") and not i.get("withdrawn")]
-    if (
-        group.get("id") != event["id"]
-        or group.get("noticeId") != snap["id"]
-        or citation.get("type") != "citation"
-        or companion.get("type") != "citation.issued"
-        or citation.get("authoringVersion", 0) < 5
-        or companion.get("by") != event.get("by")
-        or not companion.get("payload", {}).get("lifecycle")
-        or citation.get("issuanceGroup") != group
-        or citation.get("fromDocId") != snap["id"]
-        or citation.get("fromReinspId")
-        or citation.get("mailed") != snap.get("mailed")
-        or citation.get("frozen", {}).get("inspector") != snap.get("frozen", {}).get("inspector")
-        or citation.get("frozen", {}).get("case") != snap.get("frozen", {}).get("case")
-        or len(cited) != len(selected)
-        or {i.get("srcItemId") for i in cited} != {i["id"] for i in selected}
-        or any(i.get("done") for i in selected)
-    ):
-        raise ValueError("The Official Notice and every selected initial citation must be completed and saved together")
-
-
-def _validate_initial_citation_group(event, documents):
-    snap = event.get("payload", {}).get("snapshot", {})
-    if event["type"] == "citation.issued" and snap.get("issuanceGroup"):
-        group = snap["issuanceGroup"]
-        if not isinstance(group, dict):
-            raise ValueError("The initial citation is missing a valid issuance group")
-        notice = documents.get(group.get("noticeId"), {})
-        if notice.get("type") != "notice.issued" or notice.get("payload", {}).get("snapshot", {}).get("issuanceGroup") != group:
-            raise ValueError("An initial citation must be saved with its reviewed Official Notice")
-
-
 def validate_issuance_groups(record):
     documents = {e.get("payload", {}).get("snapshot", {}).get("id"): e for e in record.get("events", []) if e["type"].endswith(".issued")}
     for event in record.get("events", []):
@@ -1097,40 +1052,7 @@ def validate_issuance_groups(record):
 
 def legacy_scheduled_citation_base(ordinance, tier):
     policy = json.loads(resource("citation_policy.json").read_text(encoding="utf-8"))
-    entries = policy["legacyEntries"]
-    match = next((f for f in entries if f["o"] == ordinance), None)
-    if match is None:
-        children = [f for f in entries if f["o"].startswith(ordinance + "(") and f.get("t")]
-        if len(children) == 1:
-            match = children[0]
-    if match:
-        amounts = [Decimal(m.replace(",", "")) for m in re.findall(r"\$([\d,]+(?:\.\d+)?)", match.get("r", ""))]
-        tiers = match.get("t", [])
-        if "1st" in match.get("r", "") and "2nd" in match.get("r", "") and amounts != [Decimal(str(t["a"])) for t in tiers]:
-            return None
-    else:
-        section = re.match(r"^(\d+)\.(\d+)", ordinance)
-        match = next(
-            (
-                f
-                for f in [
-                    {
-                        "ch": f["ch"] + (["22"] if f["id"] == "ladder-12-month" else []),
-                        "sec": f["sec"],
-                        "t": [
-                            {"a": t["amountCents"] / 100, "l": ("1st" if t["ordinal"] == 1 else "2nd" if t["ordinal"] == 2 else "3rd+")}
-                            for t in f["tiers"]
-                        ],
-                    }
-                    for f in policy["fallback"]
-                ]
-                if section and (section[1] in f["ch"] or section[0] in f["sec"])
-            ),
-            None,
-        )
-        tiers = match.get("t", []) if match else []
-    pick = next((t for t in tiers if t["l"] == tier), tiers[-1] if tiers else None)
-    return Decimal(str(pick["a"])) if pick else None
+    return cash_validation.legacy_scheduled_base(policy, ordinance, tier)
 
 
 def _append_effective_citations(value, history):
@@ -1989,48 +1911,17 @@ def _validate_mandatory_citation(*, c, item, issued):
 
 
 def _validate_cash_citation(*, amount, c, mode, check_date_window, snap, issued, item):
-    total = amount(c.get("amount"))
-    if total <= 0:
-        raise ValueError("A cash deposit must be positive")
-    if mode != "total" and (check_date_window or snap.get("authoringVersion", 0) < 6):
-        base, costs = (amount(c.get("base")), amount(c.get("cc")))
-        if snap.get("authoringVersion", 0) >= 8 and base == 0 and (not citation_pricing.policy().get("allowZeroBaseDeposits", False)):
-            raise ValueError("A zero forfeiture needs City Attorney approval")
-        if snap.get("authoringVersion", 0) >= 6:
-            lines = citation_pricing.assessment_cents(int(base * 100), int(costs * 100), at=c.get("pricedOn") or issued)
-            expected = Decimal(lines["total"]) / 100
-            if c.get("assessments") is not None and c["assessments"] != lines:
-                raise ValueError("The recorded jail/assessment figures do not match the shared policy")
-        else:
-            expected = Decimal(citation_pricing.assessment_cents(int(base * 100), int(costs * 100), legacy=True)["total"]) / 100
-        if (
-            not Decimal(15) <= costs <= Decimal(citation_pricing.policy_at(c.get("pricedOn") or issued)["fees"]["ccMaxCents"]) / 100
-            or total != expected
-        ):
-            raise ValueError("The citation deposit does not match its base and assessments")
-        if mode == "schedule" and snap.get("authoringVersion", 0) >= 5 and check_date_window:
-            current_policy = snap.get("authoringVersion", 0) >= 6
-            expected_base = (
-                (
-                    None
-                    if (
-                        b := citation_pricing.base_cents(
-                            citation_pricing.resolve(
-                                c["ord"], citation_pricing.item_key(item), c.get("scheduleEntryId", ""), at=c.get("pricedOn") or issued
-                            ),
-                            c.get("tier", "1st"),
-                            c.get("measurements"),
-                        )
-                    )
-                    is None
-                    else Decimal(b) / 100
-                )
-                if current_policy
-                else legacy_scheduled_citation_base(c["ord"], c.get("tier", "1st"))
-            )
-            expected_costs = Decimal(citation_pricing.court_cents(c.get("pricedOn") or issued)) / 100 if current_policy else Decimal(48)
-            if expected_base is None or base != expected_base or costs != expected_costs:
-                raise ValueError("Scheduled deposit does not match the selected ordinance and tier; use an approved base or total with its source")
+    return cash_validation.validate_cash_citation(
+        amount=amount,
+        c=c,
+        mode=mode,
+        check_date_window=check_date_window,
+        snap=snap,
+        issued=issued,
+        item=item,
+        pricing=citation_pricing,
+        legacy_base=legacy_scheduled_citation_base,
+    )
 
 
 def _validate_due_spacing(*, snap, items, original):
