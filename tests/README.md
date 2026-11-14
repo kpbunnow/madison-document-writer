@@ -88,6 +88,7 @@ covers, or a new suite under its feature.
 | `audit_worksheet_check_html.js` | Independent retained check-row/panel oracle for severity, targets and worksheet flags |
 | `audit_message_paint_rules.js` | Retained message markup, focus, dialog scope and timer/event ordering |
 | `audit_correction_change_rules.js` | Correction change parity across historical cutoffs, fields and lazy reads |
+| `audit_correction_preparation_phases.js` | Phase 3 correction preparation: pure comparison, visit-patch, eligibility and check calculations equal the retained original owner over 3,000 generated scenarios, including every draft/source property read, service call, thrown error and correction event |
 | `audit_case_load_message.js` | Load notification parity through real projection and interrupted UI/save dispatch |
 | `audit_storage_status_rules.js` | Exact storage diagnostic HTML and lazy state/service read order |
 | `audit_language_action_rules.js` | Language action equivalence: refusal order, service reads, focus and refresh |
