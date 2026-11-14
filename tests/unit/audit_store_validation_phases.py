@@ -81,6 +81,30 @@ def outcome(data, settings, reference=False, stop=None):
     return result, trace, value == original
 
 
+def legacy_outcome(policy, ordinance, tier, reference=False):
+    namespace = dict(vars(case_store))
+    fn = case_store.legacy_scheduled_citation_base
+    namespace[fn.__name__] = types.FunctionType(fn.__code__, namespace)
+    if reference:
+        path = ROOT / "tests/fixtures/legacy_schedule_reference.py.txt"
+        exec(compile(path.read_text(), str(path), "exec"), namespace)
+    trace = []
+    class Resource:
+        def read_text(self, **kwargs):
+            trace.append(("read", kwargs))
+            return json.dumps(policy)
+    def resource(name):
+        trace.append(("resource", name))
+        return Resource()
+    namespace["resource"] = resource
+    original = copy.deepcopy(policy)
+    try:
+        result = ("result", namespace[fn.__name__](ordinance, tier))
+    except Exception as error:
+        result = ("error", type(error).__name__, str(error))
+    return result, trace, policy == original
+
+
 def seed(version=8, mode="schedule", window=True):
     return {
         "c": {"amount": "58", "base": "10", "cc": "48", "ord": "SYNTHETIC", "tier": "1st", "pricedOn": "2026-11-14"},
@@ -127,6 +151,25 @@ class StoreValidationPhases(unittest.TestCase):
                     data["c"].pop(field, None)
             with self.subTest(index=index):
                 self.equivalent(data, {"zero": bool(index % 3)})
+
+    def test_legacy_schedule_policy_and_malformed_fallback_order(self):
+        path = ROOT / "tests/fixtures/legacy_schedule_reference.py.txt"
+        self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), "b74c5b85aa6ae24d7a873d8f4c727d60a49bc77c8ded7fbea0f3681a4c54b0d6")
+        full = json.loads(case_store.resource("citation_policy.json").read_text())
+        policy = {key: full[key] for key in ("legacyEntries", "fallback")}
+        policies = [policy, {"legacyEntries": [], "fallback": []}]
+        rng = random.Random(23053)
+        values = [None, False, "", "bad", {}, [], [{"o": "1.1", "t": None}], [{"o": "1.1", "r": "1st $10; 2nd $20", "t": [{"a": 10, "l": "1st"}]}]]
+        for _ in range(400):
+            altered = copy.deepcopy(policy)
+            altered[rng.choice(["legacyEntries", "fallback"])] = copy.deepcopy(rng.choice(values))
+            policies.append(altered)
+        ordinances = [entry["o"] for entry in policy["legacyEntries"]] + ["1.1", "27.05", "22.01", "unknown"]
+        for index, candidate in enumerate(policies):
+            choices = ordinances if index == 0 else ["1.1", "27.05", "unknown"]
+            for ordinance in choices:
+                for tier in ["1st", "2nd", "3rd+", "unknown"]:
+                    self.assertEqual(legacy_outcome(candidate, ordinance, tier), legacy_outcome(candidate, ordinance, tier, True))
 
     def test_declared_flat_runtime_can_load_store_and_validate_empty_groups(self):
         manifest = json.loads((ROOT / "tools/runtime-manifest.template.json").read_text(encoding="utf-8"))
