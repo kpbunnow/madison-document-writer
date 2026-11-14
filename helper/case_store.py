@@ -6,6 +6,7 @@ closed; it is never deleted merely because a writer is slow.
 """
 
 from runtime_paths import resource
+from projection_values import JS_SPACE, S
 
 import contextlib
 import copy
@@ -1971,8 +1972,8 @@ def _validate_owner_copy_lines(snap):
         raise ValueError("Frozen owner copy lines must match the property owner's mailing address")
 
 
-_STREET_LINE = re.compile(r"^(\d|PO BOX\b)")
-_NUMBERED_UNIT = re.compile(r"^\d+(?:ST|ND|RD|TH)?\s+(?:FLOOR|FL|FLR|UNIT|APT|APARTMENT|SUITE|STE|ROOM|RM)\b")
+_STREET_LINE = re.compile(r"^([0-9]|PO BOX\b)", re.ASCII)
+_NUMBERED_UNIT = re.compile(r"^[0-9]+(?:ST|ND|RD|TH)?" + S + r"+(?:FLOOR|FL|FLR|UNIT|APT|APARTMENT|SUITE|STE|ROOM|RM)\b", re.ASCII)
 
 
 def _clean_owner_address(lines, *, preserve_numbered_units=True):
@@ -1980,8 +1981,8 @@ def _clean_owner_address(lines, *, preserve_numbered_units=True):
     Box line repeating anywhere, prints once. Keys ignore case, spacing, periods and commas."""
     kept, streets, previous = [], set(), ""
     for line in lines:
-        line = str(line or "").strip()
-        key = re.sub(r"^P ?O ?BOX\b", "PO BOX", re.sub(r"\s+", " ", re.sub(r"[.,]", " ", line)).strip().upper())
+        line = str(line or "").strip(JS_SPACE)
+        key = re.sub(r"^P ?O ?BOX\b", "PO BOX", re.sub(S + "+", " ", re.sub(r"[.,]", " ", line)).strip(JS_SPACE).upper(), flags=re.ASCII)
         street = _STREET_LINE.match(key) and (not preserve_numbered_units or not _NUMBERED_UNIT.match(key))
         repeated = not key or key == previous or (street and key in streets)
         previous = key or previous

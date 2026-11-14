@@ -292,6 +292,46 @@
       "suites": [
         "audit_calculation_phases.py"
       ]
+    },
+    {
+      "id": "policy-parcel-unicode",
+      "category": "Phase 5 cross-runtime policy parity",
+      "file": "helper/projection_values.py",
+      "find": "re.fullmatch(r\"[0-9]{12}\", digits)",
+      "replace": "re.fullmatch(r\"\\d{12}\", digits)",
+      "suites": [
+        "audit_policy_mirrors.py"
+      ]
+    },
+    {
+      "id": "policy-mailing-bom",
+      "category": "Phase 5 cross-runtime policy parity",
+      "file": "helper/case_store.py",
+      "find": "line = str(line or \"\").strip(JS_SPACE)",
+      "replace": "line = str(line or \"\").strip()",
+      "suites": [
+        "audit_policy_mirrors.py"
+      ]
+    },
+    {
+      "id": "policy-mandatory-browser",
+      "category": "Phase 5 cross-runtime policy parity",
+      "file": "app/modules/citation_policy.js",
+      "find": "    mandatoryAppearance: true,",
+      "replace": "    mandatoryAppearance: false,",
+      "suites": [
+        "audit_policy_mirrors.py"
+      ]
+    },
+    {
+      "id": "policy-recovery-version",
+      "category": "Phase 5 cross-runtime policy parity",
+      "file": "app/modules/case_recovery.js",
+      "find": "    b.version !== 1 ||",
+      "replace": "    b.version !== 2 ||",
+      "suites": [
+        "audit_policy_mirrors.py"
+      ]
     }
   ]
 }

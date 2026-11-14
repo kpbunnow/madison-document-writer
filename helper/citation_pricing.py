@@ -2,6 +2,7 @@ from administrative_basis import validate_basis as shared_validate_basis
 
 """Independent helper interpreter of the generated, shared citation policy."""
 from runtime_paths import resource
+from projection_values import norm_parcel as normalized_parcel
 
 import calendar
 from datetime import date
@@ -213,9 +214,6 @@ def defendant_key(case):
 
 
 # R34: property matching for site and site-season windows; mirrors modules/citation_policy.js exactly.
-def normalized_parcel(value):
-    digits = re.sub(r"[\s-]", "", "" if value is None else str(value))
-    return digits if re.fullmatch(r"\d{12}", digits) else ""
 
 
 def property_key(address):

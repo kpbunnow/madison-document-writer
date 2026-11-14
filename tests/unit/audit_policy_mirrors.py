@@ -95,7 +95,8 @@ class PolicyMirrors(unittest.TestCase):
         checked = mandatory = 0
         for req, got in zip(requests, actual):
             entry = pricing.resolve(req["ordinance"], entry_id=req["entryId"], at=req["date"])
-            if got.get("mandatoryAppearance"):
+            if (entry.get("rule") or {}).get("kind") == "mandatory":
+                self.assertTrue(got.get("mandatoryAppearance"), req)
                 self.assertEqual((entry.get("rule") or {}).get("kind"), "mandatory")
                 self.assertEqual(got["amount"], "")
                 server.validate_draft_deposits(
@@ -106,12 +107,16 @@ class PolicyMirrors(unittest.TestCase):
                     }
                 )
                 mandatory += 1
-            elif got.get("kind") == "priced":
-                base = pricing.base_cents(entry, req["tier"], req["measurements"])
-                self.assertIsNotNone(base)
+            elif (base := pricing.base_cents(entry, req["tier"], req["measurements"])) is not None:
+                self.assertEqual(got.get("kind"), "priced", req)
+                self.assertFalse(got.get("mandatoryAppearance"), req)
                 lines = pricing.assessment_cents(base, pricing.court_cents(req["date"]), at=req["date"])
                 self.assertEqual(got["assessments"], lines, req)
                 checked += 1
+            else:
+                self.assertIn(got.get("kind"), ["needs-basis", "needs-measurement"], req)
+                self.assertFalse(got.get("mandatoryAppearance"), req)
+        self.assertEqual(len(requests), len(actual))
         self.assertGreater(checked, 1000)
         self.assertGreater(mandatory, 0)
         with self.assertRaises(ValueError):

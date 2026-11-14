@@ -39,6 +39,8 @@ From a clean source copy:
 
 For offline development, DW_BROWSER selects a compatible Chromium executable. Read 05-TESTING.md for browser setup, exact source-bound evidence, the complete regression and production-browser gate, and packaging. Add helper/app files through ordinary imports, test discovery and the deployment manifest. Never edit generated files or approved/frozen fixtures to make a test pass.
 
+The [Phase 5 rule/compatibility inventory](MAINTAINABILITY-PHASE5-2026-11-14.md) maps current policy owners to parity suites, retained formats and reviewed duplication candidates.
+
 ## Maintenance rules
 
 Read 01-ARCHITECTURE, 03-DOMAIN-RULES, 04-PITFALLS and 05-TESTING before changing code. Preserve every record/PDF identity, integrity boundary and legal hold. Keep four Writer rail destinations: Workspace, Order language, Reports and Tools & settings. Import inspection remains an internal route entered from Workspace (owner-approved; it superseded a former five-destination, import-first rule). Do not restore manual/CSV case creation. Keep due-date assignment below the initial notice (items are selected beside their due dates; the Assign due dates bar applies the date), exceptional recovery in Tools, and manual links inside Tools. Specialist tools sit in the collapsed Administrator tools group in Tools; the grouping grants no authorization and each tool keeps its own administrator checks.

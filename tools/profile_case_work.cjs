@@ -1,22 +1,13 @@
 /* Matched synthetic production workloads. Run serially with two production HTML paths and an output JSON path.
    Diagnostic only: never gate/release evidence and no City/SQL/SMB/Outlook acceptance claim. */
 const fs = require("fs"),
-  http = require("http"),
   path = require("path"),
-  crypto = require("crypto"),
   assert = require("assert/strict"),
   { chromium } = require("playwright");
-const { assertProductionPage } = require("../tests/fixtures/built_bundle.cjs");
-const [before, after, output] = process.argv.slice(2);
-assert.ok(before && after && output, "before.html after.html output.json required");
-const pages = [before, after].map((p) => assertProductionPage(path.resolve(p))),
-  sha = (value) => crypto.createHash("sha256").update(value).digest("hex");
+const { readProfileInputs, pairedPageServer } = require("./profile_support.cjs");
+const { pages, output, sha, harnessSha256, supportSha256, verifySources } = readProfileInputs(process.argv.slice(2), __filename);
 (async () => {
-  const server = http.createServer((req, res) => {
-    const i = req.url === "/before" ? 0 : req.url === "/after" ? 1 : -1;
-    res.writeHead(i < 0 ? 404 : 200, { "Content-Type": i < 0 ? "application/json" : "text/html" });
-    res.end(i < 0 ? "{}" : pages[i]);
-  });
+  const server = pairedPageServer(pages);
   await new Promise((r) => server.listen(0, "127.0.0.1", r));
   let browser;
   const checks = [];
@@ -114,12 +105,14 @@ const pages = [before, after].map((p) => assertProductionPage(path.resolve(p))),
       passed: true,
       browser: browser.version(),
       runtimeHashes: { before: sha(pages[0]), after: sha(pages[1]) },
-      harnessSha256: sha(fs.readFileSync(__filename)),
+      harnessSha256,
+      supportSha256,
       workload: "30-item notice; 120 refreshes including 20 edits; four alternating paired rounds",
       beforeMedianMs: median("before"),
       afterMedianMs: median("after"),
       checks,
     };
+    verifySources();
     fs.mkdirSync(path.dirname(path.resolve(output)), { recursive: true });
     fs.writeFileSync(output, JSON.stringify(result, null, 2) + "\n");
     console.log(JSON.stringify(result, null, 2));

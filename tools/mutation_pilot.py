@@ -50,6 +50,10 @@ def run_suites(run, env, suites):
             result = subprocess.run(command, cwd=run, env=env, capture_output=True, encoding="utf-8", errors="replace", timeout=TIMEOUT)
         except subprocess.TimeoutExpired:
             return "timeout:" + suite
+        except OSError:
+            return "invalid:" + suite
+        if not isinstance(result.returncode, int) or result.returncode < 0:
+            return "invalid:" + suite
         if result.returncode:
             return "failed:" + suite
     return "passed"
@@ -88,7 +92,7 @@ def trial(run, env, mutant):
         target.write_text(original, encoding="utf-8")
         if mutant["file"].startswith("app/"):
             build(run, env)
-    outcome = "survived" if result == "passed" else "timeout" if result.startswith("timeout") else "killed"
+    outcome = "survived" if result == "passed" else result.split(":", 1)[0] if result.startswith(("timeout:", "invalid:")) else "killed"
     return {"outcome": outcome, "detail": result, "seconds": round(time.monotonic() - started, 1)}
 
 
