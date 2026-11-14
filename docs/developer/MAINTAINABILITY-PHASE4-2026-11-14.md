@@ -26,8 +26,8 @@ Reading the suites showed that the recorded owners undercount what they exercise
 
 | Package | Scope | PR |
 | --- | --- | --- |
-| E1 | Owner workflow fixtures; `audit_r36`, `audit_r37`, `audit_lookup`, `audit_r59_import_selection`, `audit_safety`; mutation evidence | this PR |
-| E2 | `audit_import_r13`, `audit_feature_accela_import` | pending |
+| E1 | Owner workflow fixtures; `audit_r36`, `audit_r37`, `audit_lookup`, `audit_r59_import_selection`, `audit_safety`; mutation evidence | #522 (merged) |
+| E2 | `audit_feature_accela_import` scenarios; integration dispositions for the remaining scenarios and `audit_import_r13` | this PR |
 
 ## E1 — method
 
@@ -105,5 +105,57 @@ No retained test hook was retired. Candidate consumers were compared for all 44 
 - `audit_test_seams.js`: passes. The whole-application evaluator files drop from 67 to 62 (the 91 in `TEST-SEAMS.md` is that inventory's original figure), and isolated evaluators number 168.
 - Formatting, ESLint, the repository inventory audit and the release-input audit: recorded in the PR.
 - GitHub Full gate, PR format, CodeQL and Windows recovery are required on the exact head before merge.
+
+
+## E2 — feature suite and the remaining two files
+
+### Migrated scenarios
+
+Three of the feature suite's seven scenarios now run against the real owners in `import_workflow.cjs`, each still in its own process. `owner_scenario.cjs` ends each one as `bundle_test.cjs` did.
+
+For these scenarios the fixture adds four real owners: case loading, the case-folder workflow, and the working-entry input and change listeners (registered in core's order). It also exposes the real case-file functions.
+
+Filed-PDF location refresh is a documented no-op default, because these scenarios file no PDFs.
+
+| Scenario | Assertion calls (original → migrated) | Regression detected by mutation |
+| --- | --- | --- |
+| `audit_status_own_property.js` | 26 → 26, identical | status rules no longer restricted to own entries |
+| `audit_r50_import.js` | 26 → 26, identical | statuses no longer normalized for spacing and case |
+| `audit_r45_import.js` | 22 → 22, identical | a late capture replaces typed lookup work |
+
+Each scenario's code is its original cooked payload or function body. The only change is rebinding the page-global peers it reassigned, through `h.bound`.
+
+### Integration dispositions
+
+The remaining whole-application scenarios depend on functions composed in `app_core.js` itself. `docBody`, `blockers`, `isLocked` and `structEditable` are definitions, not owner methods, and there is no owner to construct for them. Copying them into a fixture would put core code into the test. Each is reclassified as integration with its reason in `tests/fixtures/test-seam-baseline.json`:
+
+| File or scenario | Integration responsibility |
+| --- | --- |
+| `audit_import.js` | workbook import with CSS page layout, pagination and document sources |
+| `audit_r50_import_repaint.js` | import disclosure state across real application repaints |
+| `audit_r53_status_rules.js` | readiness blockers (`blockers`) after an imported Citation or Official Notice |
+| `audit_r62_import_rules.js` | a correction draft of an issued notice (`startCorrection`, which snapshots `docBody`) |
+| `audit_import_r13.js` | the whole lifecycle: import, then issuance, reinspection and follow-up, then readiness checks, the rendered sheet and overlay links, focus and due-panel guards |
+
+`audit_r53_status_rules` and `audit_r62_import_rules` have self-contained final blocks, readiness and correction respectively. Splitting those blocks into their own integration scenarios would move most of those two scenarios onto real owners. It would not change the file's count, and it would copy their setup helpers. It is left as an optional follow-up.
+
+### Hooks
+
+The candidate consumers of all 44 retained fields were compared before and after E2. No field lost a consumer, and no hook is retired.
+
+## Result
+
+| Measurement | Plan baseline | After Phase 4 |
+| --- | ---: | ---: |
+| Classified migratable whole-application evaluator files | 7 | 0 |
+| Unclassified whole-application evaluators | 0 | 0 |
+| Whole-application evaluator files (inventory) | 67 | 62 |
+| Evaluations in `audit_feature_accela_import.js` | 7 | 4 (integration) |
+| Assertion calls moved to real owners, AST-identical | 0 | 183 |
+| Deliberate regressions detected by migrated suites | — | 8 of 8 |
+
+Integration, Windows and production-browser coverage are unchanged: no scenario was removed, and the integration suites still run in the full gate.
+
+The plan's target of zero migratable files is met through five full migrations plus a partial migration of the feature suite. Two files keep integration scenarios. `audit_import_r13.js` and four feature-suite scenarios are reclassified, each with a recorded reason. That reclassification is a judgement for the final reviewer, so it is stated here rather than counted as migration.
 
 No City, staff, legal or native acceptance is claimed.

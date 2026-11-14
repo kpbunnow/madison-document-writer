@@ -585,6 +585,7 @@
     "tests/fixtures/new_documents_phase3_reference.txt",
     "tests/fixtures/new_documents_reference.txt",
     "tests/fixtures/overlay_contracts.cjs",
+    "tests/fixtures/owner_scenario.cjs",
     "tests/fixtures/pagination_reference.cjs",
     "tests/fixtures/parcel_lookup_reference.py.txt",
     "tests/fixtures/pdf_post_reference.txt",
