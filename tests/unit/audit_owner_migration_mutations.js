@@ -70,14 +70,16 @@ const run = (m, mutation) =>
     },
   });
 
+const { normalOutcome } = require("../fixtures/mutation_outcome.cjs");
 const results = [];
 for (const m of MUTATIONS) {
   const clean = run(m);
-  assert.equal(clean.status, 0, (m.scenario || m.suite) + " passes unmodified:\n" + clean.stdout + clean.stderr);
+  assert.equal(normalOutcome(clean, m.suite), 0, (m.scenario || m.suite) + " passes unmodified:\n" + clean.stdout + clean.stderr);
   const mutated = run(m, { find: m.find, replace: m.replace });
   const output = mutated.stdout + mutated.stderr;
+  assert.doesNotMatch(output, /Invalid owner bundle:/, m.suite + ": syntax-invalid mutation is not a detected regression");
   assert.ok(!/the mutation applies exactly once/.test(output), m.suite + ": the mutation must apply exactly once\n" + output);
-  assert.notEqual(mutated.status, 0, m.suite + " must detect the regression: " + m.rule);
+  assert.notEqual(normalOutcome(mutated, m.suite), 0, m.suite + " must detect the regression: " + m.rule);
   results.push({ suite: m.suite, scenario: m.scenario, rule: m.rule, detected: true });
 }
 console.log(JSON.stringify({ passed: true, mutations: results }));
