@@ -85,7 +85,7 @@ What each calculation phase reaches before editing:
 | D0 | Phase 2 review, workflow locality census, pre-edit record | #517 (merged) |
 | D1 | Correction preparation calculations over explicit lookups | #518 (merged) |
 | D2 | Document eligibility, follow-up drafting and repaint decisions | #519 (merged) |
-| D3 | Complexity batch over 20 owners, change exercises, this record | this PR |
+| D3 | Complexity batch over 19 owners, change exercises, this record | this PR |
 
 Each workflow extraction follows the same pattern:
 
