@@ -69,7 +69,11 @@ async function drain(window) {
       throw new Error("A referenced interval is still running after the suite completed; stop it explicitly.");
     if (live.some(([, timer]) => timer.interval)) {
       // Nested frames/focus fixups keep jsdom's scheduler alive briefly. Let it stop itself; never cancel it.
-      if (typeof window?.requestAnimationFrame === "function" && ++renderingFrames < MAX_RENDER_FRAMES) continue;
+      if (++renderingFrames < MAX_RENDER_FRAMES) {
+        // Nonvisual jsdom windows still run focus fixups, but expose no requestAnimationFrame API.
+        if (typeof window?.requestAnimationFrame !== "function") await new Promise((resolve) => native.setTimeout(resolve, 20));
+        continue;
+      }
       throw new Error("A referenced interval is still running after the suite completed; stop it explicitly.");
     }
     renderingFrames = 0;

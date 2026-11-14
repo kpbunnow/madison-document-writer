@@ -7,6 +7,7 @@ if (!scenario) {
   for (const [name, status, output] of [
     ["dom", 0, "PASS owned rendering and every pending callback"],
     ["closed", 0, "PASS owned rendering and every pending callback"],
+    ["nonvisual", 0, "PASS owned rendering and every pending callback"],
     ["frames", 0, "PASS owned rendering and every pending callback"],
     ["fast-interval", 1, "A referenced interval is still running"],
     ["frame-loop", 1, "A referenced interval is still running"],
@@ -32,7 +33,7 @@ if (!scenario) {
     settle(Promise.resolve());
   } else {
     const { JSDOM } = require("jsdom");
-    const dom = new JSDOM('<!doctype html><input id="field">', { pretendToBeVisual: true });
+    const dom = new JSDOM('<!doctype html><input id="field">', { pretendToBeVisual: scenario !== "nonvisual" });
     dom.window.document.getElementById("field").focus();
     if (scenario === "closed") dom.window.close();
     if (scenario === "frame-loop") {
