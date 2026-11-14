@@ -47,20 +47,23 @@ const finalDueCell = (services, it) =>
     ? `<span class="done-note"><strong>Corrected</strong>${esc(services.fmtDate(it.doneOn))}</span>`
     : `<span class="mono">${esc(services.fmtDate(it.due))}</span>`;
 
-function noticeDueInputs(services, row) {
-  const { d, it, num, dis, dueSelection, dueSelected, affectedRows } = row;
-  return (
-    (dueSelection && it.dueExempt !== "snow-10.28"
-      ? '<input type="checkbox" class="no-print due-pick" style="margin:0 6px 0 0;vertical-align:middle" data-due-select="' +
+function noticeDueSelectHTML(row) {
+  const { it, num, dueSelection, dueSelected } = row;
+  return dueSelection && it.dueExempt !== "snow-10.28"
+    ? '<input type="checkbox" class="no-print due-pick" style="margin:0 6px 0 0;vertical-align:middle" data-due-select="' +
         esc(it.id) +
         '" aria-label="Select item ' +
         esc(num) +
         ' for a shared due date" title="Select for a shared due date" ' +
         (dueSelected.has(it.id) ? "checked" : "") +
         ">"
-      : "") +
-    (affectedRows
-      ? '<label class="no-print affected-pick" style="display:block;margin:0 0 4px;font-size:12px;white-space:nowrap">' +
+    : "";
+}
+
+function noticeAffectedHTML(row) {
+  const { d, it, num, affectedRows } = row;
+  return affectedRows
+    ? '<label class="no-print affected-pick" style="display:block;margin:0 0 4px;font-size:12px;white-space:nowrap">' +
         '<input type="checkbox" style="margin:0 5px 0 0;vertical-align:middle" data-special-item="' +
         esc(String(it.no)) +
         '" ' +
@@ -68,7 +71,21 @@ function noticeDueInputs(services, row) {
         ' aria-label="Item ' +
         esc(num) +
         ' is affected by this extension">Affected</label>'
-      : "") +
+    : "";
+}
+
+function noticeDueDisabled(row) {
+  const { d, it, dis } = row;
+  return (
+    dis || (datedExtension(d) && !d.special?.affected?.includes(String(it.no)) ? 'disabled title="Only affected items receive a new due date"' : "")
+  );
+}
+
+function noticeDueInputs(services, row) {
+  const { d, it, num } = row;
+  return (
+    noticeDueSelectHTML(row) +
+    noticeAffectedHTML(row) +
     '<input type="date" class="d-in due-in" data-field="due" data-id="' +
     `${esc(it.id)}` +
     '" value="' +
@@ -78,7 +95,7 @@ function noticeDueInputs(services, row) {
     '" aria-label="Due date for item ' +
     `${esc(num)}` +
     '" ' +
-    `${dis || (datedExtension(d) && !d.special?.affected?.includes(String(it.no)) ? 'disabled title="Only affected items receive a new due date"' : "")}` +
+    `${noticeDueDisabled(row)}` +
     ">"
   );
 }
@@ -107,23 +124,34 @@ function noticeDueHistory(services, row, referralHistoryHTML) {
 }
 
 function noticeDueValue(services, row, referralHistoryHTML) {
-  const { d, it, aligned } = row;
+  const { d, it } = row;
   return "".concat(
     it.withdrawn
       ? `<span class="done-note withdrawn-note"><strong>Withdrawn</strong>Entered in error</span>` +
           (services.hasItemInspectionHistory(d) ? referralHistoryHTML(d, it) : "")
       : isHistoryDoc(d) || services.hasItemInspectionHistory(d)
         ? noticeDueHistory(services, row, referralHistoryHTML)
-        : d.type === "compliance"
-          ? `<span class="mono">${esc(services.fmtDate(it.doneOn || it.due))}</span>`
-          : dueIsFinal(d, it)
-            ? finalDueCell(services, it)
-            : simpleVacancy(d)
-              ? "" // R62: uncorrected items on a Vacancy Extension have no due date.
-              : aligned && d.type === "vacancyExtension" && d.special?.deadlineMode === "conditional" && d.special.affected?.includes(String(it.no))
-                ? '<span class="conditional-due">Conditional — see conditions above</span>'
-                : noticeDueInputs(services, row),
+        : noticeOpenDueValue(services, row),
   );
+}
+
+function noticeConditionalDue(row) {
+  const { d, it, aligned } = row;
+  return aligned && d.type === "vacancyExtension" && d.special?.deadlineMode === "conditional" && d.special.affected?.includes(String(it.no));
+}
+
+// The due cell of an item that is neither withdrawn nor shown with its inspection history.
+function noticeOpenDueValue(services, row) {
+  const { d, it } = row;
+  return d.type === "compliance"
+    ? `<span class="mono">${esc(services.fmtDate(it.doneOn || it.due))}</span>`
+    : dueIsFinal(d, it)
+      ? finalDueCell(services, it)
+      : simpleVacancy(d)
+        ? "" // R62: uncorrected items on a Vacancy Extension have no due date.
+        : noticeConditionalDue(row)
+          ? '<span class="conditional-due">Conditional — see conditions above</span>'
+          : noticeDueInputs(services, row);
 }
 
 function noticeNumberCell(row) {
@@ -297,6 +325,10 @@ function noticeDueCell(services, row, referralHistoryHTML) {
   );
 }
 
+const noticeRowNumber = (struct, it, ix) => (struct ? String(ix + 1) : it.no || String(ix + 1));
+const noticeRowLocked = (d, it) => (it.done && !d.correction) || it.withdrawn;
+const noticeRowDone = (d, it) => (it.done && d.type !== "compliance") || (d.correction && it.withdrawn);
+
 function noticeRows(services, d, context, historyNotesHTML, referralHistoryHTML) {
   const { aligned, ce, dis, struct, citeColumn, dueSelection, dueSelected, affectedRows, locked } = context;
   let last = null;
@@ -317,15 +349,15 @@ function noticeRows(services, d, context, historyNotesHTML, referralHistoryHTML)
             "</span></td></tr>";
       }
       const b = countBlanks(it.text);
-      const num = struct ? String(ix + 1) : it.no || String(ix + 1);
-      const rce = (it.done && !d.correction) || it.withdrawn ? "" : ce;
+      const num = noticeRowNumber(struct, it, ix);
+      const rce = noticeRowLocked(d, it) ? "" : ce;
       const row = { d, it, ix, num, b, rce, struct, dis, citeColumn, locked, aligned, dueSelected, dueSelection, affectedRows };
       return (
         head +
         '<tr data-row="' +
         `${esc(it.id)}` +
         '" class="' +
-        `${(it.done && d.type !== "compliance") || (d.correction && it.withdrawn) ? "done" : ""}` +
+        `${noticeRowDone(d, it) ? "done" : ""}` +
         '">\n      ' +
         noticeNumberCell(row) +
         noticeSectionsCell(row) +
@@ -345,13 +377,7 @@ function noticeCopiesHTML(services, d, k) {
   const cc = [documentOwnerCopy(d, k), ...copiesOf(k)]
     .filter((c) => c && ccEntryLines(services, c, !!d.draft).length)
     .concat(ag.length ? [{ name: ag[0], addr: ag[1] || "", city: ag[2] || "", agent: true }] : []);
-  const sent = d.emailedTo || [],
-    draftMail = d.draft
-      ? emailList(k).filter(
-          (e) => e.on !== false && (!Array.isArray(d.emailSelection) || d.emailSelection.includes(e.addr + "|" + (e.kind || "Other"))),
-        )
-      : [],
-    mailRows = (d.draft ? draftMail : sent).filter((e) => String(e.addr || "").trim());
+  const mailRows = noticeMailRows(d, k);
   if (!cc.length && !mailRows.length) return "";
   return (
     '<div class="n-cc">\n        ' +
@@ -376,17 +402,30 @@ function noticeCopiesHTML(services, d, k) {
         : "",
     ) +
     "\n        " +
-    "".concat(
-      mailRows.length
-        ? '<div class="cc-row cc-mail"><span class="cc-l">' +
-            `${d.draft ? "Email recipients:" : "Email copy prepared for:"}` +
-            '</span><div class="cc-set">' +
-            `${mailRows.map((e) => `<div>${esc(e.kind || "Other")} &mdash; ${esc(e.addr)}</div>`).join("")}` +
-            "</div></div>"
-        : "",
-    ) +
+    "".concat(noticeMailRowHTML(d, mailRows)) +
     "\n      </div>"
   );
+}
+
+// The email recipients shown under the copies: those selected on a draft, those prepared on an issued document.
+function noticeMailRows(d, k) {
+  const sent = d.emailedTo || [],
+    draftMail = d.draft
+      ? emailList(k).filter(
+          (e) => e.on !== false && (!Array.isArray(d.emailSelection) || d.emailSelection.includes(e.addr + "|" + (e.kind || "Other"))),
+        )
+      : [];
+  return (d.draft ? draftMail : sent).filter((e) => String(e.addr || "").trim());
+}
+
+function noticeMailRowHTML(d, mailRows) {
+  return mailRows.length
+    ? '<div class="cc-row cc-mail"><span class="cc-l">' +
+        `${d.draft ? "Email recipients:" : "Email copy prepared for:"}` +
+        '</span><div class="cc-set">' +
+        `${mailRows.map((e) => `<div>${esc(e.kind || "Other")} &mdash; ${esc(e.addr)}</div>`).join("")}` +
+        "</div></div>"
+    : "";
 }
 
 function noticeTitleHTML(d, aligned) {
@@ -517,12 +556,16 @@ function finishNoticeHTML(services, d, result, aligned) {
     );
 }
 
+const noticeShowsSigner = (d, aligned) => aligned && !(d.type === "bestInterestExtension" && d.authoringVersion >= 15) && !simpleVacancy(d);
+// The frozen authorized signer's field, else the draft's own, else the blank mark.
+const noticeSignerField = (d, key, draftKey) => (d.correction ? null : frozenOf(d)?.authorizedSigner)?.[key] || d.special?.[draftKey] || "◯";
+
 function noticeSignerHTML(d, aligned) {
-  return aligned && !(d.type === "bestInterestExtension" && d.authoringVersion >= 15) && !simpleVacancy(d)
+  return noticeShowsSigner(d, aligned)
     ? '<div class="extension-signer"><p>' +
-        esc((d.correction ? null : frozenOf(d)?.authorizedSigner)?.name || d.special?.signerName || "◯") +
+        esc(noticeSignerField(d, "name", "signerName")) +
         "\n" +
-        esc((d.correction ? null : frozenOf(d)?.authorizedSigner)?.title || d.special?.signerTitle || "◯") +
+        esc(noticeSignerField(d, "title", "signerTitle")) +
         "</p></div>"
     : "";
 }
@@ -544,11 +587,10 @@ function renderHistoryNotes(services, d, it) {
     .join("");
 }
 
-function renderReferralHistory(services, d, it) {
-  const history = services
-    .documentItemHistory(d, it)
-    .slice()
-    .sort((a, b) => String(a.on || "").localeCompare(String(b.on || "")));
+const referralDate = (services, on) => (services.validISO(on) ? services.fmtDate(on) : "Date unavailable");
+
+// Whole days between the first observation and correction (or the latest visit); null when the dates do not support it.
+function referralDaysOutstanding(services, history, it) {
   const dates = history.map((x) => x.on),
     end = it.done ? it.doneOn : dates.at(-1),
     start = dates[0];
@@ -558,38 +600,74 @@ function renderReferralHistory(services, d, it) {
     services.validISO(end) &&
     end >= start &&
     (!it.done || history.some((x) => x.oc === "corrected" && x.on === end));
-  const days = valid ? (Date.parse(end + "T00:00:00Z") - Date.parse(start + "T00:00:00Z")) / 86400000 : null;
+  return valid ? (Date.parse(end + "T00:00:00Z") - Date.parse(start + "T00:00:00Z")) / 86400000 : null;
+}
+
+function referralOutcomeWord(d, x) {
+  return x.oc === "initial" ? "First observed" : d.authoringVersion >= 15 && x.oc === "corrected" ? "CORRECTED" : OC_WORD[x.oc] || x.oc;
+}
+
+function referralEntryHTML(services, d, x) {
+  return (
+    "<span><b>" +
+    esc(referralDate(services, x.on)) +
+    "</b><em>" +
+    esc(referralOutcomeWord(d, x)) +
+    "</em>" +
+    (x.cit ? "<i>Citation " + esc(x.cit) + "</i>" : "") +
+    // R62: authoring-16 notes print under the violation, not in the history column.
+    (x.note && d.authoringVersion < 16 ? "<em>Note: " + esc(x.note) + "</em>" : "") +
+    "</span>"
+  );
+}
+
+// A correction the history does not show as an observation (always before authoring 15).
+function referralCorrectionHTML(services, d, it, history) {
+  if (!(it.done && !it.withdrawn && (d.authoringVersion < 15 || !history.some((x) => x.oc === "corrected" && x.on === it.doneOn)))) return "";
+  return d.authoringVersion >= 15
+    ? "<span><b>" + esc(referralDate(services, it.doneOn)) + "</b><em>CORRECTED</em><em>Correction observation unavailable</em></span>"
+    : '<span class="done-note"><strong>Corrected</strong>' + esc(referralDate(services, it.doneOn)) + "</span>";
+}
+
+function renderReferralHistory(services, d, it) {
+  const history = services
+    .documentItemHistory(d, it)
+    .slice()
+    .sort((a, b) => String(a.on || "").localeCompare(String(b.on || "")));
+  const days = referralDaysOutstanding(services, history, it);
   return (
     '<span class="visit-list" style="white-space:normal;overflow-wrap:anywhere">' +
-    (history.length
-      ? history
-          .map(
-            (x) =>
-              "<span><b>" +
-              esc(services.validISO(x.on) ? services.fmtDate(x.on) : "Date unavailable") +
-              "</b><em>" +
-              esc(x.oc === "initial" ? "First observed" : d.authoringVersion >= 15 && x.oc === "corrected" ? "CORRECTED" : OC_WORD[x.oc] || x.oc) +
-              "</em>" +
-              (x.cit ? "<i>Citation " + esc(x.cit) + "</i>" : "") +
-              // R62: authoring-16 notes print under the violation, not in the history column.
-              (x.note && d.authoringVersion < 16 ? "<em>Note: " + esc(x.note) + "</em>" : "") +
-              "</span>",
-          )
-          .join("")
-      : "<span>Inspection history unavailable</span>") +
-    (it.done && !it.withdrawn && (d.authoringVersion < 15 || !history.some((x) => x.oc === "corrected" && x.on === it.doneOn))
-      ? d.authoringVersion >= 15
-        ? "<span><b>" +
-          esc(services.validISO(it.doneOn) ? services.fmtDate(it.doneOn) : "Date unavailable") +
-          "</b><em>CORRECTED</em><em>Correction observation unavailable</em></span>"
-        : '<span class="done-note"><strong>Corrected</strong>' +
-          esc(services.validISO(it.doneOn) ? services.fmtDate(it.doneOn) : "Date unavailable") +
-          "</span>"
-      : "") +
+    (history.length ? history.map((x) => referralEntryHTML(services, d, x)).join("") : "<span>Inspection history unavailable</span>") +
+    referralCorrectionHTML(services, d, it, history) +
     "<span><strong>Days Outstanding: " +
     (it.withdrawn || days === null ? "Unavailable" : days) +
     "</strong></span></span>"
   );
+}
+
+const noticeDueSelectable = (services, d, locked) => d.type === "notice" && !locked && !d.correction && !services.snow.is(d);
+
+function noticeVoidHTML(services, d) {
+  return d.void
+    ? '<div class="void-wm" aria-hidden="true"><span>VOID</span></div>\n      <d' +
+        'iv class="void-note">Voided ' +
+        `${esc(services.fmtDate(recordDay(d.void.at)))}` +
+        "" +
+        `${d.void.reason ? " &mdash; " + esc(d.void.reason) : ""}` +
+        "</div>"
+    : "";
+}
+
+function noticeRuledHTML(d) {
+  return d.type !== "compliance" && d.items.some((x) => x.done)
+    ? '<p class="n-ruled">Items already corrected are listed below ruled throug' +
+        "h, with the date we confirmed them. The remaining items are still outsta" +
+        "nding.</p>"
+    : "";
+}
+
+function noticeNotesHTML(blocks) {
+  return blocks.length ? `<div class="n-notes">${blocks.map((b) => `<h4>${esc(b.label)}</h4><div>${nl2(b.text)}</div>`).join("")}</div>` : "";
 }
 
 function renderNoticeSheet(services, d) {
@@ -608,7 +686,7 @@ function renderNoticeSheet(services, d) {
   /* Editable-draft controls beside each row's due date (never on issued, locked or correction documents):
    on a new Official Notice, a selection for a shared due date (the Assign due dates bar applies it);
    on an authoring-13 Best Interest or Vacancy Extension, the affected-item selection. */
-  const dueSelection = d.type === "notice" && !locked && !d.correction && !services.snow.is(d),
+  const dueSelection = noticeDueSelectable(services, d, locked),
     dueSelected = new Set(d.dueWork?.selected || []),
     affectedRows = services.newDocuments.rowAffectedSelection(d);
   const rows = noticeRows(
@@ -623,29 +701,14 @@ function renderNoticeSheet(services, d) {
     '<div class="sheet' +
     `${d.void ? " voided" : ""}` +
     '">\n    ' +
-    "".concat(
-      d.void
-        ? '<div class="void-wm" aria-hidden="true"><span>VOID</span></div>\n      <d' +
-            'iv class="void-note">Voided ' +
-            `${esc(services.fmtDate(recordDay(d.void.at)))}` +
-            "" +
-            `${d.void.reason ? " &mdash; " + esc(d.void.reason) : ""}` +
-            "</div>"
-        : "",
-    ) +
+    "".concat(noticeVoidHTML(services, d)) +
     "\n    " +
     noticeHeaderHTML(services, d, k, i, { aligned, ce, dis, locked }) +
     noticeMailingHTML(services, d, k, ce) +
     '<div class="n-body">' +
     `${services.docBody(d)}` +
     "</div>\n\n\n    " +
-    "".concat(
-      d.type !== "compliance" && d.items.some((x) => x.done)
-        ? '<p class="n-ruled">Items already corrected are listed below ruled throug' +
-            "h, with the date we confirmed them. The remaining items are still outsta" +
-            "nding.</p>"
-        : "",
-    ) +
+    "".concat(noticeRuledHTML(d)) +
     "\n    " +
     noticeTableHTML(services, d, rows, citeColumn) +
     "\n    " +
@@ -653,7 +716,7 @@ function renderNoticeSheet(services, d) {
     "\n    " +
     "".concat(noticeCopiesHTML(services, d, k)) +
     "\n    " +
-    "".concat(blocks.length ? `<div class="n-notes">${blocks.map((b) => `<h4>${esc(b.label)}</h4><div>${nl2(b.text)}</div>`).join("")}</div>` : "") +
+    "".concat(noticeNotesHTML(blocks)) +
     '\n    <div class="n-foot"><span class="mono">' +
     `${esc(k.number)}` +
     "</span></div>\n  </div>";
@@ -694,12 +757,20 @@ function renderCitAmount(d, it) {
   return d.authoringVersion >= 7 || formatDollarsOnLegacyReprints ? formatDeposit(amount) : String(amount ?? "");
 }
 
+// The court printed on the face: the frozen one, else the current court (room and label from authoring 9).
+function citationCourt(source, d) {
+  return (
+    source.court ||
+    (d.authoringVersion >= 9 ? { ...globalCourt(), room: "RM#203,", caseNumberLabel: CITATION_POLICY.mc2000CaseNumberLabel } : globalCourt())
+  );
+}
+
+const citationNeedsDeposit = (d, x) => !(d.authoringVersion >= 8 && d.cits?.[x.id]?.mandatoryAppearance) && !(cents(d.cits?.[x.id]?.amount) > 0);
+
 function renderCitationFaces(services, d, locked) {
   locked = true;
   const source = frozenOf(d) || {},
-    COURT =
-      source.court ||
-      (d.authoringVersion >= 9 ? { ...globalCourt(), room: "RM#203,", caseNumberLabel: CITATION_POLICY.mc2000CaseNumberLabel } : globalCourt()),
+    COURT = citationCourt(source, d),
     CIT_COPIES = source.courtCopies || globalCourtCopies(),
     CIT_INSTRUCTIONS = source.courtInstructions || globalCourtInstructions(),
     COURT_CONTACT = source.courtContact || globalCourtContact();
@@ -707,7 +778,7 @@ function renderCitationFaces(services, d, locked) {
   const k = services.docCase(d),
     i = services.docInsp(d);
   const cited = d.items.filter((x) => x.cite && !x.withdrawn);
-  if (cited.some((x) => !(d.authoringVersion >= 8 && d.cits?.[x.id]?.mandatoryAppearance) && !(cents(d.cits?.[x.id]?.amount) > 0)))
+  if (cited.some((x) => citationNeedsDeposit(d, x)))
     return (
       '<p class="banner alert no-print">Citation needs deposit. <button class="btn" data-open-deposit="' +
       esc(d.id) +
@@ -738,16 +809,26 @@ function citationFaceHTML(services, face) {
   );
 }
 
+function citationFaceClasses(services, d) {
+  return (
+    `${d.authoringVersion >= 9 ? " cit-v9" : ""}` +
+    "" +
+    `${d.authoringVersion >= 9 && services.snow.is(d) ? " cit-snow" : ""}` +
+    "" +
+    `${d.authoringVersion >= 7 || formatDollarsOnLegacyReprints ? " cit-dollar" : ""}`
+  );
+}
+
+// A mandatory appearance, as recorded from the given authoring version on.
+const citationMandatory = (d, c, fromVersion) => d.authoringVersion >= fromVersion && c.mandatoryAppearance;
+const citationCourtHour = (services, c) => +(services.parseTime(c.courtTime) || "00:00").slice(0, 2);
+
 // Citation face, part 1 of 5 (concatenated in order by citationFaceHTML).
 function citationFacePart1(services, face) {
   const { d, it, c, locked, COURT } = face;
   return (
     '<section class="cit' +
-    `${d.authoringVersion >= 9 ? " cit-v9" : ""}` +
-    "" +
-    `${d.authoringVersion >= 9 && services.snow.is(d) ? " cit-snow" : ""}` +
-    "" +
-    `${d.authoringVersion >= 7 || formatDollarsOnLegacyReprints ? " cit-dollar" : ""}` +
+    citationFaceClasses(services, d) +
     '"><div class="cit-form">\n\n    <div class="cit-bar">\n      <div class="ci' +
     't-idbar"><span class="cit-no">' +
     `${renderCitField(services, d, it.id, "num", "Citation number", locked)}` +
@@ -756,9 +837,9 @@ function citationFacePart1(services, face) {
     `${BOXY}` +
     ' Juvenile</div>\n      <div class="cit-dep"><div class="cit-dep-l">Deposi' +
     't Permitted</div>\n        <div class="amt' +
-    `${d.authoringVersion >= 9 && c.mandatoryAppearance ? " cit-mandatory" : ""}` +
+    `${citationMandatory(d, c, 9) ? " cit-mandatory" : ""}` +
     '">' +
-    "".concat(esc(d.authoringVersion >= 9 && c.mandatoryAppearance ? "NONE – MANDATORY APPEARANCE" : renderCitAmount(d, it))) +
+    "".concat(esc(citationMandatory(d, c, 9) ? "NONE – MANDATORY APPEARANCE" : renderCitAmount(d, it))) +
     '</div></div>\n      <div class="cit-tender"><div>' +
     `${BOXY}` +
     " Cash</div><div>" +
@@ -767,9 +848,9 @@ function citationFacePart1(services, face) {
     '    </div>\n\n    <div class="cit-cols">\n      <div class="cit-l">\n       ' +
     ' <div class="cit-h">You Are Notified To Appear</div>\n        <div class=' +
     '"cit-sm">Is this a mandatory appearance? &nbsp; ' +
-    `${d.authoringVersion >= 8 && c.mandatoryAppearance ? BOXN : BOXY}` +
+    `${citationMandatory(d, c, 8) ? BOXN : BOXY}` +
     " Yes &nbsp; " +
-    `${d.authoringVersion >= 8 && c.mandatoryAppearance ? BOXY : BOXN}` +
+    `${citationMandatory(d, c, 8) ? BOXY : BOXN}` +
     ' No</div>\n        <div class="cit-sm">(Read the reverse side of this cit' +
     'ation for court information)</div>\n        <div class="cit-dt"><b>Date:<' +
     "/b>" +
@@ -777,9 +858,9 @@ function citationFacePart1(services, face) {
     '</div>\n        <div class="cit-dt"><b>Time:</b>' +
     `${renderCitField(services, d, it.id, "courtTime", "09:30 AM", locked)}` +
     "\n          <span>" +
-    `${+(services.parseTime(c.courtTime) || "00:00").slice(0, 2) < 12 ? BOXN : BOXY}` +
+    `${citationCourtHour(services, c) < 12 ? BOXN : BOXY}` +
     " AM &nbsp; " +
-    `${+(services.parseTime(c.courtTime) || "00:00").slice(0, 2) >= 12 ? BOXN : BOXY}` +
+    `${citationCourtHour(services, c) >= 12 ? BOXN : BOXY}` +
     ' PM</span></div>\n        <div class="cit-court">' +
     `${esc(COURT.name)}` +
     "<br>" +
@@ -859,6 +940,22 @@ function citationFacePart2(services, face) {
   );
 }
 
+const citationCaseNumberLabel = (d, COURT) =>
+  d.authoringVersion >= 9 ? COURT.caseNumberLabel || CITATION_POLICY.mc2000CaseNumberLabel : "Agency Case Number";
+
+// The recorded department ID, else the inspector's badge in an editable field.
+function citationDeptIdHTML(services, d, it, i, locked) {
+  return ((d.cits || {})[it.id] || {}).deptId
+    ? renderCitField(services, d, it.id, "deptId", "0000", locked)
+    : '<span class="ed cf" ' +
+        `${locked ? "" : 'contenteditable="true"'}` +
+        ' data-cit="' +
+        `${esc(it.id)}` +
+        '|deptId" data-ph="0000">' +
+        `${esc(i.badge || "")}` +
+        "</span>";
+}
+
 // Citation face, part 3 of 5 (concatenated in order by citationFaceHTML).
 function citationFacePart3(services, face) {
   const { d, it, locked, k, i, COURT } = face;
@@ -875,77 +972,66 @@ function citationFacePart3(services, face) {
     '</div></div>\n      <div><span class="cit-lab">Department</span><div clas' +
     's="v">Building Inspection</div></div>\n      <div><span class="cit-lab">I' +
     '.D. No.</span><div class="v">' +
-    "".concat(
-      ((d.cits || {})[it.id] || {}).deptId
-        ? renderCitField(services, d, it.id, "deptId", "0000", locked)
-        : '<span class="ed cf" ' +
-            `${locked ? "" : 'contenteditable="true"'}` +
-            ' data-cit="' +
-            `${esc(it.id)}` +
-            '|deptId" data-ph="0000">' +
-            `${esc(i.badge || "")}` +
-            "</span>",
-    ) +
+    "".concat(citationDeptIdHTML(services, d, it, i, locked)) +
     '</div></div>\n      <div><span class="cit-lab">Date Citation Issued</span' +
     '><div class="v">' +
     `${renderCitField(services, d, it.id, "issued", services.fmtDate(d.mailed || ""), locked)}` +
     '</div></div>\n      <div><span class="cit-lab">' +
-    "".concat(esc(d.authoringVersion >= 9 ? COURT.caseNumberLabel || CITATION_POLICY.mc2000CaseNumberLabel : "Agency Case Number")) +
+    "".concat(esc(citationCaseNumberLabel(d, COURT))) +
     '</span><div class="v">' +
     `${esc(k.number || "")}` +
     "</div></div>\n    </div>\n\n    </div>\n    "
   );
 }
 
+// One assessment line: dollar-formatted from authoring 8, as a plain amount before.
+const citationAssessmentAmount = (d, cents) =>
+  d.authoringVersion >= 8 ? formatDeposit((cents / 100).toFixed(2)) || "$0.00" : "$" + money(cents / 100);
+
+function citationAssessmentsHTML(d, c) {
+  return c.assessments
+    ? '<div class="cit-assessments">Base ' +
+        "".concat(citationAssessmentAmount(d, c.assessments.base)) +
+        " · Penalty " +
+        "".concat(citationAssessmentAmount(d, c.assessments.penalty)) +
+        " · Jail " +
+        "".concat(citationAssessmentAmount(d, c.assessments.jail)) +
+        " · Crime lab " +
+        "".concat(citationAssessmentAmount(d, c.assessments.crimeLab)) +
+        " · Court " +
+        "".concat(citationAssessmentAmount(d, c.assessments.court)) +
+        "</div>"
+    : "";
+}
+
+const citationFootRevision = (d) => (d.revision ? ` · Corrected rev. ${esc(d.revision.number)} · ${esc(d.id)}` : d.draft ? " · DRAFT" : "");
+
+function citationCommentHTML(services, face) {
+  const { d, it, copy, c, locked } = face;
+  return copy.comment || (d.authoringVersion === 9 && services.snow.is(d))
+    ? '<div class="cit-cmt"><div class="cit-lab">VIOLATION COMMENT:</div>\n     ' +
+        ' <span class="ed" ' +
+        `${locked ? "" : 'contenteditable="true"'}` +
+        ' data-cit="' +
+        `${esc(it.id)}` +
+        '|comment" data-ph="Inspection history: initial inspection, notice issued' +
+        ', reinspection findings">' +
+        `${esc(c.comment || "")}` +
+        "</span></div>"
+    : "";
+}
+
 // Citation face, part 4 of 5 (concatenated in order by citationFaceHTML).
 function citationFacePart4(services, face) {
-  const { d, it, copy, c, locked } = face;
+  const { d, copy, c } = face;
   return (
-    "".concat(
-      c.assessments
-        ? '<div class="cit-assessments">Base ' +
-            "".concat(
-              d.authoringVersion >= 8 ? formatDeposit((c.assessments.base / 100).toFixed(2)) || "$0.00" : "$" + money(c.assessments.base / 100),
-            ) +
-            " · Penalty " +
-            "".concat(
-              d.authoringVersion >= 8 ? formatDeposit((c.assessments.penalty / 100).toFixed(2)) || "$0.00" : "$" + money(c.assessments.penalty / 100),
-            ) +
-            " · Jail " +
-            "".concat(
-              d.authoringVersion >= 8 ? formatDeposit((c.assessments.jail / 100).toFixed(2)) || "$0.00" : "$" + money(c.assessments.jail / 100),
-            ) +
-            " · Crime lab " +
-            "".concat(
-              d.authoringVersion >= 8
-                ? formatDeposit((c.assessments.crimeLab / 100).toFixed(2)) || "$0.00"
-                : "$" + money(c.assessments.crimeLab / 100),
-            ) +
-            " · Court " +
-            "".concat(
-              d.authoringVersion >= 8 ? formatDeposit((c.assessments.court / 100).toFixed(2)) || "$0.00" : "$" + money(c.assessments.court / 100),
-            ) +
-            "</div>"
-        : "",
-    ) +
+    "".concat(citationAssessmentsHTML(d, c)) +
     '\n    <div class="cit-foot"><span>MC-2000, 02/06' +
-    "".concat(d.revision ? ` · Corrected rev. ${esc(d.revision.number)} · ${esc(d.id)}` : d.draft ? " · DRAFT" : "") +
+    "".concat(citationFootRevision(d)) +
     "</span><span>" +
     `${esc(copy.label)}` +
     "</span></div>\n    " +
-    "".concat(
-      copy.comment || (d.authoringVersion === 9 && services.snow.is(d))
-        ? '<div class="cit-cmt"><div class="cit-lab">VIOLATION COMMENT:</div>\n     ' +
-            ' <span class="ed" ' +
-            `${locked ? "" : 'contenteditable="true"'}` +
-            ' data-cit="' +
-            `${esc(it.id)}` +
-            '|comment" data-ph="Inspection history: initial inspection, notice issued' +
-            ', reinspection findings">' +
-            `${esc(c.comment || "")}` +
-            "</span></div>"
-        : "",
-    ) +
+    "".concat(citationCommentHTML(services, face)) +
     "\n    "
   );
 }

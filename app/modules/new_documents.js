@@ -359,7 +359,7 @@ function specialFamilyReadiness(context) {
   }
 }
 
-function editCaseAndVisitSelection(services, refreshControls, el, d, r) {
+function editCaseActionChoice(services, refreshControls, el) {
   if (el.dataset.caseActionGroup) {
     editor.WORK.currentAction.group = el.dataset.caseActionGroup;
     editor.WORK.currentAction.type = "";
@@ -373,6 +373,10 @@ function editCaseAndVisitSelection(services, refreshControls, el, d, r) {
     refreshControls(el);
     return true;
   }
+  return false;
+}
+
+function editServiceEvidenceField(services, el, d) {
   if (el.dataset.serviceField && d) {
     const key = "service:" + d.id;
     editor.WORK.recordForms[key] = editor.WORK.recordForms[key] || {};
@@ -380,6 +384,10 @@ function editCaseAndVisitSelection(services, refreshControls, el, d, r) {
     services.scheduleDraftSave();
     return true;
   }
+  return false;
+}
+
+function editVisitActionChoice(services, refreshControls, el, r) {
   if (el.dataset.actionGroup && r) {
     r.actionGroup = el.dataset.actionGroup;
     r.followupIntent = "";
@@ -400,6 +408,21 @@ function editCaseAndVisitSelection(services, refreshControls, el, d, r) {
   return false;
 }
 
+function editCaseAndVisitSelection(services, refreshControls, el, d, r) {
+  return (
+    editCaseActionChoice(services, refreshControls, el) ||
+    editServiceEvidenceField(services, el, d) ||
+    editVisitActionChoice(services, refreshControls, el, r)
+  );
+}
+
+// The version a family uses on its first visit: the R61 defaults on the dated model; older drafts keep theirs.
+function firstVisitAuthoringVersion(d) {
+  if (d.authoringVersion >= ALL_ITEM_EXTENSIONS) return ALL_ITEM_EXTENSIONS;
+  if (d.authoringVersion >= DATED_EXTENSIONS) return d.type === "bestInterestExtension" ? 15 : DATED_EXTENSIONS;
+  return d.authoringVersion;
+}
+
 function switchAdministrativeFamily(services, refreshControls, restoreDues, el, d) {
   if (el.dataset.special === "administrativeType" && d && d.draft) {
     d.selectionCache = d.selectionCache || {};
@@ -412,15 +435,7 @@ function switchAdministrativeFamily(services, refreshControls, restoreDues, el, 
     // A family already visited keeps its own version, so an older Best Interest draft never silently adopts the
     // signer-free format. A first visit uses the R61 defaults on the dated model; older drafts keep their version.
     // R62: an authoring-16 draft stays on the all-item model in both families.
-    d.authoringVersion =
-      d.authoringCache[d.type] ??
-      (d.authoringVersion >= ALL_ITEM_EXTENSIONS
-        ? ALL_ITEM_EXTENSIONS
-        : d.authoringVersion >= DATED_EXTENSIONS
-          ? d.type === "bestInterestExtension"
-            ? 15
-            : DATED_EXTENSIONS
-          : d.authoringVersion);
+    d.authoringVersion = d.authoringCache[d.type] ?? firstVisitAuthoringVersion(d);
     d.special = clone(d.selectionCache[d.type] || { originalDues: Object.fromEntries(d.items.map((i) => [i.no, i.due || ""])) });
     if (datedExtension(d)) requireDated(d.type, d.special, d.authoringVersion);
     restoreDues(d);
@@ -431,35 +446,44 @@ function switchAdministrativeFamily(services, refreshControls, restoreDues, el, 
   return false;
 }
 
-function editScopedSpecialField({ services, refreshControls, restoreDues, specialBody, ev, el, d, s }) {
-  if (el.dataset.special) {
-    const k = el.dataset.special;
-    if (k !== "reviewed") {
-      s.reviewed = false;
-      const box = document.querySelector('[data-special="reviewed"]');
-      if (box) box.checked = false;
-    }
-    s[k] = el.type === "checkbox" ? el.checked : el.value;
-    if (d.correction && (allItemExtension(d) || (k === "reason" && simplifiedBestInterest(d)))) d.correction.body = specialBody(d);
-    if (k === "deadlineMode") restoreDues(d);
-    if (k === "variant") s.authority = NUISANCES.find((v) => v[0] === s.variant)?.[2] || "";
-    if (d.fromReinspId) {
-      const visit = reinsp(d.fromReinspId);
-      if (visit) {
-        visit.actionDetails = visit.actionDetails || {};
-        visit.actionDetails[d.type] = clone(s);
-      }
-    }
-    services.scheduleDraftSave();
-    if (
-      ev.type === "change" &&
-      ["scope", "variant", "mode", "posting", "boarding", "stage", "expiryMode", "deadlineMode", "releaseVisitId"].includes(k)
-    ) {
-      refreshControls(el);
-    } else services.refreshSheet();
-    return true;
+function clearSpecialReview(s, k) {
+  if (k !== "reviewed") {
+    s.reviewed = false;
+    const box = document.querySelector('[data-special="reviewed"]');
+    if (box) box.checked = false;
   }
-  return false;
+}
+
+function specialFieldEffects({ restoreDues, specialBody, d, s, k }) {
+  if (d.correction && (allItemExtension(d) || (k === "reason" && simplifiedBestInterest(d)))) d.correction.body = specialBody(d);
+  if (k === "deadlineMode") restoreDues(d);
+  if (k === "variant") s.authority = NUISANCES.find((v) => v[0] === s.variant)?.[2] || "";
+}
+
+// The recorded visit keeps the draft's details for this family, so choosing it again restores them.
+function rememberVisitActionDetails(d, s) {
+  if (!d.fromReinspId) return;
+  const visit = reinsp(d.fromReinspId);
+  if (visit) {
+    visit.actionDetails = visit.actionDetails || {};
+    visit.actionDetails[d.type] = clone(s);
+  }
+}
+
+const STRUCTURAL_SPECIAL_FIELDS = ["scope", "variant", "mode", "posting", "boarding", "stage", "expiryMode", "deadlineMode", "releaseVisitId"];
+
+function editScopedSpecialField({ services, refreshControls, restoreDues, specialBody, ev, el, d, s }) {
+  if (!el.dataset.special) return false;
+  const k = el.dataset.special;
+  clearSpecialReview(s, k);
+  s[k] = el.type === "checkbox" ? el.checked : el.value;
+  specialFieldEffects({ restoreDues, specialBody, d, s, k });
+  rememberVisitActionDetails(d, s);
+  services.scheduleDraftSave();
+  if (ev.type === "change" && STRUCTURAL_SPECIAL_FIELDS.includes(k)) {
+    refreshControls(el);
+  } else services.refreshSheet();
+  return true;
 }
 
 function editScopedSpecialItem({ services, refreshControls, restoreDues, invalidateSafety, cacheDetails, el, d, s }) {
@@ -1211,46 +1235,71 @@ function scopedChoices(nd, r) {
   ]);
 }
 
+// What blocks creating the picked document, in order; the fallback names the missing choice.
+function scopedFaults(services, r, picked, fallback) {
+  return picked ? [...services.worksheetFaults(r, picked), eligibility(r, picked)].filter(Boolean) : [fallback];
+}
+
+function scopedChoiceRadio(c, picked) {
+  return screen`<label class="r26-choice"><input type="radio" name="action-type" data-action-type="${String(c[0])}" ${raw(picked === c[0] ? "checked" : "")}><span><strong>${raw(e(c[1]))}</strong><small>${raw(e(c[3]))}</small></span></label>`;
+}
+
+const scopedReadyText = (faults) => (faults.length ? e(faults[0]) : "Ready to create a draft. Review document details before issuance.");
+const scopedStatusPick = (allowed, r) => (allowed.includes(r.followupIntent) ? r.followupIntent : allowed.length === 1 ? allowed[0] : "");
+
 function scopedStatusChooser(nd, r) {
   const { services } = nd;
   const rule = r.importRule,
     allowed = allowedByStatus(r),
     list = scopedChoices(nd, r).filter((c) => allowed.includes(c[0]));
-  const picked = allowed.includes(r.followupIntent) ? r.followupIntent : allowed.length === 1 ? allowed[0] : "";
+  const picked = scopedStatusPick(allowed, r);
   if (picked !== (r.followupIntent || "")) {
     r.followupIntent = picked;
     r.actionGroup = (list.find((c) => c[0] === picked) || [])[2] || "";
   }
-  const faults = picked ? [...services.worksheetFaults(r, picked), eligibility(r, picked)].filter(Boolean) : ["Choose the extension type."];
+  const faults = scopedFaults(services, r, picked, "Choose the extension type.");
   const label = (DOC_TYPES.find((t) => t.id === picked) || {}).label || rule.label;
   return screen`<section class="card no-print r26-chooser" aria-label="Document from the Accela status"><div class="card-h"><h2>Document from the Accela status</h2></div><div class="card-b"><p>Accela status <strong>${raw(e(rule.status))}</strong> → ${raw(e(rule.label))}.</p>${raw(
     allowed.length > 1
-      ? screen`<fieldset><legend>Choose the extension type</legend>${raw(
-          list
-            .map(
-              (c) =>
-                screen`<label class="r26-choice"><input type="radio" name="action-type" data-action-type="${String(c[0])}" ${raw(picked === c[0] ? "checked" : "")}><span><strong>${raw(e(c[1]))}</strong><small>${raw(e(c[3]))}</small></span></label>`,
-            )
-            .join(""),
-        )}</fieldset>`
+      ? screen`<fieldset><legend>Choose the extension type</legend>${raw(list.map((c) => scopedChoiceRadio(c, picked)).join(""))}</fieldset>`
       : "",
-  )}<p aria-live="polite">${raw(
-    picked ? e(label) + ": " + (faults.length ? e(faults[0]) : "Ready to create a draft. Review document details before issuance.") : e(faults[0]),
-  )}</p><button class="btn btn-primary" data-create-action ${raw(faults.length ? "disabled" : "")}>Create draft</button></div></section>`;
+  )}<p aria-live="polite">${raw(picked ? e(label) + ": " + scopedReadyText(faults) : e(faults[0]))}</p><button class="btn btn-primary" data-create-action ${raw(faults.length ? "disabled" : "")}>Create draft</button></div></section>`;
 }
 
-function scopedChooser(nd, r) {
-  const { services } = nd;
-  if (r.importRule) return scopedStatusChooser(nd, r);
+// A saved choice for an already recorded visit is restored before the chooser renders.
+function restoreSavedActionChoice(r) {
   const saved = editor.WORK.actionChoices?.[r.id];
   if (saved && !r.draft) {
     r.followupIntent = saved.intent;
     r.actionGroup = saved.group;
   }
+}
+
+function scopedKindHTML(options, picked, kind) {
+  const items = options.filter((c) => (supplemental({ type: c[0] }) ? "supplemental" : "primary") === kind);
+  return items.length
+    ? screen`<h3 class="ri-action-heading">${raw(kind === "primary" ? "Primary follow-up" : "Additional scoped documents")}</h3>${raw(
+        items.map((c) => scopedChoiceRadio(c, picked)).join(""),
+      )}`
+    : "";
+}
+
+function scopedGroupDocumentsHTML(options, picked) {
+  return screen`<fieldset><legend>Available documents</legend>${raw(["primary", "supplemental"].map((kind) => scopedKindHTML(options, picked, kind)).join(""))}${raw(
+    !options.length
+      ? screen`<p>No documents in this group are available for these results. Review the reasons below or choose another group.</p>`
+      : "",
+  )}</fieldset>`;
+}
+
+function scopedChooser(nd, r) {
+  const { services } = nd;
+  if (r.importRule) return scopedStatusChooser(nd, r);
+  restoreSavedActionChoice(r);
   const picked = r.followupIntent || "",
     list = scopedChoices(nd, r),
     group = list.find((c) => c[0] === picked)?.[2] || r.actionGroup || "",
-    faults = picked ? [...services.worksheetFaults(r, picked), eligibility(r, picked)].filter(Boolean) : ["Choose the next action."];
+    faults = scopedFaults(services, r, picked, "Choose the next action.");
   const available = list.filter((c) => !eligibility(r, c[0])),
     options = available.filter((c) => c[2] === group);
   return screen`<section class="card no-print r26-chooser" aria-label="Choose next action"><div class="card-h"><h2>Choose next action</h2></div><div class="card-b"><p>Use this physical inspection for one primary follow-up and compatible additional scoped documents. Each document has its own review; adding one does not record another visit.</p><fieldset><legend>What should happen next?</legend><div class="r26-groups">${raw(
@@ -1261,35 +1310,9 @@ function scopedChooser(nd, r) {
           screen`<label class="r26-choice"><input type="radio" name="action-group" data-action-group="${String(v)}" ${raw(group === v ? "checked" : "")}> ${String(l)}</label>`,
       )
       .join(""),
-  )}</div></fieldset>${raw(
-    group
-      ? screen`<fieldset><legend>Available documents</legend>${raw(
-          ["primary", "supplemental"]
-            .map((kind) => {
-              const items = options.filter((c) => (supplemental({ type: c[0] }) ? "supplemental" : "primary") === kind);
-              return items.length
-                ? screen`<h3 class="ri-action-heading">${raw(kind === "primary" ? "Primary follow-up" : "Additional scoped documents")}</h3>${raw(
-                    items
-                      .map(
-                        (c) =>
-                          screen`<label class="r26-choice"><input type="radio" name="action-type" data-action-type="${String(c[0])}" ${raw(picked === c[0] ? "checked" : "")}><span><strong>${raw(e(c[1]))}</strong><small>${raw(e(c[3]))}</small></span></label>`,
-                      )
-                      .join(""),
-                  )}`
-                : "";
-            })
-            .join(""),
-        )}${raw(
-          !options.length
-            ? screen`<p>No documents in this group are available for these results. Review the reasons below or choose another group.</p>`
-            : "",
-        )}</fieldset>`
-      : "",
-  )}<p aria-live="polite">${raw(
+  )}</div></fieldset>${raw(group ? scopedGroupDocumentsHTML(options, picked) : "")}<p aria-live="polite">${raw(
     picked
-      ? e((DOC_TYPES.find((t) => t.id === picked) || {}).label) +
-          ": " +
-          (faults.length ? e(faults[0]) : "Ready to create a draft. Review document details before issuance.")
+      ? e((DOC_TYPES.find((t) => t.id === picked) || {}).label) + ": " + scopedReadyText(faults)
       : "No action selected. Your outcomes stay on this worksheet; check the save status before leaving.",
   )}</p><button class="btn btn-primary" data-create-action ${raw(faults.length ? "disabled" : "")}>Create draft</button><details><summary>All document types (10 families) / why unavailable</summary><ul><li>Official Notice — initial imported inspection only.</li>${raw(
     list
@@ -1301,33 +1324,68 @@ function scopedChooser(nd, r) {
   )}</ul></details></div></section>`;
 }
 
+const scopedDetailsHidden = (services, d) =>
+  !specialType(d.type) || services.isLocked(d) || (d.correction && !simplifiedBestInterest(d) && !allItemExtension(d));
+
+function scopedFamilyFields(nd, d, s) {
+  const { date, rowAffectedSelection } = nd;
+  if (["summaryAbatement", "nonSummaryAbatement"].includes(d.type)) return abatementFields(d, s);
+  if (d.type === "noOccupancy") return noOccupancyFields(d, s, date);
+  return extensionFields(d, s, rowAffectedSelection);
+}
+
 function scopedDetails(nd, d) {
-  const { services, date, rowAffectedSelection } = nd;
-  if (!specialType(d.type) || services.isLocked(d) || (d.correction && !simplifiedBestInterest(d) && !allItemExtension(d))) return "";
+  const { services } = nd;
+  if (scopedDetailsHidden(services, d)) return "";
   const s = d.special || (d.special = {});
   if (allItemExtension(d)) return allItemDetails(d, s);
   if (simplifiedBestInterest(d)) return simplifiedDetails(d, s);
   let fields = leadFields(d, s);
-  if (["summaryAbatement", "nonSummaryAbatement"].includes(d.type)) fields += abatementFields(d, s);
-  else if (d.type === "noOccupancy") fields += noOccupancyFields(d, s, date);
-  else fields += extensionFields(d, s, rowAffectedSelection);
+  fields += scopedFamilyFields(nd, d, s);
   if (supplemental(d) && d.items.length) fields += supplementalFields(d, s);
   return detailsShell(d, fields, reviewFields(s));
 }
 
-function scopedCreateSpecial(nd, r, type) {
-  const { services, day } = nd;
+// R62: like a normal Extension, Best Interest takes each uncorrected item's Next due date from the
+// worksheet; a Vacancy Extension prints no due date for uncorrected items.
+function scopedSpecialDue(r, type, open, i) {
+  if (!open(i)) return i.due;
+  return type === "bestInterestExtension" ? (r.results[i.id] || {}).due || "" : "";
+}
+
+function scopedSpecialNote(res, r) {
+  const note = res.oc !== "corrected" && String(res.note || "").trim() ? String(res.note).trim() : "";
+  return { note, noteOn: note ? res.on || r.date : "" };
+}
+
+function scopedSpecialItem({ services, r, type, open, i }) {
+  const res = r.results[i.id] || {};
+  return {
+    ...clone(i),
+    id: services.uid("x"),
+    srcItemId: i.id,
+    due: scopedSpecialDue(r, type, open, i),
+    done: res.oc === "corrected",
+    doneOn: res.oc === "corrected" ? res.on || r.date : "",
+    ...(["bestInterestExtension", "vacancyExtension"].includes(type) ? scopedSpecialNote(res, r) : {}),
+    cite: false,
+  };
+}
+
+// Opens the document this request leads to instead, when there is one; true when the request was handled.
+function scopedSpecialRedirect(nd, r, type) {
+  const { services } = nd;
   if (r.docId && doc(r.docId)?.draft) {
     editor.state.docId = r.docId;
     editor.state.screen = "write";
     services.render();
-    return;
+    return true;
   }
   const why = eligibility(r, type),
     faults = services.worksheetFaults(r, type);
   if (why || faults.length) {
     services.toast(why || faults[0]);
-    return;
+    return true;
   }
   const existing = draftDocFor(r.caseId);
   if (existing) {
@@ -1335,8 +1393,14 @@ function scopedCreateSpecial(nd, r, type) {
     editor.state.screen = "write";
     services.render();
     services.toast("Resume the unfinished document before starting another.");
-    return;
+    return true;
   }
+  return false;
+}
+
+function scopedCreateSpecial(nd, r, type) {
+  const { services, day } = nd;
+  if (scopedSpecialRedirect(nd, r, type)) return;
   const src = doc(r.sourceDocId),
     s = requireDated(type, clone(r.actionDetails?.[type] || {}), ALL_ITEM_EXTENSIONS);
   s.originalDues = Object.fromEntries(src.items.map((i) => [i.no, i.due || ""]));
@@ -1361,26 +1425,7 @@ function scopedCreateSpecial(nd, r, type) {
     inspDate: r.date,
     inspTime: r.time,
     special: s,
-    items: src.items.map((i) => {
-      const res = r.results[i.id] || {};
-      return {
-        ...clone(i),
-        id: services.uid("x"),
-        srcItemId: i.id,
-        // R62: like a normal Extension, Best Interest takes each uncorrected item's Next due date from the
-        // worksheet; a Vacancy Extension prints no due date for uncorrected items.
-        due: !open(i) ? i.due : type === "bestInterestExtension" ? (r.results[i.id] || {}).due || "" : "",
-        done: res.oc === "corrected",
-        doneOn: res.oc === "corrected" ? res.on || r.date : "",
-        ...(["bestInterestExtension", "vacancyExtension"].includes(type)
-          ? {
-              note: res.oc !== "corrected" && String(res.note || "").trim() ? String(res.note).trim() : "",
-              noteOn: res.oc !== "corrected" && String(res.note || "").trim() ? res.on || r.date : "",
-            }
-          : {}),
-        cite: false,
-      };
-    }),
+    items: src.items.map((i) => scopedSpecialItem({ services, r, type, open, i })),
   };
   syncAffected(d);
   workspace.DOCS.unshift(d);
@@ -1399,6 +1444,16 @@ function scopedSpecialLifecycle(nd, d) {
   return lifecycleFaults(services, d, src, r).map((t) => ({ ok: false, t }));
 }
 
+function serviceLatestHTML(latest, date) {
+  return latest
+    ? screen`<p><strong>Latest recorded evidence:</strong> ${raw(e(latest.method))} on ${String(date(latest.date))} — ${raw(e(latest.reference))}${raw(latest.courtRestriction ? " · Court restriction: " + e(latest.courtReference) : "")}</p>`
+    : "<p>No completed service / publication recorded.</p>";
+}
+
+function serviceMethodHTML(form) {
+  return screen`<label class="f"><span>Actual method</span><select data-service-field="method"><option value="">Choose…</option><option value="service" ${raw(form.method === "service" ? "selected" : "")}>Service</option><option value="publication" ${raw(form.method === "publication" ? "selected" : "")}>Publication</option></select></label>`;
+}
+
 function scopedServicePanel(nd, d) {
   const { date } = nd;
   if (d.type !== "nonSummaryAbatement" || d.draft || !isEffective(d)) return "";
@@ -1409,10 +1464,20 @@ function scopedServicePanel(nd, d) {
     field = (k, l, type = "text") =>
       screen`<label class="f"><span>${String(l)}</span><input type="${String(type)}" data-service-field="${String(k)}" value="${raw(e(form[k] || ""))}"></label>`;
   return screen`<section class="card no-print"><div class="card-h"><h2>Service and court evidence</h2></div><div class="card-b"><p>Issuance does not establish service or publication. The remedy period is distinct from the order compliance date. Court restrictions and City abatement require separate external decisions.</p>${raw(
-    latest
-      ? screen`<p><strong>Latest recorded evidence:</strong> ${raw(e(latest.method))} on ${String(date(latest.date))} — ${raw(e(latest.reference))}${raw(latest.courtRestriction ? " · Court restriction: " + e(latest.courtReference) : "")}</p>`
-      : "<p>No completed service / publication recorded.</p>",
-  )}<fieldset class="grid g2" aria-label="Service evidence" ${raw(editor.state.publicationBusy === d.id ? "disabled" : "")}><label class="f"><span>Actual method</span><select data-service-field="method"><option value="">Choose…</option><option value="service" ${raw(form.method === "service" ? "selected" : "")}>Service</option><option value="publication" ${raw(form.method === "publication" ? "selected" : "")}>Publication</option></select></label>${raw(field("date", "Actual service / publication date", "date"))}${raw(field("reference", "Supporting record / evidence"))}${raw(field("courtReference", "Court restriction reference (if applicable)"))}</fieldset><button class="btn" ${raw(editor.state.publicationBusy === d.id ? "disabled" : "")} data-save-service="${raw(e(d.id))}">${raw(latest ? "Record corrected / additional evidence" : "Record completed service / publication")}</button></div></section>`;
+    serviceLatestHTML(latest, date),
+  )}<fieldset class="grid g2" aria-label="Service evidence" ${raw(editor.state.publicationBusy === d.id ? "disabled" : "")}>${raw(serviceMethodHTML(form))}${raw(field("date", "Actual service / publication date", "date"))}${raw(field("reference", "Supporting record / evidence"))}${raw(field("courtReference", "Court restriction reference (if applicable)"))}</fieldset><button class="btn" ${raw(editor.state.publicationBusy === d.id ? "disabled" : "")} data-save-service="${raw(e(d.id))}">${raw(latest ? "Record corrected / additional evidence" : "Record completed service / publication")}</button></div></section>`;
+}
+
+// Service evidence must name an actual method, a real past date no earlier than mailing, and its supporting record.
+function serviceEvidenceIncomplete(services, d, form, day) {
+  return (
+    !d ||
+    !["service", "publication"].includes(form.method) ||
+    !services.validISO(form.date) ||
+    form.date < d.mailed ||
+    form.date > day() ||
+    text(form.reference).length < 10
+  );
 }
 
 async function scopedSaveService(nd, docId) {
@@ -1421,14 +1486,7 @@ async function scopedSaveService(nd, docId) {
     key = "service:" + docId,
     form = editor.WORK.recordForms[key] || {},
     old = (d?.serviceRecords || []).at(-1);
-  if (
-    !d ||
-    !["service", "publication"].includes(form.method) ||
-    !services.validISO(form.date) ||
-    form.date < d.mailed ||
-    form.date > day() ||
-    text(form.reference).length < 10
-  ) {
+  if (serviceEvidenceIncomplete(services, d, form, day)) {
     services.toast("Enter the actual past service / publication date, method and supporting evidence.");
     return;
   }
@@ -1503,14 +1561,38 @@ function scopedActionPanel(nd, d) {
   )}</div></section>`;
 }
 
+const familyVersion = (type) => (["bestInterestExtension", "vacancyExtension"].includes(type) ? ALL_ITEM_EXTENSIONS : DATED_EXTENSIONS);
+
+// The latest recorded visit to the current source, the factual basis of a case-level action.
+function latestFactualVisit(cid, src) {
+  return reinspFor(cid)
+    .filter((r) => !r.draft && r.sourceDocId === src.id)
+    .sort((a, b) => b.date.localeCompare(a.date) || String(b.recordedAt || "").localeCompare(String(a.recordedAt || "")))[0];
+}
+
+function scopedFactualFields(services, cid, src, factual) {
+  return {
+    fromDocId: src.id,
+    expectedHead: recordHead(cid),
+    factualVisitId: factual?.id || "",
+    inspectorId: factual?.inspectorId || docInsp(src).id,
+    inspDate: factual?.date || services.inspAt(src).date,
+    inspTime: factual?.time || services.inspAt(src).time,
+  };
+}
+
+// The refusal shown for a case-level action, or "" when it may be prepared.
+function scopedCaseActionRefusal(services, cid, type) {
+  if (services.snow.isCase(kase(cid))) return "Snow cases offer only the snow citation. Import a new inspection or correct the issued citation.";
+  if (type && isReferredCase(cid)) return REFERRED_MESSAGE;
+  return "";
+}
+
 function scopedCaseAction(nd, cid, type) {
   const { services, day, restoreDues, continuingItems } = nd;
-  if (services.snow.isCase(kase(cid))) {
-    services.toast("Snow cases offer only the snow citation. Import a new inspection or correct the issued citation.");
-    return null;
-  }
-  if (type && isReferredCase(cid)) {
-    services.toast(REFERRED_MESSAGE);
+  const refusal = scopedCaseActionRefusal(services, cid, type);
+  if (refusal) {
+    services.toast(refusal);
     return null;
   }
   if (!type) {
@@ -1531,9 +1613,7 @@ function scopedCaseAction(nd, cid, type) {
   if (!src) return;
   editor.state.modal = null;
   editor.state.screen = "write";
-  const factual = reinspFor(cid)
-    .filter((r) => !r.draft && r.sourceDocId === src.id)
-    .sort((a, b) => b.date.localeCompare(a.date) || String(b.recordedAt || "").localeCompare(String(a.recordedAt || "")))[0];
+  const factual = latestFactualVisit(cid, src);
   const d = {
     id: services.uid("d"),
     caseId: cid,
@@ -1544,26 +1624,16 @@ function scopedCaseAction(nd, cid, type) {
     mailed: "",
     cc: "",
     cits: {},
-    authoringVersion: ["bestInterestExtension", "vacancyExtension"].includes(type) ? ALL_ITEM_EXTENSIONS : DATED_EXTENSIONS,
+    authoringVersion: familyVersion(type),
     // Scoped orders retain authoring 13, so their version alone cannot date this new draft.
     // Seed current family defaults without upgrading any pre-existing draft's cached formats.
-    authoringCache: Object.fromEntries(
-      NEW_TYPES.map((family) => [
-        family.id,
-        ["bestInterestExtension", "vacancyExtension"].includes(family.id) ? ALL_ITEM_EXTENSIONS : DATED_EXTENSIONS,
-      ]),
-    ),
+    authoringCache: Object.fromEntries(NEW_TYPES.map((family) => [family.id, familyVersion(family.id)])),
     administrativeAction: true,
-    fromDocId: src.id,
-    expectedHead: recordHead(cid),
-    factualVisitId: factual?.id || "",
-    inspectorId: factual?.inspectorId || docInsp(src).id,
-    inspDate: factual?.date || services.inspAt(src).date,
-    inspTime: factual?.time || services.inspAt(src).time,
+    ...scopedFactualFields(services, cid, src, factual),
     special: requireDated(type, { originalDues: Object.fromEntries(src.items.map((i) => [i.no, i.due || ""])) }, ALL_ITEM_EXTENSIONS),
     items: continuingItems(src).map((i) => ({ ...clone(i), id: services.uid("x"), srcItemId: i.id, cite: false })),
   };
-  if (["bestInterestExtension", "vacancyExtension"].includes(type)) restoreDues(d);
+  if (familyVersion(type) === ALL_ITEM_EXTENSIONS) restoreDues(d);
   workspace.DOCS.unshift(d);
   editor.state.docId = d.id;
   services.saveDrafts();

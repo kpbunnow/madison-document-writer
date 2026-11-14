@@ -43,6 +43,21 @@ function worksheetNextDueHTML({ open, r, it, res, services, lock, dc }) {
     : "<div></div>";
 }
 
+const worksheetNoteLabel = (oc, open) => (oc === "noaccess" ? "Access attempt and observations" : "Notes " + (open ? "" : "(optional)"));
+
+function worksheetNoAccessHint(oc) {
+  return oc === "noaccess"
+    ? html`<span class="hint">Describe the access attempted, contact made and areas you could not inspect. No access is not a finding of compliance.</span>`
+    : "";
+}
+
+function worksheetCiteHTML({ open, r, res, it, lock }) {
+  return open && (r.importRule?.cite || res.cite)
+    ? html`<label class="ri-cite"><input type="checkbox" data-ricite="${it.id}" ${res.cite ? "checked" : ""} ${lock ? "disabled" : ""}>
+        <span>Issue a citation for this item</span></label>`
+    : "";
+}
+
 function worksheetResultFieldsHTML({ oc, it, res, r, lock, open, services, dc }) {
   return oc
     ? html`<div class="ri-fields">
@@ -50,18 +65,11 @@ function worksheetResultFieldsHTML({ oc, it, res, r, lock, open, services, dc })
           <input type="date" data-ridate="${it.id}" value="${res.on || r.date}" max="${recordDay(today)}" ${lock ? "disabled" : ""}><span class="hint">When this result was observed; no later than this visit.</span></label>
         ${raw(worksheetNextDueHTML({ open, r, it, res, services, lock, dc }))}
       </div>
-      <label class="f ri-note"><span>${oc === "noaccess" ? "Access attempt and observations" : "Notes " + (open ? "" : "(optional)")}</span>
+      <label class="f ri-note"><span>${worksheetNoteLabel(oc, open)}</span>
         <textarea rows="2" data-rinote="${it.id}" placeholder="What you observed, who you spoke to, anything worth having on the file" ${lock ? "disabled" : ""}>${res.note || ""}</textarea>${raw(
-          oc === "noaccess"
-            ? html`<span class="hint">Describe the access attempted, contact made and areas you could not inspect. No access is not a finding of compliance.</span>`
-            : "",
+          worksheetNoAccessHint(oc),
         )}</label>
-      ${raw(
-        open && (r.importRule?.cite || res.cite)
-          ? html`<label class="ri-cite"><input type="checkbox" data-ricite="${it.id}" ${res.cite ? "checked" : ""} ${lock ? "disabled" : ""}>
-        <span>Issue a citation for this item</span></label>`
-          : "",
-      )}`
+      ${raw(worksheetCiteHTML({ open, r, res, it, lock }))}`
     : "";
 }
 
@@ -88,31 +96,46 @@ function worksheetWalkStepsHTML({ walkOn, walkSteps, walkStep }) {
     : "";
 }
 
+function worksheetWalkModesHTML(walkOn) {
+  return html`<div class="ri-walk-modes" role="group" aria-label="How to review items"><button type="button" class="btn btn-sm ${walkOn ? "" : "btn-primary"}" data-riwalk="off" aria-pressed="${walkOn ? "false" : "true"}">Review all items</button><button type="button" class="btn btn-sm ${walkOn ? "btn-primary" : ""}" data-riwalk="on" aria-pressed="${walkOn ? "true" : "false"}">One item at a time</button></div>`;
+}
+
+function worksheetWalkModeHTML(walkOn) {
+  return html`<label class="f"><span>After an outcome</span><select id="ri-walk-mode" ${walkOn ? "" : "disabled"}><option value="quick" ${editor.state.riWalkMode === "quick" ? "selected" : ""}>Go to next unanswered item</option><option value="details" ${editor.state.riWalkMode === "details" ? "selected" : ""}>Complete details first</option></select></label>`;
+}
+
+const worksheetHasUnfinishedDetails = ({ src, editableWalkItem, r, walkItemReady }) =>
+  src.items.some((it) => editableWalkItem(r, it.id) && (!walkItemReady(r, it.id) || editor.state.riWalkSkipped.includes(it.id)));
+
+function worksheetWalkButtonsHTML({ walkOn, src, editableWalkItem, r, walkItemReady }) {
+  if (!walkOn) return "\n    \n    \n    ";
+  return (
+    html`<button class="btn btn-sm" data-riwalk-prev>Previous item</button>` +
+    "\n    " +
+    (editor.state.riWalkStage === "details"
+      ? html`<button class="btn btn-primary btn-sm" data-riwalk-next>Next item</button><button class="btn btn-sm" data-riwalk-skip>Skip for now</button>`
+      : "") +
+    "\n    " +
+    (worksheetHasUnfinishedDetails({ src, editableWalkItem, r, walkItemReady })
+      ? html`<button class="btn btn-sm" data-riwalk-return>Return to unfinished details</button>`
+      : "") +
+    "\n    " +
+    (editor.state.riWalkUndo
+      ? html`<button class="btn btn-sm" data-riwalk-undo title="Undo the last walk-through result (U)">Undo last result <kbd>U</kbd></button>`
+      : "")
+  );
+}
+
 function worksheetWalkPanelHTML({ readOnly, walkOn, src, left, next, walkSteps, walkStep, editableWalkItem, r, walkItemReady, walkKeys }) {
   return !readOnly
     ? html`<div class="ri-walk-panel ${walkOn ? "active" : ""}" role="group" aria-label="Reinspection review mode">
-    <div class="ri-walk-modes" role="group" aria-label="How to review items"><button type="button" class="btn btn-sm ${walkOn ? "" : "btn-primary"}" data-riwalk="off" aria-pressed="${walkOn ? "false" : "true"}">Review all items</button><button type="button" class="btn btn-sm ${walkOn ? "btn-primary" : ""}" data-riwalk="on" aria-pressed="${walkOn ? "true" : "false"}">One item at a time</button></div>
+    ${raw(worksheetWalkModesHTML(walkOn))}
     <div class="ri-walk-copy"><strong>${walkOn ? "One item at a time" : "Review all items"}</strong>
       <span aria-live="polite">${raw(worksheetWalkCopyHTML({ walkOn, src, left, next }))}</span>
     </div>
     ${raw(worksheetWalkStepsHTML({ walkOn, walkSteps, walkStep }))}
-    <label class="f"><span>After an outcome</span><select id="ri-walk-mode" ${walkOn ? "" : "disabled"}><option value="quick" ${editor.state.riWalkMode === "quick" ? "selected" : ""}>Go to next unanswered item</option><option value="details" ${editor.state.riWalkMode === "details" ? "selected" : ""}>Complete details first</option></select></label>
-    ${raw(walkOn ? html`<button class="btn btn-sm" data-riwalk-prev>Previous item</button>` : "")}
-    ${raw(
-      walkOn && editor.state.riWalkStage === "details"
-        ? html`<button class="btn btn-primary btn-sm" data-riwalk-next>Next item</button><button class="btn btn-sm" data-riwalk-skip>Skip for now</button>`
-        : "",
-    )}
-    ${raw(
-      walkOn && src.items.some((it) => editableWalkItem(r, it.id) && (!walkItemReady(r, it.id) || editor.state.riWalkSkipped.includes(it.id)))
-        ? html`<button class="btn btn-sm" data-riwalk-return>Return to unfinished details</button>`
-        : "",
-    )}
-    ${raw(
-      walkOn && editor.state.riWalkUndo
-        ? html`<button class="btn btn-sm" data-riwalk-undo title="Undo the last walk-through result (U)">Undo last result <kbd>U</kbd></button>`
-        : "",
-    )}
+    ${raw(worksheetWalkModeHTML(walkOn))}
+    ${raw(worksheetWalkButtonsHTML({ walkOn, src, editableWalkItem, r, walkItemReady }))}
     <details class="ri-walk-tips"><summary>Keyboard shortcuts and tips</summary><p>In One item at a time: ${raw(walkKeys)}.</p><p>Shortcuts are ignored while typing in a field. Nothing is recorded until you choose an outcome; follow-up choices stay limited to those the imported inspection result permits.</p><p>After an outcome: Go to next unanswered item moves on at once; Complete details first keeps the item open for its date, notes and any new due date.</p></details>
   </div>`
     : "";
@@ -143,23 +166,31 @@ function worksheetProgressHTML({ recorded, activeCount, left, withdrawn }) {
   );
 }
 
+const worksheetWalkLock = (attribute) => (editor.state.riWalk ? attribute : "");
+
 function worksheetFiltersHTML({ done, open, left, cited, src }) {
   return (
-    html`<div class="ri-sum" ${editor.state.riWalk ? "hidden" : ""}>\n         ` +
-    html`<button class="cchip ${done ? "good" : ""}" data-rifilter="corrected" aria-pressed="${editor.state.riFilter === "corrected"}" ${editor.state.riWalk ? "disabled" : ""}>${done} corrected</button>\n         ` +
-    html`<button class="cchip ${open ? "bad" : ""}" data-rifilter="open" aria-pressed="${editor.state.riFilter === "open"}" ${editor.state.riWalk ? "disabled" : ""}>${open} outstanding</button>\n         ` +
+    html`<div class="ri-sum" ${worksheetWalkLock("hidden")}>\n         ` +
+    html`<button class="cchip ${done ? "good" : ""}" data-rifilter="corrected" aria-pressed="${editor.state.riFilter === "corrected"}" ${worksheetWalkLock("disabled")}>${done} corrected</button>\n         ` +
+    html`<button class="cchip ${open ? "bad" : ""}" data-rifilter="open" aria-pressed="${editor.state.riFilter === "open"}" ${worksheetWalkLock("disabled")}>${open} outstanding</button>\n         ` +
     (left
-      ? html`<button class="cchip" data-rifilter="todo" aria-pressed="${editor.state.riFilter === "todo"}" ${editor.state.riWalk ? "disabled" : ""}>${left} not yet resulted</button>`
+      ? html`<button class="cchip" data-rifilter="todo" aria-pressed="${editor.state.riFilter === "todo"}" ${worksheetWalkLock("disabled")}>${left} not yet resulted</button>`
       : "") +
     html`\n         ` +
     (cited.length ? html`<span class="cchip bad">${cited.length} to cite</span>` : "") +
     html`\n         ` +
-    (editor.state.riFilter
-      ? html`<button class="lnk" data-rifilter="" ${editor.state.riWalk ? "disabled" : ""}>Show all ${src.items.length}</button>`
-      : "") +
+    (editor.state.riFilter ? html`<button class="lnk" data-rifilter="" ${worksheetWalkLock("disabled")}>Show all ${src.items.length}</button>` : "") +
     html`\n       </div>\n       `
   );
 }
+
+function worksheetItemsHeading(left, rowsShown, src) {
+  if (editor.state.riWalk && editor.state.riWalkItem)
+    return "Current item · " + (left ? "next unresolved remains in order" : "reviewing recorded details");
+  return editor.state.riFilter ? rowsShown + " of " + src.items.length + " items" : "Review all " + src.items.length + " items";
+}
+
+const worksheetDueIntent = (r) => !r.followupIntent || ["undecided", "extension", "bestInterestExtension", "citation"].includes(r.followupIntent);
 
 function worksheetBodyHTML({
   walkPanel,
@@ -184,19 +215,13 @@ function worksheetBodyHTML({
        )}
        </div></div>
      ${raw(worksheetPriorVisitsHTML({ prior, services }))}
-     <h2 class="ri-items-heading">${
-       editor.state.riWalk && editor.state.riWalkItem
-         ? "Current item · " + (left ? "next unresolved remains in order" : "reviewing recorded details")
-         : editor.state.riFilter
-           ? rowsShown + " of " + src.items.length + " items"
-           : "Review all " + src.items.length + " items"
-     }</h2>
+     <h2 class="ri-items-heading">${worksheetItemsHeading(left, rowsShown, src)}</h2>
      ${raw(
        r.previousDraft
          ? html`<div class="banner info"><div>Previous document draft retained. <button class="btn" id="btn-previousdraft">Restore previous draft and inspection</button><button class="btn" id="btn-exportprevious">Download previous draft</button></div></div>`
          : "",
      )}
-     ${raw(!r.followupIntent || ["undecided", "extension", "bestInterestExtension", "citation"].includes(r.followupIntent) ? services.inspection.duePanel(r, true) : "")}${raw(rows)}
+     ${raw(worksheetDueIntent(r) ? services.inspection.duePanel(r, true) : "")}${raw(rows)}
 
      ${raw(
        !readOnly
@@ -212,36 +237,55 @@ function worksheetBodyHTML({
 const BATCH_BUTTONS =
   '<div class="ri-batch" role="group" aria-label="Mark every item without a result"><span>Mark the rest:</span><button type="button" class="btn btn-sm" data-ri-batch="corrected">All corrected</button><button type="button" class="btn btn-sm" data-ri-batch="none">All no change</button></div>';
 
-function worksheetVerdictHTML({ closed, r, open, left, srcLabel, badDue, done, referred }) {
-  let verdict;
-  if (closed) {
-    const nd = doc(r.docId),
-      ndl = (DOC_TYPES.find((t) => t.id === (nd || {}).type) || {}).label || "follow-up";
-    verdict = html`<div class="banner ok"><div><strong>${doc(r.docId) && doc(r.docId).draft ? "A follow-up document is being drafted." : "This reinspection is finished."}</strong> ${ndl} written from ${open} outstanding item${open === 1 ? "" : "s"}. Compatible additional scoped actions can use this same inspection.</div></div>`;
-  } else if (left) {
-    verdict = html`<div class="banner info"><div><strong>${left} item${left === 1 ? "" : "s"} still to result.</strong> Every item on the ${srcLabel.toLowerCase()} needs an outcome before you create a draft.${raw(editor.state.riWalk ? "" : BATCH_BUTTONS)}</div></div>`;
-  } else if (!open) {
-    verdict = html`<div class="banner ok"><div><strong>Everything on this ${srcLabel.toLowerCase()} was corrected.</strong> Write the compliance letter to tell the owner the case is closed. It records the visit and carries the date each item was met.</div></div>`;
-  } else if (badDue.length && ["extension", "bestInterestExtension", "citation"].includes(r.followupIntent)) {
-    verdict = html`<div class="banner warn"><div><strong>${badDue.length} outstanding item${badDue.length === 1 ? "" : "s"} need${badDue.length === 1 ? "s" : ""} a due date in the future.</strong> Set one on each item that was not corrected &mdash; unless you are referring the case for prosecution, which sets no new date.</div></div>`;
-  } else {
-    verdict = html`<div class="banner info"><div><strong>${open} item${open === 1 ? "" : "s"} carr${open === 1 ? "ies" : "y"} forward${done ? ", " + done + " corrected" : ""}.</strong> ${raw(worksheetFollowupExplanation({ referred, r }))} Item numbers stay as they are on the ${srcLabel.toLowerCase()}.</div></div>`;
-  }
-  return verdict;
+const worksheetPlural = (n, one, many) => (n === 1 ? one : many);
+
+function worksheetClosedVerdict(r, open) {
+  const nd = doc(r.docId),
+    ndl = (DOC_TYPES.find((t) => t.id === (nd || {}).type) || {}).label || "follow-up";
+  return html`<div class="banner ok"><div><strong>${doc(r.docId) && doc(r.docId).draft ? "A follow-up document is being drafted." : "This reinspection is finished."}</strong> ${ndl} written from ${open} outstanding item${worksheetPlural(open, "", "s")}. Compatible additional scoped actions can use this same inspection.</div></div>`;
 }
+
+function worksheetOpenVerdict({ r, open, srcLabel, done, referred }) {
+  return html`<div class="banner info"><div><strong>${open} item${worksheetPlural(open, "", "s")} carr${worksheetPlural(open, "ies", "y")} forward${done ? ", " + done + " corrected" : ""}.</strong> ${raw(worksheetFollowupExplanation({ referred, r }))} Item numbers stay as they are on the ${srcLabel.toLowerCase()}.</div></div>`;
+}
+
+function worksheetVerdictHTML({ closed, r, open, left, srcLabel, badDue, done, referred }) {
+  if (closed) return worksheetClosedVerdict(r, open);
+  if (left)
+    return html`<div class="banner info"><div><strong>${left} item${worksheetPlural(left, "", "s")} still to result.</strong> Every item on the ${srcLabel.toLowerCase()} needs an outcome before you create a draft.${raw(editor.state.riWalk ? "" : BATCH_BUTTONS)}</div></div>`;
+  if (!open)
+    return html`<div class="banner ok"><div><strong>Everything on this ${srcLabel.toLowerCase()} was corrected.</strong> Write the compliance letter to tell the owner the case is closed. It records the visit and carries the date each item was met.</div></div>`;
+  if (badDue.length && ["extension", "bestInterestExtension", "citation"].includes(r.followupIntent))
+    return html`<div class="banner warn"><div><strong>${badDue.length} outstanding item${worksheetPlural(badDue.length, "", "s")} need${worksheetPlural(badDue.length, "s", "")} a due date in the future.</strong> Set one on each item that was not corrected &mdash; unless you are referring the case for prosecution, which sets no new date.</div></div>`;
+  return worksheetOpenVerdict({ r, open, srcLabel, done, referred });
+}
+
+const worksheetWalkCurrent = (readOnly, it) => !readOnly && editor.state.riWalk && editor.state.riWalkItem === it.id;
+const worksheetWalkHidden = (readOnly, walkCurrent) => !readOnly && editor.state.riWalk && editor.state.riWalkItem && !walkCurrent;
+const worksheetOutcomeOpen = (oc) => oc && oc !== "corrected" && oc !== "withdrawn";
 
 function worksheetItemContext({ src, it, r, readOnly, dueCheck }) {
   const ix = src.items.indexOf(it);
   const res = r.results[it.id] || {},
     oc = res.oc || "";
-  const walkCurrent = !readOnly && editor.state.riWalk && editor.state.riWalkItem === it.id;
+  const walkCurrent = worksheetWalkCurrent(readOnly, it);
   const late = it.due && daysBetween(it.due, r.date) > 0;
-  const open = oc && oc !== "corrected" && oc !== "withdrawn";
+  const open = worksheetOutcomeOpen(oc);
   const carried = !!res.carried,
     lock = readOnly || carried;
   const dc = open ? dueCheck(res.due, r.date) : null;
-  const walkHidden = !readOnly && editor.state.riWalk && editor.state.riWalkItem && !walkCurrent;
+  const walkHidden = worksheetWalkHidden(readOnly, walkCurrent);
   return { ix, res, oc, walkCurrent, late, open, carried, lock, dc, walkHidden };
+}
+
+function worksheetCarriedHTML({ carried, oc, res, services }) {
+  return carried
+    ? html`<p class="ri-carried">${raw(
+        oc === "withdrawn"
+          ? "Withdrawn as entered in error; excluded from compliance counts."
+          : html`Cleared on ${services.inspection.fmtDate(res.on)} and carried forward.`,
+      )}</p>`
+    : "";
 }
 
 function worksheetItemHTML({ it, src, r, readOnly, dueCheck, services }) {
@@ -257,15 +301,7 @@ function worksheetItemHTML({ it, src, r, readOnly, dueCheck, services }) {
       <div class="seg" role="group" aria-label="Result for item ${it.no || String(ix + 1)}">
         ${raw(OUTCOMES.map((o) => html`<button data-setoc="${o.id}" data-item="${it.id}" ${lock ? "disabled" : ""} aria-pressed="${oc === o.id ? "true" : "false"}">${o.label}</button>`).join(""))}
       </div>
-      ${raw(
-        carried
-          ? html`<p class="ri-carried">${raw(
-              oc === "withdrawn"
-                ? "Withdrawn as entered in error; excluded from compliance counts."
-                : html`Cleared on ${services.inspection.fmtDate(res.on)} and carried forward.`,
-            )}</p>`
-          : "",
-      )}
+      ${raw(worksheetCarriedHTML({ carried, oc, res, services }))}
       ${raw(worksheetResultFieldsHTML({ oc, it, res, r, lock, open, services, dc }))}
       </div>`;
 }
@@ -526,30 +562,40 @@ function attachContentCheckTargets(services, d, t, add, visit) {
   else if (/inspection date/.test(t)) add(d.inspDate !== undefined ? '[data-doc="inspDate"]' : '[data-case="date"]', "Inspection date");
   else if (/three distinct due dates/.test(t)) dueItems(d).forEach((i) => add(itemSelector(i.id, "due"), "Item " + i.no + " due date"));
   else if (/duplicate items|only once/.test(t)) d.items.forEach((i) => add('[data-del="' + checkAttr(i.id) + '"]', "Item " + i.no));
-  else if (/citation|deposit|court|officer/.test(t)) {
-    d.items
-      .filter((i) => i.cite && !i.withdrawn)
-      .forEach((i) => {
-        const cc = (d.cits || {})[i.id] || {};
-        let fields = /court date/.test(t)
-          ? ["courtDate"]
-          : /badge|officer/.test(t)
-            ? ["deptId"]
-            : /unique citation|citation number/.test(t)
-              ? ["num"]
-              : /issue dates/.test(t)
-                ? ["issued"]
-                : /deposit/.test(t)
-                  ? [
-                      "depositMode",
-                      "ord",
-                      ...(cc.depositMode === "total" ? ["amount"] : ["base", "cc"]),
-                      ...(cc.depositMode && cc.depositMode !== "schedule" ? ["depositSource"] : []),
-                    ]
-                  : ["num", "courtDate", "amount", "ord", "desc"].filter((f) => !String(cc[f] || "").trim());
-        fields.forEach((f) => add(citSelector(i.id, f), "Item " + i.no + " · " + f));
-      });
-  } else if (/withdrawn item needs/.test(t))
+  else if (/citation|deposit|court|officer/.test(t)) attachCitationCheckTargets(d, t, add);
+  else attachItemStateCheckTargets(services, d, t, add);
+}
+
+function depositCheckFields(cc) {
+  return [
+    "depositMode",
+    "ord",
+    ...(cc.depositMode === "total" ? ["amount"] : ["base", "cc"]),
+    ...(cc.depositMode && cc.depositMode !== "schedule" ? ["depositSource"] : []),
+  ];
+}
+
+// The citation fields a check message is about; an unspecific message names every empty required field.
+function citationCheckFields(t, cc) {
+  if (/court date/.test(t)) return ["courtDate"];
+  if (/badge|officer/.test(t)) return ["deptId"];
+  if (/unique citation|citation number/.test(t)) return ["num"];
+  if (/issue dates/.test(t)) return ["issued"];
+  if (/deposit/.test(t)) return depositCheckFields(cc);
+  return ["num", "courtDate", "amount", "ord", "desc"].filter((f) => !String(cc[f] || "").trim());
+}
+
+function attachCitationCheckTargets(d, t, add) {
+  d.items
+    .filter((i) => i.cite && !i.withdrawn)
+    .forEach((i) => {
+      const cc = (d.cits || {})[i.id] || {};
+      citationCheckFields(t, cc).forEach((f) => add(citSelector(i.id, f), "Item " + i.no + " · " + f));
+    });
+}
+
+function attachItemStateCheckTargets(services, d, t, add) {
+  if (/withdrawn item needs/.test(t))
     d.items
       .filter((i) => i.withdrawn && String(i.withdrawalReason || "").trim().length < 10)
       .forEach((i) => add('[data-withdraw="' + checkAttr(i.id) + '"]', "Item " + i.no + " withdrawal reason"));
@@ -636,18 +682,20 @@ function reinspectionRestoreWalkFor(services, r) {
   if (!reinspectionEnsureWalkContext(services)) editor.WORK.walk = null;
 }
 
+// The walk's source document while its context still holds, or null when the walk must be cleared.
+function walkContextSource(services, r) {
+  if (!r || !r.draft || r.docId || editor.state.riWalkContext !== reinspectionWalkIdentity(services, r)) return null;
+  const src = doc(r.sourceDocId);
+  if (!src || src.caseId !== r.caseId) return null;
+  if (editor.state.riWalkItem && !src.items.some((it) => it.id === editor.state.riWalkItem && !it.withdrawn && !(r.results[it.id] || {}).carried))
+    return null;
+  return src;
+}
+
 function reinspectionEnsureWalkContext(services) {
   const r = editor.state.screen === "reinspect" && reinsp(editor.state.reinspId);
-  if (!r || !r.draft || r.docId || editor.state.riWalkContext !== reinspectionWalkIdentity(services, r)) {
-    reinspectionClearWalk(services);
-    return false;
-  }
-  const src = doc(r.sourceDocId);
-  if (!src || src.caseId !== r.caseId) {
-    reinspectionClearWalk(services);
-    return false;
-  }
-  if (editor.state.riWalkItem && !src.items.some((it) => it.id === editor.state.riWalkItem && !it.withdrawn && !(r.results[it.id] || {}).carried)) {
+  const src = walkContextSource(services, r);
+  if (!src) {
     reinspectionClearWalk(services);
     return false;
   }
@@ -684,13 +732,18 @@ function reinspectionFocusWalkDetails(services) {
   } else reinspectionFocusWalkItem(services);
 }
 
+// The item's result date is real and between the initial inspection and this visit.
+function walkResultDated(services, r, result) {
+  const source = doc(r.sourceDocId),
+    on = result.manualDate ? result.on : result.on || r.date;
+  return services.inspection.validISO(on) && !(on < docCase(source).date) && !(on > r.date);
+}
+
 function reinspectionWalkItemReady(services, r, id) {
   if (!reinspectionEditableWalkItem(services, r, id)) return false;
   const result = r.results[id] || {},
     intent = r.followupIntent || "undecided";
-  const source = doc(r.sourceDocId),
-    on = result.manualDate ? result.on : result.on || r.date;
-  if (!result.oc || !services.inspection.validISO(on) || on < docCase(source).date || on > r.date) return false;
+  if (!result.oc || !walkResultDated(services, r, result)) return false;
   if (result.oc === "corrected") return true;
   return !["extension", "bestInterestExtension", "citation"].includes(intent) || reinspectionDueCheck(services, result.due, r.date).ok;
 }
@@ -756,25 +809,46 @@ function reinspectionPreviousWalk(services, r) {
   return true;
 }
 
+function walkSourceItem(r, id) {
+  const src = r && doc(r.sourceDocId);
+  return src && src.caseId === r.caseId && src.items.find((x) => x.id === id);
+}
+
+const walkVisitOpen = (r) => editor.state.screen === "reinspect" && r && r.id === editor.state.reinspId && r.draft && !r.docId;
+
 function reinspectionEditableWalkItem(services, r, id) {
-  const src = r && doc(r.sourceDocId),
-    it = src && src.caseId === r.caseId && src.items.find((x) => x.id === id);
-  return !!(
-    editor.state.screen === "reinspect" &&
-    r &&
-    r.id === editor.state.reinspId &&
-    r.draft &&
-    !r.docId &&
-    it &&
-    !it.withdrawn &&
-    !(r.results[id] || {}).carried
-  );
+  const it = walkSourceItem(r, id);
+  return !!(walkVisitOpen(r) && it && !it.withdrawn && !(r.results[id] || {}).carried);
+}
+
+// An outcome may be recorded only on an editable item, with a known outcome, inside a still-valid walk.
+function walkOutcomeRefused(services, r, id, outcome) {
+  if (!reinspectionEditableWalkItem(services, r, id) || !OUTCOMES.some((o) => o.id === outcome)) return true;
+  return editor.state.riWalk && (!reinspectionEnsureWalkContext(services) || !editor.state.riWalk);
+}
+
+// In a walk, the item stays open for its details or the next unanswered item comes into focus.
+function advanceWalkAfterOutcome(services, r, id) {
+  if (editor.state.riWalkMode === "details") {
+    editor.state.riWalkItem = id;
+    editor.state.riWalkStage = "details";
+  } else {
+    const next = reinspectionNextWalkItem(services, r);
+    editor.state.riWalkItem = (next && next.id) || null;
+    editor.state.riWalkStage = "outcome";
+  }
+}
+
+function repaintAfterOutcome(services) {
+  if (editor.state.riWalk) {
+    services.ui.render();
+    editor.state.riWalkStage === "details" ? reinspectionFocusWalkDetails(services) : reinspectionFocusWalkItem(services);
+  } else services.ui.renderKeep();
 }
 
 function reinspectionRecordReinspectionOutcome(services, id, outcome) {
   const r = reinsp(editor.state.reinspId);
-  if (!reinspectionEditableWalkItem(services, r, id) || !OUTCOMES.some((o) => o.id === outcome)) return false;
-  if (editor.state.riWalk && (!reinspectionEnsureWalkContext(services) || !editor.state.riWalk)) return false;
+  if (walkOutcomeRefused(services, r, id, outcome)) return false;
   const cur = r.results[id] || {};
   if (cur.oc === outcome) return false;
   const before = Object.prototype.hasOwnProperty.call(r.results, id) ? clone(cur) : null;
@@ -783,41 +857,25 @@ function reinspectionRecordReinspectionOutcome(services, id, outcome) {
   else editor.state.riWalkUndo = null;
   r.results[id] = result;
   editor.state.riWalkSkipped = editor.state.riWalkSkipped.filter((x) => x !== id);
-  if (editor.state.riWalk) {
-    if (editor.state.riWalkMode === "details") {
-      editor.state.riWalkItem = id;
-      editor.state.riWalkStage = "details";
-    } else {
-      const next = reinspectionNextWalkItem(services, r);
-      editor.state.riWalkItem = (next && next.id) || null;
-      editor.state.riWalkStage = "outcome";
-    }
-  }
+  if (editor.state.riWalk) advanceWalkAfterOutcome(services, r, id);
   workspace.DIRTY = true;
   services.authoring.scheduleDraftSave();
-  if (editor.state.riWalk) {
-    services.ui.render();
-    editor.state.riWalkStage === "details" ? reinspectionFocusWalkDetails(services) : reinspectionFocusWalkItem(services);
-  } else services.ui.renderKeep();
+  repaintAfterOutcome(services);
   return true;
 }
 
-function reinspectionUndoWalkOutcome(services) {
-  const r = reinsp(editor.state.reinspId),
-    undo = editor.state.riWalkUndo;
-  if (
+function walkUndoUnavailable(services, r, undo) {
+  return (
     !editor.state.riWalk ||
     !reinspectionEnsureWalkContext(services) ||
     !undo ||
     undo.context !== reinspectionWalkIdentity(services, r) ||
     !reinspectionEditableWalkItem(services, r, undo.itemId)
-  )
-    return false;
-  const current = r.results[undo.itemId];
-  if (!current || current.oc !== undo.after.oc) {
-    services.ui.toast("The outcome changed since Undo was recorded. Review the item before changing it.");
-    return false;
-  }
+  );
+}
+
+// An untouched result returns to its earlier state; one edited since keeps its later details and loses only the outcome.
+function restoreWalkUndo(services, r, undo, current) {
   if (stableJSON(current) === stableJSON(undo.after)) {
     if (undo.before) r.results[undo.itemId] = clone(undo.before);
     else delete r.results[undo.itemId];
@@ -825,6 +883,18 @@ function reinspectionUndoWalkOutcome(services) {
     r.results[undo.itemId] = { ...clone(current), oc: undo.before?.oc || "" };
     services.ui.toast("Outcome undone; later note, date and due details were kept on this item.");
   }
+}
+
+function reinspectionUndoWalkOutcome(services) {
+  const r = reinsp(editor.state.reinspId),
+    undo = editor.state.riWalkUndo;
+  if (walkUndoUnavailable(services, r, undo)) return false;
+  const current = r.results[undo.itemId];
+  if (!current || current.oc !== undo.after.oc) {
+    services.ui.toast("The outcome changed since Undo was recorded. Review the item before changing it.");
+    return false;
+  }
+  restoreWalkUndo(services, r, undo, current);
   editor.state.riWalkUndo = null;
   editor.state.riWalkItem = undo.itemId;
   editor.state.riWalkStage = "outcome";
@@ -835,15 +905,18 @@ function reinspectionUndoWalkOutcome(services) {
   return true;
 }
 
+const narrativeFirstDate = (k, first) => (first && k.date) || k.date || (first || {}).created;
+const narrativeSourceLabel = (src) => (DOC_TYPES.find((t) => t.id === (src || {}).type) || {}).label || "notice";
+const narrativeFinding = (oc) => (OUTCOMES.find((o) => o.id === oc) || {}).found || "the violation uncorrected";
+
 function reinspectionNarrativeFor(services, r, it) {
   const k = kase(r.caseId),
     src = doc(r.sourceDocId),
     oc = ocOf(r, it.id),
     res = r.results[it.id] || {};
-  const first = originalNotice(r.caseId),
-    firstDate = (first && k.date) || k.date || (first || {}).created;
+  const firstDate = narrativeFirstDate(k, originalNotice(r.caseId));
   const what = String(it.title || "the violation").replace(/\.$/, "");
-  const label = (DOC_TYPES.find((t) => t.id === (src || {}).type) || {}).label || "notice";
+  const label = narrativeSourceLabel(src);
   const art = /^[AEIOU]/i.test(label) ? "An " : "A ";
   return (
     "Initial inspection on " +
@@ -858,7 +931,7 @@ function reinspectionNarrativeFor(services, r, it) {
     ". Re-inspection on " +
     services.inspection.fmtDate(res.on || r.date) +
     " found " +
-    ((OUTCOMES.find((o) => o.id === oc) || {}).found || "the violation uncorrected") +
+    narrativeFinding(oc) +
     "." +
     (res.note ? " " + String(res.note).trim().replace(/\s+/g, " ") : "")
   );
@@ -1039,30 +1112,42 @@ function reinspectionFocusCheckTarget(services, target, message) {
   editor.state.picker = false;
   if (focusAdministrativeCheckTarget(services, d, target)) return;
   if (target.action === "visit") {
-    if (!d || !services.inspection.returnToWorksheet(d)) {
-      services.ui.toast("Open the existing case in Workspace to review its recorded inspection.");
-      return;
-    }
-    const r = reinsp(editor.state.reinspId);
-    editor.state.riFilter = "";
-    reinspectionClearWalk(services);
-    editor.WORK.walk = null;
-    services.ui.render();
-    const check = reinspectionWorksheetChecks(services, r).find((c) => !c.soft) || reinspectionWorksheetChecks(services, r)[0];
-    target = check?.targets[0] || checkTarget("#ri-date", "Reinspection date");
-  } else {
-    if (editor.state.screen === "reinspect") {
-      editor.state.riFilter = "";
-      reinspectionClearWalk(services);
-      editor.WORK.walk = null;
-    }
-    if (target.action === "contacts") editor.state.modal = "cc";
-    services.ui.render();
-  }
+    target = worksheetVisitCheckTarget(services, d);
+    if (!target) return;
+  } else showCheckTargetScreen(services, target);
   if (target.action === "guidance") {
     services.ui.toast(message);
     return;
   }
+  revealCheckTarget(services, target, message);
+}
+
+// Returns to the recorded visit's worksheet and targets its first blocking check; null when there is none to open.
+function worksheetVisitCheckTarget(services, d) {
+  if (!d || !services.inspection.returnToWorksheet(d)) {
+    services.ui.toast("Open the existing case in Workspace to review its recorded inspection.");
+    return null;
+  }
+  const r = reinsp(editor.state.reinspId);
+  editor.state.riFilter = "";
+  reinspectionClearWalk(services);
+  editor.WORK.walk = null;
+  services.ui.render();
+  const check = reinspectionWorksheetChecks(services, r).find((c) => !c.soft) || reinspectionWorksheetChecks(services, r)[0];
+  return check?.targets[0] || checkTarget("#ri-date", "Reinspection date");
+}
+
+function showCheckTargetScreen(services, target) {
+  if (editor.state.screen === "reinspect") {
+    editor.state.riFilter = "";
+    reinspectionClearWalk(services);
+    editor.WORK.walk = null;
+  }
+  if (target.action === "contacts") editor.state.modal = "cc";
+  services.ui.render();
+}
+
+function revealCheckTarget(services, target, message) {
   const el = document.querySelector(target.selector);
   if (!el) {
     services.ui.toast(message + " Open the existing case to review the retained record.");
