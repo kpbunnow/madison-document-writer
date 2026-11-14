@@ -855,6 +855,7 @@
     "tests/unit/audit_language_shortcuts.js",
     "tests/unit/audit_lifecycle.js",
     "tests/unit/audit_local_work_controls.js",
+    "tests/unit/audit_locality_change_exercises.js",
     "tests/unit/audit_logging.py",
     "tests/unit/audit_lookup.js",
     "tests/unit/audit_lookup.py",
