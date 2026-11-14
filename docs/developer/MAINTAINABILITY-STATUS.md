@@ -1,6 +1,6 @@
 # Maintainability development status
 
-Historical delivery baseline at Phase6 starting main `dd584ce02f1375031da7935d6015e82d1f3778a0`, 2026-11-14. The owner's 90+ plan is dated 2026-11-14, version 1.0; this is its current delivery/evidence index, not a redefinition of the scorecard. The [original strict assessment](../history/MAINTAINABILITY-EVALUATION-2026-11-14.md) retains all twenty criteria and 75/100 at `6e90380`. The long [earlier development ledger](MAINTAINABILITY-PLAN.md) remains historical provenance.
+Historical delivery baseline at Phase 6 starting main `dd584ce02f1375031da7935d6015e82d1f3778a0`, 2026-11-14. The owner's 90+ plan is dated 2026-11-14, version 1.0; this is its current delivery/evidence index, not a redefinition of the scorecard. The [original strict assessment](../history/MAINTAINABILITY-EVALUATION-2026-11-14.md) retains all twenty criteria and 75/100 at `6e90380`. The long [earlier development ledger](MAINTAINABILITY-PLAN.md) remains historical provenance.
 
 ## Phases and remaining items
 
@@ -42,9 +42,9 @@ Phase 5 final evidence: 432 regression suites, 306 axe checks, 69 historical pri
 - Fresh full coverage on the final codebase, including explicit treatment of Chromium-executed code and every maintained denominator; Phase 1 deficits remain.
 - Broad checked JS/Python assurance: six checked JS files are 0.98% at this snapshot; no locked Python checker.
 - Further coherent low-MI/complexity and long-factory work; a wrapper-only metric improvement cannot erase extracted debt.
-- A final same-rubric twenty-criterion score at least 90/100, every dimension at least 17/20, no criterion below 3/5. Phase7 independently scores87/100 and explicitly fails target closure; future work must earn the target without changing the rubric.
+- A final same-rubric twenty-criterion score at least 90/100, every dimension at least 17/20, no criterion below 3/5. Phase 7 independently scores87/100 and explicitly fails target closure; future work must earn the target without changing the rubric.
 - Human/City/native/staff/legal acceptance remains in ACCEPTANCE-RECORD.md and PRODUCTION-READINESS.md. AI handoff independence does not close it.
 
 No release was packaged or deployed. Phase 6 does not authorize UI/workflow redesign. Correct materially defective documentation and repeat affected independent tasks before marking the handoff complete.
 
-The Phase7 [diagnostic corrections](MAINTAINABILITY-PHASE7-2026-11-14.md) supersede inflated complete-function counts in older snapshots without changing their bytes. Current code-only MI, default MI, coverage heads, typed scope and candidate/moved cohorts remain separate. [F1–F4](MAINTAINABILITY-90-GAP-FOLLOWUP-2026-11-14.md) are prepared bounded work, not completed design changes or promised points.
+The Phase 7 [diagnostic corrections](MAINTAINABILITY-PHASE7-2026-11-14.md) supersede inflated complete-function counts in older snapshots without changing their bytes. Current code-only MI, default MI, coverage heads, typed scope and candidate/moved cohorts remain separate. [F1–F4](MAINTAINABILITY-90-GAP-FOLLOWUP-2026-11-14.md) are prepared bounded work, not completed design changes or promised points.
