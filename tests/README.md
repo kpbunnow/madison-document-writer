@@ -21,6 +21,9 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_presentation_escaping.js` | Output-safety primitives against literal strings (other suites compare against esc() itself): every HTML-special character, re-escaped entities, newlines, fill-in bubbles, selector quoting and money text |
+| `audit_coverage_js.js` | Diagnostic JavaScript coverage attribution: a bundled module run through new Function maps to its source file through the inline source map; unexecuted statements and branch arms and never-run files stay uncovered in the denominator |
+| `audit_checked_contracts.js` | Strict tsc --checkJs over the checked entries with no escape hatch or cast, and six deliberately wrong calls (mailing, copy, escaping and event-ordering contracts) rejected at the probe |
 | `audit_maintainability_measurement.py` | Diagnostic measurement tooling: the Radon compatibility copy is accepted only when AST- and line-equivalent (raw strings refused); hotspot inventory reports only a function's own effects (os.replace, not str.replace); exact distributions, size-weighted MI and baseline scope |
 | `audit_maintainability_js.js` | Diagnostic JavaScript logic-line counting (blank, line and block comments excluded) and the shared type-checked entry list used by the gate |
 | `audit_ui_timer_settlement.js` | Isolated DOM rendering completion, every pending callback, and retained interval/callback/completion failure detection |

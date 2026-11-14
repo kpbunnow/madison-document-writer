@@ -259,7 +259,9 @@ require('esbuild').build({stdin:{contents:entry,resolveDir:path.join(root,'app/m
 """
     subprocess.run([node, "-e", command, str(HERE), stem, entry, "true" if TEST_BUILD else "false"], cwd=HERE, check=True)
     payload = (HERE / "build" / (stem + ".js")).read_text(encoding="utf-8")
-    payload = re.sub(r"^// (?:app|build/generated)/[^\n]+\n", "", payload, flags=re.M)
+    # Diagnostic coverage builds (tools/measure_coverage.py) keep line numbers so the inline source map stays valid.
+    keep_lines = os.environ.get("DW_COVERAGE_SOURCEMAPS") == "1"
+    payload = re.sub(r"^// (?:app|build/generated)/[^\n]+\n", "\n" if keep_lines else "", payload, flags=re.M)
     (HERE / "build" / (stem + ".js")).write_text(payload, encoding="utf-8")
     assert "`" not in payload
     data = base64.b64encode(payload.encode()).decode("ascii")

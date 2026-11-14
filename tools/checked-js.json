@@ -1,4 +1,11 @@
 {
-  "description": "Entry points type-checked by tsc --checkJs in tools/run_tests.py. Every file these import is checked too; tools/maintainability_js.cjs reports the resulting file list.",
-  "entries": ["app/modules/contracts.js"]
+  "description": "Entry points type-checked by tsc --checkJs (strict) in tools/run_tests.py. Every file these import is checked too; tools/maintainability_js.cjs reports the resulting file list. Annotations use declarations and JSDoc parameter types only: no any, casts, @ts-ignore or @ts-nocheck.",
+  "entries": [
+    "app/modules/contracts.js",
+    "app/modules/mailing_rules.js",
+    "app/modules/address_format.js",
+    "app/modules/defendant_contact.js",
+    "app/modules/record_values.js",
+    "app/modules/presentation_format.js"
+  ]
 }
