@@ -12,23 +12,36 @@ import { refreshWorkspaceJump } from "./workspace_jump.js";
 /** @typedef {{swap: RestoreRepaint, restore: RestoreRepaint}} LiveFieldKeeper */
 /** @typedef {{previous: HTMLElement|null, actions: HTMLDetailsElement|null, active: HTMLElement|null}} RepaintContext */
 
+// The page shown while the saved workspace is restored, or after restoring it failed.
+function startupPageHTML(failed) {
+  const [heading, role, live, message, retry] = failed
+    ? [
+        "Saved workspace could not be restored",
+        "alert",
+        "assertive",
+        "Editing is paused to protect saved work. Reload to retry. If this continues, ask IT to check this browser’s local storage.",
+        '<button id="startup-retry">Reload and retry</button>',
+      ]
+    : ["Restoring saved workspace", "status", "polite", "Please wait while your saved cases and unfinished work are restored.", ""];
+  return (
+    '<main id="main-content" tabindex="-1" style="max-width:640px;margin:12vh auto;padding:28px"><h1>' +
+    heading +
+    '</h1><p role="' +
+    role +
+    '" aria-live="' +
+    live +
+    '">' +
+    message +
+    "</p>" +
+    retry +
+    "</main>"
+  );
+}
+
 function renderStartup(services) {
   if (!startup.WRITER_READY && (services.IDB_OK || startup.STARTUP_STATUS === "failed")) {
     const failed = startup.STARTUP_STATUS === "failed";
-    services.document.getElementById("app").innerHTML =
-      '<main id="main-content" tabindex="-1" style="max-width:640px;margin:12vh auto;padding:28px"><h1>' +
-      (failed ? "Saved workspace could not be restored" : "Restoring saved workspace") +
-      '</h1><p role="' +
-      (failed ? "alert" : "status") +
-      '" aria-live="' +
-      (failed ? "assertive" : "polite") +
-      '">' +
-      (failed
-        ? "Editing is paused to protect saved work. Reload to retry. If this continues, ask IT to check this browser’s local storage."
-        : "Please wait while your saved cases and unfinished work are restored.") +
-      "</p>" +
-      (failed ? '<button id="startup-retry">Reload and retry</button>' : "") +
-      "</main>";
+    services.document.getElementById("app").innerHTML = startupPageHTML(failed);
     services.document.getElementById("overlay").innerHTML = "";
     services.document.getElementById("startup-retry")?.addEventListener("click", () => services.location.reload());
     if (failed) services.document.getElementById("main-content")?.focus({ preventScroll: true });
@@ -149,7 +162,22 @@ function keepFieldFocus(services, sameDocument, previous, active, editingDoc, sn
   // A late save or filing repaint of the same document must not take focus from an identified form field
   // being typed in, such as the correction reason: its input already reached the model, so the new field
   // shows the same value. Dialogs, locks, navigation and changed model values use the newly rendered field.
-  const fieldFocus =
+  const fieldFocus = fieldFocusKept(services, { sameDocument, snowFocus, previous, active, editingDoc })
+    ? {
+        id: active.id,
+        value: active.value,
+        start: typeof active.selectionStart === "number" ? active.selectionStart : null,
+        end: typeof active.selectionEnd === "number" ? active.selectionEnd : null,
+      }
+    : null;
+  return () => {
+    if (fieldFocus && !editor.state.modal && !editor.state.picker) restoreFieldFocus(services, fieldFocus);
+  };
+}
+
+// An identified form field in the same document keeps focus unless a dialog, picker or lock now applies.
+function fieldFocusKept(services, { sameDocument, snowFocus, previous, active, editingDoc }) {
+  return (
     sameDocument &&
     !snowFocus &&
     previous.contains(active) &&
@@ -158,27 +186,20 @@ function keepFieldFocus(services, sameDocument, previous, active, editingDoc, sn
     !editor.state.modal &&
     !editor.state.picker &&
     !services.isLocked(editingDoc)
-      ? {
-          id: active.id,
-          value: active.value,
-          start: typeof active.selectionStart === "number" ? active.selectionStart : null,
-          end: typeof active.selectionEnd === "number" ? active.selectionEnd : null,
-        }
-      : null;
-  return () => {
-    if (fieldFocus && !editor.state.modal && !editor.state.picker) {
-      const field = services.document.getElementById(fieldFocus.id);
-      if (field && field.closest(".document-workspace") && field.value === fieldFocus.value && services.document.activeElement !== field) {
-        field.focus({ preventScroll: true });
-        if (fieldFocus.start !== null && typeof field.setSelectionRange === "function")
-          try {
-            field.setSelectionRange(fieldFocus.start, fieldFocus.end);
-          } catch {
-            // Date and select controls have no text selection; focus alone is restored.
-          }
+  );
+}
+
+function restoreFieldFocus(services, fieldFocus) {
+  const field = services.document.getElementById(fieldFocus.id);
+  if (field && field.closest(".document-workspace") && field.value === fieldFocus.value && services.document.activeElement !== field) {
+    field.focus({ preventScroll: true });
+    if (fieldFocus.start !== null && typeof field.setSelectionRange === "function")
+      try {
+        field.setSelectionRange(fieldFocus.start, fieldFocus.end);
+      } catch {
+        // Date and select controls have no text selection; focus alone is restored.
       }
-    }
-  };
+  }
 }
 
 /** Capture now; restore after enhancement. @returns {RestoreRepaint} */
@@ -278,16 +299,25 @@ function keepLiveField(services, editingDoc, previous, active, appRoot) {
   };
 }
 
-/** Keep a focused recipient control through a passive repaint, never through a changed context or model value. */
-function keepRecipientField(services, editingDoc, active) {
-  const key =
+// The recipient attribute of a focused, editable recipient input in the open Recipients dialog, else false.
+function recipientFieldKey(editingDoc, active) {
+  return (
     editor.state.modal === "cc" &&
     editingDoc &&
     active?.tagName === "INPUT" &&
     active?.closest?.("#overlay .modal") &&
     !active.disabled &&
     !active.readOnly &&
-    ["cc", "agent", "em"].find((key) => active.hasAttribute("data-" + key));
+    ["cc", "agent", "em"].find((key) => active.hasAttribute("data-" + key))
+  );
+}
+
+const recipientReplacementMatches = (replacement, active) =>
+  !!replacement && !replacement.disabled && !replacement.readOnly && replacement.value === active.value && replacement.checked === active.checked;
+
+/** Keep a focused recipient control through a passive repaint, never through a changed context or model value. */
+function keepRecipientField(services, editingDoc, active) {
+  const key = recipientFieldKey(editingDoc, active);
   if (!key || services.isLocked(editingDoc)) return { swap() {}, restore() {} };
   const docId = editor.state.docId,
     identity = active.dataset[key],
@@ -301,14 +331,7 @@ function keepRecipientField(services, editingDoc, active) {
       const replacement = [...services.document.querySelectorAll("#overlay [data-" + key + "]")].find(
         (field) => field.dataset[key] === identity && field.tagName === active.tagName && field.type === active.type,
       );
-      if (
-        !replacement ||
-        replacement.disabled ||
-        replacement.readOnly ||
-        replacement.value !== active.value ||
-        replacement.checked !== active.checked
-      )
-        return;
+      if (!recipientReplacementMatches(replacement, active)) return;
       for (const attribute of [...active.attributes]) active.removeAttribute(attribute.name);
       for (const attribute of replacement.attributes) active.setAttribute(attribute.name, attribute.value);
       replacement.replaceWith(active);
@@ -359,22 +382,42 @@ function keepPreviewDesk(services, sameDocument) {
   return sameDocument ? services.document.querySelector(".document-workspace .desk") : null;
 }
 
+// Exit Document Writer owns the stopped page; a locked or still-restoring workspace shows its own page.
+function renderWithheld(services) {
+  return helperStop.stopped || startup.STARTUP_STATUS === "locked" || renderStartup(services);
+}
+
+function importRoute(appRoot) {
+  const fromImport = appRoot?.dataset?.renderScreen === "import";
+  return {
+    sameImport: editor.state.screen === "import" && fromImport,
+    // A document or worksheet opened from the Import screen starts at its top, not at the Import page's scroll position.
+    openedFromImport: fromImport && ["write", "reinspect"].includes(editor.state.screen),
+  };
+}
+
+const sameEditorDocument = (previous) => editor.state.screen === "write" && previous?.dataset.editorDoc === editor.state.docId;
+
+function focusPickerSearch(services) {
+  const q = services.document.getElementById("pk-q");
+  if (q) {
+    q.focus();
+    q.setSelectionRange(q.value.length, q.value.length);
+  }
+}
+
 export function createAppScreens(services) {
   function render() {
-    if (helperStop.stopped) return; // Exit Document Writer owns the stopped page.
-    if (startup.STARTUP_STATUS === "locked") return;
-    if (renderStartup(services)) return;
+    if (renderWithheld(services)) return;
     if (editor.state.screen !== "cases") editor.state.issuedCase = "";
     const appRoot = services.document.getElementById("app"),
-      sameImport = editor.state.screen === "import" && appRoot?.dataset?.renderScreen === "import";
-    // A document or worksheet opened from the Import screen starts at its top, not at the Import page's scroll position.
-    const openedFromImport = appRoot?.dataset?.renderScreen === "import" && ["write", "reinspect"].includes(editor.state.screen);
+      { sameImport, openedFromImport } = importRoute(appRoot);
     const importDisclosures = keepImportDisclosures(services, sameImport);
     const languageFocus = rememberLanguageFocus(services.app_languagediscoveryContext());
     const { previous, actions, active } = repaintContext(services);
     const importCaret = keepImportCaret(services, active);
     const documentActions = keepDocumentActions(services, previous, actions, active);
-    const sameDocument = editor.state.screen === "write" && previous?.dataset.editorDoc === editor.state.docId;
+    const sameDocument = sameEditorDocument(previous);
     const editingDoc = sameDocument ? doc(editor.state.docId) : null;
     const liveField = keepLiveField(services, editingDoc, previous, active, appRoot);
     const recipientField = keepRecipientField(services, editingDoc, active);
@@ -412,11 +455,7 @@ export function createAppScreens(services) {
     openPricing();
     snowFocus.restore();
     fieldFocus();
-    const q = services.document.getElementById("pk-q");
-    if (q) {
-      q.focus();
-      q.setSelectionRange(q.value.length, q.value.length);
-    }
+    focusPickerSearch(services);
     restoreLanguageFocus(services.app_languagediscoveryContext(), languageFocus);
     liveField.restore();
     recipientField.restore();

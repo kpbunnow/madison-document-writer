@@ -148,6 +148,33 @@ function reportExportVisitRows(services, cases, A) {
   return visitRows;
 }
 
+const reportCitationInScope = (services, x, F) =>
+  services.facts.inPeriod(x.issued, F) && !(F.inspector && x.by !== F.inspector) && !(F.ord && x.ordinance !== F.ord);
+
+function reportCitationOverride(x) {
+  const basis = x.overrideBasis || {};
+  return [basis.administrator || "", basis.reason || "", basis.sourceReference || "", basis.approvedAt || ""];
+}
+
+function reportCitationRow(services, c, x, A) {
+  return [
+    x.num,
+    c.number,
+    c.address,
+    A(c),
+    services.numOr(x.no),
+    x.ordinance,
+    x.desc,
+    services.D(x.issued),
+    services.D(x.courtDate),
+    x.amount == null ? null : { m: x.amount },
+    x.tier,
+    x.by,
+    c.caseType || "",
+    ...reportCitationOverride(x),
+  ];
+}
+
 function reportExportCitationRows(services, M, F, A) {
   const citRows = [
     [
@@ -174,26 +201,7 @@ function reportExportCitationRows(services, M, F, A) {
     .filter((c) => services.facts.caseOk(c, F, { noViol: true, noInspector: true }))
     .forEach((c) =>
       c.citations.forEach((x) => {
-        if (!services.facts.inPeriod(x.issued, F) || (F.inspector && x.by !== F.inspector) || (F.ord && x.ordinance !== F.ord)) return;
-        citRows.push([
-          x.num,
-          c.number,
-          c.address,
-          A(c),
-          services.numOr(x.no),
-          x.ordinance,
-          x.desc,
-          services.D(x.issued),
-          services.D(x.courtDate),
-          x.amount == null ? null : { m: x.amount },
-          x.tier,
-          x.by,
-          c.caseType || "",
-          x.overrideBasis?.administrator || "",
-          x.overrideBasis?.reason || "",
-          x.overrideBasis?.sourceReference || "",
-          x.overrideBasis?.approvedAt || "",
-        ]);
+        if (reportCitationInScope(services, x, F)) citRows.push(reportCitationRow(services, c, x, A));
       }),
     );
   return citRows;
@@ -392,20 +400,30 @@ function reportCaseTimeline(services, c) {
     .sort((a, b) => (a.d === b.d ? 0 : a.d < b.d ? -1 : 1));
 }
 
+const reportParcelNote = (c) => (c.parcelKey && !c.located && c.looked ? ' <span class="small">(not on the city layer)</span>' : "");
+
+function reportAlderNote(services, c) {
+  return c.alderAtOpen && c.alderAtOpen !== c.alderNow
+    ? screen` <span class="small">(was ${raw(services.esc(c.alderAtOpen))} when opened)</span>`
+    : "";
+}
+
+function reportOwnerHTML(services, c) {
+  return c.ownerKey
+    ? screen`<button class="linkish" data-owner="${raw(services.esc(c.ownerKey))}">${raw(services.esc(c.owner || "—"))}</button>`
+    : services.esc(c.owner || "—");
+}
+
 function reportCaseMetadataHTML(services, c) {
   return screen`<div class="cc-meta">
-      <div><span>Parcel</span>${raw(services.esc(c.parcel || "—"))}${raw(c.parcelKey && !c.located && c.looked ? ' <span class="small">(not on the city layer)</span>' : "")}</div>
-      <div><span>Alder district</span>${raw(services.esc(c.alderNow || "—"))}${raw(c.alderAtOpen && c.alderAtOpen !== c.alderNow ? screen` <span class="small">(was ${raw(services.esc(c.alderAtOpen))} when opened)</span>` : "")}</div>
+      <div><span>Parcel</span>${raw(services.esc(c.parcel || "—"))}${raw(reportParcelNote(c))}</div>
+      <div><span>Alder district</span>${raw(services.esc(c.alderNow || "—"))}${raw(reportAlderNote(services, c))}</div>
       <div><span>ZIP</span>${raw(services.esc(c.zip || "—"))}</div>
       <div><span>Building district</span>${raw(services.esc(c.building || "—"))}</div>
       <div><span>Inspector</span>${raw(services.esc(c.inspector || "—"))}</div>
       <div><span>Opened</span>${raw(services.esc(services.fmtDate(c.opened)))}</div>
       <div><span>Closed</span>${raw(services.esc(services.fmtDate(c.closedOn)))}</div>
-      <div><span>Owner</span>${raw(
-        c.ownerKey
-          ? screen`<button class="linkish" data-owner="${raw(services.esc(c.ownerKey))}">${raw(services.esc(c.owner || "—"))}</button>`
-          : services.esc(c.owner || "—"),
-      )}</div>
+      <div><span>Owner</span>${raw(reportOwnerHTML(services, c))}</div>
       <div><span>Mailing address</span>${raw(services.esc(c.ownerAddr.join(", ") || "—"))}</div>
     </div>
     `;
@@ -635,12 +653,18 @@ function reportsScreenFilterSummary(services) {
     p = [];
   if (F.areas.length) p.push(F.areas.map((a) => services.facts.areaLabel(a)).join(", "));
   if (F.inspector) p.push(F.inspector);
-  if (F.vtype) p.push((ReportsState.S.M.types.find((t) => t.key === F.vtype) || {}).label || F.vtype);
+  if (F.vtype) p.push(reportTypeLabel(F.vtype));
   if (F.ord) p.push(F.ord);
+  reportStatusFilters(services, F, p);
+  return p.length ? ". Filtered to " + p.join("; ") : "";
+}
+
+const reportTypeLabel = (vtype) => (ReportsState.S.M.types.find((t) => t.key === vtype) || {}).label || vtype;
+
+function reportStatusFilters(services, F, p) {
   if (F.status) p.push(F.status === "open" ? "open cases" : F.status);
   if (F.owner) p.push(services.facts.ownerKeyLabel(F.owner));
   if (F.areaType === "district" && F.boundary === "atOpen") p.push("districts as they were when each case opened");
-  return p.length ? ". Filtered to " + p.join("; ") : "";
 }
 
 function reportsScreenCellHTML(services, x, ri, ci, max, isTotal) {
@@ -648,16 +672,31 @@ function reportsScreenCellHTML(services, x, ri, ci, max, isTotal) {
   if (typeof x === "string") return screen`<td>${raw(services.esc(x))}</td>`;
   if (x.kase)
     return screen`<td><button class="linkish" data-case="${raw(services.esc(x.kase))}">${raw(services.esc(x.kase))}</button> <button class="linkish" data-writer="${raw(services.esc(x.kase))}">Open case in Writer</button></td>`;
-  if (x.owner !== undefined)
-    return screen`<td>${raw(
-      x.owner
-        ? screen`<button class="linkish" data-owner="${raw(services.esc(x.owner))}">${raw(services.esc(x.text || "—"))}</button>`
-        : services.esc(x.text || "—"),
-    )}</td>`;
-  const txt = x.fmt === "days" ? services.fmtDays(x.n) : x.fmt === "money" ? services.fmtMoney(x.n) : services.fmtNum(x.n);
-  // the bar behind a count scales against the largest count in its column
-  const bar =
-    !isTotal && x.fmt === "int" && max > 0 && x.n > 0 ? ` bar" style="background-size:${Math.max(3, Math.round((x.n / max) * 100))}% 70%` : "";
+  if (x.owner !== undefined) return reportOwnerCellHTML(services, x);
+  return reportCountCellHTML(services, x, ri, ci, max, isTotal);
+}
+
+function reportOwnerCellHTML(services, x) {
+  return screen`<td>${raw(
+    x.owner
+      ? screen`<button class="linkish" data-owner="${raw(services.esc(x.owner))}">${raw(services.esc(x.text || "—"))}</button>`
+      : services.esc(x.text || "—"),
+  )}</td>`;
+}
+
+function reportCellText(services, x) {
+  if (x.fmt === "days") return services.fmtDays(x.n);
+  return x.fmt === "money" ? services.fmtMoney(x.n) : services.fmtNum(x.n);
+}
+
+// The bar behind a count scales against the largest count in its column.
+function reportCellBar(x, max, isTotal) {
+  return !isTotal && x.fmt === "int" && max > 0 && x.n > 0 ? ` bar" style="background-size:${Math.max(3, Math.round((x.n / max) * 100))}% 70%` : "";
+}
+
+function reportCountCellHTML(services, x, ri, ci, max, isTotal) {
+  const txt = reportCellText(services, x);
+  const bar = reportCellBar(x, max, isTotal);
   const inner =
     x.ids && x.ids.length && x.n
       ? screen`<button data-drill="${String(ri)}:${String(ci)}" aria-label="${raw(services.esc(txt))}, show the cases">${raw(services.esc(txt))}</button>`
@@ -669,17 +708,7 @@ function reportsScreenTablePanel(services, res, dateTxt) {
   if (!res.rows.length)
     return screen`<div class="empty">Nothing matches ${raw(services.esc(dateTxt.charAt(0).toLowerCase() + dateTxt.slice(1)))}${raw(services.activeFilters() ? " with these filters" : "")}.</div>`;
   const cellsOf = (row) => row.cells || row;
-  const numeric = res.cols.map(() => false),
-    max = res.cols.map(() => 0);
-  // Inspect each cell once for both presentation facts; never retain facts across renders.
-  for (const row of res.rows) {
-    const cells = cellsOf(row);
-    for (let ci = 0; ci < res.cols.length; ci++) {
-      const cell = cells[ci];
-      if (cell && typeof cell === "object" && cell.fmt) numeric[ci] = true;
-      max[ci] = Math.max(max[ci], cell && cell.fmt === "int" ? cell.n || 0 : 0);
-    }
-  }
+  const { numeric, max } = reportColumnFacts(res, cellsOf);
   const isNum = (ci) => numeric[ci];
   const sel = ReportsState.S.drill && ReportsState.S.drill.at,
     sort = validSort(ReportsState.S.tableSort, ReportsState.S.screen);
@@ -689,8 +718,29 @@ function reportsScreenTablePanel(services, res, dateTxt) {
   });
   return screen`<div class="tw"><table class="rep"><caption class="sr-only">${raw(services.esc(ReportsState.S.rep?.r?.label || "Report"))} · ${raw(services.esc(dateTxt))}</caption><thead><tr>${raw(reportTableHeaderHTML(services, res, sort, isNum))}</tr></thead><tbody>
     ${raw(reportTableBodyHTML(rows, sel, cellsOf, (...args) => reportsScreenCellHTML(services, ...args), max))}
-    ${raw(res.total ? screen`<tr class="total">${raw(res.total.map((x, ci) => reportsScreenCellHTML(services, x, "t", ci, 0, true)).join(""))}</tr>` : "")}
+    ${raw(reportTotalRowHTML(services, res))}
   </tbody></table></div>${raw(res.note ? screen`<div class="panel-b small">${raw(services.esc(res.note))}</div>` : "")}`;
+}
+
+function reportTotalRowHTML(services, res) {
+  return res.total
+    ? screen`<tr class="total">${raw(res.total.map((x, ci) => reportsScreenCellHTML(services, x, "t", ci, 0, true)).join(""))}</tr>`
+    : "";
+}
+
+// Inspect each cell once for both presentation facts; never retain facts across renders.
+function reportColumnFacts(res, cellsOf) {
+  const numeric = res.cols.map(() => false),
+    max = res.cols.map(() => 0);
+  for (const row of res.rows) {
+    const cells = cellsOf(row);
+    for (let ci = 0; ci < res.cols.length; ci++) {
+      const cell = cells[ci];
+      if (cell && typeof cell === "object" && cell.fmt) numeric[ci] = true;
+      max[ci] = Math.max(max[ci], cell && cell.fmt === "int" ? cell.n || 0 : 0);
+    }
+  }
+  return { numeric, max };
 }
 
 function reportsScreenDrillPanel(services) {
@@ -719,28 +769,41 @@ function reportsScreenCaseTable(services, list) {
   </tbody></table></div>`;
 }
 
+function reportAreaShading(z) {
+  const areas = ReportsState.S.areas;
+  return z ? areas && areas.zips && ReportsState.S.M.zipField : areas && areas.districts && ReportsState.S.M.distField;
+}
+
+function reportShadingNote(res, shade, z) {
+  if (res.area && shade) return "Shading is this report’s count by " + (z ? "ZIP code" : "district") + ". Click an area to filter to it.";
+  return res.area ? "No " + (z ? "ZIP" : "district") + " outlines are available, so areas are not shaded (see Data and definitions)." : "";
+}
+
 function reportsScreenMapPanel(services, r, res) {
   const pts = res.points.filter((c) => c.located),
     off = res.points.length - pts.length;
   const z = ReportsState.S.F.areaType === "zip",
-    shade = z
-      ? ReportsState.S.areas && ReportsState.S.areas.zips && ReportsState.S.M.zipField
-      : ReportsState.S.areas && ReportsState.S.areas.districts && ReportsState.S.M.distField;
+    shade = reportAreaShading(z);
   return screen`<div class="legend">${raw(services.STATUSES.map((s) => screen`<span><i style="background:${String(services.STATUS_COL[s])}"></i>${String(s)}</span>`).join(""))}
       <span>${String(services.plural(pts.length, "case"))} on the map${String(off ? ", " + services.fmtNum(off) + " not located" : "")}.</span>
-      <span>${raw(
-        res.area && shade
-          ? "Shading is this report’s count by " + (z ? "ZIP code" : "district") + ". Click an area to filter to it."
-          : res.area
-            ? "No " + (z ? "ZIP" : "district") + " outlines are available, so areas are not shaded (see Data and definitions)."
-            : "",
-      )}</span>
+      <span>${raw(reportShadingNote(res, shade, z))}</span>
       <span class="seg" role="group" aria-label="Basemap"><button data-basemap="labels" aria-pressed="${String(ReportsState.S.basemap === "labels")}">Street names</button><button data-basemap="plain" aria-pressed="${String(ReportsState.S.basemap === "plain")}">No labels</button></span></div>
     <div id="map" role="region" aria-label="Map of ${raw(services.esc(r.label))}"></div><details class="map-table-alternative"><summary>Table alternative: all matching records, including unlocated cases</summary>${raw(reportsScreenTablePanel(services, res, r.label))}</details>`;
 }
 
-function reportsScreenDrawMap(services) {
-  const el = document.getElementById("map");
+function reportAreaStyle(services, { f, field, res, F, mx }) {
+  const id = services.facts.areaIdOf(f, field),
+    n = res.area[id] || 0,
+    picked = F.areas.indexOf(id) >= 0;
+  return {
+    color: picked ? "#0E3F5E" : "#14567F",
+    weight: picked ? 2.5 : 1,
+    fillColor: "#14567F",
+    fillOpacity: n ? 0.08 + 0.47 * (n / mx) : 0.02,
+  };
+}
+
+function clearReportsMap() {
   if (ReportsState.MAP) {
     try {
       ReportsState.MAP.remove();
@@ -749,6 +812,52 @@ function reportsScreenDrawMap(services) {
     }
     ReportsState.MAP = null;
   }
+}
+
+function drawReportAreas(services, LF, res, F) {
+  const fc = F.areaType === "district" ? ReportsState.S.areas && ReportsState.S.areas.districts : ReportsState.S.areas && ReportsState.S.areas.zips;
+  const field = F.areaType === "district" ? ReportsState.S.M.distField : ReportsState.S.M.zipField;
+  if (!(fc && field && res.area)) return;
+  const mx = Math.max(
+    1,
+    ...Object.keys(res.area)
+      .filter((k) => k)
+      .map((k) => res.area[k]),
+  );
+  LF.geoJSON(fc, {
+    style: (f) => reportAreaStyle(services, { f, field, res, F, mx }),
+    onEachFeature: (f, l) => {
+      const id = services.facts.areaIdOf(f, field);
+      l.bindTooltip(services.esc(services.facts.areaLabel(id) + ": " + services.fmtNum(res.area[id] || 0)), { sticky: true });
+      l.on("click", () => {
+        reportsScreenToggleArea(services, id);
+      });
+    },
+  }).addTo(ReportsState.MAP);
+}
+
+function drawReportPoints(services, LF, res) {
+  const pts = res.points.filter((c) => c.located);
+  pts.forEach((c) => {
+    LF.circleMarker([c.lat, c.lon], {
+      radius: 6,
+      color: "#fff",
+      weight: 1.5,
+      fillColor: services.STATUS_COL[c.status] || "#4E6376",
+      fillOpacity: 0.95,
+    })
+      .bindTooltip(services.esc(c.number + ", " + c.address + " (" + c.status + ")"))
+      .on("click", () => {
+        reportsScreenOpenCase(services, c.number);
+      })
+      .addTo(ReportsState.MAP);
+  });
+  if (pts.length) ReportsState.MAP.fitBounds(LF.latLngBounds(pts.map((c) => [c.lat, c.lon])).pad(0.15), { maxZoom: 16 });
+}
+
+function reportsScreenDrawMap(services) {
+  const el = document.getElementById("map");
+  clearReportsMap();
   const LF = window.L;
   if (!el || !LF || !ReportsState.S.rep) return;
   try {
@@ -756,52 +865,8 @@ function reportsScreenDrawMap(services) {
       F = ReportsState.S.F;
     ReportsState.MAP = LF.map(el, { preferCanvas: true }).setView([43.0747, -89.3842], 12);
     LF.tileLayer(services.TILE[ReportsState.S.basemap], { maxZoom: 19, minZoom: 3, attribution: "City of Madison" }).addTo(ReportsState.MAP);
-    const fc = F.areaType === "district" ? ReportsState.S.areas && ReportsState.S.areas.districts : ReportsState.S.areas && ReportsState.S.areas.zips;
-    const field = F.areaType === "district" ? ReportsState.S.M.distField : ReportsState.S.M.zipField;
-    if (fc && field && res.area) {
-      const mx = Math.max(
-        1,
-        ...Object.keys(res.area)
-          .filter((k) => k)
-          .map((k) => res.area[k]),
-      );
-      LF.geoJSON(fc, {
-        style: (f) => {
-          const id = services.facts.areaIdOf(f, field),
-            n = res.area[id] || 0,
-            picked = F.areas.indexOf(id) >= 0;
-          return {
-            color: picked ? "#0E3F5E" : "#14567F",
-            weight: picked ? 2.5 : 1,
-            fillColor: "#14567F",
-            fillOpacity: n ? 0.08 + 0.47 * (n / mx) : 0.02,
-          };
-        },
-        onEachFeature: (f, l) => {
-          const id = services.facts.areaIdOf(f, field);
-          l.bindTooltip(services.esc(services.facts.areaLabel(id) + ": " + services.fmtNum(res.area[id] || 0)), { sticky: true });
-          l.on("click", () => {
-            reportsScreenToggleArea(services, id);
-          });
-        },
-      }).addTo(ReportsState.MAP);
-    }
-    const pts = res.points.filter((c) => c.located);
-    pts.forEach((c) => {
-      LF.circleMarker([c.lat, c.lon], {
-        radius: 6,
-        color: "#fff",
-        weight: 1.5,
-        fillColor: services.STATUS_COL[c.status] || "#4E6376",
-        fillOpacity: 0.95,
-      })
-        .bindTooltip(services.esc(c.number + ", " + c.address + " (" + c.status + ")"))
-        .on("click", () => {
-          reportsScreenOpenCase(services, c.number);
-        })
-        .addTo(ReportsState.MAP);
-    });
-    if (pts.length) ReportsState.MAP.fitBounds(LF.latLngBounds(pts.map((c) => [c.lat, c.lon])).pad(0.15), { maxZoom: 16 });
+    drawReportAreas(services, LF, res, F);
+    drawReportPoints(services, LF, res);
   } catch (e) {
     el.innerHTML = screen`<div class="empty">The map could not be drawn (${raw(services.esc(e.message || e))}).</div>`;
   }
