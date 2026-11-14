@@ -27,7 +27,7 @@ No behavior defect was found. Two record defects are corrected here:
 
 - **Peers:** semantic dependencies reached through `services`. A grouped service counts each operation (`inspection.validISO`), so grouping cannot hide them.
 - **Live state:** members read or written on the live-state modules (`*_state.js`, `state.js`), with writes listed separately.
-- **Live queries:** calls to `writer_queries.js`. Some queries initialize shared state (`eventsFor`).
+- **Live queries:** references to `writer_queries.js`, whether called or passed on to a calculation as an explicit lookup. Some queries initialize shared state (`eventsFor`).
 - **DOM:** references to browser globals.
 
 **Mutable peer access** is peers plus live-state members plus queries. **Calculation** figures cover the functions in the calculation role. **Totals** unite every role, including any new fact provider or coordinator, so moving a dependency into a provider still counts against the workflow.

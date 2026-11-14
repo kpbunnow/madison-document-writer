@@ -20,13 +20,14 @@ export function owner(services) {
     return workspace.CASES.length + document.title + n.document;
   }
   function inner() { return services.ui.toast("x"); }
-  return { decide, inner };
+  function lookups() { return { all: docsFor, doc: 1 }; }
+  return { decide, inner, lookups };
 }`;
 const ast = acorn.parse(sample, { ecmaVersion: "latest", sourceType: "module" });
 const identities = functionIdentities(ast);
 assert.deepEqual(
   identities.map((f) => f.identity),
-  ["owner#1", "owner#1/decide#1", "owner#1/inner#1"],
+  ["owner#1", "owner#1/decide#1", "owner#1/inner#1", "owner#1/lookups#1"],
 );
 const kinds = importKinds(ast);
 assert.deepEqual([...kinds.state].sort(), ["editor", "workspace"]);
@@ -40,8 +41,11 @@ assert.deepEqual(measured.state, ["editor.docId", "workspace.CASES", "workspace.
 assert.deepEqual(measured.writes, ["editor.docId", "workspace.DOCS"], "assignments are writes; a nested delete target is a read of its holder");
 assert.deepEqual(measured.queries, ["doc", "docsFor"]);
 assert.deepEqual(measured.dom, ["document"], "an object key named document is not the browser global");
+// A query handed on as an explicit lookup still counts; a property key with the same name does not.
+const lookups = identities.find((f) => f.identity === "owner#1/lookups#1").node;
+assert.deepEqual(measureFunction(lookups, kinds, new Set([lookups])).queries, ["docsFor"]);
 // A listed nested function is measured separately and never double-counted in its owner.
-assert.deepEqual(measureFunction(outer, kinds, new Set([outer, decide, inner])).peers, []);
+assert.deepEqual(measureFunction(outer, kinds, new Set([outer, decide, inner, lookups])).peers, []);
 assert.deepEqual(measureFunction(outer, kinds, new Set([outer])).peers, ["inspection.validISO", "isLocked", "ui.toast"]);
 
 // Every configured workflow resolves, and calculation phases never regress from the recorded pre-edit census.

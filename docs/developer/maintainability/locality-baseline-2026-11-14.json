@@ -1,5 +1,5 @@
 {
-  "description": "Pre-edit Phase 3 workflow locality census (tools/workflow_locality.cjs, tools/workflow-locality.json as first committed). Recorded before any Phase 3 workflow edit; the regression baseline for tests/unit/audit_workflow_locality.js.",
+  "description": "Pre-edit Phase 3 workflow locality census (tools/workflow_locality.cjs, tools/workflow-locality.json as first committed). Measured on the application sources of untouched main before any Phase 3 workflow edit; the regression baseline for tests/unit/audit_workflow_locality.js.",
   "source": {
     "commit": "b99ac6f5c2cd3f3e5fff609b0f4c0e78b45d7f3b",
     "tree": "b4a996310f8963bcab035d78b30fb4a0656a94fb"

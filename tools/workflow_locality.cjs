@@ -8,7 +8,8 @@
      grouped service, `services.a.b` (counted as a.b, so grouping cannot hide the operations used);
    - state: distinct members read or written on bindings imported from the live-state modules (*_state.js, state.js),
      with writes counted separately;
-   - queries: distinct live workspace queries called (bindings imported from writer_queries.js; some initialize state);
+   - queries: distinct live workspace queries referenced, called or passed on as explicit lookups (bindings imported
+     from writer_queries.js; some initialize state);
    - dom: distinct browser globals referenced (document, window, navigator, localStorage, sessionStorage, location).
    "Mutable peer access" is peers + state members + queries. Calculation phases are the functions whose role is
    "calculation"; workflow totals unite every role, so a fact provider or coordinator cannot hide a dependency. */
@@ -99,7 +100,8 @@ function measureFunction(fn, kinds, excluded) {
         if (isWriteTarget(access.target, access.above)) writes.add(base + "." + access.member);
       }
     }
-    if (node.type === "CallExpression" && node.callee.type === "Identifier" && kinds.queries.has(node.callee.name)) queries.add(node.callee.name);
+    // Any reference, not only a call: a query handed to a calculation as an explicit lookup still counts.
+    if (node.type === "Identifier" && kinds.queries.has(node.name) && !isPropertyName(node, parent)) queries.add(node.name);
     if (node.type === "Identifier" && DOM.has(node.name) && !isPropertyName(node, parent)) dom.add(node.name);
     for (const [key, value] of Object.entries(node)) {
       if (key === "loc") continue;
