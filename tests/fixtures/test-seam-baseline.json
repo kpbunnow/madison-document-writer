@@ -45,9 +45,9 @@
     "reason": "event registration and handling across all owners"
   },
   "tests/unit/audit_feature_accela_import.js": {
-    "count": 7,
-    "class": "migratable",
-    "owner": "Accela import: 23 private bindings of one owner"
+    "count": 4,
+    "class": "integration",
+    "reason": "Four scenarios need core-composed rendering and readiness: workbook import with page layout, CSS pagination and document sources (audit_import); import disclosure across application repaints (audit_r50_import_repaint); readiness blockers after import (audit_r53_status_rules); and a correction draft of an issued notice (audit_r62_import_rules). r45, r50 and own-property scenarios run against real owners via import_workflow.cjs."
   },
   "tests/unit/audit_feature_citation_packets.js": {
     "count": 2,
@@ -86,8 +86,8 @@
   },
   "tests/unit/audit_import_r13.js": {
     "count": 1,
-    "class": "migratable",
-    "owner": "Accela import: accelaPlan, acceptAccela, sqlReport"
+    "class": "integration",
+    "reason": "One lifecycle: import routing and identity, issuance, reinspection and follow-up, then document readiness checks, the rendered editor sheet and overlay check links, focus on a clicked link and due-panel guards; these use docBody, isLocked and structEditable composed in app_core.js."
   },
   "tests/unit/audit_lifecycle.js": {
     "count": 1,

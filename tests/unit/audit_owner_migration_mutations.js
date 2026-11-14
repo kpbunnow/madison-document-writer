@@ -36,23 +36,48 @@ const MUTATIONS = [
     find: 'choice.kind === "shared" ? f.shared : choice.value;',
     replace: 'choice.kind === "shared" ? f.shared : f.shared;',
   },
+  {
+    suite: "audit_feature_accela_import.js",
+    scenario: "audit_status_own_property.js: inherited-property statuses and case numbers are ordinary text",
+    rule: "status rules read only their own entries",
+    find: "rule = Object.hasOwn(rules, key) ? rules[key] : null;",
+    replace: "rule = rules[key] || null;",
+  },
+  {
+    suite: "audit_feature_accela_import.js",
+    scenario: "audit_r50_import.js: result-status eligibility table",
+    rule: "result statuses match their rule regardless of spacing and case",
+    find: 'var accNorm = (v) => accStr(v).replace(/\\s+/g, " ").toLowerCase();',
+    replace: "var accNorm = (v) => accStr(v).toLowerCase();",
+  },
+  {
+    suite: "audit_feature_accela_import.js",
+    scenario: "audit_r45_import.js: source-selection parity, interruption and draft continuity",
+    rule: "a late capture never replaces typed lookup work",
+    find: "if (el && editorState.WORK.entry[id] === void 0) editorState.WORK.entry[id] = el.value;",
+    replace: "if (el) editorState.WORK.entry[id] = el.value;",
+  },
 ];
 
-const run = (suite, mutation) =>
-  spawnSync(process.execPath, [path.join(__dirname, suite)], {
+const run = (m, mutation) =>
+  spawnSync(process.execPath, [path.join(__dirname, m.suite)], {
     encoding: "utf8",
     timeout: 300000,
-    env: { ...process.env, ...(mutation ? { DW_WORKFLOW_MUTATION: JSON.stringify(mutation) } : {}) },
+    env: {
+      ...process.env,
+      ...(m.scenario ? { DW_SCENARIO: m.scenario } : {}),
+      ...(mutation ? { DW_WORKFLOW_MUTATION: JSON.stringify(mutation) } : {}),
+    },
   });
 
 const results = [];
 for (const m of MUTATIONS) {
-  const clean = run(m.suite);
-  assert.equal(clean.status, 0, m.suite + " passes unmodified:\n" + clean.stdout + clean.stderr);
-  const mutated = run(m.suite, { find: m.find, replace: m.replace });
+  const clean = run(m);
+  assert.equal(clean.status, 0, (m.scenario || m.suite) + " passes unmodified:\n" + clean.stdout + clean.stderr);
+  const mutated = run(m, { find: m.find, replace: m.replace });
   const output = mutated.stdout + mutated.stderr;
   assert.ok(!/the mutation applies exactly once/.test(output), m.suite + ": the mutation must apply exactly once\n" + output);
   assert.notEqual(mutated.status, 0, m.suite + " must detect the regression: " + m.rule);
-  results.push({ suite: m.suite, rule: m.rule, detected: true });
+  results.push({ suite: m.suite, scenario: m.scenario, rule: m.rule, detected: true });
 }
 console.log(JSON.stringify({ passed: true, mutations: results }));

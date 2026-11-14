@@ -33,12 +33,15 @@ async function moduleText() {
     export {createCourtScheduling} from './court_scheduling.js';
     export {createEditorScreens} from './editor_screens.js';
     export {createWorkingPapers} from './working_papers.js';
+    export {createCaseLoading} from './case_loading.js';
+    export {createCaseFolderWorkflow} from './case_folder_workflow.js';
     export {createWorksheetWorkflow} from './worksheet_workflow.js';
     export {createCaseStatus} from './case_status.js';
     export {createReinspectionEntry} from './reinspection_entry.js';
     export {initNewDocuments} from './new_documents.js';
     export {createImportEvents} from './import_events.js';
     export {createWorkspaceEvents} from './workspace_events.js';
+    export {createRecoveryEvents} from './recovery_events.js';
     export {evid} from './record_event_log.js';
     export {createReinspection} from './reinspection.js';
     export {itemHistory, itemInspectionHistory} from './inspection_history.js';
@@ -49,7 +52,8 @@ async function moduleText() {
     export {initTestFixtures} from './test_fixtures.js';
     export {createVisitRecording} from './visit_recording.js';
     export {appendEvent} from './record_event_log.js';
-    export {project} from './case_records.js';
+    export {project, caseFile, rememberSaved} from './case_records.js';
+    export {caseFileName} from './case_file_rules.js';
     export {lookupForf} from './citation_charges.js';
     export {citationPricingDate} from './citation_policy.js';
     export {inspAt, sameInspection} from './inspection_facts.js';
@@ -132,6 +136,8 @@ module.exports = async function createImportWorkflow({ today = new Date(), html 
     scheduleDraftSave: () => {},
     toast: (message) => toasts.push(message),
     isLocked: () => false,
+    // Filed-PDF location display refresh after a case merge; these scenarios file no PDFs.
+    refreshArtifactLocations: async () => {},
   });
   const court = a.createCourtScheduling({ today, nowMillis: () => Date.now(), random: () => Math.random() });
   const recordIntegrity = a.initRecordIntegrity({ kase: a.queries.kase }),
@@ -186,6 +192,22 @@ module.exports = async function createImportWorkflow({ today = new Date(), html 
     clearWalk: (...args) => reinspection.clearWalk(...args),
   });
   const caseStatus = a.createCaseStatus({ snow, today, unissuedVisitFor: worksheets.unissuedVisitFor });
+  const caseLoading = a.createCaseLoading({
+    toast: peer("toast"),
+    recordIntegrity,
+    render: peer("render"),
+    saveDrafts: peer("saveDrafts"),
+    refreshArtifactLocations: peer("refreshArtifactLocations"),
+  });
+  const caseFolders = a.createCaseFolderWorkflow({
+    toast: peer("toast"),
+    grantCaseFolder: peer("grantCaseFolder"),
+    summarize: peer("summarize"),
+    writeIndexFile: peer("writeIndexFile"),
+    render: peer("render"),
+    recordIntegrity,
+    loadCaseFile: caseLoading.loadCaseFile,
+  });
   const workingPapers = a.createWorkingPapers({
     ensureWalkContext: (...args) => reinspection.ensureWalkContext(...args),
     ENTRY_IDS,
@@ -315,14 +337,14 @@ module.exports = async function createImportWorkflow({ today = new Date(), html 
     COMMITTED: a.COMMITTED,
     newDoc: editor.newDoc,
     sourceDocFor: a.queries.sourceDocFor,
-    loadCaseFile: peer("loadCaseFile"),
+    loadCaseFile: caseLoading.loadCaseFile,
     helperJSON: peer("helperJSON"),
     shell: peer("shell"),
     unissuedVisitFor: worksheets.unissuedVisitFor,
     caseState: caseStatus.caseState,
     render: peer("render"),
     scheduleDraftSave: peer("scheduleDraftSave"),
-    listCaseFolder: peer("listCaseFolder"),
+    listCaseFolder: caseFolders.listCaseFolder,
     saveDrafts: peer("saveDrafts"),
     startReinspection: reinspectionEntry.startReinspection,
     captureWork: workingPapers.captureWork,
@@ -354,6 +376,19 @@ module.exports = async function createImportWorkflow({ today = new Date(), html 
     cases: group("cases"),
   });
   workspaceEvents.registerWorkspaceClicks();
+  // The working-entry listeners record typed and cleared import fields, registered in app_core.js's order.
+  const recoveryEvents = a.createRecoveryEvents({
+    ui: partial("ui", {
+      captureWork: workingPapers.captureWork,
+      render: peer("render"),
+      scheduleDraftSave: peer("scheduleDraftSave"),
+      toast: peer("toast"),
+    }),
+    recovery: partial("recovery", { ENTRY_IDS, recordFormKey: peer("recordFormKey") }),
+    publication: group("publication"),
+  });
+  recoveryEvents.registerWorkingInput();
+  recoveryEvents.registerWorkingChange();
   return {
     window: dom.window,
     WriterState: s,
@@ -364,6 +399,10 @@ module.exports = async function createImportWorkflow({ today = new Date(), html 
     newDoc: editor.newDoc,
     captureWork: workingPapers.captureWork,
     issueDocument: issuance.issueDocument,
+    COMMITTED: a.COMMITTED,
+    caseFile: a.caseFile,
+    caseFileName: a.caseFileName,
+    rememberSaved: a.rememberSaved,
     docFromReinspection: reinspection.docFromReinspection,
     reinspection,
     startReinspection: reinspectionEntry.startReinspection,
