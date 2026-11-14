@@ -5,6 +5,7 @@
     "snow_rules.py",
     "snow_letter.json",
     "case_integrity.py",
+    "integrity_verification.py",
     "address_parser.py",
     "postal_suffixes.json",
     "postal_states.json",
@@ -141,6 +142,7 @@
     "runtime_paths.py": "helper/runtime_paths.py",
     "prepare_deployment.py": "helper/prepare_deployment.py",
     "desktop_launch.py": "helper/desktop_launch.py",
-    "document-writer.ico": "app/assets/document-writer.ico"
+    "document-writer.ico": "app/assets/document-writer.ico",
+    "integrity_verification.py": "helper/integrity_verification.py"
   }
 }

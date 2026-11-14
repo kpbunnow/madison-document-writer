@@ -23,6 +23,7 @@
     "highRisk": [
       "helper/artifact_store.py",
       "helper/case_integrity.py",
+      "helper/integrity_verification.py",
       "helper/case_store.py",
       "helper/install_release.py",
       "helper/integrity_admin.py",
@@ -39,8 +40,17 @@
     ]
   },
   "targets": {
-    "runtime": { "statements": 0.85, "branches": 0.75 },
-    "highRisk": { "statements": 0.9, "branches": 0.85 },
-    "developer": { "statements": 0.8, "branches": 0.7 }
+    "runtime": {
+      "statements": 0.85,
+      "branches": 0.75
+    },
+    "highRisk": {
+      "statements": 0.9,
+      "branches": 0.85
+    },
+    "developer": {
+      "statements": 0.8,
+      "branches": 0.7
+    }
   }
 }

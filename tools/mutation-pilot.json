@@ -4,23 +4,23 @@
     {
       "id": "integrity-genesis-hash",
       "category": "integrity refusal",
-      "file": "helper/case_integrity.py",
-      "find": "        if expected != genesis[\"hash\"]:\n            return failure(\"genesis\"",
-      "replace": "        if False and expected != genesis[\"hash\"]:\n            return failure(\"genesis\"",
+      "file": "helper/integrity_verification.py",
+      "find": "    if expected != genesis[\"hash\"]:",
+      "replace": "    if False and expected != genesis[\"hash\"]:",
       "suites": ["audit_r31_integrity.py", "audit_r32_integrity.py", "audit_integrity_shape_rules.py"]
     },
     {
       "id": "integrity-duplicate-events",
       "category": "integrity refusal",
-      "file": "helper/case_integrity.py",
-      "find": "        if len(events) != len(record[\"events\"]):",
-      "replace": "        if False:",
+      "file": "helper/integrity_verification.py",
+      "find": "    if len(events) != len(record[\"events\"]):",
+      "replace": "    if False:",
       "suites": ["audit_r31_integrity.py", "audit_r32_integrity.py", "audit_integrity_shape_rules.py"]
     },
     {
       "id": "integrity-chain-previous-hash",
       "category": "integrity refusal",
-      "file": "helper/case_integrity.py",
+      "file": "helper/integrity_verification.py",
       "find": "entry[\"seq\"] != seq or entry[\"prevHash\"] != head or",
       "replace": "entry[\"seq\"] != seq or",
       "suites": ["audit_r31_integrity.py", "audit_r32_integrity.py", "audit_integrity_shape_rules.py"]
@@ -28,9 +28,9 @@
     {
       "id": "integrity-root-hash",
       "category": "integrity refusal",
-      "file": "helper/case_integrity.py",
-      "find": "        if actual != commit_context[\"rootHash\"]:",
-      "replace": "        if False:",
+      "file": "helper/integrity_verification.py",
+      "find": "    if actual != commit_context[\"rootHash\"]:",
+      "replace": "    if False:",
       "suites": ["audit_r31_integrity.py", "audit_r32_integrity.py", "audit_integrity_shape_rules.py"]
     },
     {
@@ -128,6 +128,22 @@
       "find": "\"&\": \"&amp;\"",
       "replace": "\"&\": \"&\"",
       "suites": ["audit_presentation_escaping.js", "audit_document_renderer.js", "audit_editor_html.js", "audit_workspace_html.js"]
+    },
+    {
+      "id": "integrity-anchored-head",
+      "category": "integrity refusal",
+      "file": "helper/integrity_verification.py",
+      "find": "        anchored_case\n        and anchored_case",
+      "replace": "        False\n        and anchored_case",
+      "suites": ["audit_integrity_verification_phases.py"]
+    },
+    {
+      "id": "integrity-last-good-progress",
+      "category": "integrity refusal order",
+      "file": "helper/case_integrity.py",
+      "find": "            last = entry[\"committedAt\"]",
+      "replace": "            last = last",
+      "suites": ["audit_integrity_verification_phases.py"]
     }
   ]
 }
