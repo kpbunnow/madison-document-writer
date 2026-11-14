@@ -30,6 +30,8 @@
       "helper/install_release.py",
       "helper/integrity_admin.py",
       "helper/server.py",
+      "helper/parcel_history.py",
+      "helper/index_validation.py",
       "helper/verified_update.py",
       "tools/deploy_manifest.py",
       "tools/gate_artifacts.py",

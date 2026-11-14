@@ -1,4 +1,5 @@
 """Index phase extraction preserves verified-source decisions and ordered partial errors."""
+
 import contextlib
 import copy
 import hashlib
@@ -15,6 +16,7 @@ from audit_r49_readiness import fixture
 ROOT = Path(__file__).resolve().parents[2]
 REFERENCE = ROOT / "tests/fixtures/read_index_reference.py.txt"
 
+
 def outcome(root, reference=False, failure=None):
     namespace = dict(vars(server))
     for name, function in vars(server).items():
@@ -26,11 +28,13 @@ def outcome(root, reference=False, failure=None):
         exec(compile(REFERENCE.read_text(), str(REFERENCE), "exec"), namespace)
     trace = []
     original = server.read_plain_bytes
+
     def read(path):
         trace.append(path.name)
         if path.name == failure:
             raise OSError("synthetic interrupted case read")
         return original(path)
+
     namespace.update(case_dir=lambda: root, read_plain_bytes=read)
     with patch.object(server.time, "strftime", return_value="synthetic-clock"):
         server.PROJECTION_MATCHES.clear()
@@ -38,6 +42,7 @@ def outcome(root, reference=False, failure=None):
             return ("result", namespace["read_index"](1)), trace
         except Exception as error:
             return ("error", type(error).__name__, str(error)), trace
+
 
 def parcel_outcome(cache, found, refresh, reference=False):
     namespace = dict(vars(server))
@@ -47,24 +52,35 @@ def parcel_outcome(cache, found, refresh, reference=False):
         path = ROOT / "tests/fixtures/parcel_lookup_reference.py.txt"
         exec(compile(path.read_text(), str(path), "exec"), namespace)
     state, trace = copy.deepcopy(cache), []
+
     def read():
         trace.append("read")
         return state
+
     def city(ids):
         trace.append(("city", ids))
         if isinstance(found, Exception):
             raise found
         return copy.deepcopy(found)
+
     def write(value):
         trace.append(("write", copy.deepcopy(value)))
-    namespace.update(CACHE_LOCK=contextlib.nullcontext(), file_lock=lambda *args: contextlib.nullcontext(),
-                     gis_dir=lambda: Path("synthetic"), read_cache=read, write_cache=write, city_parcels=city)
+
+    namespace.update(
+        CACHE_LOCK=contextlib.nullcontext(),
+        file_lock=lambda *args: contextlib.nullcontext(),
+        gis_dir=lambda: Path("synthetic"),
+        read_cache=read,
+        write_cache=write,
+        city_parcels=city,
+    )
     with patch.object(server.time, "strftime", return_value="2026-11-14"):
         try:
             result = ("result", namespace[fn.__name__](["070822219103", "070822219104", "bad"], refresh))
         except Exception as error:
             result = ("error", type(error).__name__, str(error))
     return result, state, trace
+
 
 class IndexValidationPhases(unittest.TestCase):
     def test_original_provenance(self):
@@ -95,7 +111,9 @@ class IndexValidationPhases(unittest.TestCase):
                     path.write_bytes(raw)
                 target = index / "qa-0.json"
                 summary = json.loads(originals[target])
-                field = rng.choice(["case", "format", "sourceFile", "sourceRevision", "documents", "visits", "violations", "citations", "reinspections", "referrals"])
+                field = rng.choice(
+                    ["case", "format", "sourceFile", "sourceRevision", "documents", "visits", "violations", "citations", "reinspections", "referrals"]
+                )
                 if n % 4:
                     summary[field] = copy.deepcopy(rng.choice(values))
                 else:
@@ -114,6 +132,7 @@ class IndexValidationPhases(unittest.TestCase):
             self.assertEqual(outcome(root / "absent"), outcome(root / "absent", True))
             (root / "_integrity/migrated.json").write_text("{bad")
             self.assertEqual(outcome(root), outcome(root, True))
+
 
 if __name__ == "__main__":
     unittest.main()

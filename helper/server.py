@@ -44,6 +44,8 @@ import helper_session
 import case_integrity
 from plain_files import UNSAFE_NAME_CHARS, plain_json_files, read_plain_bytes
 from public_errors import public_message
+import parcel_history
+import index_validation
 import case_projection
 from reporting_reads import ordered_reads, SummaryInputs
 import citation_pricing
@@ -227,6 +229,57 @@ def projection_mismatch(summary, summary_sha256, record_value):
     return fields
 
 
+def _index_read_input(path, inputs, files):
+    # Speculative reads only. Identity, duplicate, revision and chain checks
+    # remain in their original order on this request's consuming thread.
+    try:
+        summary_raw, summary = inputs.read(path)
+    except (OSError, ValueError, TypeError, KeyError) as error:
+        return path, None, None, error
+    if isinstance(summary, dict):
+        summary["__raw_sha256"] = hashlib.sha256(summary_raw).hexdigest()
+    raw, error = None, None
+    if isinstance(summary, dict) and isinstance(summary.get("case"), dict):
+        try:
+            matches = files.get(case_number_key(summary["case"].get("number")), [])
+            if len(matches) == 1:
+                raw = read_plain_bytes(matches[0])
+        except (OSError, ValueError, TypeError, KeyError) as problem:
+            error = problem
+    return path, summary, raw, error
+
+
+def _index_verified_summary(p, summary, raw, read_error, *, files, seen, duplicates, cd, context, out, mismatched):
+    if summary is None and read_error:
+        raise read_error
+    summary_sha256 = summary.pop("__raw_sha256", None) if isinstance(summary, dict) else None
+    number, casefile = index_validation.summary_casefile(summary, files, seen, duplicates, case_number_key)
+    if read_error:
+        raise read_error
+    record_value = json.loads(raw)
+    if not isinstance(record_value, dict) or not isinstance(record_value.get("case", {}), dict):
+        raise ValueError("case file is not a case record")
+    if case_number_key(record_value.get("case", {}).get("number")) != number:
+        raise ValueError("case file identity mismatch")
+    if summary.get("sourceRevision") != hashlib.sha256(raw).hexdigest():
+        out["stale"].append(casefile.name)
+        return None
+    status = case_integrity.verify_record(record_value, cd, context=context)
+    if not status["valid"]:
+        raise ValueError(status["label"])
+    # The verified case is the authority for reportable facts: a summary naming the
+    # current revision is used only if it equals the projection of that case. Earlier
+    # summary formats pass through to Reports, which excludes them as earlier-format.
+    if case_projection.used_by_reports(summary):
+        fields = projection_mismatch(summary, summary_sha256, record_value)
+        if fields:
+            out["mismatched"].append("%s (%s; differs in %s)" % (p.name, casefile.name, ", ".join(fields)))
+            mismatched.add(casefile.name)
+            return None
+    summary["integrity"] = status
+    return number, summary
+
+
 def read_index(read_workers=4):
     """Every summary, and every case file whose summary is absent or older."""
     cd = case_dir()
@@ -255,85 +308,29 @@ def read_index(read_workers=4):
         return out
 
     def read_input(path):
-        # Speculative reads only. Identity, duplicate, revision and chain checks
-        # remain in their original order on this request's consuming thread.
-        try:
-            summary_raw, summary = inputs.read(path)
-        except (OSError, ValueError, TypeError, KeyError) as error:
-            return path, None, None, error
-        if isinstance(summary, dict):
-            summary["__raw_sha256"] = hashlib.sha256(summary_raw).hexdigest()
-        raw, error = None, None
-        if isinstance(summary, dict) and isinstance(summary.get("case"), dict):
-            try:
-                matches = files.get(case_number_key(summary["case"].get("number")), [])
-                if len(matches) == 1:
-                    raw = read_plain_bytes(matches[0])
-            except (OSError, ValueError, TypeError, KeyError) as problem:
-                error = problem
-        return path, summary, raw, error
+        return _index_read_input(path, inputs, files)
 
     for p, summary, raw, read_error in ordered_reads(sorted(context.summary_paths), read_input, read_workers):
         try:
-            if summary is None and read_error:
-                raise read_error
-            summary_sha256 = summary.pop("__raw_sha256", None) if isinstance(summary, dict) else None
-            if not isinstance(summary, dict) or summary.get("format") != "madison-case-summary" or not isinstance(summary.get("case"), dict):
-                raise ValueError("not a case summary")
-            number = case_number_key(summary["case"].get("number"))
-            if number in seen:
-                duplicates.add(number)
-                raise ValueError("duplicate summary; excluded from totals")
-            seen.add(number)
-            if number not in files or len(files[number]) != 1:
-                raise ValueError("missing or duplicate case file; excluded from reports")
-            casefile = files[number][0]
-            # Optional metadata: absent, null or empty is accepted as before; anything but text is damage.
-            source_file = summary.get("sourceFile")
-            if source_file is not None and not isinstance(source_file, str):
-                raise ValueError("summary source file is not a file name")
-            if source_file and source_file.casefold() != casefile.name.casefold():
-                raise ValueError("summary points to a different case file")
-            if any(
-                not isinstance(summary.get(key, []), list) or any(not isinstance(item, dict) for item in summary.get(key, []))
-                for key in ("documents", "violations", "reinspections", "visits", "citations", "referrals")
-            ):
-                raise ValueError("invalid summary records")
-            if read_error:
-                raise read_error
-            record_value = json.loads(raw)
-            if not isinstance(record_value, dict) or not isinstance(record_value.get("case", {}), dict):
-                raise ValueError("case file is not a case record")
-            if case_number_key(record_value.get("case", {}).get("number")) != number:
-                raise ValueError("case file identity mismatch")
-            if summary.get("sourceRevision") != hashlib.sha256(raw).hexdigest():
-                out["stale"].append(casefile.name)
-                continue
-            status = case_integrity.verify_record(record_value, cd, context=context)
-            if not status["valid"]:
-                raise ValueError(status["label"])
-            # The verified case is the authority for reportable facts: a summary naming the
-            # current revision is used only if it equals the projection of that case. Earlier
-            # summary formats pass through to Reports, which excludes them as earlier-format.
-            if case_projection.used_by_reports(summary):
-                fields = projection_mismatch(summary, summary_sha256, record_value)
-                if fields:
-                    out["mismatched"].append("%s (%s; differs in %s)" % (p.name, casefile.name, ", ".join(fields)))
-                    mismatched.add(casefile.name)
-                    continue
-            summary["integrity"] = status
-            by_number[number] = summary
+            accepted = _index_verified_summary(
+                p,
+                summary,
+                raw,
+                read_error,
+                files=files,
+                seen=seen,
+                duplicates=duplicates,
+                cd=cd,
+                context=context,
+                out=out,
+                mismatched=mismatched,
+            )
+            if accepted is not None:
+                number, summary = accepted
+                by_number[number] = summary
         except (OSError, ValueError, TypeError, KeyError, AttributeError, IndexError, RecursionError) as error:
-            # One case file the reader cannot process never fails the whole index.
             out["unreadable"].append("%s (%s)" % (p.name, error))
-    for number in duplicates:
-        by_number.pop(number, None)
-    out["summaries"] = list(by_number.values())
-    excluded = set(out["stale"]) | mismatched
-    for number, paths in files.items():
-        if number not in by_number and not any(p.name in excluded for p in paths):
-            out["missing"].extend(p.name for p in paths)
-    return out
+    return index_validation.finish(out, by_number, duplicates, mismatched, files)
 
 
 def fetch_json(url, timeout=25):
@@ -470,20 +467,7 @@ def lookup_parcels(ids, refresh=False):
                 failed = set(getattr(got, "failed", []))
                 if failed:
                     error = "The city parcel layer could not be reached for some batches: " + "; ".join(got.errors)
-                for pid in need:
-                    if pid in failed:
-                        continue
-                    if pid not in got:
-                        c["missing"][pid] = today
-                        continue
-                    c["missing"].pop(pid, None)
-                    rec = got[pid]
-                    hist = c["parcels"].setdefault(pid, {"history": []})["history"]
-                    last = hist[-1] if hist else None
-                    if last and all(last.get(k) == rec[k] for k in ("alder", "building", "lat", "lon")):
-                        last["checked"] = today
-                    else:
-                        hist.append(dict(rec, fetched=today, checked=today))
+                parcel_history.merge_results(c, need, got, failed, today)
                 write_cache(c)
         return {
             "ok": not error,

@@ -138,8 +138,8 @@
       "id": "index-stale-summary",
       "category": "source/head comparison",
       "file": "helper/server.py",
-      "find": "            if summary.get(\"sourceRevision\") != hashlib.sha256(raw).hexdigest():",
-      "replace": "            if False:",
+      "find": "    if summary.get(\"sourceRevision\") != hashlib.sha256(raw).hexdigest():",
+      "replace": "    if False:",
       "suites": [
         "audit_reporting_inputs.py",
         "audit_report_metadata.py",
@@ -241,6 +241,16 @@
       "replace": "if False:",
       "suites": [
         "audit_store_validation_phases.py"
+      ]
+    },
+    {
+      "id": "index-duplicate-summary",
+      "category": "reporting exclusion",
+      "file": "helper/index_validation.py",
+      "find": "    if number in seen:",
+      "replace": "    if False:",
+      "suites": [
+        "audit_index_validation_phases.py"
       ]
     }
   ]

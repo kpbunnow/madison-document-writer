@@ -8,7 +8,7 @@ Owner-authorized continuation after reviewing Phases 0/1 (PRs 511–512). Starti
 | --- | --- | --- |
 | H1 | Integrity verification phases | Merged PR #514 at 544541424cc414165a82ca90bda2741d9e3b3d43; all exact-head checks passed |
 | H2 | Store validation phases | Implemented; exact-head gate pending |
-| H3 | Request/index phases | Pending |
+| H3 | Request/index phases | Implemented; exact-head gate pending |
 | H4 | Projection/pricing calculations | Pending |
 
 ## H1 — integrity verification
@@ -34,3 +34,11 @@ The store retains the two-pass notice-before-citation coordinator, transaction/l
 The existing 3,000-case issuance and 3,000-case authoring differential corpora pass. The new five-test suite compares the retained cash function across versions 4–16, modes, date windows, 2,400 malformed field scenarios and interrupted pricing checkpoints, and compares original legacy scheduling across all approved legacy ordinances/tiers and 400 malformed policies. Results, exception classes/messages, ordered resource/pricing calls and input immutability agree. A declared-files-only flat runtime imports the store successfully. References were committed before extracting their production functions. Existing legal wording, mandatory appearance, publication, prior records and date holds are unchanged.
 
 The full mutation pilot adds grouped-signer, recorded-assessment and zero-base approval probes without removing the original mutations. Complexity remains subject to the existing ratchet, with no higher allowance. New leaves remain measured hotspots, high-risk coverage inputs and explicit deployed runtime entries. Larger store authorities retain cohesive ordered validation/publication responsibilities; their remaining MI/complexity debt is not claimed resolved by this extraction.
+
+## H3 — request/index and parcel phases
+
+`read_index` retains folder discovery, fresh request-local summary inputs/context, bounded ordered speculative reads, consuming-thread trust verification and per-case failure isolation. Named server phases separate speculative input reading from verified acceptance. The new `index_validation` leaf checks metadata/duplicates and assembles final exclusions; `parcel_history` merges a single operation's supplied history. Neither leaf reads files or contacts the network. Server authentication, source hashing, integrity verification on every request, locks, cache write timing, cancellation/transport and source-bound projection caching retain their owners and behavior.
+
+The original index and parcel functions are retained with SHA-checked fixtures. Three new tests compare 240 malformed/missing/duplicate summary variants, interrupted case reads, unavailable folders and damaged retained evidence, plus historical parcel cache/refusal combinations. Exact results, ordered reads/writes and partial state agree. Existing reporting-input (10 tests), readiness (5) and R23 helper/GIS tests remain required. The new test initially needed closure-aware cloning for decorated server functions; that harness defect was corrected, with original/current comparisons then passing. No app behavior change was required.
+
+The read_index Ruff exception is removed (repository Python exceptions 4 → 3). All extracted work remains measured and explicitly deployed. Larger server route coordinators retain authenticated transport and ordered effect authority; their remaining debt is explicit rather than hidden behind a new module. Stale-summary and duplicate-summary mutation probes must be detected before delivery.
