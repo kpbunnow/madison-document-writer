@@ -8,8 +8,8 @@ Owner-authorized continuation after reviewing Phases 0/1 (PRs 511–512). Starti
 | --- | --- | --- |
 | H1 | Integrity verification phases | Merged PR #514 at 544541424cc414165a82ca90bda2741d9e3b3d43; all exact-head checks passed |
 | H2 | Store validation phases | Merged PR #515 at ae21684ae96894ae280d1031932b63fa6a2d6dd8; all exact-head checks passed |
-| H3 | Request/index phases | Implemented; exact-head gate pending |
-| H4 | Projection/pricing calculations | Implemented; exact-head gate pending |
+| H3 | Request/index phases | Merged PR #516 at b99ac6f5c2cd3f3e5fff609b0f4c0e78b45d7f3b; all exact-head checks passed |
+| H4 | Projection/pricing calculations | Merged PR #516 at b99ac6f5c2cd3f3e5fff609b0f4c0e78b45d7f3b; all exact-head checks passed |
 
 ## H1 — integrity verification
 
