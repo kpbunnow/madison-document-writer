@@ -1,0 +1,36 @@
+def legacy_scheduled_citation_base(ordinance, tier):
+    policy = json.loads(resource("citation_policy.json").read_text(encoding="utf-8"))
+    entries = policy["legacyEntries"]
+    match = next((f for f in entries if f["o"] == ordinance), None)
+    if match is None:
+        children = [f for f in entries if f["o"].startswith(ordinance + "(") and f.get("t")]
+        if len(children) == 1:
+            match = children[0]
+    if match:
+        amounts = [Decimal(m.replace(",", "")) for m in re.findall(r"\$([\d,]+(?:\.\d+)?)", match.get("r", ""))]
+        tiers = match.get("t", [])
+        if "1st" in match.get("r", "") and "2nd" in match.get("r", "") and amounts != [Decimal(str(t["a"])) for t in tiers]:
+            return None
+    else:
+        section = re.match(r"^(\d+)\.(\d+)", ordinance)
+        match = next(
+            (
+                f
+                for f in [
+                    {
+                        "ch": f["ch"] + (["22"] if f["id"] == "ladder-12-month" else []),
+                        "sec": f["sec"],
+                        "t": [
+                            {"a": t["amountCents"] / 100, "l": ("1st" if t["ordinal"] == 1 else "2nd" if t["ordinal"] == 2 else "3rd+")}
+                            for t in f["tiers"]
+                        ],
+                    }
+                    for f in policy["fallback"]
+                ]
+                if section and (section[1] in f["ch"] or section[0] in f["sec"])
+            ),
+            None,
+        )
+        tiers = match.get("t", []) if match else []
+    pick = next((t for t in tiers if t["l"] == tier), tiers[-1] if tiers else None)
+    return Decimal(str(pick["a"])) if pick else None

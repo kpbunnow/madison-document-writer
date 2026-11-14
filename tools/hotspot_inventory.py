@@ -16,6 +16,8 @@ HOTSPOTS = [
     "helper/case_integrity.py",
     "helper/integrity_verification.py",
     "helper/case_store.py",
+    "helper/cash_validation.py",
+    "helper/issuance_validation.py",
     "helper/server.py",
     "helper/case_projection.py",
     "helper/citation_pricing.py",

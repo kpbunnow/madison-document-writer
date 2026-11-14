@@ -6,8 +6,8 @@ Owner-authorized continuation after reviewing Phases 0/1 (PRs 511–512). Starti
 
 | Package | Scope | Status |
 | --- | --- | --- |
-| H1 | Integrity verification phases | Implemented; targeted results below; exact-head GitHub delivery pending |
-| H2 | Store validation phases | Pending |
+| H1 | Integrity verification phases | Merged PR #514 at 544541424cc414165a82ca90bda2741d9e3b3d43; all exact-head checks passed |
+| H2 | Store validation phases | Implemented; exact-head gate pending |
 | H3 | Request/index phases | Pending |
 | H4 | Projection/pricing calculations | Pending |
 
@@ -26,3 +26,11 @@ The original four integrity pilot mutations move to the corresponding new phase 
 Targeted results passed: retained/current comparison (7 tests), store/integrity (8 and 4 tests), malformed integrity shapes (3), reporting inputs (10), authoring (12), runtime manifest (3), repository contracts (6), complexity, source inventory and the complete mutation pilot. Detailed commands and actual results belong to the delivered PR. Full gate, PR format, security and Windows recovery must pass on the exact delivered head. Historical/issued facts, source verification, request-local evidence, automatic restart notes, recovery holds and failure order remain unchanged.
 
 Remaining plan-wide coverage/type targets from Phase 1 remain explicit backlog. Completion of H1 alone does not complete Phase 2 or establish a score of 90.
+
+## H2 — store validation
+
+The store retains the two-pass notice-before-citation coordinator, transaction/lock ownership, amount parsing and historical policy file reads. `issuance_validation` contains pure grouped identity, signer, source and selection checks; `cash_validation` contains zero-base approval, assessment, total, schedule and legacy tier calculations. Pricing operations are supplied explicitly and remain lazy and ordered. Historical fallback rows are transformed eagerly as before; historical float-to-Decimal conversion is unchanged.
+
+The existing 3,000-case issuance and 3,000-case authoring differential corpora pass. The new five-test suite compares the retained cash function across versions 4–16, modes, date windows, 2,400 malformed field scenarios and interrupted pricing checkpoints, and compares original legacy scheduling across all approved legacy ordinances/tiers and 400 malformed policies. Results, exception classes/messages, ordered resource/pricing calls and input immutability agree. A declared-files-only flat runtime imports the store successfully. References were committed before extracting their production functions. Existing legal wording, mandatory appearance, publication, prior records and date holds are unchanged.
+
+The full mutation pilot adds grouped-signer, recorded-assessment and zero-base approval probes without removing the original mutations. Complexity remains subject to the existing ratchet, with no higher allowance. New leaves remain measured hotspots, high-risk coverage inputs and explicit deployed runtime entries. Larger store authorities retain cohesive ordered validation/publication responsibilities; their remaining MI/complexity debt is not claimed resolved by this extraction.
