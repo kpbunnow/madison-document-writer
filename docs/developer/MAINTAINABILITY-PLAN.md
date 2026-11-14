@@ -1,5 +1,7 @@
 # Maintainability development checkpoints
 
+The **current 2026-11-14 90+ plan status** is [MAINTAINABILITY-STATUS.md](MAINTAINABILITY-STATUS.md); Phase 6 handoff is recorded separately. The concluded status and checkpoints below describe the earlier B1–B11 effort, not completion of the current seven-phase plan.
+
 **Status: concluded (batches B1–B11, merged through #339).** The final measurements, the exception register and the maintainability contract are in `MAINTAINABILITY-ASSESSMENT.md`. The sections below are provenance for each increment.
 
 Owner-requested follow-up to the October 27, 2026 maintainability plan. This work

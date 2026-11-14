@@ -1,0 +1,12 @@
+{
+  "artifacts": {
+    "REVIEW.md": "9cef8a0b737109b8937e490a4bf9ef3895b00901f18ac6bac32e3108bb294cbc",
+    "change-intent.md": "cbcc2cc7199ed731335bd7fbac3ff5f4bc346b14dec40fa4ed1d8619b52fe1fe",
+    "change-probe.cjs": "952e4439df5d6e18436faa81fa6cddff923de59b914a0b61df8eadb01913f9fa",
+    "diagnostic-probe.cjs": "57f18e929b2dcb83787d2fcc5907aff711d63f3dff96e783f585a60588067a0f",
+    "exercise.patch": "1dd25b6ce8586b52bb1bf24771d9e67f2de471a56ee11b3eb3fa3929acf30798",
+    "proof-probe.py": "edfe0c1b858acfce7ca36c15f46ba99fc07e32c8f49343fa4ed0e8c7f884f628",
+    "receipt.json": "0d3a54fb2f3ee26457a2bfcf5e174707c8fe28ec40cfe1d7917a8401c21d300d"
+  },
+  "excluded": "Raw logs, dependency installations, caches, generated builds and synthetic case fixture; manifest does not self-hash."
+}
