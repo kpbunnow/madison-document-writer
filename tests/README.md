@@ -21,6 +21,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_phase3_async_guards.js` | Helper-settlement cancellation interleavings for Reports loads and import lookup/confirmation, including current-request success |
 | `audit_calculation_phases.py` | Historical pricing, interrupted dependencies, prior offense boundaries and JavaScript projection value semantics |
 | `audit_index_validation_phases.py` | Original index decisions and ordered interrupted case reads across malformed summary metadata |
 | `audit_store_validation_phases.py` | Retained/current cash validation across historical modes/windows, 2,400 malformed records, ordered pricing failures and isolated declared-runtime loading |
