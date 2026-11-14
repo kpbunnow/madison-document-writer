@@ -2,6 +2,7 @@
    court numbering, record integrity and the editor's document creation. Every other peer is a bounded service:
    the test supplies it through `bound`, or a use of it fails naming the service. Each call evaluates a fresh copy of
    the modules, so module state, WriterState and the DOM are new; no Writer startup runs and no test hook is used. */
+const { compileOwner } = require("./mutation_outcome.cjs");
 const assert = require("node:assert/strict"),
   path = require("node:path"),
   fs = require("node:fs"),
@@ -101,7 +102,7 @@ module.exports = async function createImportWorkflow({ today = new Date(), html 
   global.getSelection = () => dom.window.getSelection();
   dom.window.scrollTo = () => {};
   const box = { exports: {} };
-  new Function("today", "module", "exports", await moduleText())(today, box, box.exports);
+  compileOwner(await moduleText())(today, box, box.exports);
   const a = box.exports,
     s = a.WriterState;
   assert.deepEqual(s, {}, "loading the owners must not run Writer startup");

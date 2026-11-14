@@ -7,13 +7,15 @@ module.exports = function createBoundedServices(defaults = {}) {
   const peer = (name) =>
     function (...args) {
       calls.push(name);
-      if (typeof bound[name] !== "function") throw new Error("owner workflow: unbounded service " + name);
+      if (!Object.hasOwn(bound, name) || typeof bound[name] !== "function") throw new Error("owner workflow: unbounded service " + name);
       return bound[name](...args);
     };
   // A grouped peer: each member is bounded separately (bound["A11Y.utility"], ...).
   const group = (name) => new Proxy({}, { get: (_, key) => (typeof key === "string" ? peer(name + "." + key) : undefined) });
   // Named real members, with every other member of the group bounded.
   const partial = (name, real) =>
-    new Proxy(real, { get: (target, key) => (key in target ? target[key] : typeof key === "string" ? peer(name + "." + key) : undefined) });
+    new Proxy(real, {
+      get: (target, key) => (Object.hasOwn(target, key) ? target[key] : typeof key === "string" ? peer(name + "." + key) : undefined),
+    });
   return { bound, calls, peer, group, partial };
 };

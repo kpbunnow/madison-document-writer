@@ -21,6 +21,7 @@ covers, or a new suite under its feature.
 
 | Suite | Covers |
 | --- | --- |
+| `audit_mutation_outcome.js` | Mutation evidence refuses non-normal exits and syntax-invalid owner bundles without masking runtime failures |
 | `audit_phase3_async_guards.js` | Helper-settlement cancellation interleavings for Reports loads and import lookup/confirmation, including current-request success |
 | `audit_calculation_phases.py` | Historical pricing, interrupted dependencies, prior offense boundaries and JavaScript projection value semantics |
 | `audit_index_validation_phases.py` | Original index decisions and ordered interrupted case reads across malformed summary metadata |

@@ -2,6 +2,7 @@
    integrity, working-papers and draft-persistence owners. Browser storage (idbSet) and every other peer are bounded:
    a test supplies them through `bound`, or a use fails naming the service. Each call evaluates fresh modules, so
    module state, WriterState and the DOM are new; no Writer startup runs and no test hook is used. */
+const { compileOwner } = require("./mutation_outcome.cjs");
 const assert = require("node:assert/strict"),
   path = require("node:path"),
   esbuild = require("esbuild"),
@@ -52,7 +53,7 @@ module.exports = async function createSharedCaseWorkflow() {
     text = text.replace(find, () => replace);
   }
   const box = { exports: {} };
-  new Function("today", "module", "exports", text)(new Date(), box, box.exports);
+  compileOwner(text)(new Date(), box, box.exports);
   const a = box.exports,
     s = a.WriterState;
   assert.deepEqual(s, {}, "loading the owners must not run Writer startup");
