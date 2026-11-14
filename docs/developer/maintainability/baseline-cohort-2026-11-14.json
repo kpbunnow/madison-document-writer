@@ -1,0 +1,983 @@
+{
+ "format": "madison-maintainability-cohort",
+ "version": 1,
+ "description": "Frozen 2026-11-14 debt cohort at main 6e90380. Every function above the plan thresholds, by stable identity. Later measurements map each entry to its successor(s); an entry disappears only with a recorded disposition (simplified, split into named functions, or deleted with its behaviour).",
+ "source": {
+  "commit": "6e90380af8b31536c5d7371aa08fb5b59a5c500b",
+  "inputDigest": "467a527d92fa4005588b8663a3271b7c1e224c00285876b7503283879084aa73",
+  "tools": {
+   "node": "v22.22.0",
+   "eslint": "10.14.0",
+   "typescript": "7.0.2",
+   "python": "3.14.6",
+   "ruff": "ruff 0.17.3",
+   "analysisPython": "Python 3.14.6",
+   "radon": "6.0.1"
+  }
+ },
+ "javascript": {
+  "complexityAbove10": {
+   "app/modules/accela_import.js:accelaImportCheckShared#1": 14,
+   "app/modules/accela_import.js:accelaImportConfirm#1": 15,
+   "app/modules/accela_import.js:accelaImportFind#1": 13,
+   "app/modules/accela_import.js:accelaImportFromShare#1": 19,
+   "app/modules/accela_import.js:availableImportPanelHTML#1": 15,
+   "app/modules/accela_import.js:sqlReport#1": 11,
+   "app/modules/accessibility.js:a11yQueueMessage#1": 18,
+   "app/modules/accessibility.js:createA11yBannerSweep#1/bannerSweep#1": 11,
+   "app/modules/accessibility.js:createAccessibility#1/paint#1": 16,
+   "app/modules/accessibility.js:enhanceDocumentControls#1/anonymous#3": 14,
+   "app/modules/accessibility.js:registerA11yDocumentEvents#1/anonymous#1": 13,
+   "app/modules/address_format.js:agentLines#1": 13,
+   "app/modules/address_format.js:ccLines#1": 11,
+   "app/modules/address_parser.js:initAddressParser#1/context#1": 12,
+   "app/modules/address_parser.js:initAddressParser#1/preview#1": 16,
+   "app/modules/administration.js:initAdministration#1/openOverride#1": 16,
+   "app/modules/administration.js:overrideAuthorizationFault#1": 13,
+   "app/modules/administration.js:overrideCitationFault#1": 12,
+   "app/modules/app_core.js:docBody#6": 15,
+   "app/modules/app_screens.js:createAppScreens#1/render#1": 20,
+   "app/modules/app_screens.js:keepFieldFocus#1": 11,
+   "app/modules/app_screens.js:keepFieldFocus#1/anonymous#1": 11,
+   "app/modules/app_screens.js:keepLiveField#1": 20,
+   "app/modules/app_screens.js:keepRecipientField#1": 12,
+   "app/modules/app_screens.js:keepRecipientField#1/swap#2": 12,
+   "app/modules/app_screens.js:renderStartup#1": 12,
+   "app/modules/browser_printing.js:createBrowserPrinting#1/printNotice#1": 11,
+   "app/modules/calendar.js:parseDate#1": 13,
+   "app/modules/calendar.js:parseTime#1": 13,
+   "app/modules/case_activity.js:createCaseActivity#1/remindersDue#1": 11,
+   "app/modules/case_activity.js:createCaseActivity#1/showTimeline#1/anonymous#2": 18,
+   "app/modules/case_file_rules.js:caseEventFault#1": 20,
+   "app/modules/case_file_rules.js:caseFileFault#1": 17,
+   "app/modules/case_file_rules.js:correctionHistoryFault#1": 15,
+   "app/modules/case_file_rules.js:issuedSnapshotFault#1": 11,
+   "app/modules/case_folder_workflow.js:createCaseFolderWorkflow#1/rebuildIndex#1": 17,
+   "app/modules/case_loading.js:createCaseLoading#1/loadCaseFile#1": 19,
+   "app/modules/case_loading.js:createCaseLoading#1/mergeSharedFile#1": 17,
+   "app/modules/case_migrations.js:1#1/anonymous#1": 11,
+   "app/modules/case_projection.js:caseStanding#1": 12,
+   "app/modules/case_projection.js:caseStatus#1": 17,
+   "app/modules/case_projection.js:citationRow#1": 13,
+   "app/modules/case_projection.js:documentRows#1/anonymous#1": 15,
+   "app/modules/case_projection.js:summarizeRecord#1": 12,
+   "app/modules/case_projection.js:violationRow#1": 16,
+   "app/modules/case_recovery.js:createCaseRecovery#1/restoreRecovery#1": 17,
+   "app/modules/case_recovery.js:requireRecoveryShape#1": 17,
+   "app/modules/case_recovery.js:stageRecoveredCase#1": 11,
+   "app/modules/case_save_workflow.js:createCaseSaveWorkflow#1/saveCaseFile#1": 17,
+   "app/modules/case_status.js:caseDeadlineFacts#1": 12,
+   "app/modules/case_status.js:caseIsClosed#1": 11,
+   "app/modules/case_status.js:caseNeedsAttention#1": 13,
+   "app/modules/case_status.js:caseStatusLabel#1": 14,
+   "app/modules/case_status.js:createCaseStatus#1/caseState#1": 13,
+   "app/modules/case_workspace_actions.js:createCaseWorkspaceActions#1/caseUnsaved#1": 15,
+   "app/modules/citation_charges.js:createCitationCharges#1/changeCharge#1": 18,
+   "app/modules/citation_history.js:createCitationHistory#1/priorCitations#1/anonymous#1": 13,
+   "app/modules/citation_policy.js:citationPricingDate#1": 12,
+   "app/modules/citation_policy.js:compatible#1": 13,
+   "app/modules/citation_policy.js:resolveCitationAmount#1": 14,
+   "app/modules/citation_policy.js:resolveOrdinance#1": 17,
+   "app/modules/citation_policy.js:ruleBase#1": 15,
+   "app/modules/citation_policy.js:ruleMeasurementsValid#1": 16,
+   "app/modules/citation_policy.js:sameSite#1": 15,
+   "app/modules/citation_policy.js:scheduledMeasurement#1": 19,
+   "app/modules/citation_pricing.js:appendPriorCitations#1": 20,
+   "app/modules/citation_pricing.js:initCitationPricing#1/loadShared#1": 13,
+   "app/modules/citation_pricing.js:initCitationPricing#1/refresh#1": 15,
+   "app/modules/citation_pricing.js:priorRecordMatch#1": 11,
+   "app/modules/citation_pricing.js:refreshDraftDepositRequests#1": 12,
+   "app/modules/citation_pricing.js:refreshPricingSiteMatch#1": 12,
+   "app/modules/citation_workflow.js:chargeChecks#1": 11,
+   "app/modules/citation_workflow.js:createCitationWorkflow#1/editCitation#1": 18,
+   "app/modules/citation_workflow.js:scheduleChecks#1": 17,
+   "app/modules/contact_events.js:refreshRecipientProblem#1": 11,
+   "app/modules/contracts.js:reportSort#1": 12,
+   "app/modules/correction_events.js:createCorrectionEvents#1/changeCorrection#1": 13,
+   "app/modules/correction_preparation.js:compareSpecialCorrectionFields#1": 16,
+   "app/modules/correction_preparation.js:createCorrectionPreparation#1/correctionChanges#1/anonymous#3": 12,
+   "app/modules/correction_preparation.js:createCorrectionPreparation#1/correctionChecks#1": 16,
+   "app/modules/correction_preparation.js:createCorrectionPreparation#1/correctionVisitPatch#1/anonymous#1": 20,
+   "app/modules/correction_preparation.js:createCorrectionPreparation#1/makeCorrectionAttempt#1": 16,
+   "app/modules/correction_ui.js:recordActionShell#1": 15,
+   "app/modules/correction_workflow.js:createCorrectionWorkflow#1/issueCorrection#1": 18,
+   "app/modules/deadline_assignment.js:createDeadlineAssignment#1/assignDue#1": 16,
+   "app/modules/deadline_assignment.js:createDeadlineAssignment#1/duePanel#1": 17,
+   "app/modules/deadline_assignment.js:createDeadlineAssignment#1/planBulkDue#1": 13,
+   "app/modules/deposit_schedule.js:describeDepositRule#1": 13,
+   "app/modules/deposit_step.js:depositClick#1": 19,
+   "app/modules/deposit_step.js:depositStepComplete#1": 15,
+   "app/modules/deposit_step.js:depositSubmit#1": 17,
+   "app/modules/deposit_step.js:depositUpdate#1": 20,
+   "app/modules/deposit_step.js:initDepositStep#1/form#1": 16,
+   "app/modules/deposit_step.js:initDepositStep#1/form#1/anonymous#1": 14,
+   "app/modules/desktop_exit.js:requestExit#1": 11,
+   "app/modules/document_delivery.js:createDocumentDelivery#1/emailBody#1": 11,
+   "app/modules/document_delivery.js:createDocumentDelivery#1/emailDocument#1": 20,
+   "app/modules/document_delivery.js:createDocumentDelivery#1/openIssuedCopy#1": 13,
+   "app/modules/document_delivery.js:recordFiled#1": 12,
+   "app/modules/document_pagination.js:createDocumentPagination#1/paginateSnow#1": 13,
+   "app/modules/document_pagination.js:paginateRowHistory#1": 20,
+   "app/modules/document_pagination.js:splitHistoryNote#1": 12,
+   "app/modules/document_render.js:citationFacePart1#1": 18,
+   "app/modules/document_render.js:citationFacePart3#1": 12,
+   "app/modules/document_render.js:citationFacePart4#1": 19,
+   "app/modules/document_render.js:noticeCopiesHTML#1": 12,
+   "app/modules/document_render.js:noticeDueInputs#1": 15,
+   "app/modules/document_render.js:noticeDueValue#1": 15,
+   "app/modules/document_render.js:noticeRows#1/anonymous#1": 13,
+   "app/modules/document_render.js:noticeSignerHTML#1": 17,
+   "app/modules/document_render.js:renderCitationFaces#1": 11,
+   "app/modules/document_render.js:renderNoticeSheet#1": 16,
+   "app/modules/document_render.js:renderReferralHistory#1": 18,
+   "app/modules/document_rules.js:clearProhibitedCitations#1": 19,
+   "app/modules/document_sources.js:createDocumentSources#1/activeBlocks#1": 14,
+   "app/modules/document_sources.js:createDocumentSources#1/freezeSources#1": 15,
+   "app/modules/draft_persistence.js:createDraftPersistence#1/restoreDrafts#1": 12,
+   "app/modules/draft_persistence.js:createDraftPersistence#1/saveDrafts#1": 11,
+   "app/modules/draft_persistence.js:restoreDraftContext#1": 11,
+   "app/modules/due_date_events.js:createDueDateEvents#1/registerBulkAssignment#1/anonymous#1": 14,
+   "app/modules/editor_events.js:blankKey#1": 13,
+   "app/modules/editor_events.js:editorFinalizeDocument#1": 14,
+   "app/modules/editor_screens.js:edMoveItem#1": 11,
+   "app/modules/editor_screens.js:edPrimary#1": 17,
+   "app/modules/editor_screens.js:edSync#1": 11,
+   "app/modules/editor_screens.js:editorActionsHTML#1": 15,
+   "app/modules/exit_review.js:caseItem#1": 11,
+   "app/modules/import_events.js:createImportEvents#1/selectCase#1/anonymous#1": 11,
+   "app/modules/initial_citations.js:initInitialCitations#1/prepare#1": 17,
+   "app/modules/initial_citations.js:initInitialCitations#1/refresh#1": 11,
+   "app/modules/initial_citations.js:initInitialCitations#1/refresh#1/patch#1": 16,
+   "app/modules/inspection_history.js:annotateInitialCitation#1": 15,
+   "app/modules/inspection_history.js:annotateVisitCitations#1": 13,
+   "app/modules/inspection_history.js:appendInspectionVisits#1": 13,
+   "app/modules/inspection_history.js:createInspectionHistory#1/documentItemHistory#1": 11,
+   "app/modules/inspection_history.js:inspectionLineage#1": 11,
+   "app/modules/inspection_history.js:itemHistory#1/anonymous#1": 12,
+   "app/modules/language_actions.js:createLanguageActions#1/filterLanguage#1": 11,
+   "app/modules/language_catalog.js:languageCatalogApplyConflict#1": 13,
+   "app/modules/language_catalog.js:languageCatalogCatalogForm#1": 12,
+   "app/modules/language_catalog.js:languageCatalogCompareSharedCase#1": 17,
+   "app/modules/language_catalog.js:languageCatalogOpenChangedShared#1": 18,
+   "app/modules/language_catalog.js:languageCatalogPreflightCase#1": 17,
+   "app/modules/language_catalog.js:languageCatalogResolvedCaseFields#1": 15,
+   "app/modules/language_catalog.js:languageCatalogShowHealth#1": 13,
+   "app/modules/language_catalog.js:languageCatalogShowSafety#1": 17,
+   "app/modules/language_catalog.js:mergeComparedCaseFields#1": 11,
+   "app/modules/language_discovery.js:languagePicker#1": 17,
+   "app/modules/language_discovery.js:languagePickerCard#1": 19,
+   "app/modules/language_discovery.js:rememberLanguageFocus#1": 11,
+   "app/modules/language_discovery.js:restoreLanguageFocus#1": 14,
+   "app/modules/navigation.js:initNavigation#1/leave#1": 11,
+   "app/modules/new_documents.js:editCaseAndVisitSelection#1": 12,
+   "app/modules/new_documents.js:editScopedSpecialField#1": 18,
+   "app/modules/new_documents.js:eligibility#1": 20,
+   "app/modules/new_documents.js:lifecycleSourceFaults#1": 13,
+   "app/modules/new_documents.js:lifecycleVisitFaults#1": 11,
+   "app/modules/new_documents.js:scopedCaseAction#1": 18,
+   "app/modules/new_documents.js:scopedChooser#1": 16,
+   "app/modules/new_documents.js:scopedCreateSpecial#1": 12,
+   "app/modules/new_documents.js:scopedCreateSpecial#1/anonymous#2": 16,
+   "app/modules/new_documents.js:scopedDetails#1": 13,
+   "app/modules/new_documents.js:scopedSaveService#1": 14,
+   "app/modules/new_documents.js:scopedServicePanel#1": 13,
+   "app/modules/new_documents.js:scopedStatusChooser#1": 14,
+   "app/modules/new_documents.js:switchAdministrativeFamily#1": 13,
+   "app/modules/open_case_list.js:fillNames#1": 14,
+   "app/modules/open_case_list.js:loadInspectors#1": 13,
+   "app/modules/open_case_list.js:redrawWorkspaceCard#1": 11,
+   "app/modules/pdf_artifacts.js:createPdfArtifacts#1/refreshArtifactLocations#1": 15,
+   "app/modules/pdf_artifacts.js:createPdfArtifacts#1/refreshArtifactLocations#1/check#1": 17,
+   "app/modules/pdf_artifacts.js:pdfTransferState#1": 14,
+   "app/modules/pending_case_saves.js:createPendingCaseSaves#1/flushPending#1": 19,
+   "app/modules/preview_refresh.js:createPreviewRefresh#1/anonymous#1": 12,
+   "app/modules/publication_workflow.js:prepareInitialJobs#1": 12,
+   "app/modules/publication_workflow.js:publishOnce#1": 12,
+   "app/modules/recipient_workflow.js:createRecipientWorkflow#1/validateAndStandardizeAddresses#1": 12,
+   "app/modules/recipient_workflow.js:validateCopyAddresses#1": 15,
+   "app/modules/record_actions.js:createRecordActions#1/voidDocument#1": 14,
+   "app/modules/record_commit.js:stageCandidate#1": 14,
+   "app/modules/record_integrity.js:canonicalJSON#1": 16,
+   "app/modules/record_integrity.js:initRecordIntegrity#1/verify#1": 13,
+   "app/modules/recovery_events.js:createRecoveryEvents#1/registerRecoveryActions#1/anonymous#1": 13,
+   "app/modules/reinspection.js:attachContentCheckTargets#1": 12,
+   "app/modules/reinspection.js:attachContentCheckTargets#1/anonymous#4": 11,
+   "app/modules/reinspection.js:buildFollowupDraft#1": 14,
+   "app/modules/reinspection.js:followupDraftAllowed#1": 16,
+   "app/modules/reinspection.js:followupDraftItem#1": 18,
+   "app/modules/reinspection.js:followupDraftMessage#1": 11,
+   "app/modules/reinspection.js:reinspectionEditableWalkItem#1": 12,
+   "app/modules/reinspection.js:reinspectionEnsureWalkContext#1": 12,
+   "app/modules/reinspection.js:reinspectionFocusCheckTarget#1": 16,
+   "app/modules/reinspection.js:reinspectionNarrativeFor#1": 14,
+   "app/modules/reinspection.js:reinspectionRecordReinspectionOutcome#1": 16,
+   "app/modules/reinspection.js:reinspectionUndoWalkOutcome#1": 12,
+   "app/modules/reinspection.js:reinspectionWalkItemReady#1": 12,
+   "app/modules/reinspection.js:reinspectionWorksheetChecks#1": 18,
+   "app/modules/reinspection.js:reinspectionWorksheetChecks#1/anonymous#1": 13,
+   "app/modules/reinspection.js:worksheetBodyHTML#1": 11,
+   "app/modules/reinspection.js:worksheetFiltersHTML#1": 11,
+   "app/modules/reinspection.js:worksheetItemContext#1": 13,
+   "app/modules/reinspection.js:worksheetItemHTML#1": 12,
+   "app/modules/reinspection.js:worksheetResultFieldsHTML#1": 15,
+   "app/modules/reinspection.js:worksheetVerdictHTML#1": 18,
+   "app/modules/reinspection.js:worksheetWalkPanelHTML#1": 18,
+   "app/modules/reinspection_entry.js:createReinspectionEntry#1/startReinspection#1": 19,
+   "app/modules/reinspection_events.js:createReinspectionEvents#1/registerWalkKeys#1/anonymous#1": 18,
+   "app/modules/report_navigation.js:dispatchReportActions#1": 12,
+   "app/modules/report_navigation.js:selectReportDrill#1": 15,
+   "app/modules/report_presentation.js:appliedFilters#1": 12,
+   "app/modules/report_presentation.js:coverage#1": 13,
+   "app/modules/report_presentation.js:restoreUI#1": 19,
+   "app/modules/report_spreadsheet_sheet.js:spreadsheetCellXML#1": 17,
+   "app/modules/reports_screens.js:reportCaseMetadataHTML#1": 15,
+   "app/modules/reports_screens.js:reportExportCitationRows#1/anonymous#2/anonymous#1": 16,
+   "app/modules/reports_screens.js:reportsScreenCellHTML#1": 18,
+   "app/modules/reports_screens.js:reportsScreenDrawMap#1": 16,
+   "app/modules/reports_screens.js:reportsScreenFilterSummary#1": 13,
+   "app/modules/reports_screens.js:reportsScreenMapPanel#1": 12,
+   "app/modules/reports_screens.js:reportsScreenTablePanel#1": 17,
+   "app/modules/reports_services.js:appendReportSummary#1": 16,
+   "app/modules/reports_services.js:createReportsServices#1/loadAll#1": 16,
+   "app/modules/reports_services.js:reportCaseFields#1": 15,
+   "app/modules/reports_services.js:scopedReportsChannel#1/anonymous#1": 13,
+   "app/modules/reports_services.js:statusAt#1": 12,
+   "app/modules/reviewed_library.js:initReviewedLibrary#1/refresh#1": 16,
+   "app/modules/saved_work.js:connectionBanner#1": 11,
+   "app/modules/saved_work.js:savedCaseState#1": 20,
+   "app/modules/saved_work.js:savedWorkHTML#1": 18,
+   "app/modules/saved_work.js:updateLocalPresentation#1": 12,
+   "app/modules/screen_overlays.js:createScreenOverlays#1/modalHTML#1": 11,
+   "app/modules/screen_overlays.js:finalDocumentModal#1": 20,
+   "app/modules/screen_overlays.js:recipientModal#1": 14,
+   "app/modules/search_highlighting.js:highlightNode#1": 15,
+   "app/modules/shared_case_storage.js:createSharedCaseStorage#1/writeIndexFile#1": 12,
+   "app/modules/shared_case_storage.js:createSharedCaseStorage#1/writeToFolder#1": 14,
+   "app/modules/snow_cases.js:initSnow#1/prepare#1": 17,
+   "app/modules/snow_cases.js:snowChecks#1": 20,
+   "app/modules/snow_cases.js:snowCoverFormat#1": 13,
+   "app/modules/snow_cases.js:snowEdit#1": 11,
+   "app/modules/snow_cases.js:snowFactsForm#1": 12,
+   "app/modules/snow_cases.js:snowLifecycle#1": 14,
+   "app/modules/snow_cases.js:snowMatchesImport#1": 15,
+   "app/modules/storage_status.js:createStorageStatus#1/storageReport#1": 17,
+   "app/modules/test_fixtures.js:initTestFixtures#1/issueDocument#1": 14,
+   "app/modules/utility_events.js:createUtilityEvents#1/registerDialogKeys#1/anonymous#1": 12,
+   "app/modules/workflow_events.js:createWorkflowEvents#1/registerToolActions#1/anonymous#1": 13,
+   "app/modules/workflow_preferences.js:loadWorkflowPreferences#1": 11,
+   "app/modules/working_papers.js:createWorkingPapers#1/captureWork#1": 18,
+   "app/modules/working_papers.js:importResumePanel#1": 14,
+   "app/modules/worksheet_workflow.js:createWorksheetWorkflow#1/worksheetFaults#1": 18,
+   "app/modules/worksheet_workflow.js:createWorksheetWorkflow#1/worksheetFaults#1/anonymous#2": 18,
+   "app/modules/workspace_backup.js:createWorkspaceBackup#1/restoreWorkspaceBackup#1": 20,
+   "app/modules/workspace_backup.js:validateWorkspaceBackupRecords#1": 19,
+   "app/modules/workspace_queue.js:queueIssuedCaseAction#1": 15,
+   "app/modules/workspace_queue.js:queueWorkingAction#1": 12,
+   "app/modules/workspace_queue.js:workspaceQueue#1/anonymous#2": 16,
+   "app/modules/workspace_repaint.js:patchRows#1": 12,
+   "app/modules/workspace_rows.js:renderWorkspaceRow#1": 11,
+   "app/modules/writer_handoff.js:createWriterHandoff#1/initWriterHandoff#1/anonymous#1": 13,
+   "app/modules/writer_handoff.js:createWriterHandoff#1/writerOpenReportedCase#1": 20
+  },
+  "linesAbove80": {
+   "app/modules/accessibility.js:createAccessibility#1": 187,
+   "app/modules/address_parser.js:initAddressParser#1": 106,
+   "app/modules/administration.js:initAdministration#1": 94,
+   "app/modules/automatic_recovery.js:createAutomaticRecovery#1": 166,
+   "app/modules/case_activity.js:createCaseActivity#1": 122,
+   "app/modules/case_folder_workflow.js:createCaseFolderWorkflow#1": 118,
+   "app/modules/case_loading.js:createCaseLoading#1": 110,
+   "app/modules/case_recovery.js:createCaseRecovery#1": 163,
+   "app/modules/catalog_events.js:createCatalogEvents#1": 216,
+   "app/modules/citation_drafts.js:createCitationDrafts#1": 90,
+   "app/modules/citation_pricing.js:initCitationPricing#1": 160,
+   "app/modules/contact_events.js:createContactEvents#1": 111,
+   "app/modules/correction_events.js:createCorrectionEvents#1": 155,
+   "app/modules/correction_preparation.js:createCorrectionPreparation#1": 233,
+   "app/modules/correction_ui.js:createCorrectionUI#1": 122,
+   "app/modules/deadline_assignment.js:createDeadlineAssignment#1": 132,
+   "app/modules/document_delivery.js:createDocumentDelivery#1": 176,
+   "app/modules/document_pagination.js:createDocumentPagination#1": 97,
+   "app/modules/import_events.js:createImportEvents#1": 112,
+   "app/modules/initial_citations.js:initInitialCitations#1": 180,
+   "app/modules/navigation.js:initNavigation#1": 148,
+   "app/modules/new_documents.js:initNewDocuments#1": 166,
+   "app/modules/pdf_artifacts.js:createPdfArtifacts#1": 144,
+   "app/modules/record_integrity.js:initRecordIntegrity#1": 90,
+   "app/modules/recovery_events.js:createRecoveryEvents#1": 167,
+   "app/modules/reinspection_events.js:createReinspectionEvents#1": 201,
+   "app/modules/reports_services.js:createReportsServices#1": 167,
+   "app/modules/shared_case_storage.js:createSharedCaseStorage#1": 99,
+   "app/modules/storage_status.js:createStorageStatus#1": 87,
+   "app/modules/utility_events.js:createUtilityEvents#1": 84,
+   "app/modules/worksheet_workflow.js:createWorksheetWorkflow#1": 114,
+   "app/modules/writer_handoff.js:createWriterHandoff#1": 91
+  }
+ },
+ "python": {
+  "radonCliAbove10": [
+   [
+    "helper/address_parser.py:parse_address",
+    100,
+    12
+   ],
+   [
+    "helper/admin_rules.py:authorize_override",
+    19,
+    21
+   ],
+   [
+    "helper/administrative_basis.py:validate_basis",
+    17,
+    19
+   ],
+   [
+    "helper/case_integrity.py:VerificationContext.__init__",
+    192,
+    18
+   ],
+   [
+    "helper/case_integrity.py:anchor_daily",
+    541,
+    12
+   ],
+   [
+    "helper/case_integrity.py:commit_record",
+    56,
+    17
+   ],
+   [
+    "helper/case_integrity.py:read_intent",
+    300,
+    13
+   ],
+   [
+    "helper/case_integrity.py:registry",
+    132,
+    11
+   ],
+   [
+    "helper/case_integrity.py:verify_record",
+    404,
+    52
+   ],
+   [
+    "helper/case_lookup.py:_checked_settings",
+    55,
+    11
+   ],
+   [
+    "helper/case_lookup.py:lookup",
+    123,
+    19
+   ],
+   [
+    "helper/case_projection.py:Facts.__init__",
+    579,
+    16
+   ],
+   [
+    "helper/case_projection.py:active_restrictions",
+    516,
+    12
+   ],
+   [
+    "helper/case_projection.py:case_standing",
+    849,
+    13
+   ],
+   [
+    "helper/case_projection.py:case_status",
+    626,
+    16
+   ],
+   [
+    "helper/case_projection.py:date_ms",
+    234,
+    16
+   ],
+   [
+    "helper/case_projection.py:jstr",
+    132,
+    14
+   ],
+   [
+    "helper/case_projection.py:respondent_key",
+    293,
+    12
+   ],
+   [
+    "helper/case_projection.py:violation_row",
+    787,
+    16
+   ],
+   [
+    "helper/case_projection.py:violation_type",
+    559,
+    12
+   ],
+   [
+    "helper/case_projection.py:visit_history",
+    755,
+    14
+   ],
+   [
+    "helper/case_store.py:_apply_visit_correction",
+    1248,
+    19
+   ],
+   [
+    "helper/case_store.py:_clean_owner_address",
+    2087,
+    11
+   ],
+   [
+    "helper/case_store.py:_has_priced_citation",
+    790,
+    11
+   ],
+   [
+    "helper/case_store.py:_merge_existing_case_save",
+    872,
+    16
+   ],
+   [
+    "helper/case_store.py:_require_valid_event",
+    697,
+    11
+   ],
+   [
+    "helper/case_store.py:_save_case",
+    924,
+    16
+   ],
+   [
+    "helper/case_store.py:_special_publication_administration",
+    377,
+    17
+   ],
+   [
+    "helper/case_store.py:_special_publication_release",
+    413,
+    20
+   ],
+   [
+    "helper/case_store.py:_special_publication_source",
+    346,
+    12
+   ],
+   [
+    "helper/case_store.py:_special_publication_visit",
+    359,
+    18
+   ],
+   [
+    "helper/case_store.py:_validate_authoring_document",
+    1866,
+    12
+   ],
+   [
+    "helper/case_store.py:_validate_cash_citation",
+    1991,
+    26
+   ],
+   [
+    "helper/case_store.py:_validate_catalog_selection",
+    755,
+    13
+   ],
+   [
+    "helper/case_store.py:_validate_citation_calendar",
+    1915,
+    15
+   ],
+   [
+    "helper/case_store.py:_validate_citation_policy",
+    1972,
+    11
+   ],
+   [
+    "helper/case_store.py:_validate_correction_items",
+    1201,
+    14
+   ],
+   [
+    "helper/case_store.py:_validate_correction_review",
+    1232,
+    13
+   ],
+   [
+    "helper/case_store.py:_validate_due_spacing",
+    2036,
+    14
+   ],
+   [
+    "helper/case_store.py:_validate_followup_outcomes",
+    1812,
+    19
+   ],
+   [
+    "helper/case_store.py:_validate_followup_source",
+    1777,
+    16
+   ],
+   [
+    "helper/case_store.py:_validate_followup_visit",
+    1794,
+    15
+   ],
+   [
+    "helper/case_store.py:_validate_history_service",
+    1441,
+    16
+   ],
+   [
+    "helper/case_store.py:_validate_history_snow_and_overrides",
+    1313,
+    15
+   ],
+   [
+    "helper/case_store.py:_validate_history_void",
+    1426,
+    14
+   ],
+   [
+    "helper/case_store.py:_validate_initial_notice_group",
+    1043,
+    32
+   ],
+   [
+    "helper/case_store.py:_validate_new_citation_numbers",
+    1826,
+    15
+   ],
+   [
+    "helper/case_store.py:_validate_owner_copy_lines",
+    2062,
+    21
+   ],
+   [
+    "helper/case_store.py:_validate_owner_mailing_lines",
+    2104,
+    16
+   ],
+   [
+    "helper/case_store.py:_validate_publication_identity",
+    1711,
+    24
+   ],
+   [
+    "helper/case_store.py:_validate_release_visit",
+    1619,
+    18
+   ],
+   [
+    "helper/case_store.py:_validate_selected_item_facts",
+    209,
+    16
+   ],
+   [
+    "helper/case_store.py:_validate_snow_publication",
+    1750,
+    15
+   ],
+   [
+    "helper/case_store.py:_validate_visit_outcomes",
+    1665,
+    16
+   ],
+   [
+    "helper/case_store.py:file_lock",
+    563,
+    16
+   ],
+   [
+    "helper/case_store.py:legacy_scheduled_citation_base",
+    1098,
+    28
+   ],
+   [
+    "helper/case_store.py:safe_json_name",
+    527,
+    12
+   ],
+   [
+    "helper/case_store.py:save_summary",
+    976,
+    12
+   ],
+   [
+    "helper/case_store.py:validate_authoring",
+    2124,
+    17
+   ],
+   [
+    "helper/case_store.py:validate_case",
+    678,
+    14
+   ],
+   [
+    "helper/case_store.py:validate_catalog_publication",
+    774,
+    14
+   ],
+   [
+    "helper/case_store.py:validate_document_import",
+    1583,
+    21
+   ],
+   [
+    "helper/case_store.py:validate_publication",
+    1835,
+    16
+   ],
+   [
+    "helper/case_store.py:validate_record_changes",
+    1015,
+    14
+   ],
+   [
+    "helper/case_store.py:validate_special_publication",
+    437,
+    22
+   ],
+   [
+    "helper/citation_pricing.py:_base_measurements_valid",
+    87,
+    13
+   ],
+   [
+    "helper/citation_pricing.py:_measured_base_cents",
+    107,
+    14
+   ],
+   [
+    "helper/citation_pricing.py:_validate_pricing_selection",
+    340,
+    25
+   ],
+   [
+    "helper/citation_pricing.py:_validate_scheduled_deposit",
+    403,
+    12
+   ],
+   [
+    "helper/citation_pricing.py:_validate_snow_pricing",
+    295,
+    11
+   ],
+   [
+    "helper/citation_pricing.py:prior_offenses",
+    250,
+    27
+   ],
+   [
+    "helper/citation_pricing.py:resolve",
+    36,
+    38
+   ],
+   [
+    "helper/citation_pricing.py:respondent_key",
+    165,
+    11
+   ],
+   [
+    "helper/inspector_cases.py:_administrator_exclusions",
+    66,
+    12
+   ],
+   [
+    "helper/inspector_cases.py:_verified_due",
+    213,
+    18
+   ],
+   [
+    "helper/inspector_cases.py:due_dates",
+    245,
+    12
+   ],
+   [
+    "helper/inspector_cases.py:open_cases",
+    282,
+    13
+   ],
+   [
+    "helper/install_runtime.py:install",
+    14,
+    11
+   ],
+   [
+    "helper/launch.py:main",
+    206,
+    22
+   ],
+   [
+    "helper/operations_helper.py:release_lock",
+    203,
+    14
+   ],
+   [
+    "helper/prepare_deployment.py:apply",
+    100,
+    19
+   ],
+   [
+    "helper/render_security.py:Resources.handle_starttag",
+    40,
+    15
+   ],
+   [
+    "helper/scan_legacy_cases.py:scan",
+    10,
+    11
+   ],
+   [
+    "helper/server.py:Handler._guard_read",
+    1210,
+    16
+   ],
+   [
+    "helper/server.py:Handler._pdf",
+    1765,
+    16
+   ],
+   [
+    "helper/server.py:Handler.do_GET",
+    1239,
+    11
+   ],
+   [
+    "helper/server.py:_backups_to_keep",
+    815,
+    12
+   ],
+   [
+    "helper/server.py:_validated_catalog_review_request",
+    935,
+    24
+   ],
+   [
+    "helper/server.py:artifact_status",
+    725,
+    16
+   ],
+   [
+    "helper/server.py:catalog_review",
+    963,
+    13
+   ],
+   [
+    "helper/server.py:city_parcels",
+    383,
+    13
+   ],
+   [
+    "helper/server.py:lookup_parcels",
+    449,
+    31
+   ],
+   [
+    "helper/server.py:make_pdf",
+    591,
+    11
+   ],
+   [
+    "helper/server.py:read_cache",
+    427,
+    11
+   ],
+   [
+    "helper/server.py:read_index",
+    230,
+    38
+   ],
+   [
+    "helper/server.py:validate_draft_deposits",
+    789,
+    12
+   ],
+   [
+    "helper/server.py:verified_artifact",
+    701,
+    13
+   ],
+   [
+    "helper/snow_rules.py:_validate_snow_item",
+    56,
+    14
+   ],
+   [
+    "helper/snow_rules.py:_validate_snow_observations",
+    78,
+    14
+   ],
+   [
+    "helper/snow_rules.py:cover_html",
+    148,
+    11
+   ],
+   [
+    "helper/snow_rules.py:validate_letter",
+    29,
+    20
+   ],
+   [
+    "helper/verified_update.py:_read_manifest",
+    79,
+    13
+   ],
+   [
+    "helper/workflow_helper.py:outbox_read",
+    103,
+    14
+   ],
+   [
+    "helper/workflow_helper.py:reminder_draft",
+    156,
+    13
+   ],
+   [
+    "helper/workflow_helper.py:sync_selected",
+    125,
+    13
+   ],
+   [
+    "helper/workflow_helper.py:validate_view",
+    27,
+    22
+   ],
+   [
+    "policy/compiler.py:compile_policy",
+    127,
+    17
+   ],
+   [
+    "policy/compiler.py:unchanged",
+    46,
+    11
+   ],
+   [
+    "policy/library_ordinances.py:audit",
+    39,
+    13
+   ],
+   [
+    "policy/library_ordinances.py:chapter_index",
+    10,
+    20
+   ],
+   [
+    "policy/regenerate_deposits.py:regenerate",
+    38,
+    18
+   ],
+   [
+    "tools/build.py:render_deploy_guide",
+    157,
+    28
+   ],
+   [
+    "tools/codification_diff.py:propose_export",
+    37,
+    17
+   ],
+   [
+    "tools/compare_reporting_reads.py:compare",
+    159,
+    11
+   ],
+   [
+    "tools/compare_reporting_reads.py:measure",
+    80,
+    13
+   ],
+   [
+    "tools/compare_reporting_reads.py:run_comparison",
+    212,
+    19
+   ],
+   [
+    "tools/compare_reporting_reads.py:validate_run",
+    140,
+    14
+   ],
+   [
+    "tools/gate_artifacts.py:GitHubEvidence.archive",
+    54,
+    12
+   ],
+   [
+    "tools/gate_artifacts.py:select",
+    155,
+    32
+   ],
+   [
+    "tools/gate_artifacts.py:unpack",
+    210,
+    20
+   ],
+   [
+    "tools/gate_stages.py:assemble",
+    183,
+    16
+   ],
+   [
+    "tools/gate_stages.py:browser_results",
+    54,
+    13
+   ],
+   [
+    "tools/gate_stages.py:read_stage",
+    138,
+    25
+   ],
+   [
+    "tools/project_layout.py:checked_file",
+    61,
+    11
+   ],
+   [
+    "tools/project_layout.py:fingerprint",
+    99,
+    12
+   ],
+   [
+    "tools/release_evidence.py:verify",
+    43,
+    11
+   ],
+   [
+    "tools/release_inputs.py:deployment_inputs",
+    28,
+    13
+   ],
+   [
+    "tools/release_inputs.py:verify_deployment",
+    55,
+    15
+   ],
+   [
+    "tools/release_publication.py:validate_manifest",
+    7,
+    11
+   ],
+   [
+    "tools/staff_guides.py:generate",
+    39,
+    11
+   ],
+   [
+    "tools/version_schema.py:validate_identity",
+    22,
+    13
+   ]
+  ],
+  "miZero": [
+   "helper/case_integrity.py",
+   "helper/case_projection.py",
+   "helper/case_store.py",
+   "helper/citation_pricing.py",
+   "helper/server.py"
+  ]
+ }
+}

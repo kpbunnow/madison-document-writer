@@ -17,7 +17,8 @@ function compare(current, baseline) {
   return failures;
 }
 
-async function report() {
+/* `limits` lowers the thresholds for diagnostic measurement (tools/measure_maintainability.py); the ratchet uses LIMITS. */
+async function report(limits = LIMITS) {
   const owners = new Map();
   const eslint = new ESLint({
     cwd: ROOT,
@@ -45,7 +46,9 @@ async function report() {
                     counts.set(prefix, ordinal);
                     const identity = `${name}#${ordinal}`;
                     stack.push(identity);
-                    found.push({ start: node.loc.start, end: node.loc.end, identity: stack.join("/") });
+                    // ESLint reports a method or property function at its key, before the function node itself.
+                    const head = parent.type === "Property" || parent.type === "MethodDefinition" ? parent : node;
+                    found.push({ start: head.loc.start, end: node.loc.end, identity: stack.join("/") });
                   };
                   return {
                     ":function": enter,
@@ -63,9 +66,9 @@ async function report() {
         },
         rules: {
           "metrics/owners": "warn",
-          complexity: ["warn", 20],
-          "max-depth": ["warn", 4],
-          "max-lines-per-function": ["warn", { max: 80, skipBlankLines: true, skipComments: true }],
+          complexity: ["warn", limits.complexity],
+          "max-depth": ["warn", limits["max-depth"]],
+          "max-lines-per-function": ["warn", { max: limits["max-lines-per-function"], skipBlankLines: true, skipComments: true }],
         },
       },
     ],
@@ -75,7 +78,7 @@ async function report() {
   const results = await eslint.lintFiles(["app/modules", "app/assets/shared.js"]);
   for (const result of results) {
     for (const message of result.messages) {
-      if (!(message.ruleId in LIMITS)) {
+      if (!(message.ruleId in limits)) {
         if (message.severity === 2) throw new Error(`${result.filePath}: ${message.message}`);
         continue;
       }
@@ -86,7 +89,10 @@ async function report() {
             (f.start.line < message.line || (f.start.line === message.line && f.start.column < message.column)) &&
             (f.end.line > message.line || (f.end.line === message.line && f.end.column >= message.column - 1)),
         );
-      const owner = candidates.sort((a, b) => b.start.line - a.start.line || b.start.column - a.start.column)[0];
+      const owner =
+        candidates.sort((a, b) => b.start.line - a.start.line || b.start.column - a.start.column)[0] ||
+        // Nesting can occur in top-level statements, outside every function.
+        (message.ruleId === "max-depth" ? { identity: "<top-level>" } : null);
       if (!owner) throw new Error(`No owner for ${JSON.stringify(message)}`);
       const value = Number(message.message.match(/(?:complexity of |maximum nesting depth of |nested too deeply \(|too many lines \()(\d+)/)?.[1]);
       if (!value) throw new Error(`Unrecognized metric: ${message.message}`);
@@ -126,4 +132,4 @@ if (require.main === module)
     console.error(error.message);
     process.exitCode = 1;
   });
-module.exports = { compare, report };
+module.exports = { compare, report, LIMITS };

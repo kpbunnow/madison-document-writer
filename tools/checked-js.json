@@ -1,0 +1,4 @@
+{
+  "description": "Entry points type-checked by tsc --checkJs in tools/run_tests.py. Every file these import is checked too; tools/maintainability_js.cjs reports the resulting file list.",
+  "entries": ["app/modules/contracts.js"]
+}
