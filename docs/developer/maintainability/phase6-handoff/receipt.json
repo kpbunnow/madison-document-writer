@@ -1,0 +1,387 @@
+{
+  "reviewer": "Independent AI reviewer",
+  "independent_from": "Documentation implementation author",
+  "candidate_commit": "8145df22ca37e3fe794fe2f3fad5c69a88c7482f",
+  "candidate_tree": "29160527380c54e911322eab1b17ad7798db9f3d",
+  "original_local_source_commit": "dd584ce02f1375031da7935d6015e82d1f3778a0",
+  "clone_origin": "<LOCAL_CANONICAL_CHECKOUT>",
+  "original_source": "github.com/kpbunnow/madison-document-writer",
+  "final_tracked_status": "",
+  "assessed_start_utc": "2026-11-14T22:16:39+00:00",
+  "end_utc": "2026-11-14T22:23:01.468382+00:00",
+  "assessed_elapsed_seconds": 382.468,
+  "timing_method": "wall-clock intervals; active includes reading, probes, analysis and reporting, not instrumented cognitive time",
+  "setup_interval_seconds": 103.339,
+  "assessed_active_seconds": 279.129,
+  "pre_candidate_prerequisite_interval_seconds": 166,
+  "candidate_wait_seconds": 499,
+  "pre_clone_reading_seconds": "not instrumented; mandatory instructions read before clone",
+  "material_runbook_defects": [],
+  "assistance": [
+    {
+      "source": "parent task",
+      "content": "Required review scope, isolation, safety, evidence and await-candidate instructions."
+    },
+    {
+      "source": "parent initial update",
+      "content": "Candidate pending; cache/interpreter reuse allowed with fresh installs."
+    },
+    {
+      "source": "parent candidate handoff",
+      "content": "Candidate SHA, runbook entry path, author six-suite targeted checks passed; no exercise solution supplied."
+    },
+    {
+      "source": "parent followup",
+      "content": "Retain actual probe source/diff, sanitized results/hashes; distinguish sequencing mistake; do not score."
+    },
+    {
+      "source": "execution policy",
+      "content": "Sandbox npm spawn/pip network failures resolved by approved escalated retries."
+    }
+  ],
+  "incorrect_assumptions": [
+    {
+      "description": "Initial direct compile probe run before documented generated-data build",
+      "outcome": "Missing inspectors.js setup failure; corrected by production/fixture lifecycle; true behavioral before-failure then demonstrated."
+    }
+  ],
+  "cache_reuse": [
+    "Compliant preinstalled Python 3.14.10 interpreter bytes",
+    "Shared npm download cache; npm ci actually installed into fresh node_modules",
+    "Shared pip download cache; --require-hashes actually installed into fresh venv",
+    "Shared Playwright pinned browser cache; installer/check actually executed"
+  ],
+  "source_files_examined_sha256": {
+    "AGENTS.md": "cc83145697c543dbc0507a861f7470cd88c26a23c44d679cc690a16b5950d4a8",
+    "CONTRIBUTING.md": "719b9c0a393403b9d8fb59e8c5047ba4cfaf98232a145e2f0f7dd3f46ea75934",
+    "version.json": "68bdab6d015c16c211e0606a8cbb0a8954cb5dc106fbffbbd272a153d208d5a8",
+    "package.json": "f0e85d883fa91de56d74c7335ff6ece3c6b3626e5cd8e66da39d477b55dbb266",
+    "package-lock.json": "27905d7b1f23b156224ab362dcc444ed5f9a34d416ab16d41d49f59f16150e8e",
+    "requirements-dev.txt": "339d4069049a89a1961d094d824e39a62336a7e8331327023aec8a300a2635c8",
+    "docs/developer/00-START-HERE.md": "5e49042fdd0e1e47bb2d96d0cfae0a6cbaeaa9fa2d20af790ae1247b15d3f560",
+    "docs/developer/01-ARCHITECTURE.md": "540f21fad251a438f7b7a93cf7879bf5dff811019713e5fcb02530c28d206874",
+    "docs/developer/02-CODE-MAP.md": "19a579bc5b97b25480f73beacac387c1710832ce4ccf5d968fbb7bed0c59f18f",
+    "docs/developer/03-DOMAIN-RULES.md": "9c680d55b156c34a463541496dba40868e6905453246b73601a884f4c50bedbc",
+    "docs/developer/04-PITFALLS.md": "74a7a2aedce8ab93b1d5f3115c6d80db144be532b6397a647759a8cdaf55d753",
+    "docs/developer/05-TESTING.md": "3abf282032e1258343ff5dbb76960d9575d88de78f0ffc10ce5317b794b22b16",
+    "docs/developer/CLOUD-DEVELOPMENT.md": "2f43d1733856b8125f84a3f4c651716837aa63905052a41fc5d7e77d3d5d0bb0",
+    "docs/developer/DEVELOPMENT-STANDARD.md": "39a475c9cbb9fe522bfc7fc49be821a5499121e806ceb32bdec22a209e341710",
+    "docs/developer/MAINTAINER-HANDOFF.md": "ff6151a99d38f2655b59390d898adaa6b47c7e92a836f8802616b8d8310e42b8",
+    "docs/developer/MAINTAINABILITY-ASSESSMENT.md": "37c06435d7948ac619df6700d5d351cadbbd8dd473e61d6cf524381f7c5974f8",
+    "docs/developer/MAINTENANCE-MEASUREMENTS.md": "5ba717dc76ed65cbab06586dcd8b1505d12c4cd223d1d75e40a1eff8a8f33dec",
+    "docs/developer/HOTSPOT-REGISTER.md": "f7423b35433a853216c8f2c2361f49e6e2aad17fb5d1569f8ce2dcbb88e90835",
+    "docs/developer/TEST-SEAMS.md": "480332f0a4227084b97572eaf2d1f46fad413540e8721a0490b5a0158d3ec038",
+    "tools/policy-compatibility.json": "2f711b8aed995692191d23aafe3842637cfae7ea8c84863f5558db733b3b9e3a",
+    "app/modules/workflow_preferences.js": "595c510129b2e0659c6c486868efbc974c4a6db9b2b6a232eff5d834fb7c7781",
+    "app/modules/presentation_format.js": "286c8e062fba7dced4f88ec368d403a557c9e3a1f662da5828f7c70d1d09459c",
+    "app/modules/helper_transport.js": "95cb113ab3412ae8a95b32afa5abfcc71e68bac4378bdadff2abe0b56ced8521",
+    "app/modules/helper_requests.js": "1b5846fe8e7ae0a3cc9ad7177a7da4566ad24264032b959eca6fab9626b45ba9",
+    "app/modules/helper_stopped.js": "2d1e4e3c5583f45236f61775b76d718f3c62b1ec333fe61e815cd69dbbfd9dbf",
+    "app/modules/case_save_workflow.js": "32550b17a3c0e28535aa715e743f6c4680f57d33828f578c5148bd81ab380ffd",
+    "app/modules/pending_case_saves.js": "aaa610093841475c38ab150cd8bb2617a342707e106aa546d986648e8c1ee26c",
+    "app/modules/shared_case_storage.js": "a5947b56666b0ea481274b40c8dbc0145de5ca3cce94bf37aa59e1bc6d63bb3a",
+    "app/modules/accela_import.js": "c5bc9b4d699926d5204f9d01f36acc9dd6e3bc6a8686237efc9175d1df864059",
+    "app/modules/record_integrity.js": "4d1d835fed675c1e2d496328b399e47de766013cb1397e41a66ddc51ae9db919",
+    "app/modules/state.js": "1a8fe7d251e39ce356d159a9ea3c3a6f0bbcba20dc037e814b91121e532c4047",
+    "app/modules/workspace_state.js": "35630f67235d9050848c7fe039c04b595a5ba944a59dcee3fe7d2ae913701dbc",
+    "app/modules/editor_state.js": "f06f24628f9dc5672813c1f318c780cb415910c78e7d2ed87d7fd93a1bddb6e4",
+    "helper/case_integrity.py": "9627feec85ee73bd5f363cda75bb4d31e07a4b6e645c11112452b8c45919a71b",
+    "helper/integrity_verification.py": "8af6424f3c18205eda4aef889912873105cc1bb76887cb1b573a96c3c6fc5a5a",
+    "helper/case_store.py": "8638166044ad7e55d0bc0d45a5952881de7a95d15db7410703cd2d68c0cd46fb",
+    "tests/unit/audit_workflow_preferences.js": "135884acf1e42bfa81c9dcca68a8538ec2353de15902965e02ec2846bfd51e2f",
+    "tests/unit/audit_record_helper_adapters.js": "f849c12f9ca9b8aa500ebef63452e244a0af0469700b45249eed499ce271a680",
+    "tests/unit/audit_r31_integrity.py": "0083737970eadac5e9521a059bfe78448eb89ff581bf721fe661904a1c4d6e6d",
+    "tests/unit/audit_r28_helper.py": "44e3506d8bdacb946fa90fd360c095e809816644de430cf09dde779999ccce66",
+    "tests/unit/audit_workflow.py": "16319ec253fdfc3d24c4cffaa3316247ccd5606580fe04eca4834f1f9108023f",
+    "tests/fixtures/equivalence_harness.cjs": "3f558442df82dc0329dcab4297854b47c7b81bb937a4b8d81b60cebe0ec41eb4"
+  },
+  "changed_paths": [
+    "app/modules/workflow_preferences.js (temporary only; restored)"
+  ],
+  "unrun": [
+    "full local gate",
+    "Windows/native/City tests",
+    "measurement/coverage/mutation collection"
+  ],
+  "repeated_vs_carried": "No material correction cycle; diagnostic probe repeated once after replacing static synthetic session placeholder with runtime-generated value. Other evidence carried from same unchanged candidate.",
+  "commands": [
+    {
+      "scenario": "setup-venv",
+      "command": "<SHARED_RUNTIME>/python314/install/bin/python3.14 -m venv <REVIEW_ROOT>/runtime/venv",
+      "start_utc": "2026-11-14T22:17:03.077188+00:00",
+      "elapsed_seconds": 3.293,
+      "exit_status": 0,
+      "output_file": "setup-venv.log"
+    },
+    {
+      "scenario": "setup-npm",
+      "command": "npm ci --offline --cache <SHARED_RUNTIME>/npm-cache",
+      "start_utc": "2026-11-14T22:17:06.398783+00:00",
+      "elapsed_seconds": 2.293,
+      "exit_status": 1,
+      "output_file": "setup-npm.log"
+    },
+    {
+      "scenario": "setup-npm-retry",
+      "command": "npm ci --offline --cache <SHARED_RUNTIME>/npm-cache",
+      "start_utc": "2026-11-14T22:17:22.560890+00:00",
+      "elapsed_seconds": 2.956,
+      "exit_status": 0,
+      "output_file": "setup-npm-retry.log"
+    },
+    {
+      "scenario": "setup-pip",
+      "command": "python3 -m pip install --cache-dir <SHARED_RUNTIME>/pip-cache --require-hashes -r requirements-dev.txt",
+      "start_utc": "2026-11-14T22:17:27.329644+00:00",
+      "elapsed_seconds": 7.94,
+      "exit_status": 1,
+      "output_file": "setup-pip.log"
+    },
+    {
+      "scenario": "setup-browser",
+      "command": "npx playwright install chromium && node tools/check_browser.cjs && python3 --version && node --version && pdftotext -v && pandoc --version",
+      "start_utc": "2026-11-14T22:17:38.989804+00:00",
+      "elapsed_seconds": 1.915,
+      "exit_status": 0,
+      "output_file": "setup-browser.log"
+    },
+    {
+      "scenario": "setup-pip-retry",
+      "command": "python3 -m pip install --cache-dir <SHARED_RUNTIME>/pip-cache --require-hashes -r requirements-dev.txt",
+      "start_utc": "2026-11-14T22:17:50.429728+00:00",
+      "elapsed_seconds": 3.112,
+      "exit_status": 0,
+      "output_file": "setup-pip-retry.log"
+    },
+    {
+      "scenario": "change-before",
+      "command": "node ../evidence/change-probe.cjs",
+      "start_utc": "2026-11-14T22:18:09.538284+00:00",
+      "elapsed_seconds": 0.063,
+      "exit_status": 1,
+      "output_file": "change-before.log"
+    },
+    {
+      "scenario": "build-production",
+      "command": "python3 tools/build.py && mkdir -p ../evidence/production && cp build/dist/madison-document-writer.html build/dist/madison-reports.html ../evidence/production/",
+      "start_utc": "2026-11-14T22:18:20.174471+00:00",
+      "elapsed_seconds": 1.192,
+      "exit_status": 0,
+      "output_file": "build-production.log"
+    },
+    {
+      "scenario": "build-fixture",
+      "command": "DW_TEST_BUILD=1 python3 tools/build.py",
+      "start_utc": "2026-11-14T22:18:21.395031+00:00",
+      "elapsed_seconds": 0.92,
+      "exit_status": 0,
+      "output_file": "build-fixture.log"
+    },
+    {
+      "scenario": "boundary-checks",
+      "command": "node tests/unit/audit_module_boundaries.js && node tests/unit/audit_checked_contracts.js && python3 tests/unit/audit_runtime_imports.py",
+      "start_utc": "2026-11-14T22:18:22.339359+00:00",
+      "elapsed_seconds": 3.195,
+      "exit_status": 0,
+      "output_file": "boundary-checks.log"
+    },
+    {
+      "scenario": "change-before-built",
+      "command": "node ../evidence/change-probe.cjs",
+      "start_utc": "2026-11-14T22:18:25.562161+00:00",
+      "elapsed_seconds": 0.061,
+      "exit_status": 1,
+      "output_file": "change-before-built.log"
+    },
+    {
+      "scenario": "change-after",
+      "command": "node ../evidence/change-probe.cjs && node tests/unit/audit_workflow_preferences.js && node_modules/.bin/eslint app/modules/workflow_preferences.js && node_modules/.bin/prettier --check app/modules/workflow_preferences.js",
+      "start_utc": "2026-11-14T22:18:40.485404+00:00",
+      "elapsed_seconds": 0.839,
+      "exit_status": 0,
+      "output_file": "change-after.log"
+    },
+    {
+      "scenario": "representative-adapters",
+      "command": "node tests/unit/audit_record_helper_adapters.js && node tests/unit/audit_desktop_exit.js",
+      "start_utc": "2026-11-14T22:18:56.237047+00:00",
+      "elapsed_seconds": 4.983,
+      "exit_status": 0,
+      "output_file": "representative-adapters.log"
+    },
+    {
+      "scenario": "representative-integrity",
+      "command": "mkdir -p build/test-results && python3 tests/unit/audit_r31_integrity.py",
+      "start_utc": "2026-11-14T22:19:01.251074+00:00",
+      "elapsed_seconds": 0.286,
+      "exit_status": 0,
+      "output_file": "representative-integrity.log"
+    },
+    {
+      "scenario": "representative-storage-import",
+      "command": "node tests/unit/audit_storage.js && node tests/unit/audit_feature_accela_import.js && node tests/unit/audit_r50_errors.js",
+      "start_utc": "2026-11-14T22:19:01.564294+00:00",
+      "elapsed_seconds": 15.328,
+      "exit_status": 0,
+      "output_file": "representative-storage-import.log"
+    },
+    {
+      "scenario": "proof-probe",
+      "command": "python3 ../evidence/proof-probe.py",
+      "start_utc": "2026-11-14T22:19:51.644080+00:00",
+      "elapsed_seconds": 0.248,
+      "exit_status": 0,
+      "output_file": "proof-probe.log"
+    },
+    {
+      "scenario": "diagnostic-probe",
+      "command": "node ../evidence/diagnostic-probe.cjs",
+      "start_utc": "2026-11-14T22:21:00.561196+00:00",
+      "elapsed_seconds": 0.352,
+      "exit_status": 0,
+      "output_file": "diagnostic-probe.log"
+    },
+    {
+      "scenario": "final-guards",
+      "command": "python3 tests/unit/audit_development_workflow.py && python3 tests/unit/audit_release_inputs.py && python3 tests/unit/audit_utf8_io.py",
+      "start_utc": "2026-11-14T22:21:16.141124+00:00",
+      "elapsed_seconds": 4.43,
+      "exit_status": 0,
+      "output_file": "final-guards.log"
+    },
+    {
+      "scenario": "baseline-restored-probe",
+      "command": "node ../evidence/change-probe.cjs",
+      "start_utc": "2026-11-14T22:21:20.595757+00:00",
+      "elapsed_seconds": 0.063,
+      "exit_status": 1,
+      "output_file": "baseline-restored-probe.log"
+    },
+    {
+      "scenario": "diagnostic-probe-final",
+      "command": "node ../evidence/diagnostic-probe.cjs",
+      "start_utc": "2026-11-14T22:22:04.751234+00:00",
+      "elapsed_seconds": 0.446,
+      "exit_status": 0,
+      "output_file": "diagnostic-probe-final.log"
+    }
+  ],
+  "observed_browser_diagnostics": {
+    "scenario": "actual-browser-owner-refusals",
+    "transport": {
+      "class": "TypeError",
+      "message": "Synthetic transport unavailable",
+      "fetch_calls": 1,
+      "verification_calls": 0,
+      "retained_before": "4b209496972246106b75b6142fdf158ede54105bacbb06a1d7bcdd20799b021d",
+      "retained_after": "4b209496972246106b75b6142fdf158ede54105bacbb06a1d7bcdd20799b021d",
+      "session_403_distinct": true,
+      "stopped_refused_before_fetch": true
+    },
+    "pending": {
+      "public_save_result": false,
+      "last_write_ok": false,
+      "held_count": 1,
+      "persisted_held_count": 1,
+      "dirty_retained": true,
+      "committed_count": 0,
+      "retained_before": "9944c57cc8f961bed22d6b80738d740e86901000a2ece5ef6718663809eb669c",
+      "retained_after": "9944c57cc8f961bed22d6b80738d740e86901000a2ece5ef6718663809eb669c",
+      "held_body_sha256": "c677735d8cdef2dbd8616591a08ffc0568f8998a7bc08a243ff36f5fa678831e",
+      "retry": {
+        "completed": 1,
+        "held_after": 0,
+        "retained_filename": true,
+        "retained_case_id": true,
+        "current_work_used": true,
+        "old_held_body_unchanged": true,
+        "acknowledgment_peer": "mocked successful storage reply after real queue serialization"
+      }
+    },
+    "save_trace": {
+      "path": [
+        "case_save_workflow.saveCaseFile",
+        "caseFile serialization",
+        "mergeSharedFile boundary (mock no-op)",
+        "second caseFile serialization",
+        "shared_case_storage.writeToFolder",
+        "schema-5 native-folder refusal",
+        "pending_case_saves.queuePending",
+        "device idbSet boundary (mock acknowledged)"
+      ],
+      "public_result": false,
+      "native_file_handle_calls": 0,
+      "held_count": 1,
+      "last_write_ok": false,
+      "message": "Schema 5 requires the local helper to maintain the integrity chain.",
+      "no_summary_or_checkpoint": true
+    },
+    "import_trace": {
+      "owner": "accela_import.acceptAccela",
+      "source_kind": "ssrs",
+      "public_result": null,
+      "guard": "private LOOKUP_READY lacks current selection",
+      "retained_before": "c6644cbe28a51bc5f68aa46dc464fd8fc133edc4c748737f2b90a70e124e923b",
+      "retained_after": "c6644cbe28a51bc5f68aa46dc464fd8fc133edc4c748737f2b90a70e124e923b",
+      "acceptance_and_save_effects": 0
+    },
+    "proof": {
+      "owner": "record_integrity.verifyIntegrity -> initRecordIntegrity.status -> shared_case_storage.writeToFolder",
+      "valid_original": true,
+      "altered_proof_event": "genesis",
+      "valid_altered": false,
+      "original_before": "d6c287a26474228117485515221e302d3a9be05b8208b1c5793e75230ae4b83b",
+      "original_after": "d6c287a26474228117485515221e302d3a9be05b8208b1c5793e75230ae4b83b",
+      "public_write_result": {
+        "ok": false,
+        "why": "This record was changed outside the program. Read-only."
+      },
+      "helper_calls": 0
+    },
+    "mocked_boundaries": [
+      "document session lookup",
+      "fetch rejection/403",
+      "device idbSet",
+      "shared merge no-op",
+      "retry storage acknowledgment",
+      "synthetic caseNumberAllowed and caseFile adapters",
+      "initial prechecked integrity status for transport scenario; proof gate uses actual integrity owner"
+    ],
+    "native_acceptance_claimed": false
+  },
+  "observed_helper_diagnostics": {
+    "scenario": "source-integrity-proof",
+    "owners": [
+      "case_integrity.verify_record",
+      "integrity_verification.genesis_events",
+      "case_store.save_case"
+    ],
+    "valid_original": true,
+    "altered_proof_verdict": {
+      "valid": false,
+      "eventId": "genesis",
+      "label": "This record was changed outside the program"
+    },
+    "changed_issued_event_refusal": {
+      "class": "ValueError",
+      "message": "Conflicting content for an existing event; neither version was discarded"
+    },
+    "original_sha256_before": "7d6c04ca37ab552c483a1d072f827509a4e86661f99be9c250c787ec3b5cbf66",
+    "original_sha256_after": "7d6c04ca37ab552c483a1d072f827509a4e86661f99be9c250c787ec3b5cbf66",
+    "original_head_before": "d72ad475f94be3e5c8184ff13067742f637e6dc81c1e57e39c678311b62084f4",
+    "original_head_after": "d72ad475f94be3e5c8184ff13067742f637e6dc81c1e57e39c678311b62084f4",
+    "pending_transaction_count": 0,
+    "original_event_count": 2,
+    "current_event_count": 2
+  },
+  "portable_preparation_end_utc": "2026-11-14T22:24:09.508632+00:00",
+  "portable_preparation_seconds": 68.04,
+  "executed_probe_and_patch_sha256": {
+    "change-intent.md": "cbcc2cc7199ed731335bd7fbac3ff5f4bc346b14dec40fa4ed1d8619b52fe1fe",
+    "change-probe.cjs": "952e4439df5d6e18436faa81fa6cddff923de59b914a0b61df8eadb01913f9fa",
+    "proof-probe.py": "edfe0c1b858acfce7ca36c15f46ba99fc07e32c8f49343fa4ed0e8c7f884f628",
+    "diagnostic-probe.cjs": "57f18e929b2dcb83787d2fcc5907aff711d63f3dff96e783f585a60588067a0f",
+    "exercise.patch": "1dd25b6ce8586b52bb1bf24771d9e67f2de471a56ee11b3eb3fa3929acf30798"
+  },
+  "portable_copy_method": "Probe sources, change intent and patch byte-identical; report/structured receipt sanitized portable representations; no raw installation/build logs included."
+}

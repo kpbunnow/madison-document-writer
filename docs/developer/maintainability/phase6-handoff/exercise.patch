@@ -1,0 +1,13 @@
+diff --git a/app/modules/workflow_preferences.js b/app/modules/workflow_preferences.js
+index f4239b1..b81d9fd 100644
+--- a/app/modules/workflow_preferences.js
++++ b/app/modules/workflow_preferences.js
+@@ -13,7 +13,7 @@ export function loadWorkflowPreferences(readStored) {
+         enabled: r.enabled === true,
+         days: Math.min(30, Math.max(1, Number(r.days) || 7)),
+         plans: Object.fromEntries(Object.entries(r.plans && typeof r.plans === "object" ? r.plans : {}).filter(([, value]) => validISO(value))),
+-        dismissed: Array.isArray(r.dismissed) ? r.dismissed.filter((x) => typeof x === "string").slice(-200) : [],
++        dismissed: Array.isArray(r.dismissed) ? r.dismissed.filter((x, n, ids) => typeof x === "string" && ids.lastIndexOf(x) === n).slice(-200) : [],
+       };
+     }
+   } catch {

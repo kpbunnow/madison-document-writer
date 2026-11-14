@@ -12,7 +12,7 @@ Status as of Phase 6 starting main `dd584ce02f1375031da7935d6015e82d1f3778a0`, 2
 | 3 — locality/complexity | #517–#520; review fixes #521 | Scoped calculation views and reduced JS complexity; total coupling unchanged, long-factory target unmet |
 | 4 — real-owner test migration | #522–#523; review fix #524 | Five full migrations plus partial feature migration; two integration reclassifications explicitly retained, no hook retirement |
 | 5 — policy/compatibility/duplication | #525; MAINTAINABILITY-PHASE5-2026-11-14.md | Delivered, cross-runtime fixes/guards and reviewed candidates; no global mutation/duplication score |
-| 6 — diagnostics/docs/handoff | MAINTAINABILITY-PHASE6-2026-11-14.md | Current development; independent AI review authorized, assessed exercise pending candidate completion |
+| 6 — diagnostics/docs/handoff | [#526](https://github.com/kpbunnow/madison-document-writer/pull/526); MAINTAINABILITY-PHASE6-2026-11-14.md | Independent AI handoff completed on candidate 8145df2; no material defect in exercised scope. Final checked head/checks and merge status belong to the PR; no score awarded. |
 | 7 — final audit/score/closure | Not delivered | Must remeasure full scope/cohorts, coverage, types and mutations; review all diffs and all twenty unchanged criteria. No 90-point claim. |
 
 All prior delivery heads below were rechecked against GitHub during Phase 6. A passing check at one head does not approve later edits. Their Full-gate links and exact final source heads are preserved; detailed Windows/security checks remain on each PR. No branch-only or fast result is relabeled as merge evidence.
