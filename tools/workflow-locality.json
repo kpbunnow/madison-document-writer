@@ -340,8 +340,24 @@
       "target": "The keep-editing decision is a pure calculation over explicit facts; DOM swap/focus/selection effects stay ordered in the coordinator.",
       "functions": [
         {
-          "identity": "keepLiveField#1",
+          "identity": "liveFieldItem#1",
           "role": "calculation"
+        },
+        {
+          "identity": "liveFieldKept#1",
+          "role": "calculation"
+        },
+        {
+          "identity": "liveFieldCaret#1",
+          "role": "calculation"
+        },
+        {
+          "identity": "liveFieldLookups#1",
+          "role": "provider"
+        },
+        {
+          "identity": "keepLiveField#1",
+          "role": "coordinator"
         },
         {
           "identity": "keepLiveField#1/swap#1",
@@ -349,6 +365,10 @@
         },
         {
           "identity": "keepLiveField#1/restore#1",
+          "role": "coordinator"
+        },
+        {
+          "identity": "restoreLiveFieldCaret#1",
           "role": "coordinator"
         }
       ]
