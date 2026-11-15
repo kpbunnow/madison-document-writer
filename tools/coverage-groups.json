@@ -1,7 +1,10 @@
 {
   "description": "Coverage subgroups for tools/measure_coverage.py (plan Phase 1). Targets are the plan's: runtime 85% statements / 75% branches; high-risk 90% / 85%; developer tools 80% / 70% (high-risk gate and release-integrity tools use the high-risk target).",
   "javascript": {
-    "runtime": ["app/modules/*.js", "app/assets/shared.js"],
+    "runtime": [
+      "app/modules/*.js",
+      "app/assets/shared.js"
+    ],
     "highRisk": [
       "app/modules/accela_import.js",
       "app/modules/accela_report.js",
@@ -18,8 +21,13 @@
     ]
   },
   "python": {
-    "runtime": ["helper/*.py"],
-    "developer": ["tools/*.py", "policy/*.py"],
+    "runtime": [
+      "helper/*.py"
+    ],
+    "developer": [
+      "tools/*.py",
+      "policy/*.py"
+    ],
     "highRisk": [
       "helper/artifact_store.py",
       "helper/case_integrity.py",
@@ -43,7 +51,8 @@
       "tools/release_evidence.py",
       "tools/release_inputs.py",
       "tools/release_publication.py",
-      "tools/verify_release.py"
+      "tools/verify_release.py",
+      "helper/publication_validation.py"
     ]
   },
   "targets": {

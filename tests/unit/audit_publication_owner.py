@@ -27,14 +27,17 @@ def run(args, window, reference=False, stop=None):
             if stop == len(trace):
                 raise RuntimeError("publication interrupted at " + name)
             return function(*args, **kwargs)
+
         return called
 
     operations = ["calendar_date", "mailing_max_day", "mailing_message", "current_document", "validate_special_publication"]
     wrappers = {name: instrument(name, getattr(case_store, name)) for name in operations}
     original = copy.deepcopy(args)
     values = copy.deepcopy(args)
-    with patch.multiple(case_store, **wrappers), patch.object(snow_rules, "is_snow", instrument("is_snow", snow_rules.is_snow)), patch.object(
-        snow_rules, "validate_snapshot", instrument("snow_snapshot", snow_rules.validate_snapshot)
+    with (
+        patch.multiple(case_store, **wrappers),
+        patch.object(snow_rules, "is_snow", instrument("is_snow", snow_rules.is_snow)),
+        patch.object(snow_rules, "validate_snapshot", instrument("snow_snapshot", snow_rules.validate_snapshot)),
     ):
         namespace.update(wrappers)
         check = namespace["validate_publication"] if reference else case_store.validate_publication
@@ -89,6 +92,7 @@ class PublicationOwner(unittest.TestCase):
     def test_locked_store_refusal_leaves_case_and_receipts_untouched(self):
         # The real coordinator acquires locks, merges, then validates before publishing.
         import tempfile
+
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             initial = fixtures.initial()
