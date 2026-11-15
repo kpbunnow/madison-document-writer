@@ -1,13 +1,13 @@
 {
   "version": 1,
   "identity": {
-    "release": "2026-11-13 R82",
-    "helperVersion": "2026.11.13.83",
+    "release": "2026-11-15 R83",
+    "helperVersion": "2026.11.15.84",
     "authoringVersion": 16,
     "caseSchema": 5,
     "summaryVersion": 6,
     "backupVersion": 2,
-    "helperBuild": 83
+    "helperBuild": 84
   },
   "scope": "Reviewed policy mirrors. Exact lexical tool excludes tests/oracles/vendor/generated and cannot measure semantic or cross-language clones.",
   "rules": [
@@ -108,7 +108,7 @@
         "app/modules/document_readiness.js",
         "helper/case_store.py"
       ],
-      "historicalVariants": "New-publication windows do not rewrite historical/correction source dates. Date parity covers operational years 1900\u20132200, not all representable Date/Python years.",
+      "historicalVariants": "New-publication windows do not rewrite historical/correction source dates. Date parity covers operational years 1900–2200, not all representable Date/Python years.",
       "suites": [
         "audit_policy_mirrors.py",
         "audit_r50_calendar.js",

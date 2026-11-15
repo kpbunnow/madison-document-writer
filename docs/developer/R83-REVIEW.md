@@ -21,6 +21,7 @@ The runtime changes since R82 were reviewed for this release:
 
 ## Identity and publication
 
+- Policy compatibility: `tools/policy-compatibility.json` was reviewed for the identity change. Only the release and helper identity advance. Authoring 16, case schema 5, summary 6 and backup 2 are unchanged, and no rule family, owner, consumer or historical variant changes in R83. Its recorded identity is updated to R83.
 - `version.json`, `package.json` and `package-lock.json` carry the R83 identity. `tools/version_schema.py` validates it (matching dates, helperBuild 84).
 - Publication baseline: R83 is packaged against the R82 deployment manifest with `--published-manifest`. For a new release number, the publication check reads only the baseline's release and helper identity. Where the retained R82 manifest was not available in the packaging environment, the baseline was reconstructed from the R82 source commit (`6604c42`). This is recorded with the package.
 
