@@ -37,3 +37,11 @@ Every original entry scenario and assertion remains. Its frozen source stays byt
 ## Verification and completion
 
 Targeted tests and frozen comparisons are run before PR submission. Full gate, PR format, CodeQL/security and Windows recovery must pass on the exact final PR head before the authorized merge. Current release/helper/authoring/case/summary/backup identities, locks, legal wording/holds, historical print and issued facts are preserved. No release assignment, packaging, deployment or City/native acceptance is included. Fresh receipts and the independent final assessment will be linked from the delivery report after collection; the 90-point target remains open until its original thresholds are actually earned.
+
+## Focused coverage closure and gesture correction
+
+PR #528 merged at `4021c77443e17c1649ab58049fdaaa94ebf9b69b` after exact-head Full gate, PR format, security and Windows checks. Its clean `9e790bc` diagnostic passed all 440 suites and detected all 43 mutants, but retained JavaScript statements 84.0% and developer Python statements 79.5% below their unchanged targets. These remain explicitly open for this follow-up.
+
+New real-gesture regressions reproduced a stale row-order bug: replacing the current draft object or repainting its rows during a drag allowed the old DOM order to sort current work on pointer release. The gesture now retains document-object identity only, clears its transient state, and refuses a different current object or detached body before the existing live structural-edit check. Normal reorder, cancellation, keyboard movement, optional picker/capture failure and literal paste remain covered. This does not cache readiness/authority or change issued records, persisted formats or printing.
+
+Workspace dispatch now imports its real current owner with explicit original historical bindings for its unchanged frozen counterpart; all 1,077 scenarios/assertions remain. Review-only policy-tool tests execute the original CLI on temporary synthetic files: candidate approval is cleared, prior ranges and source facts stay unchanged, invalid inputs cannot replace prior output, and no policy is activated. Three additional critical mutants bring the configured pilot to 46. Complete fresh coverage and independent scoring follow the final stable source; no target closure is inferred from these changes alone.

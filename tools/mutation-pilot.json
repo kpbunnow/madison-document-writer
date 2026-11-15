@@ -462,6 +462,36 @@
       "suites": [
         "audit_diagnostic_orchestration.py"
       ]
+    },
+    {
+      "id": "editor-gesture-current-document",
+      "category": "live replacement safety",
+      "file": "app/modules/editor_events.js",
+      "find": "d !== drag.document",
+      "replace": "false",
+      "suites": [
+        "audit_editor_gesture_recovery.js"
+      ]
+    },
+    {
+      "id": "editor-gesture-current-dom",
+      "category": "repaint cancellation",
+      "file": "app/modules/editor_events.js",
+      "find": "!body.isConnected",
+      "replace": "false",
+      "suites": [
+        "audit_editor_gesture_recovery.js"
+      ]
+    },
+    {
+      "id": "policy-proposal-is-not-approval",
+      "category": "review-only policy authority",
+      "file": "tools/propose_policy_version.py",
+      "find": "\"status\": \"manual-only\"",
+      "replace": "\"status\": \"approved\"",
+      "suites": [
+        "audit_policy_proposal_safety.py"
+      ]
     }
   ]
 }
