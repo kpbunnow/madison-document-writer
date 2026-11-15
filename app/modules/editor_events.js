@@ -258,7 +258,8 @@ function editorRegisterPointerStart(target = document) {
     const tr = g.closest("tr");
     if (!tr) return;
     e.preventDefault();
-    editor.dragging = { tr: tr, body: tr.parentNode };
+    // Recovery/replacement or a repaint abandons this gesture; its old rows cannot edit new work.
+    editor.dragging = { tr: tr, body: tr.parentNode, document: doc(editor.state.docId) };
     tr.classList.add("dragging");
     try {
       g.setPointerCapture(e.pointerId);
@@ -287,11 +288,12 @@ function editorRegisterPointerMove(target = document) {
 function editorRegisterPointerEnd(services, target = document) {
   return registerEventOnce(target, "editor.registerPointerEnd", "pointerup", () => {
     if (!editor.dragging) return;
-    const body = editor.dragging.body;
-    editor.dragging.tr.classList.remove("dragging");
+    const drag = editor.dragging,
+      body = drag.body;
+    drag.tr.classList.remove("dragging");
     editor.dragging = null;
     const d = doc(editor.state.docId);
-    if (!d || !services.actions.structEditable(d)) return;
+    if (!d || d !== drag.document || !body.isConnected || !services.actions.structEditable(d)) return;
     const order = Array.prototype.slice.call(body.querySelectorAll("tr[data-row]")).map((r) => r.getAttribute("data-row"));
     d.items.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
     services.actions.renumber(d);
