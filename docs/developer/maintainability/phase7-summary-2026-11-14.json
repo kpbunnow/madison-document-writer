@@ -1,0 +1,479 @@
+{
+  "description": "Phase7 code assessment at2010d789; final delivery head and repeated final-source coverage/CI are in PR/artifacts. This is not acceptance of90.",
+  "sources": {
+    "original": "6e90380af8b31536c5d7371aa08fb5b59a5c500b",
+    "implementation": "3183bff1a529b655a4e2f6b1e1d79f76bc8610cf",
+    "corrected": "2010d78930728a8c70959e6f7da4f35c92146095"
+  },
+  "score": {
+    "total": 87,
+    "dimensions": {
+      "Modularity": 16,
+      "Reusability": 17,
+      "Analysability": 19,
+      "Modifiability": 17,
+      "Testability": 18
+    }
+  },
+  "metricsSource": {
+    "commit": "2010d78930728a8c70959e6f7da4f35c92146095",
+    "tree": "e3dad4cd3f440f3e2e25f3b5b080bcfc64cb26f4",
+    "clean": true,
+    "scopeCommit": null,
+    "identity": {
+      "release": "2026-11-13 R82",
+      "helperVersion": "2026.11.13.83",
+      "authoringVersion": 16,
+      "caseSchema": 5,
+      "summaryVersion": 6,
+      "backupVersion": 2,
+      "helperBuild": 83
+    },
+    "inputDigest": "4ddf6c8fb340110b59e41e15ef70f69454cae2ddbb58015c8706e0779dad4988"
+  },
+  "tools": {
+    "node": "v24.19.0",
+    "eslint": "10.14.0",
+    "typescript": "7.0.2",
+    "python": "3.14.10",
+    "ruff": "ruff 0.17.3",
+    "analysisPython": "Python 3.14.10",
+    "radon": "6.0.1"
+  },
+  "comparison": {
+    "original": {
+      "pythonFiles": 58,
+      "pythonUniqueFunctions": 715,
+      "pythonAbove10": 131,
+      "pythonMaximum": 52,
+      "miVariants": {
+        "miDefault": {
+          "mean": 42.72187579959817,
+          "median": 43.88466000601913,
+          "slocWeightedMean": 20.3015718751284
+        },
+        "miRegularComments": {
+          "mean": 40.02593672478129,
+          "median": 41.131189132068855,
+          "slocWeightedMean": 18.67671949384002
+        },
+        "miCodeOnly": {
+          "mean": 33.42809606179726,
+          "median": 34.98615015565558,
+          "slocWeightedMean": 14.376892637649375
+        }
+      },
+      "javascript": {
+        "fileCount": 166,
+        "functions": 5566,
+        "complexityRecords": 5566,
+        "physicalLines": 33835,
+        "tokenLines": 30561,
+        "ccMean": 2.7551203736974488,
+        "ccMedian": 1,
+        "ccP95": 10,
+        "ccMax": 20,
+        "ccOver10": 261,
+        "ccOver20": 0
+      }
+    },
+    "implementation": {
+      "pythonFiles": 63,
+      "pythonUniqueFunctions": 767,
+      "pythonAbove10": 131,
+      "pythonMaximum": 52,
+      "miVariants": {
+        "miDefault": {
+          "mean": 43.39276493952414,
+          "median": 44.12706848221993,
+          "slocWeightedMean": 21.57378376597573
+        },
+        "miRegularComments": {
+          "mean": 39.92342604994142,
+          "median": 40.72963050103286,
+          "slocWeightedMean": 19.470336124329283
+        },
+        "miCodeOnly": {
+          "mean": 33.357361595757595,
+          "median": 35.689635552246116,
+          "slocWeightedMean": 15.046509504367021
+        }
+      },
+      "javascript": {
+        "fileCount": 166,
+        "functions": 5566,
+        "complexityRecords": 5566,
+        "physicalLines": 33909,
+        "tokenLines": 30568,
+        "ccMean": 2.7558390226374416,
+        "ccMedian": 1,
+        "ccP95": 10,
+        "ccMax": 20,
+        "ccOver10": 261,
+        "ccOver20": 0
+      }
+    },
+    "corrected": {
+      "pythonFiles": 70,
+      "pythonUniqueFunctions": 819,
+      "pythonAbove10": 136,
+      "pythonMaximum": 32,
+      "miVariants": {
+        "miDefault": {
+          "mean": 43.32051217309596,
+          "median": 44.16378977848712,
+          "slocWeightedMean": 23.186978930721473
+        },
+        "miRegularComments": {
+          "mean": 39.58308084033479,
+          "median": 40.308491099916665,
+          "slocWeightedMean": 20.589497462555062
+        },
+        "miCodeOnly": {
+          "mean": 33.45753399245328,
+          "median": 34.82808583391506,
+          "slocWeightedMean": 16.093700403685467
+        }
+      },
+      "javascript": {
+        "fileCount": 166,
+        "functions": 5917,
+        "complexityRecords": 5917,
+        "physicalLines": 34989,
+        "tokenLines": 31217,
+        "ccMean": 2.645259422004394,
+        "ccMedian": 1,
+        "ccP95": 9,
+        "ccMax": 20,
+        "ccOver10": 130,
+        "ccOver20": 0
+      }
+    }
+  },
+  "currentPythonGroups": {
+    "runtime": {
+      "radonCli": {
+        "count": 598,
+        "above10": 106,
+        "above15": 39,
+        "above20": 9,
+        "max": 25,
+        "buckets": {
+          "1-5": 322,
+          "6-10": 170,
+          "11-15": 67,
+          "16-20": 30,
+          "21+": 9
+        }
+      },
+      "radonComplete": {
+        "count": 613,
+        "above10": 106,
+        "above15": 39,
+        "above20": 9,
+        "max": 25,
+        "buckets": {
+          "1-5": 333,
+          "6-10": 174,
+          "11-15": 67,
+          "16-20": 30,
+          "21+": 9
+        }
+      },
+      "mi": {
+        "files": 37,
+        "mean": 39.96,
+        "median": 43.61,
+        "sizeWeighted": 16.47,
+        "zero": [
+          "helper/case_projection.py",
+          "helper/case_store.py",
+          "helper/citation_pricing.py",
+          "helper/server.py"
+        ]
+      },
+      "miVariants": {
+        "default": {
+          "files": 37,
+          "mean": 39.96,
+          "median": 43.61,
+          "sizeWeighted": 16.47,
+          "zero": [
+            "helper/case_projection.py",
+            "helper/case_store.py",
+            "helper/citation_pricing.py",
+            "helper/server.py"
+          ]
+        },
+        "regularComments": {
+          "files": 37,
+          "mean": 36.77,
+          "median": 39.21,
+          "sizeWeighted": 14.58,
+          "zero": [
+            "helper/case_projection.py",
+            "helper/case_store.py",
+            "helper/citation_pricing.py",
+            "helper/server.py"
+          ]
+        },
+        "codeOnly": {
+          "files": 37,
+          "mean": 30.58,
+          "median": 34.05,
+          "sizeWeighted": 11.24,
+          "zero": [
+            "helper/case_integrity.py",
+            "helper/case_projection.py",
+            "helper/case_store.py",
+            "helper/citation_pricing.py",
+            "helper/server.py"
+          ]
+        }
+      },
+      "sloc": 8326
+    },
+    "developer": {
+      "radonCli": {
+        "count": 205,
+        "above10": 30,
+        "above15": 11,
+        "above20": 3,
+        "max": 32,
+        "buckets": {
+          "1-5": 127,
+          "6-10": 48,
+          "11-15": 19,
+          "16-20": 8,
+          "21+": 3
+        }
+      },
+      "radonComplete": {
+        "count": 206,
+        "above10": 30,
+        "above15": 11,
+        "above20": 3,
+        "max": 32,
+        "buckets": {
+          "1-5": 128,
+          "6-10": 48,
+          "11-15": 19,
+          "16-20": 8,
+          "21+": 3
+        }
+      },
+      "mi": {
+        "files": 33,
+        "mean": 47.09,
+        "median": 45.66,
+        "sizeWeighted": 38.47,
+        "zero": []
+      },
+      "miVariants": {
+        "default": {
+          "files": 33,
+          "mean": 47.09,
+          "median": 45.66,
+          "sizeWeighted": 38.47,
+          "zero": []
+        },
+        "regularComments": {
+          "files": 33,
+          "mean": 42.74,
+          "median": 40.69,
+          "sizeWeighted": 34.28,
+          "zero": []
+        },
+        "codeOnly": {
+          "files": 33,
+          "mean": 36.68,
+          "median": 36.45,
+          "sizeWeighted": 27.15,
+          "zero": []
+        }
+      },
+      "sloc": 3657
+    },
+    "combined": {
+      "radonCli": {
+        "count": 803,
+        "above10": 136,
+        "above15": 50,
+        "above20": 12,
+        "max": 32,
+        "buckets": {
+          "1-5": 449,
+          "6-10": 218,
+          "11-15": 86,
+          "16-20": 38,
+          "21+": 12
+        }
+      },
+      "radonComplete": {
+        "count": 819,
+        "above10": 136,
+        "above15": 50,
+        "above20": 12,
+        "max": 32,
+        "buckets": {
+          "1-5": 461,
+          "6-10": 222,
+          "11-15": 86,
+          "16-20": 38,
+          "21+": 12
+        }
+      },
+      "mi": {
+        "files": 70,
+        "mean": 43.32,
+        "median": 44.16,
+        "sizeWeighted": 23.19,
+        "zero": [
+          "helper/case_projection.py",
+          "helper/case_store.py",
+          "helper/citation_pricing.py",
+          "helper/server.py"
+        ]
+      },
+      "miVariants": {
+        "default": {
+          "files": 70,
+          "mean": 43.32,
+          "median": 44.16,
+          "sizeWeighted": 23.19,
+          "zero": [
+            "helper/case_projection.py",
+            "helper/case_store.py",
+            "helper/citation_pricing.py",
+            "helper/server.py"
+          ]
+        },
+        "regularComments": {
+          "files": 70,
+          "mean": 39.58,
+          "median": 40.31,
+          "sizeWeighted": 20.59,
+          "zero": [
+            "helper/case_projection.py",
+            "helper/case_store.py",
+            "helper/citation_pricing.py",
+            "helper/server.py"
+          ]
+        },
+        "codeOnly": {
+          "files": 70,
+          "mean": 33.46,
+          "median": 34.83,
+          "sizeWeighted": 16.09,
+          "zero": [
+            "helper/case_integrity.py",
+            "helper/case_projection.py",
+            "helper/case_store.py",
+            "helper/citation_pricing.py",
+            "helper/server.py"
+          ]
+        }
+      },
+      "sloc": 11983
+    }
+  },
+  "coverageAuditStart": {
+    "source": "6fbbe77a12fe5b88c0cc6731205685d3e32f5091",
+    "clean": true,
+    "suites": 431,
+    "failed": [],
+    "javascript": {
+      "runtime": {
+        "files": 166,
+        "unexecutedFiles": [
+          "app/modules/app_entry.js",
+          "app/modules/reports_core.js",
+          "app/modules/reports_entry.js"
+        ],
+        "statements": 15245,
+        "coveredStatements": 12389,
+        "branches": 10455,
+        "coveredBranches": 8465,
+        "statementRate": 0.8127,
+        "branchRate": 0.8097
+      },
+      "highRisk": {
+        "files": 12,
+        "unexecutedFiles": [],
+        "statements": 1893,
+        "coveredStatements": 1761,
+        "branches": 1242,
+        "coveredBranches": 1115,
+        "statementRate": 0.9303,
+        "branchRate": 0.8977
+      },
+      "language": "javascript"
+    },
+    "python": {
+      "runtime": {
+        "files": 37,
+        "unexecutedFiles": [],
+        "statements": 6388,
+        "coveredStatements": 5743,
+        "branches": 2492,
+        "coveredBranches": 2111,
+        "statementRate": 0.899,
+        "branchRate": 0.8471
+      },
+      "developer": {
+        "files": 33,
+        "unexecutedFiles": [
+          "tools/check_format.py",
+          "tools/propose_policy_version.py",
+          "tools/sync_version.py",
+          "tools/verify_release.py"
+        ],
+        "statements": 2647,
+        "coveredStatements": 1762,
+        "branches": 918,
+        "coveredBranches": 606,
+        "statementRate": 0.6657,
+        "branchRate": 0.6601
+      },
+      "highRisk": {
+        "files": 23,
+        "unexecutedFiles": [
+          "tools/verify_release.py"
+        ],
+        "statements": 5062,
+        "coveredStatements": 4336,
+        "branches": 2086,
+        "coveredBranches": 1719,
+        "statementRate": 0.8566,
+        "branchRate": 0.8241
+      },
+      "language": "python"
+    },
+    "notMeasured": [
+      "Code executing inside Chromium (browser suites and production-page workflows)",
+      "Developer JavaScript in tools/*.cjs"
+    ]
+  },
+  "mutationAuditStart": {
+    "source": "6fbbe77a12fe5b88c0cc6731205685d3e32f5091",
+    "counts": {
+      "killed": 31,
+      "survived": 0,
+      "timeout": 0,
+      "invalid": 0
+    },
+    "baselineFailures": []
+  },
+  "cohortReceiptSha256": "cd095fba188db54bedbfc1b4c1d4612a5fae5033de10eaa36fbd1fea5b030fb4",
+  "rawReceiptHashes": {
+    "original-strict-python.json": "c941e79f4ba9c1057d28d70a21830f1cb7e7ba2e0b84b35f9afa3f7c6967b2dc",
+    "implementation-strict-python.json": "29366b876bee2dfa7d672eb36f3a4380d84eae7b763e6167cce2d4a0896583f4",
+    "corrected-strict-python.json": "30859d428205693b085c89ad8512ca74cb24951c1664590342096a0b89fdf2e3",
+    "original-strict-javascript.json": "504711ac816db29f02864e406b873d34ef295cac43fa5122b8dc538df6b56bb7",
+    "implementation-strict-javascript.json": "93e7f6d74c68c0d5926939dbdad334016fc8006a0d8bae44a2c472772557d776",
+    "corrected-strict-javascript.json": "5dd9604fff38117a4860fda288d9530c963bdd212e472ccb27b8553f73dd8abb",
+    "corrected-final-code/metrics.json": "ee6c302e4590003a803c2239458b17fd4509de9b8a8c8f96956ec58373c209eb",
+    "coverage/coverage.json": "6fad40bc0e608bdeb8c97934833cf2e3b73cb873d0c157637cb575cd0466e4ea",
+    "mutations.json": "e27f2adff93c90d6b93922db569332d3dcc717ca076c45bb3c4fc51535640510"
+  }
+}

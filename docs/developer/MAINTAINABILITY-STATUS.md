@@ -1,6 +1,6 @@
 # Maintainability development status
 
-Status as of Phase 6 starting main `dd584ce02f1375031da7935d6015e82d1f3778a0`, 2026-11-14. The owner's 90+ plan is dated 2026-11-14, version 1.0; this is its current delivery/evidence index, not a redefinition of the scorecard. The [original strict assessment](../history/MAINTAINABILITY-EVALUATION-2026-11-14.md) retains all twenty criteria and 75/100 at `6e90380`. The long [earlier development ledger](MAINTAINABILITY-PLAN.md) remains historical provenance.
+Historical delivery baseline at Phase 6 starting main `dd584ce02f1375031da7935d6015e82d1f3778a0`, 2026-11-14. The owner's 90+ plan is dated 2026-11-14, version 1.0; this is its current delivery/evidence index, not a redefinition of the scorecard. The [original strict assessment](../history/MAINTAINABILITY-EVALUATION-2026-11-14.md) retains all twenty criteria and 75/100 at `6e90380`. The long [earlier development ledger](MAINTAINABILITY-PLAN.md) remains historical provenance.
 
 ## Phases and remaining items
 
@@ -13,7 +13,7 @@ Status as of Phase 6 starting main `dd584ce02f1375031da7935d6015e82d1f3778a0`, 2
 | 4 — real-owner test migration | #522–#523; review fix #524 | Five full migrations plus partial feature migration; two integration reclassifications explicitly retained, no hook retirement |
 | 5 — policy/compatibility/duplication | #525; MAINTAINABILITY-PHASE5-2026-11-14.md | Delivered, cross-runtime fixes/guards and reviewed candidates; no global mutation/duplication score |
 | 6 — diagnostics/docs/handoff | [#526](https://github.com/kpbunnow/madison-document-writer/pull/526); MAINTAINABILITY-PHASE6-2026-11-14.md | Independent AI handoff completed on candidate 8145df2; no material defect in exercised scope. Final checked head/checks and merge status belong to the PR; no score awarded. |
-| 7 — final audit/score/closure | Not delivered | Must remeasure full scope/cohorts, coverage, types and mutations; review all diffs and all twenty unchanged criteria. No 90-point claim. |
+| 7 — final audit/score/closure | [#527](https://github.com/kpbunnow/madison-document-writer/pull/527); [full audit](MAINTAINABILITY-PHASE7-2026-11-14.md) | Audit/fixes delivered through exact-head verification; independent87/100 (16/17/19/17/18). Quality-target closure FAILED: total<90 and Modularity<17. Bounded followup prepared, not implemented; final head/check/merge status in PR. |
 
 All prior delivery heads below were rechecked against GitHub during Phase 6. A passing check at one head does not approve later edits. Their Full-gate links and exact final source heads are preserved; detailed Windows/security checks remain on each PR. No branch-only or fast result is relabeled as merge evidence.
 
@@ -42,7 +42,9 @@ Phase 5 final evidence: 432 regression suites, 306 axe checks, 69 historical pri
 - Fresh full coverage on the final codebase, including explicit treatment of Chromium-executed code and every maintained denominator; Phase 1 deficits remain.
 - Broad checked JS/Python assurance: six checked JS files are 0.98% at this snapshot; no locked Python checker.
 - Further coherent low-MI/complexity and long-factory work; a wrapper-only metric improvement cannot erase extracted debt.
-- A final same-rubric twenty-criterion score at least 90/100, every dimension at least 17/20, no criterion below 3/5. Phase 7 must award or deduct from current evidence, without promising a result.
+- A final same-rubric twenty-criterion score at least 90/100, every dimension at least 17/20, no criterion below 3/5. Phase 7 independently scores87/100 and explicitly fails target closure; future work must earn the target without changing the rubric.
 - Human/City/native/staff/legal acceptance remains in ACCEPTANCE-RECORD.md and PRODUCTION-READINESS.md. AI handoff independence does not close it.
 
 No release was packaged or deployed. Phase 6 does not authorize UI/workflow redesign. Correct materially defective documentation and repeat affected independent tasks before marking the handoff complete.
+
+The Phase 7 [diagnostic corrections](MAINTAINABILITY-PHASE7-2026-11-14.md) supersede inflated complete-function counts in older snapshots without changing their bytes. Current code-only MI, default MI, coverage heads, typed scope and candidate/moved cohorts remain separate. [F1–F4](MAINTAINABILITY-90-GAP-FOLLOWUP-2026-11-14.md) are prepared bounded work, not completed design changes or promised points.

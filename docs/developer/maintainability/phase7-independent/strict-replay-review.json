@@ -1,0 +1,44 @@
+[
+  {
+    "phase": "original",
+    "source": "6e90380af8b31536c5d7371aa08fb5b59a5c500b",
+    "files_hash_verified": 58,
+    "unique_functions": 715,
+    "above10": 131,
+    "max": 52,
+    "miCodeOnly": {
+      "mean": 33.42809606179726,
+      "median": 34.98615015565558,
+      "slocWeightedMean": 14.376892637649375
+    },
+    "receipt_sha256": "c941e79f4ba9c1057d28d70a21830f1cb7e7ba2e0b84b35f9afa3f7c6967b2dc"
+  },
+  {
+    "phase": "implementation",
+    "source": "3183bff1a529b655a4e2f6b1e1d79f76bc8610cf",
+    "files_hash_verified": 63,
+    "unique_functions": 767,
+    "above10": 131,
+    "max": 52,
+    "miCodeOnly": {
+      "mean": 33.357361595757595,
+      "median": 35.689635552246116,
+      "slocWeightedMean": 15.046509504367021
+    },
+    "receipt_sha256": "29366b876bee2dfa7d672eb36f3a4380d84eae7b763e6167cce2d4a0896583f4"
+  },
+  {
+    "phase": "audit-start",
+    "source": "6fbbe77a12fe5b88c0cc6731205685d3e32f5091",
+    "files_hash_verified": 70,
+    "unique_functions": 817,
+    "above10": 136,
+    "max": 32,
+    "miCodeOnly": {
+      "mean": 33.513967292235805,
+      "median": 34.82808583391506,
+      "slocWeightedMean": 16.071641615021836
+    },
+    "receipt_sha256": "7377e6b36372a73bc278c2e39b4c8f7afeb400aae60548376133a218dc18d29a"
+  }
+]

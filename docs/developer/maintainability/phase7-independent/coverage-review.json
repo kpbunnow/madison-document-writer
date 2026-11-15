@@ -1,0 +1,90 @@
+{
+  "source": "6fbbe77a12fe5b88c0cc6731205685d3e32f5091",
+  "coverage_receipt_sha256": "6fad40bc0e608bdeb8c97934833cf2e3b73cb873d0c157637cb575cd0466e4ea",
+  "source_input_files_hash_verified": 1241,
+  "complete_suites_verified": 431,
+  "serial_browser_class_count": 12,
+  "all_passed": true,
+  "complete_denominator_files": {
+    "javascript": 166,
+    "python": 70
+  },
+  "groups": {
+    "javascript": {
+      "runtime": {
+        "files": 166,
+        "unexecutedFiles": [
+          "app/modules/app_entry.js",
+          "app/modules/reports_core.js",
+          "app/modules/reports_entry.js"
+        ],
+        "statements": 15245,
+        "coveredStatements": 12389,
+        "branches": 10455,
+        "coveredBranches": 8465,
+        "statementRate": 0.8127,
+        "branchRate": 0.8097
+      },
+      "highRisk": {
+        "files": 12,
+        "unexecutedFiles": [],
+        "statements": 1893,
+        "coveredStatements": 1761,
+        "branches": 1242,
+        "coveredBranches": 1115,
+        "statementRate": 0.9303,
+        "branchRate": 0.8977
+      },
+      "language": "javascript"
+    },
+    "python": {
+      "runtime": {
+        "files": 37,
+        "unexecutedFiles": [],
+        "statements": 6388,
+        "coveredStatements": 5743,
+        "branches": 2492,
+        "coveredBranches": 2111,
+        "statementRate": 0.899,
+        "branchRate": 0.8471
+      },
+      "developer": {
+        "files": 33,
+        "unexecutedFiles": [
+          "tools/check_format.py",
+          "tools/propose_policy_version.py",
+          "tools/sync_version.py",
+          "tools/verify_release.py"
+        ],
+        "statements": 2647,
+        "coveredStatements": 1762,
+        "branches": 918,
+        "coveredBranches": 606,
+        "statementRate": 0.6657,
+        "branchRate": 0.6601
+      },
+      "highRisk": {
+        "files": 23,
+        "unexecutedFiles": [
+          "tools/verify_release.py"
+        ],
+        "statements": 5062,
+        "coveredStatements": 4336,
+        "branches": 2086,
+        "coveredBranches": 1719,
+        "statementRate": 0.8566,
+        "branchRate": 0.8241
+      },
+      "language": "python"
+    }
+  },
+  "unmeasured": [
+    "Code executing inside Chromium (browser suites and production-page workflows)",
+    "Developer JavaScript in tools/*.cjs"
+  ],
+  "reportWarnings": [
+    "Combined 141 files, skipped 72",
+    "Wrote JSON report to <ISOLATED_COVERAGE_RUN>/python-coverage.json"
+  ],
+  "interpretation": "Fresh full unit-suite diagnostic supports measured-change-impact4/5. JS runtime statements, Python highRisk statements/branches and developer targets remain unmet; browser execution and developerJS are explicitly unmeasured. No gate/City acceptance inferred."
+}

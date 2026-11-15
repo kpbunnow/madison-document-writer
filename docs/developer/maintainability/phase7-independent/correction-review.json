@@ -1,0 +1,77 @@
+{
+  "reviewed_source": "2010d78930728a8c70959e6f7da4f35c92146095",
+  "resolved_findings": [
+    "P7-D1",
+    "P7-D2",
+    "P7-D3"
+  ],
+  "original_negative_probe": {
+    "source": "6fbbe77a12fe5b88c0cc6731205685d3e32f5091",
+    "exit": 1,
+    "actual_rows": 5,
+    "actual_unique_locations": 3
+  },
+  "corrected_positive_probe": {
+    "source": "2010d78930728a8c70959e6f7da4f35c92146095",
+    "exit": 0,
+    "actual_rows": 3,
+    "qualified_method_and_closure": true
+  },
+  "affected_independent_tests": {
+    "77f76c8": [
+      13,
+      8,
+      7
+    ],
+    "2010d789": [
+      13
+    ]
+  },
+  "strict_Mi_replay": {
+    "tool_source": "77f76c8a7de7a29e9bf92c4e111342c60b81fa5d",
+    "measured_source": "6fbbe77a12fe5b88c0cc6731205685d3e32f5091",
+    "measured_archived_files": 70,
+    "all_three_mi_variants_match_rounded_strict_replay": true,
+    "same_sloc_denominator": true,
+    "corrected_unique_functions": 817,
+    "qualified_VerificationContext_init": [
+      [
+        "VerificationContext.__init__",
+        193
+      ]
+    ],
+    "strict_replay_receipt_sha256": "7377e6b36372a73bc278c2e39b4c8f7afeb400aae60548376133a218dc18d29a"
+  },
+  "final_metric_check": {
+    "source": "2010d78930728a8c70959e6f7da4f35c92146095",
+    "receipt_sha256": "ee6c302e4590003a803c2239458b17fd4509de9b8a8c8f96956ec58373c209eb",
+    "all_scoped_and_measurement_input_hashes_verified": true,
+    "full_input_files": 1241,
+    "all_python_ast_locations_match_dedup_census": true,
+    "unique_python_functions": 819,
+    "python_above10": 136,
+    "python_max": 32,
+    "codeOnly_zero_helpers": [
+      "helper/case_integrity.py",
+      "helper/case_projection.py",
+      "helper/case_store.py",
+      "helper/citation_pricing.py",
+      "helper/server.py"
+    ],
+    "default_zero_helpers": [
+      "helper/case_projection.py",
+      "helper/case_store.py",
+      "helper/citation_pricing.py",
+      "helper/server.py"
+    ],
+    "corrected_faults": [
+      "P7-D1",
+      "P7-D2"
+    ],
+    "limits": [
+      "Full431-suite coverage/31-mutant receipts remain exact6fb source evidence until fresh final-head collection.",
+      "Current runtime equivalence and targeted correction tests are verified; no relabeling as final-head coverage.",
+      "AST equality is syntax-only; explicit bounded mappings/context reviewed separately."
+    ]
+  }
+}

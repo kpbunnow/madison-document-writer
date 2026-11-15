@@ -1,0 +1,35 @@
+{
+  "source": "6fbbe77a12fe5b88c0cc6731205685d3e32f5091",
+  "receipt_sha256": "e27f2adff93c90d6b93922db569332d3dcc717ca076c45bb3c4fc51535640510",
+  "input_hashes_verified": 1241,
+  "pilot_ids_verified": 31,
+  "baseline_failures": [],
+  "outcomes": {
+    "killed": 31,
+    "survived": 0,
+    "timeout": 0,
+    "invalid": 0
+  },
+  "categories": {
+    "integrity refusal": 5,
+    "source/head comparison": 2,
+    "date decision": 2,
+    "issued-fact refusal": 1,
+    "pricing decision": 3,
+    "recovery guard": 1,
+    "issued-fact rule": 2,
+    "output safety": 1,
+    "integrity refusal order": 1,
+    "atomic issuance refusal": 1,
+    "pricing refusal": 1,
+    "legal approval refusal": 1,
+    "reporting exclusion": 1,
+    "schedule identity": 1,
+    "historical offense counting": 1,
+    "report facts type parity": 1,
+    "report facts undefined parity": 1,
+    "Phase 5 cross-runtime policy parity": 5
+  },
+  "interpretation": "31of31 hand-seeded critical mutants detected by normal suite failures, not signals/timeouts/invalid syntax. This is scoped diagnostic evidence, not global mutation or production coverage. Outcome controls independently passed.",
+  "limits": "Pilot receipt records failing suite names, not complete per-mutant assertion stdout; reviewer checked outcome guard implementation and representative8 direct owner mutation runs separately."
+}

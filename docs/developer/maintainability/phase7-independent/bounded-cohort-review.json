@@ -1,0 +1,345 @@
+{
+  "source": "6fbbe77a12fe5b88c0cc6731205685d3e32f5091",
+  "draft_sha256": "f3b55f93eb0a926472345e31f2033e500cf02425a62430c1d3c184b3a8e39211",
+  "bounded_debt_maps": [
+    {
+      "before": "app/modules/correction_preparation.js:createCorrectionPreparation#1/correctionChanges#1/anonymous#3",
+      "beforeComplexity": 12,
+      "after": [
+        {
+          "id": "app/modules/correction_preparation.js:correctionItemChanges#1",
+          "file": "app/modules/correction_preparation.js",
+          "line": 57,
+          "complexity": 8,
+          "astHash": "6f55c790c25a7f94a7559fb270da17988dbfa7dd65e312b3e9e51947efaee1ca"
+        },
+        {
+          "id": "app/modules/correction_preparation.js:correctionCitationChanges#1",
+          "file": "app/modules/correction_preparation.js",
+          "line": 49,
+          "complexity": 5,
+          "astHash": "2472f4f1c7039ae08b526d6dde01b34def9a4bd3bf40688ce5d0e355f6895f75"
+        }
+      ],
+      "review": "verified bounded responsibility split from source; syntax differs and no AST equivalence claimed",
+      "preserved_operation": "Same item lookup, item-field sequence, noncarried visit outcome comparison, then citation field-label/value comparison. Uses explicit view for live visit lookup.",
+      "behavioral_support": "audit_correction_preparation_phases.js",
+      "scope": "Does not independently prove each imported dependency, callback effect or every production outcome."
+    },
+    {
+      "before": "app/modules/correction_preparation.js:createCorrectionPreparation#1/correctionVisitPatch#1/anonymous#1",
+      "beforeComplexity": 20,
+      "after": [
+        {
+          "id": "app/modules/correction_preparation.js:correctionVisitResult#1",
+          "file": "app/modules/correction_preparation.js",
+          "line": 120,
+          "complexity": 10,
+          "astHash": "53d96e1f17a2c745a399e7189f0c6cf98247d7f8e2acc6872bf84c4c7a35ddeb"
+        },
+        {
+          "id": "app/modules/correction_preparation.js:correctionVisitOutcome#1",
+          "file": "app/modules/correction_preparation.js",
+          "line": 110,
+          "complexity": 5,
+          "astHash": "5e2fd130b28b63d2c3bcca52c0856915c8317183b0afd2e41df802c6f2200e73"
+        },
+        {
+          "id": "app/modules/correction_preparation.js:correctionVisitDate#1",
+          "file": "app/modules/correction_preparation.js",
+          "line": 114,
+          "complexity": 7,
+          "astHash": "fdcab95c78ec73a91257e60f4a41f9bc9ee344153b4f587285974c173354e690"
+        }
+      ],
+      "review": "verified bounded responsibility split from source; syntax differs and no AST equivalence claimed",
+      "preserved_operation": "Same source item/result eligibility, clone, outcome/date/note/due rules and unchanged-result omission; outer patch retains keyed insertion.",
+      "behavioral_support": "audit_correction_preparation_phases.js",
+      "scope": "Does not independently prove each imported dependency, callback effect or every production outcome."
+    },
+    {
+      "before": "app/modules/reinspection.js:attachContentCheckTargets#1/anonymous#4",
+      "beforeComplexity": 11,
+      "after": [
+        {
+          "id": "app/modules/reinspection.js:attachCitationCheckTargets#1",
+          "file": "app/modules/reinspection.js",
+          "line": 588,
+          "complexity": 1,
+          "astHash": "244fd0fcec1797e0c9e4b2538cc8d9810b6ec08e47eec2579dae07559b31be6c"
+        },
+        {
+          "id": "app/modules/reinspection.js:citationCheckFields#1",
+          "file": "app/modules/reinspection.js",
+          "line": 579,
+          "complexity": 6,
+          "astHash": "b03334ae370a6555e3471321112d243205b0f1e646173cc2979c1df79ac7ef29"
+        },
+        {
+          "id": "app/modules/reinspection.js:depositCheckFields#1",
+          "file": "app/modules/reinspection.js",
+          "line": 569,
+          "complexity": 4,
+          "astHash": "d0f2c4632dbe34e60f80a795738cde503b73747aa1ccb5eee082b622476e71a3"
+        }
+      ],
+      "review": "verified bounded responsibility split from source; syntax differs and no AST equivalence claimed",
+      "preserved_operation": "Same cited/unwithdrawn filter, court/badge/unique-number/issue/deposit precedence and target field ordering.",
+      "behavioral_support": "audit_workflow_calculation_phases.js and retained reinspection/check-target suites",
+      "scope": "Does not independently prove each imported dependency, callback effect or every production outcome."
+    },
+    {
+      "before": "app/modules/reinspection.js:reinspectionWorksheetChecks#1/anonymous#1",
+      "beforeComplexity": 13,
+      "after": [
+        {
+          "id": "app/modules/reinspection.js:worksheetItemCheck#1",
+          "file": "app/modules/reinspection.js",
+          "line": 983,
+          "complexity": 10,
+          "astHash": "6ee5a8cae66cc6fbcb94361964a0578e8cb3a464fcacb802c5f72cdbda1564ff"
+        },
+        {
+          "id": "app/modules/reinspection.js:worksheetItemDueCheck#1",
+          "file": "app/modules/reinspection.js",
+          "line": 1000,
+          "complexity": 4,
+          "astHash": "31e1b6311534083cb826bf3af043a9c64d5329c13035f38f781ea61a929a82b8"
+        }
+      ],
+      "review": "verified bounded responsibility split from source; syntax differs and no AST equivalence claimed",
+      "preserved_operation": "Same done/withdrawn skip, result/date checks and soft future-due warning; due targets preserved and spacing/three-date checks remain coordinator phases.",
+      "behavioral_support": "audit_workflow_calculation_phases.js",
+      "scope": "Does not independently prove each imported dependency, callback effect or every production outcome."
+    },
+    {
+      "before": "helper/case_projection.py:jstr",
+      "beforeComplexity": 14,
+      "after": [
+        {
+          "id": "helper/projection_values.py:jstr",
+          "file": "helper/projection_values.py",
+          "line": 58,
+          "complexity": 9,
+          "astHash": "d3e400757459caba1585188a962fc76667700975ecf8a0b2925681ccb6f8f18c"
+        },
+        {
+          "id": "helper/projection_values.py:_number_text",
+          "file": "helper/projection_values.py",
+          "line": 161,
+          "complexity": 6,
+          "astHash": "e5a8d0e1d75b3dd1a805db73d5527157c73439302e347f69bf9e9929a6e4f20b"
+        }
+      ],
+      "review": "verified bounded responsibility split from source; syntax differs and no AST equivalence claimed",
+      "preserved_operation": "Moved general JS coercion branches plus extracted float NaN/integer/repr tail; no changed string/list/undefined/Boolean order.",
+      "behavioral_support": "audit_calculation_phases.py; audit_policy_mirrors.py",
+      "scope": "Does not independently prove each imported dependency, callback effect or every production outcome."
+    },
+    {
+      "before": "helper/case_store.py:_validate_initial_notice_group",
+      "beforeComplexity": 32,
+      "after": [
+        {
+          "id": "helper/issuance_validation.py:_validate_initial_notice_group",
+          "file": "helper/issuance_validation.py",
+          "line": 4,
+          "complexity": 11,
+          "astHash": "76b9c1736009ce408e7cee7dfbab43ddbf8d83a9a349b1ff1c9854a1ddf02171"
+        },
+        {
+          "id": "helper/issuance_validation.py:_selected_citations",
+          "file": "helper/issuance_validation.py",
+          "line": 68,
+          "complexity": 4,
+          "astHash": "6559f68950d7ecc3c5738e4917d225ed85d75146325559aef7b090f7bebb2520"
+        },
+        {
+          "id": "helper/issuance_validation.py:_group_identity_bad",
+          "file": "helper/issuance_validation.py",
+          "line": 39,
+          "complexity": 2,
+          "astHash": "f3460bdb3cfb2a31794b591da22b8a0a273030d2ce2b103c478e7cffa35145a6"
+        },
+        {
+          "id": "helper/issuance_validation.py:_citation_header_bad",
+          "file": "helper/issuance_validation.py",
+          "line": 43,
+          "complexity": 5,
+          "astHash": "8bb3901d844481937e8690116c11068b725b431354bd22d64b76f47273caf065"
+        },
+        {
+          "id": "helper/issuance_validation.py:_citation_source_bad",
+          "file": "helper/issuance_validation.py",
+          "line": 53,
+          "complexity": 6,
+          "astHash": "be5dd8de829e2e685609373278901fc65c5e9f641b2ded418b3964f39964ff3d"
+        },
+        {
+          "id": "helper/issuance_validation.py:_selection_bad",
+          "file": "helper/issuance_validation.py",
+          "line": 64,
+          "complexity": 6,
+          "astHash": "09d63783227385ed29d75869b6565e23fd1bb410b46430941929ca7f5091aa92"
+        }
+      ],
+      "review": "verified bounded responsibility split from source; syntax differs and no AST equivalence claimed",
+      "preserved_operation": "Same authoring5 gate, selected citation grouping and ordered identity/header/source/selection Boolean refusals; store transaction/expected-head/publication authority retained.",
+      "behavioral_support": "audit_store_validation_phases.py; existing issuance/store suites",
+      "scope": "Does not independently prove each imported dependency, callback effect or every production outcome."
+    }
+  ],
+  "remaining_automatic_mapping_limits": {
+    "original": {
+      "javascript": {
+        "baseline": 5566,
+        "current": 5917,
+        "automatic_matches": 5508,
+        "automatic_unmapped": 58,
+        "unmapped_nondebt": 54,
+        "unmapped_nondebt_ids": [
+          "app/modules/accessibility.js:registerA11yDocumentEvents#1/anonymous#1/anonymous#1",
+          "app/modules/case_file_rules.js:issuedSnapshotFault#1/anonymous#1/anonymous#1",
+          "app/modules/case_file_rules.js:correctionHistoryFault#1/anonymous#1",
+          "app/modules/case_file_rules.js:correctionHistoryFault#1/anonymous#2",
+          "app/modules/case_status.js:caseDeadlineFacts#1/anonymous#2",
+          "app/modules/case_status.js:createCaseStatus#1/caseState#1/anonymous#4",
+          "app/modules/case_status.js:createCaseStatus#1/caseState#1/anonymous#5",
+          "app/modules/case_status.js:createCaseStatus#1/caseState#1/anonymous#6",
+          "app/modules/case_status.js:createCaseStatus#1/caseState#1/anonymous#7",
+          "app/modules/case_status.js:createCaseStatus#1/caseState#1/anonymous#8",
+          "app/modules/citation_policy.js:normalizedParcel#1",
+          "app/modules/correction_preparation.js:createCorrectionPreparation#1/correctionChanges#1/anonymous#1",
+          "app/modules/correction_preparation.js:createCorrectionPreparation#1/correctionChanges#1/anonymous#2",
+          "app/modules/correction_preparation.js:createCorrectionPreparation#1/correctionChanges#1/anonymous#3/anonymous#1",
+          "app/modules/correction_preparation.js:createCorrectionPreparation#1/correctionChanges#1/anonymous#3/anonymous#3",
+          "app/modules/correction_preparation.js:createCorrectionPreparation#1/correctionChecks#1/anonymous#1",
+          "app/modules/correction_preparation.js:createCorrectionPreparation#1/correctionChecks#1/anonymous#2",
+          "app/modules/correction_preparation.js:createCorrectionPreparation#1/correctionChecks#1/anonymous#4",
+          "app/modules/correction_preparation.js:createCorrectionPreparation#1/correctionChecks#1/anonymous#6",
+          "app/modules/correction_preparation.js:createCorrectionPreparation#1/makeCorrectionAttempt#1/anonymous#4",
+          "app/modules/correction_preparation.js:createCorrectionPreparation#1/correctionVisitPatch#1/anonymous#1/anonymous#1",
+          "app/modules/deposit_step.js:depositClick#1/anonymous#2",
+          "app/modules/document_delivery.js:createDocumentDelivery#1/emailBody#1/anonymous#1",
+          "app/modules/document_delivery.js:createDocumentDelivery#1/openIssuedCopy#1/anonymous#2",
+          "app/modules/document_delivery.js:createDocumentDelivery#1/openIssuedCopy#1/anonymous#3",
+          "app/modules/document_render.js:noticeCopiesHTML#1/anonymous#3",
+          "app/modules/document_render.js:noticeCopiesHTML#1/anonymous#4/anonymous#1",
+          "app/modules/document_render.js:renderReferralHistory#1/anonymous#4",
+          "app/modules/inspection_history.js:itemHistory#1/anonymous#1/anonymous#1",
+          "app/modules/new_documents.js:statusFault#1",
+          "app/modules/new_documents.js:statusFault#1/anonymous#1",
+          "app/modules/new_documents.js:statusFault#1/anonymous#2",
+          "app/modules/new_documents.js:nothingOutstanding#1",
+          "app/modules/new_documents.js:eligibility#1/anonymous#1",
+          "app/modules/new_documents.js:eligibility#1/anonymous#3",
+          "app/modules/new_documents.js:eligibility#1/anonymous#4",
+          "app/modules/new_documents.js:scopedChooser#1/anonymous#6/anonymous#2",
+          "app/modules/new_documents.js:scopedCaseAction#1/anonymous#4",
+          "app/modules/reinspection.js:buildFollowupDraft#1/anonymous#2",
+          "app/modules/reinspection.js:buildFollowupDraft#1/anonymous#3",
+          "app/modules/reinspection.js:buildFollowupDraft#1/anonymous#4",
+          "app/modules/reinspection.js:followupDraftMessage#1/anonymous#1",
+          "app/modules/reinspection.js:followupDraftMessage#1/anonymous#2",
+          "app/modules/reinspection.js:attachContentCheckTargets#1/anonymous#3",
+          "app/modules/reinspection.js:reinspectionEditableWalkItem#1/anonymous#1",
+          "app/modules/reinspection.js:reinspectionWorksheetChecks#1/anonymous#1/anonymous#1",
+          "app/modules/reinspection.js:reinspectionWorksheetChecks#1/anonymous#4",
+          "app/modules/reinspection.js:reinspectionFocusCheckTarget#1/anonymous#1",
+          "app/modules/reports_screens.js:reportsScreenTablePanel#1/anonymous#3",
+          "app/modules/reports_screens.js:reportsScreenDrawMap#1/style#1",
+          "app/modules/reports_screens.js:reportsScreenDrawMap#1/anonymous#3",
+          "app/modules/reports_services.js:statusAt#1/anonymous#4",
+          "app/modules/reports_services.js:statusAt#1/anonymous#7",
+          "app/modules/snow_cases.js:snowLifecycle#1/anonymous#6"
+        ]
+      },
+      "python": {
+        "baseline": 715,
+        "current": 817,
+        "automatic_matches": 712,
+        "automatic_unmapped": 3,
+        "unmapped_nondebt": 1,
+        "unmapped_nondebt_ids": [
+          "helper/citation_pricing.py:normalized_parcel"
+        ]
+      }
+    },
+    "implementation": {
+      "javascript": {
+        "baseline": 5566,
+        "current": 5917,
+        "automatic_matches": 5508,
+        "automatic_unmapped": 58,
+        "unmapped_nondebt": 54,
+        "unmapped_nondebt_ids": [
+          "app/modules/accessibility.js:registerA11yDocumentEvents#1/anonymous#1/anonymous#1",
+          "app/modules/case_file_rules.js:issuedSnapshotFault#1/anonymous#1/anonymous#1",
+          "app/modules/case_file_rules.js:correctionHistoryFault#1/anonymous#1",
+          "app/modules/case_file_rules.js:correctionHistoryFault#1/anonymous#2",
+          "app/modules/case_status.js:caseDeadlineFacts#1/anonymous#2",
+          "app/modules/case_status.js:createCaseStatus#1/caseState#1/anonymous#4",
+          "app/modules/case_status.js:createCaseStatus#1/caseState#1/anonymous#5",
+          "app/modules/case_status.js:createCaseStatus#1/caseState#1/anonymous#6",
+          "app/modules/case_status.js:createCaseStatus#1/caseState#1/anonymous#7",
+          "app/modules/case_status.js:createCaseStatus#1/caseState#1/anonymous#8",
+          "app/modules/citation_policy.js:normalizedParcel#1",
+          "app/modules/correction_preparation.js:createCorrectionPreparation#1/correctionChanges#1/anonymous#1",
+          "app/modules/correction_preparation.js:createCorrectionPreparation#1/correctionChanges#1/anonymous#2",
+          "app/modules/correction_preparation.js:createCorrectionPreparation#1/correctionChanges#1/anonymous#3/anonymous#1",
+          "app/modules/correction_preparation.js:createCorrectionPreparation#1/correctionChanges#1/anonymous#3/anonymous#3",
+          "app/modules/correction_preparation.js:createCorrectionPreparation#1/correctionChecks#1/anonymous#1",
+          "app/modules/correction_preparation.js:createCorrectionPreparation#1/correctionChecks#1/anonymous#2",
+          "app/modules/correction_preparation.js:createCorrectionPreparation#1/correctionChecks#1/anonymous#4",
+          "app/modules/correction_preparation.js:createCorrectionPreparation#1/correctionChecks#1/anonymous#6",
+          "app/modules/correction_preparation.js:createCorrectionPreparation#1/makeCorrectionAttempt#1/anonymous#4",
+          "app/modules/correction_preparation.js:createCorrectionPreparation#1/correctionVisitPatch#1/anonymous#1/anonymous#1",
+          "app/modules/deposit_step.js:depositClick#1/anonymous#2",
+          "app/modules/document_delivery.js:createDocumentDelivery#1/emailBody#1/anonymous#1",
+          "app/modules/document_delivery.js:createDocumentDelivery#1/openIssuedCopy#1/anonymous#2",
+          "app/modules/document_delivery.js:createDocumentDelivery#1/openIssuedCopy#1/anonymous#3",
+          "app/modules/document_render.js:noticeCopiesHTML#1/anonymous#3",
+          "app/modules/document_render.js:noticeCopiesHTML#1/anonymous#4/anonymous#1",
+          "app/modules/document_render.js:renderReferralHistory#1/anonymous#4",
+          "app/modules/inspection_history.js:itemHistory#1/anonymous#1/anonymous#1",
+          "app/modules/new_documents.js:statusFault#1",
+          "app/modules/new_documents.js:statusFault#1/anonymous#1",
+          "app/modules/new_documents.js:statusFault#1/anonymous#2",
+          "app/modules/new_documents.js:nothingOutstanding#1",
+          "app/modules/new_documents.js:eligibility#1/anonymous#1",
+          "app/modules/new_documents.js:eligibility#1/anonymous#3",
+          "app/modules/new_documents.js:eligibility#1/anonymous#4",
+          "app/modules/new_documents.js:scopedChooser#1/anonymous#6/anonymous#2",
+          "app/modules/new_documents.js:scopedCaseAction#1/anonymous#4",
+          "app/modules/reinspection.js:buildFollowupDraft#1/anonymous#2",
+          "app/modules/reinspection.js:buildFollowupDraft#1/anonymous#3",
+          "app/modules/reinspection.js:buildFollowupDraft#1/anonymous#4",
+          "app/modules/reinspection.js:followupDraftMessage#1/anonymous#1",
+          "app/modules/reinspection.js:followupDraftMessage#1/anonymous#2",
+          "app/modules/reinspection.js:attachContentCheckTargets#1/anonymous#3",
+          "app/modules/reinspection.js:reinspectionEditableWalkItem#1/anonymous#1",
+          "app/modules/reinspection.js:reinspectionWorksheetChecks#1/anonymous#1/anonymous#1",
+          "app/modules/reinspection.js:reinspectionWorksheetChecks#1/anonymous#4",
+          "app/modules/reinspection.js:reinspectionFocusCheckTarget#1/anonymous#1",
+          "app/modules/reports_screens.js:reportsScreenTablePanel#1/anonymous#3",
+          "app/modules/reports_screens.js:reportsScreenDrawMap#1/style#1",
+          "app/modules/reports_screens.js:reportsScreenDrawMap#1/anonymous#3",
+          "app/modules/reports_services.js:statusAt#1/anonymous#4",
+          "app/modules/reports_services.js:statusAt#1/anonymous#7",
+          "app/modules/snow_cases.js:snowLifecycle#1/anonymous#6"
+        ]
+      },
+      "python": {
+        "baseline": 767,
+        "current": 817,
+        "automatic_matches": 764,
+        "automatic_unmapped": 3,
+        "unmapped_nondebt": 1,
+        "unmapped_nondebt_ids": [
+          "helper/citation_pricing.py:normalized_parcel"
+        ]
+      }
+    }
+  },
+  "method_assessment": "AST hashes excluding comments/positions are valid syntax-only evidence. Function names/anonymous ordinals do not establish semantic identity. Unique current syntax can coincide with preexisting implementations or consolidation; six many-to-one JS target conflicts require explicit review. See cohort-collision-review.json. All current complexity attribution is present; that is separate from verified old-to-new operation mapping."
+}
