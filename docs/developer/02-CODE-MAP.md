@@ -1,6 +1,6 @@
 # Code ownership
 
-Current maintenance navigation (Phase 6 start, main dd584ce): use this table for changed owners; the detailed feature descriptions below retain their existing responsibilities.
+Current maintenance navigation (follow-up assessed source `902be70`): use this table for current owners. Detailed stage-specific extraction descriptions below preserve their historical checkpoints; the follow-up ownership update records subsequent changes.
 
 | Task / boundary | Actual owner(s) | Required evidence entry points |
 | --- | --- | --- |
