@@ -12,7 +12,7 @@
   "coupling": {
     "Case work -> Core wiring and startup": 14,
     "Case work -> Documents and history": 20,
-    "Case work -> Feature owners": 23,
+    "Case work -> Feature owners": 22,
     "Case work -> Screens and shell": 22,
     "Case work -> Storage and recovery": 26,
     "Case work -> base": 10,
@@ -59,7 +59,7 @@
     "Storage and recovery -> Case work": 15,
     "Storage and recovery -> Core wiring and startup": 4,
     "Storage and recovery -> Documents and history": 10,
-    "Storage and recovery -> Feature owners": 5,
+    "Storage and recovery -> Feature owners": 4,
     "Storage and recovery -> Screens and shell": 10,
     "Storage and recovery -> base": 6
   }

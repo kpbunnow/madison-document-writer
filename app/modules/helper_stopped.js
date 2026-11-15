@@ -42,7 +42,8 @@ export function showStopped(details = []) {
 export function listenForStop(onStopped) {
   if (typeof window === "undefined" || !("BroadcastChannel" in window) || helperStop.channel) return helperStop.channel;
   try {
-    helperStop.instance = document.querySelector('meta[name="docwriter-instance"]')?.getAttribute("content") || "";
+    const meta = document.querySelector('meta[name="docwriter-instance"]');
+    helperStop.instance = String((meta && Reflect.get(meta, "content")) || "");
     helperStop.channel = new window.BroadcastChannel(HELPER_STOPPED_CHANNEL);
     helperStop.channel.onmessage = (event) => {
       if (event.data?.kind === "stopped" && helperStop.instance && event.data.instance === helperStop.instance && !helperStop.stopped) onStopped();
