@@ -201,6 +201,51 @@ const assert = require("node:assert/strict"),
   document.querySelector("[data-editor-review]").click();
   assert.equal(s.state.modal, null);
   assert.deepEqual(trace, [["capture"]]);
+  // Navigation remains held until the real preflight callback permits it. Issued history blocks a second initial notice.
+  reset();
+  let proceed;
+  const navigation = createEditorEvents({
+    actions: {
+      preflightCase: (...args) => {
+        trace.push(["preflight", ...args.slice(0, 2)]);
+        proceed = args[2];
+      },
+      newDoc: (...args) => trace.push(["new", ...args]),
+    },
+    ui: {
+      render: () => trace.push(["render"]),
+      toast: (message) => trace.push(["toast", message]),
+    },
+  });
+  window.scrollTo = (...args) => trace.push(["scroll", ...args]);
+  s.state.screen = "workspace";
+  navigation.openDocument({ dataset: { open: "missing" } });
+  assert.deepEqual(trace, []);
+  navigation.openDocument({ dataset: { open: "draft" } });
+  assert.equal(s.state.screen, "workspace", "refused or cancelled preflight must not navigate");
+  assert.deepEqual(trace, [["preflight", "case", "document"]]);
+  proceed();
+  assert.equal(s.state.screen, "write");
+  assert.equal(s.state.docId, "draft");
+  assert.deepEqual(trace.slice(1), [["render"], ["scroll", 0, 0]]);
+  reset();
+  s.state.screen = "workspace";
+  navigation.newNotice({ dataset: { new: "case" } });
+  assert.equal(s.state.screen, "workspace");
+  assert.deepEqual(trace, [["preflight", "case", "document draft"]]);
+  proceed();
+  assert.equal(s.state.screen, "write");
+  assert.deepEqual(trace.slice(1), [["render"]]);
+  reset();
+  s.DOCS[0].draft = false;
+  navigation.newNotice({ dataset: { new: "case" } });
+  assert.deepEqual(trace, [["toast", "This case already has an official notice"]]);
+  reset();
+  s.DOCS = [];
+  navigation.newNotice({ dataset: { new: "case" } });
+  assert.deepEqual(trace, [["preflight", "case", "new notice"]]);
+  proceed();
+  assert.deepEqual(trace.slice(1), [["new", "case", "notice"]]);
   dom.window.close();
   console.log(
     "PASS editor gestures: single registration, reorder/cancel, live lock, replaced source/DOM refusal, keyboard, optional native failures, literal paste and review/command routing",
