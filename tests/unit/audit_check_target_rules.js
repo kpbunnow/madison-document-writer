@@ -33,7 +33,10 @@ const assert = require("node:assert/strict"),
     new Function("today", "module", "exports", b.outputFiles[0].text)(new Date("2026-10-29T12:00:00Z"), box, box.exports);
     return box.exports;
   }
-  const [current, legacy] = await Promise.all([compile(source), compile(liftedSplice(source, "reinspection", "attachCheckTargets", reference))]);
+  const [current, legacy] = await Promise.all([
+    compile('export * from "./reinspection.js";'),
+    compile(liftedSplice(source, "reinspection", "attachCheckTargets", reference)),
+  ]);
   function run(api, input) {
     const x = structuredClone(input),
       calls = [];

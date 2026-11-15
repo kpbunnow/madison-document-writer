@@ -20,6 +20,10 @@ The complete original operation and its seven helpers were retained byte-for-byt
 
 New tests execute real operations with synthetic data: verified save refusal/uncertainty/retry and later edits; Reports root composition/load failure/retry/supersession; correction pending/withdrawal/review and asynchronous control replacement; helper route status/body/refusal contracts; and gate CLI/stage/receipt/assembly interruption and runtime drift. Gate orchestration executes the maintained code against an isolated synthetic root, with controlled process boundaries. It never invokes a nested full gate or consumes the parent run's evidence. No actual release is packaged or deployed.
 
+Additional failure tests execute the original maintained packager with only its declared root bound to disposable synthetic source/evidence/output. They verify its four test archives and refuse fast, failed, stale, missing, unclean and malformed publication evidence. The diagnostic CLI tests verify source/byte drift, actual receipt fields, analyzer command failure and independent production/test copies; optional analyzers are controlled at their process boundary and no parent gate evidence is borrowed.
+
+Nine current-side differential loaders import their actual defining owner rather than compiling a text copy as anonymous stdin. Their frozen counterparts, all seeded scenarios, assertions, interruption limits and module-state isolation remain. This is better source attribution and real module loading, **not new scenario or coverage assurance credit by itself**. No collected file or statement is removed from a denominator.
+
 The mutation pilot retains its original cases, follows relocated source patterns, and adds nine syntax-valid critical regressions for these changes. Complete source-bound coverage must retain every unexecuted file and new helper. Selected suite passes are not target closure; browser-executed and developer-JavaScript coverage limitations remain explicit.
 
 ## F4: remove an unnecessary authoring dependency

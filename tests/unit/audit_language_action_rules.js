@@ -22,7 +22,7 @@ const assert = require("node:assert/strict"),
   const allBranch = '    } else if (button.hasAttribute("data-language-all")) {';
   assert.ok(reference.includes(allBranch));
   const [current, legacy] = await Promise.all([
-    compile(source),
+    compile('export * from "./language_actions.js";'),
     compile(
       source.slice(0, source.indexOf("export function")) +
         reference.replace(allBranch, allBranch + '\n      if (picker) editor.state.pickerList = "";'),

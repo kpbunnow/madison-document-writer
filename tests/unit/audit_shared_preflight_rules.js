@@ -27,7 +27,7 @@ const assert = require("node:assert/strict"),
     return box.exports;
   }
   const [current, legacy] = await Promise.all([
-    compile(fs.readFileSync("app/modules/language_catalog.js", "utf8")),
+    compile('export * from "./language_catalog.js";'),
     compile(fs.readFileSync("tests/fixtures/language_catalog_reference.txt", "utf8")),
   ]);
   const snapshot = (v) => JSON.parse(JSON.stringify(v, (_, x) => (typeof x === "function" ? "<callback>" : x)));

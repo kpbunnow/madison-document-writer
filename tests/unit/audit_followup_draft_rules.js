@@ -33,7 +33,10 @@ const assert = require("node:assert/strict"),
     new Function("today", "module", "exports", b.outputFiles[0].text)(new Date("2026-10-28T12:00:00Z"), box, box.exports);
     return box.exports;
   }
-  const [current, legacy] = await Promise.all([compile(source), compile(liftedSplice(source, "reinspection", "docFromReinspection", reference))]);
+  const [current, legacy] = await Promise.all([
+    compile('export * from "./reinspection.js";'),
+    compile(liftedSplice(source, "reinspection", "docFromReinspection", reference)),
+  ]);
   let seed = 20261103,
     checked = 0;
   const random = (n) => {
