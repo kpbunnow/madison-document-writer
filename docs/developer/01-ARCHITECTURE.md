@@ -1,4 +1,4 @@
-# R82 current architecture
+# Current architecture
 
 The runtime overview and latest ownership sections describe the current program. Intermediate extraction sections retain their stage-specific ownership/counts as provenance; MAINTAINABILITY-ASSESSMENT.md records the current independent follow-up assessment and links the preserved historical architecture audit. Release-by-release history is in CHANGELOG.md, the current and recent release reviews ([R82](R82-REVIEW.md), [R81](R81-REVIEW.md), [R80](R80-REVIEW.md) and [R79](R79-REVIEW.md) here, older ones in docs/history/) and docs/history/DOCUMENTATION-RELEASE-NARRATIVE.md.
 

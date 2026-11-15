@@ -10,6 +10,8 @@ Keep one focused concern per review PR; related corrections from one approved ma
 
 New source files use descriptive snake_case; JavaScript functions use camelCase, Python functions use snake_case, and immutable constants use UPPER_SNAKE_CASE. New tests use feature names. Retain the test index and former-name map for historical suites.
 
+Use release-neutral filenames and titles for active modules and living guides. `version.json` owns the assigned release and independently versioned format identities; derive current product labels through the existing build and synchronization steps. Keep release-specific names on dated reviews and completed development prompts, and preserve historical regression names, frozen references and compatibility cutoffs. Completed prompts retain their historical banners and existing paths for incoming links; their instructions do not authorize current work.
+
 ## Stable names and rule ownership
 
 These names serve distinct roles and stay stable:
@@ -116,7 +118,7 @@ Retained historical baselines can keep their original calendar labels and derive
 
 Keep the publication input and output outside maintained source. Record release identity, source commit/content digest, clean-source state, actual toolchain, manifest/artifact hashes and evidence. In a Git checkout packaging refuses known uncommitted source. Offline extracted source retains its content evidence and can verify without .git. The existing installer verification and unsigned manifest/NTFS trust model are unchanged.
 
-For an assigned release, edit version.json, run tools/sync_version.py, update the manual source’s current Release/Helper/date line and the current developer first-line release tokens, and create the assigned `Rnn-REVIEW.md`. Keep historical labels and renderer cutoffs unchanged. Update living acceptance/readiness records in place and let the build render their package copies. Regenerate all manual editions together if manual source/style or release identity changes. Publish the deploy ZIP hash separately and retain the prior complete release for deliberate rollback. Do not reuse a published identity for different bytes.
+For an assigned release, edit version.json, run tools/sync_version.py, update the manual source’s current Release/Helper/date line, keep living guide titles release-neutral, and create the assigned `Rnn-REVIEW.md`. Keep historical labels and renderer cutoffs unchanged. Update living acceptance/readiness records in place and let the build render their package copies. Regenerate all manual editions together if manual source/style or release identity changes. Publish the deploy ZIP hash separately and retain the prior complete release for deliberate rollback. Do not reuse a published identity for different bytes.
 
 ## Acceptance and completion
 
