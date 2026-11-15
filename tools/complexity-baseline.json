@@ -31,7 +31,7 @@
     "app/modules/recovery_events.js:createRecoveryEvents#1:max-lines-per-function": 167,
     "app/modules/reinspection_events.js:createReinspectionEvents#1:max-lines-per-function": 201,
     "app/modules/reports_services.js:createReportsServices#1:max-lines-per-function": 137,
-    "app/modules/shared_case_storage.js:createSharedCaseStorage#1:max-lines-per-function": 99,
+    "app/modules/shared_case_storage.js:createSharedCaseStorage#1:max-lines-per-function": 96,
     "app/modules/storage_status.js:createStorageStatus#1:max-lines-per-function": 87,
     "app/modules/utility_events.js:createUtilityEvents#1:max-lines-per-function": 84,
     "app/modules/worksheet_workflow.js:createWorksheetWorkflow#1:max-lines-per-function": 114,

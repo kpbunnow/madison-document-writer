@@ -17,7 +17,10 @@
       "app/modules/publication_preparation.js",
       "app/modules/publication_workflow.js",
       "app/modules/record_integrity.js",
-      "app/modules/shared_case_storage.js"
+      "app/modules/shared_case_storage.js",
+      "app/modules/case_store_port.js",
+      "app/modules/record_commit.js",
+      "app/modules/helper_requests.js"
     ]
   },
   "python": {

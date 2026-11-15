@@ -9,6 +9,7 @@ const root = path.resolve(__dirname, "../..");
 const directory = path.join(root, "app/modules");
 const graph = moduleGraph(directory);
 const allowed = {
+  "case_store_port.js": ["./record_values.js"],
   "ui_icons.js": [],
   "address_format.js": ["./mailing_rules.js"],
   "presentation_format.js": [],
@@ -206,7 +207,7 @@ const scopedServices = {
     "./screen_html.js",
   ],
   "storage_probe.js": ["./calendar.js", "./workspace_state.js"],
-  "helper_requests.js": ["./helper_transport.js"],
+  "helper_requests.js": ["./case_store_port.js", "./helper_transport.js"],
   "case_summary_adapter.js": [
     "./case_projection.js",
     "./data/inspectors.js",
@@ -219,7 +220,14 @@ const scopedServices = {
   "folder_connections.js": ["./workspace_state.js", "./startup_state.js"],
   "writer_startup.js": ["./startup_state.js", "./startup_state.js"],
   "case_workspace_actions.js": ["./editor_state.js", "./record_values.js", "./case_file_rules.js", "./writer_queries.js", "./workspace_state.js"],
-  "reinspection_entry.js": ["./editor_state.js", "./inspection_facts.js", "../assets/shared.js", "./writer_queries.js", "./workspace_state.js"],
+  "reinspection_entry.js": [
+    "./case_projection.js",
+    "./editor_state.js",
+    "./inspection_facts.js",
+    "../assets/shared.js",
+    "./writer_queries.js",
+    "./workspace_state.js",
+  ],
   "local_case_files.js": [],
   "draft_save_controls.js": ["./editor_state.js", "./workspace_state.js", "./saved_work.js"],
   "case_folder_workflow.js": [
@@ -314,6 +322,7 @@ const scopedServices = {
   "catalog_forms.js": ["./document_rules.js", "./data/library.js", "./catalog_state.js"],
   "record_history.js": ["../assets/shared.js", "./writer_queries.js", "./presentation_format.js", "./editor_state.js", "./screen_html.js"],
   "worksheet_workflow.js": [
+    "./case_projection.js",
     "./editor_state.js",
     "./deadline_assignment.js",
     "./inspection_facts.js",
@@ -386,7 +395,7 @@ const scopedServices = {
     "./case_file_rules.js",
     "./calendar.js",
     "./workspace_state.js",
-    "./contracts.js",
+    "./case_store_port.js",
   ],
   "pending_case_saves.js": ["./calendar.js", "./writer_queries.js", "./workspace_state.js"],
   "case_save_workflow.js": ["./case_file_rules.js", "./calendar.js", "./writer_queries.js", "./workspace_state.js"],
@@ -431,6 +440,7 @@ const scopedServices = {
     "./workspace_state.js",
   ],
   "record_commit.js": [
+    "./case_store_port.js",
     "./editor_state.js",
     "./case_file_rules.js",
     "./record_values.js",

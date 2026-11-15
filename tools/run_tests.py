@@ -58,6 +58,7 @@ subprocess.run(
         "node_modules/typescript/bin/tsc",
         "--allowJs",
         "--checkJs",
+        "--strict",
         "--noEmit",
         "--target",
         "ES2022",

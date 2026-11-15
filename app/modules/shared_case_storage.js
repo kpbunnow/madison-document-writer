@@ -1,27 +1,9 @@
 import { SUMMARY_DIR } from "../assets/shared.js";
-import { caseDetails, stableJSON, clone } from "./record_values.js";
 import { summaryName } from "./case_file_rules.js";
 import { nowISO } from "./calendar.js";
 import { workspaceState } from "./workspace_state.js";
-import { caseStoreRequest } from "./contracts.js";
+import { saveCaseStore, applyCommittedCase } from "./case_store_port.js";
 // Folder/helper write access; validation, revision and projection authority remain supplied.
-
-function applyCommittedCase(services, file, result) {
-  const current = workspaceState.CASES.find((k) => k.number === result.file.case.number);
-  if (current) {
-    const saved = caseDetails(result.file.case),
-      submitted = caseDetails(file.case);
-    new Set(Object.keys(submitted).concat(Object.keys(saved))).forEach((key) => {
-      if (key === "id") return;
-      if (stableJSON(current[key]) === stableJSON(submitted[key])) {
-        if (saved[key] === undefined) delete current[key];
-        else current[key] = clone(saved[key]);
-      }
-    });
-    services.mergeCaseEvents(current, clone(result.file));
-    services.project();
-  }
-}
 
 function recordFolderWriteFailure(name, err) {
   const n = (err && err.name) || "";
@@ -71,13 +53,10 @@ export function createSharedCaseStorage(services) {
           base = services.COMMITTED.get(summaryName(file.case));
         const local = workspaceState.CASES.find((k) => k.number === file.case.number),
           checkpoint = local && workspaceState.SAVE_CHECKPOINTS[local.id];
-        const result = await services.helperJSON(
-          "/cases/save",
-          caseStoreRequest({ name: name, file: file, baseRevision: (base && base.revision) || "", baseCase: checkpoint ? checkpoint.case : null }),
-        );
+        const result = await saveCaseStore(services.helperJSON, name, file, base, checkpoint, undefined, services);
         if (result.file.schema >= 5) await services.recordIntegrity.verify(result.file, result.integrity);
         services.COMMITTED.set(summaryName(result.file.case), result);
-        applyCommittedCase(services, file, result);
+        applyCommittedCase(services, workspaceState.CASES, file, result);
         workspaceState.LASTWRITE = { name: result.name, ok: true, why: "", at: nowISO(), bytes: body.length };
         return { ok: true, file: result.file, name: result.name };
       } catch (error) {

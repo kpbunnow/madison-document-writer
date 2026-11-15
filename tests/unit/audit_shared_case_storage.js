@@ -69,6 +69,13 @@ for (const [file, spec] of Object.entries(interfaces)) {
       used.add(n.property.name);
     }
   });
+  if (file === "shared_case_storage")
+    walk(
+      parse("case_store_port").body.find((n) => n.declaration?.id?.name === "applyCommittedCase"),
+      (n) => {
+        if (n.type === "MemberExpression" && n.object.name === "services") used.add(n.property.name);
+      },
+    );
   assert.deepEqual([...used].sort(), spec.fields.slice().sort());
   const entry = declarations.find((n) => n.id.name === spec.name);
   assert.equal(entry.init.callee.name, spec.ctor);

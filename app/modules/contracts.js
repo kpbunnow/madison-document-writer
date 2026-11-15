@@ -1,9 +1,13 @@
 // @ts-check
-/** @typedef {{id:string,at:string,by?:string,type:string,payload:Record<string,unknown>}} CaseEvent */
+/** @typedef {{id:string,at:string,by?:string,type:string,payload:{expectedHead?:string[]|null,[key:string]:unknown}}} CaseEvent */
 /** @typedef {{id:string,number:string,address?:string,owner?:string,[key:string]:unknown}} CaseIdentity */
 /** @typedef {{format:'madison-case-file',schema:4|5,case:CaseIdentity,events:CaseEvent[],inspectors:Record<string,unknown>[]}} CaseFile */
 /** @typedef {{name:string,file:CaseFile,baseRevision:string,baseCase:CaseIdentity|null,idempotencyEvent?:string}} CaseStoreRequest */
-/** @typedef {{ok:true,file:CaseFile,name:string,revision:string}|{ok:false,error:string,missing?:boolean}} CaseStoreResult */
+/** Acknowledgments expose only the facts actually read by the save coordinators. Historical optional fields
+ * remain optional; the integrity verifier and helper, not these declarations, validate issued content.
+ * @typedef {{case:{number:string,[key:string]:unknown},events:{id:string}[],schema?:number,[key:string]:unknown}} SavedCaseFile */
+/** @typedef {{file:SavedCaseFile,name:string,revision:string,integrity?:unknown}} CaseStoreAcknowledgment */
+/** @typedef {{ok:true,file:CaseFile,name:string,revision:string,integrity?:unknown}|{ok:false,error:string,missing?:boolean}} CaseStoreResult */
 /** @param {string} id @param {string} at @param {string} by @param {string} type @param {Record<string,unknown>} payload @returns {CaseEvent} */
 export function makeEvent(id, at, by, type, payload) {
   return { id, at, by, type, payload };
