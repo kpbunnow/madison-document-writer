@@ -1,5 +1,34 @@
 # Release changelog
 
+## 2026-11-15 R83 — Release package
+
+Release package assigned on the owner's request after R82 (helper 2026.11.15.84, build 84; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R83 upgrades R82. Every PC still needs Python 3.14.
+
+### Fewer steps in case work
+
+- A fill-in bubble no longer opens a text box. Select it (click or Tab) and start typing: the first letter replaces the bubble and the rest goes straight into the order text. Tab and Shift+Tab move between open bubbles, Undo restores the bubble, and plain-text paste fills it (PRs #508, #510).
+
+### Corrections
+
+- An owner mailing line that the Accela report repeats, usually the street line, prints once on drafts, citations, owner copies and newly issued documents. Numbered floor and unit lines are kept. Issued documents keep their printed lines (PRs #507, #510).
+- A case lookup or import confirmation cancelled by leaving Import, and a Reports load superseded by a newer one, no longer apply their late results (PR #521).
+- Dragging an item to reorder it is abandoned, not applied, when the document or table was replaced during the drag (PR #529).
+- The helper reads parcel numbers, owner mailing lines and street keys with the same whitespace and digit rules as the browser (PR #525).
+
+### Maintenance
+
+- The 90+ maintainability plan, phases 0 to 7 (PRs #511 to #532):
+  - complexity reductions in the helper and Writer, with differential checks against the retained originals;
+  - calculation phases with explicit lookups;
+  - checked save and acknowledgment contracts;
+  - tests that construct real owners instead of the whole application;
+  - cross-runtime rule inventories, diagnostics runbooks and the final assessment.
+- There is no intended change in behavior beyond the items above.
+
+### Release verification
+
+- The full local gate and GitHub's Full gate passed on the exact release head. Native Windows and staff checks remain with S83-1 and S83-2.
+
 ## 2026-11-13 R82 — Release package
 
 Release package assigned on the owner's request after R81 (helper 2026.11.13.83, build 83; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R82 upgrades R81. Every PC still needs Python 3.14.
