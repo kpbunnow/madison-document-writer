@@ -564,3 +564,5 @@ R33 court/mandatory-appearance/library correction now shares the focused citatio
 `audit_ui_timer_settlement.js` runs isolated positive and negative teardown checks: real DOM focus/render completion, every short/long callback, leaked application-interval refusal, callback failure and completion rejection. It preserves the original timer guard while adapting to jsdom31's pending rendering interval.
 
 Full Writer frame/modal/worksheet copy retirement preserves all seeded scenarios and replaces markup equality with field/action, escaping, state and adapter-order contracts; see docs/developer/SCREEN-BEHAVIOR-CONTRACTS.md. Model, issued-history and print fixtures remain independently protected.
+
+- `audit_publication_owner.py`: retained complete publication source, family/refusal/callback order and locked-store no-publication on failure.
