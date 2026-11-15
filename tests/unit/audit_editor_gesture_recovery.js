@@ -34,6 +34,7 @@ const assert = require("node:assert/strict"),
   }
   const api = createEditorEvents({
     actions: {
+      captureWork: () => trace.push(["capture"]),
       structEditable: (d) => {
         trace.push(["editable", d.id]);
         return editable;
@@ -45,6 +46,7 @@ const assert = require("node:assert/strict"),
       moveItem: (...args) => trace.push(["move", ...args]),
     },
     ui: {
+      render: () => trace.push(["render"]),
       refreshSheet: () => {
         trace.push(["refresh"]);
         draw();
@@ -60,6 +62,7 @@ const assert = require("node:assert/strict"),
     "registerReorderKeys",
     "registerDatePicker",
     "registerPlainPaste",
+    "registerReviewCommands",
   ]) {
     api[method](document);
     api[method](document);
@@ -159,9 +162,48 @@ const assert = require("node:assert/strict"),
     },
   });
   assert.deepEqual(pasted, ["insertText", false, "<b>literal text</b>"]);
+  // Actual review/command routing captures current work and leaves target readiness with the target control.
+  reset();
+  document.body.insertAdjacentHTML(
+    "beforeend",
+    '<button data-editor-review>Review</button><button data-editor-command="command-target">Run</button><button id="command-target" disabled>Target</button><div class="topbar"><button class="editor-primary" disabled>Primary</button></div><button data-mobile-primary>Mobile</button>',
+  );
+  s.state.picker = true;
+  document.querySelector("[data-editor-review]").click();
+  assert.equal(s.state.picker, false);
+  assert.equal(s.state.modal, "review");
+  assert.deepEqual(trace, [["capture"], ["render"]]);
+  trace = [];
+  const target = document.getElementById("command-target"),
+    command = document.querySelector("[data-editor-command]");
+  let commandClicks = 0,
+    primaryClicks = 0;
+  target.addEventListener("click", () => commandClicks++);
+  command.click();
+  assert.equal(commandClicks, 0);
+  assert.equal(command.disabled, false);
+  target.disabled = false;
+  command.click();
+  assert.equal(commandClicks, 1);
+  assert.equal(command.disabled, true);
+  command.click();
+  assert.equal(commandClicks, 1);
+  const primary = document.querySelector(".editor-primary");
+  primary.addEventListener("click", () => primaryClicks++);
+  document.querySelector("[data-mobile-primary]").click();
+  assert.equal(primaryClicks, 0);
+  primary.disabled = false;
+  document.querySelector("[data-mobile-primary]").click();
+  assert.equal(primaryClicks, 1);
+  s.DOCS = [];
+  s.state.modal = null;
+  trace = [];
+  document.querySelector("[data-editor-review]").click();
+  assert.equal(s.state.modal, null);
+  assert.deepEqual(trace, [["capture"]]);
   dom.window.close();
   console.log(
-    "PASS editor gestures: single registration, reorder/cancel, live lock, replaced source/DOM refusal, keyboard, optional native failures and literal paste",
+    "PASS editor gestures: single registration, reorder/cancel, live lock, replaced source/DOM refusal, keyboard, optional native failures, literal paste and review/command routing",
   );
 })().catch((e) => {
   console.error(e);
