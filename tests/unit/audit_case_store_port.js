@@ -172,6 +172,11 @@ const assert = require("node:assert/strict"),
   assert.ok(draft.publicationEvents);
   assert.equal(s.PENDING.length, 1);
   assert.deepEqual(traces, ["fetch", "verify"]);
+  payload = { ok: true, ...ack, file: { ...file, case: { number: 42 } } };
+  assert.equal(await api.commitAmendment("case", attempt, draft), false);
+  assert.equal(committed.size, 0);
+  assert.equal(draft.pendingAmendment, attempt);
+  assert.equal(s.DOCS[0], draft);
   // Both proof refusals and HTTP 5xx remain uncertain; HTTP 4xx is definitive.
   proofFault = true;
   payload = { ok: true, ...ack };

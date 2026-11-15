@@ -566,3 +566,10 @@ R33 court/mandatory-appearance/library correction now shares the focused citatio
 Full Writer frame/modal/worksheet copy retirement preserves all seeded scenarios and replaces markup equality with field/action, escaping, state and adapter-order contracts; see docs/developer/SCREEN-BEHAVIOR-CONTRACTS.md. Model, issued-history and print fixtures remain independently protected.
 
 - `audit_publication_owner.py`: retained complete publication source, family/refusal/callback order and locked-store no-publication on failure.
+
+- `audit_case_store_port.js`: actual checked producer/verified transport/ack composition; uncertain/malformed response retains current exact retries and later edits.
+- `audit_continuing_item_consumers.js`: actual entry/worksheet continuing-item consumers; prior compliance, current/draft/source exclusions and live replacements at original checkpoints.
+- `audit_gate_orchestration.py`: real gate CLI/producers/sealing/assembly in a synthetic tree; interruption, stale evidence, runtime drift and fast-mode refusal.
+- `audit_helper_route_refusals.py`: actual helper handlers retain status/refusal contracts and local work under subordinate failures; HTTP security remains with session suites.
+- `audit_reports_startup.js`: actual Reports root composition, saved preferences, authenticated load refusal/retry and superseded reads in a synthetic DOM.
+- `audit_correction_event_outcomes.js`: actual correction actions protect pending work/issued sources and restore current controls after asynchronous actions.
