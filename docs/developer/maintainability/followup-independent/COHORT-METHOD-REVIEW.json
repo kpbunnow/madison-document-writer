@@ -1,0 +1,103 @@
+{
+  "source": "902be70db582a66ec54a0e2e747b880db5b852e2",
+  "receiptSha256": "25b5a2170b52ecdd06fbfde40a682aa7560ffddacbd07848040cf2c986230e3e",
+  "catalogSha256": "8405ff2fea8d0d5cfe137771a15d4f614eb12cf13e61c7d3999d4b88ad2ca7cc",
+  "allScopedSourceHashesVerified": 238,
+  "scriptsVerified": 2,
+  "priorCatalogHashesVerified": 3,
+  "allCurrentComplexitiesAttributed": {
+    "javascript": 5921,
+    "python": 820
+  },
+  "summary": {
+    "original": {
+      "javascript": {
+        "baselineFunctions": 5566,
+        "currentFunctions": 5921,
+        "classifications": {
+          "same-id-syntax-unchanged": 5205,
+          "same-identity-changed-syntax": 192,
+          "unreserved-equivalent-syntax-candidate": 132
+        },
+        "unchangedAbove10": 126,
+        "unmappedCount": 37
+      },
+      "python": {
+        "baselineFunctions": 715,
+        "currentFunctions": 820,
+        "classifications": {
+          "same-id-syntax-unchanged": 672,
+          "same-identity-changed-syntax": 13,
+          "unreserved-equivalent-syntax-candidate": 25
+        },
+        "unchangedAbove10": 112,
+        "unmappedCount": 5
+      }
+    },
+    "implementation": {
+      "javascript": {
+        "baselineFunctions": 5566,
+        "currentFunctions": 5921,
+        "classifications": {
+          "same-id-syntax-unchanged": 5214,
+          "same-identity-changed-syntax": 183,
+          "unreserved-equivalent-syntax-candidate": 132
+        },
+        "unchangedAbove10": 126,
+        "unmappedCount": 37
+      },
+      "python": {
+        "baselineFunctions": 767,
+        "currentFunctions": 820,
+        "classifications": {
+          "same-id-syntax-unchanged": 709,
+          "same-identity-changed-syntax": 28,
+          "unreserved-equivalent-syntax-candidate": 25
+        },
+        "unchangedAbove10": 112,
+        "unmappedCount": 5
+      }
+    },
+    "corrected": {
+      "javascript": {
+        "baselineFunctions": 5917,
+        "currentFunctions": 5921,
+        "classifications": {
+          "same-id-syntax-unchanged": 5888,
+          "same-identity-changed-syntax": 22,
+          "unreserved-equivalent-syntax-candidate": 3
+        },
+        "unchangedAbove10": 127,
+        "unmappedCount": 4
+      },
+      "python": {
+        "baselineFunctions": 819,
+        "currentFunctions": 820,
+        "classifications": {
+          "same-id-syntax-unchanged": 811,
+          "unreserved-equivalent-syntax-candidate": 5,
+          "same-identity-changed-syntax": 1
+        },
+        "unchangedAbove10": 129,
+        "unmappedCount": 2
+      }
+    }
+  },
+  "independentlyReviewedMoves": [
+    "Complete publication operation plus7helpers to publication_validation with explicit former globals; coordinator retains lock/history/effects.",
+    "Real record_commit mergeSaved algorithm to checked mergeSavedCase; current case lookup remains post-await.",
+    "Real shared_case_storage applyCommittedCase to checked port; live cases supplied at retained checkpoint."
+  ],
+  "limits": [
+    "AST same-id equality is syntax only, not semantic/import/effect proof.",
+    "Anonymous ordinal changes and unique unreserved equivalent syntax are candidate correspondences only, not actual moves or improvement credit.",
+    "Many-to-one syntax collisions are allowed in candidates and no global identity guarantee is inferred.",
+    "Historical debt split/nondebt unmapped functions remain visible and do not leave full-scope complexity denominator.",
+    "Cohort algorithm is reviewed and inputs/hash binding verified, not a new semantic proof or independent full remeasurement."
+  ],
+  "duplicationReceiptSha256": "1d6fbac3659dfcc7f9c56adbc05c17ff47a13d9a79c4d8d3299097b4c9824263",
+  "duplicationCandidateCount": 1,
+  "duplicationCandidateTokens": [
+    97
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "source": "902be70db582a66ec54a0e2e747b880db5b852e2",
+  "sourceClean": true,
+  "receiptSha256": "c81e4351ac21a426944d6f903a9edc16fe0068d309a202c43614e4c60fbecd07",
+  "verifiedFullInputHashes": 1271,
+  "configuredUniqueCompleteIds": 46,
+  "counts": {
+    "killed": 46,
+    "survived": 0,
+    "timeout": 0,
+    "invalid": 0
+  },
+  "baselineFailures": [],
+  "detailCheck": "Every configured ID/file/category matches; each killed mutant fails a named configured suite.",
+  "limits": [
+    "Hand-seeded scoped pilot, not global mutation adequacy; receipt contains failing suite names rather than every assertion stdout."
+  ]
+}

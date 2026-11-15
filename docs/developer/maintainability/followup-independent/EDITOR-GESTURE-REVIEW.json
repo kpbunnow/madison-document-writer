@@ -1,0 +1,129 @@
+{
+  "baseline": "4021c774",
+  "candidate": "working tree after 4021c774; exact source SHA256 recorded per scenario",
+  "probeSha256": "60dd6fcbd12c0dd6e857eb447875743103f6e6ca5e50e675f6b82e4e656903a8",
+  "rows": [
+    {
+      "version": "before",
+      "kind": "normal",
+      "sourceSha256": "a66dd1244991e7a213035ee419c16576b4b63927a90d1ea74553d05e0f38418f",
+      "order": [
+        "b",
+        "a"
+      ],
+      "dirty": true,
+      "trace": [
+        "liveEditable",
+        "renumber",
+        "refresh"
+      ],
+      "dragCleared": true
+    },
+    {
+      "version": "before",
+      "kind": "replacement",
+      "sourceSha256": "a66dd1244991e7a213035ee419c16576b4b63927a90d1ea74553d05e0f38418f",
+      "order": [
+        "b",
+        "a"
+      ],
+      "dirty": true,
+      "trace": [
+        "liveEditable",
+        "renumber",
+        "refresh"
+      ],
+      "dragCleared": true
+    },
+    {
+      "version": "before",
+      "kind": "detached",
+      "sourceSha256": "a66dd1244991e7a213035ee419c16576b4b63927a90d1ea74553d05e0f38418f",
+      "order": [
+        "b",
+        "a"
+      ],
+      "dirty": true,
+      "trace": [
+        "liveEditable",
+        "renumber",
+        "refresh"
+      ],
+      "dragCleared": true
+    },
+    {
+      "version": "before",
+      "kind": "locked",
+      "sourceSha256": "a66dd1244991e7a213035ee419c16576b4b63927a90d1ea74553d05e0f38418f",
+      "order": [
+        "a",
+        "b"
+      ],
+      "dirty": false,
+      "trace": [
+        "liveEditable"
+      ],
+      "dragCleared": true
+    },
+    {
+      "version": "candidate",
+      "kind": "normal",
+      "sourceSha256": "d355f651efcd2f4064239906ad0c6f3707fb1899e5aed73db60f3124d8bb3c58",
+      "order": [
+        "b",
+        "a"
+      ],
+      "dirty": true,
+      "trace": [
+        "liveEditable",
+        "renumber",
+        "refresh"
+      ],
+      "dragCleared": true
+    },
+    {
+      "version": "candidate",
+      "kind": "replacement",
+      "sourceSha256": "d355f651efcd2f4064239906ad0c6f3707fb1899e5aed73db60f3124d8bb3c58",
+      "order": [
+        "a",
+        "b"
+      ],
+      "dirty": false,
+      "trace": [],
+      "dragCleared": true
+    },
+    {
+      "version": "candidate",
+      "kind": "detached",
+      "sourceSha256": "d355f651efcd2f4064239906ad0c6f3707fb1899e5aed73db60f3124d8bb3c58",
+      "order": [
+        "a",
+        "b"
+      ],
+      "dirty": false,
+      "trace": [],
+      "dragCleared": true
+    },
+    {
+      "version": "candidate",
+      "kind": "locked",
+      "sourceSha256": "d355f651efcd2f4064239906ad0c6f3707fb1899e5aed73db60f3124d8bb3c58",
+      "order": [
+        "a",
+        "b"
+      ],
+      "dirty": false,
+      "trace": [
+        "liveEditable"
+      ],
+      "dragCleared": true
+    }
+  ],
+  "conclusion": "Baseline reorders replacement work and work behind detached DOM; candidate refuses both, preserves normal/live-lock behavior, clears transient drag first.",
+  "limits": [
+    "JSDOM synthetic gestures; no native/browser/City acceptance.",
+    "Candidate stores gesture identity only; live structEditable remains the authority at pointerup.",
+    "No repository source was edited."
+  ]
+}

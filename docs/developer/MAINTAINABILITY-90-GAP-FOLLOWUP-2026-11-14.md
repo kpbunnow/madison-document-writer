@@ -37,3 +37,7 @@ Acceptance: independently reproducible before/after maintenance exercise, comple
 ## Delivery and scoring
 
 Keep these as focused review batches with targeted checks and Full gate, PR format, CodeQL/security and Windows on each final exact head. Measure after actual implementation; rerun affected coverage, contract/negative/compatibility and unchanged/moved cohorts. An independent reviewer then re-scores all twenty original criteria with concrete deductions. The target remains open unless at least 90/100, every dimension at least 17/20 and every criterion at least 3/5 are actually earned. No release identity change, packaging, deployment or City/native/staff/legal acceptance is part of this follow-up document.
+
+## Delivered follow-up, 2026-11-15
+
+The above is the original proposal, not a claim that work existed on its proposal date. F1–F4 are now delivered through #528–#530. [Final independent assessment](MAINTAINABILITY-FINAL-2026-11-15.md) records 90/100, original target result **met**, full measured denominators, exact-source receipts and remaining deductions. Historical score87 and failed intermediate targets remain intact.
