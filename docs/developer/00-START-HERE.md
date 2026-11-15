@@ -8,7 +8,7 @@ Madison Building Inspection Document Writer is an offline Windows browser applic
 | --- | --- |
 | [01-ARCHITECTURE.md](01-ARCHITECTURE.md) | Runtime, modules, import, documents and authoring versions, helper storage, PDFs, security, installation and build |
 | [02-CODE-MAP.md](02-CODE-MAP.md) | Which module owns what |
-| [MAINTAINABILITY-ASSESSMENT.md](MAINTAINABILITY-ASSESSMENT.md) | Current Phase 7 strict87/100 assessment, historical snapshots and unclosed90-point target |
+| [MAINTAINABILITY-ASSESSMENT.md](MAINTAINABILITY-ASSESSMENT.md) | Current independent strict 90/100 assessment, historical snapshots and remaining evidence limits |
 | [MODULE-CLEANUP.md](MODULE-CLEANUP.md) | Authorized cleanup increments, dependency boundaries and completion criteria |
 | [03-DOMAIN-RULES.md](03-DOMAIN-RULES.md) | Rules the program enforces, by feature, including owner-confirmed rules |
 | [04-PITFALLS.md](04-PITFALLS.md) | Mistakes to avoid, by area |
@@ -43,7 +43,7 @@ The [Phase 5 rule/compatibility inventory](MAINTAINABILITY-PHASE5-2026-11-14.md)
 
 The [maintainer handoff](MAINTAINER-HANDOFF.md) supplies clean Python 3.14 setup, correct fixture/production builds and synthetic failure exercises. [Current plan status](MAINTAINABILITY-STATUS.md), [hotspot register](HOTSPOT-REGISTER.md) and [measurement procedure](MAINTENANCE-MEASUREMENTS.md) keep delivery and evidence limits explicit.
 
-The [Phase 7 audit and all 20 criteria](MAINTAINABILITY-PHASE7-2026-11-14.md) records the corrected measurement series, independent review, coverage limits and explicit below-target [follow-up](MAINTAINABILITY-90-GAP-FOLLOWUP-2026-11-14.md).
+The [final follow-up and all 20 criteria](MAINTAINABILITY-FINAL-2026-11-15.md) records the current independent assessment and original-rubric result. The historical [Phase 7 audit and all 20 criteria](MAINTAINABILITY-PHASE7-2026-11-14.md) records the corrected measurement series, independent review, coverage limits and explicit below-target [follow-up](MAINTAINABILITY-90-GAP-FOLLOWUP-2026-11-14.md).
 
 ## Maintenance rules
 

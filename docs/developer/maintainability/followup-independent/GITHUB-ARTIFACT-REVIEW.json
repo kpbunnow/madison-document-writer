@@ -1,0 +1,26 @@
+{
+  "source": "902be70db582a66ec54a0e2e747b880db5b852e2",
+  "artifactSha256": "67ef911e4815d5613748df2457765e795a0ea2edf382e3d24c435368cac9c21d",
+  "run": 43750240776,
+  "artifactId": 14176651427,
+  "archiveLocalBytesMatchParentAuthenticatedDigest": true,
+  "fullGatePassed": true,
+  "maintainedSourceInputHashesVerified": 1271,
+  "fullGateFingerprintInputs": 1281,
+  "generatedFingerprintInputs": 10,
+  "allUniqueCompleteRegressionSuitesPassed": 443,
+  "productionBrowser": true,
+  "axeChecksWithoutViolations": 306,
+  "retainedPrintVariantChecksPassed": 69,
+  "sameRunSourceStageReceiptsVerified": true,
+  "runtimeHashes": {
+    "madison-document-writer.html": "d98ce96fcdadd15203ad37841a34ced1382ede9c5a196c293f1080c31ecba5de",
+    "madison-reports.html": "60f6a0528d4462800fa8645587d2838acad4895325edb0ed098bc0ca2c76a80d"
+  },
+  "reviewerAssumptionCorrected": "Full gate fingerprint has1281 entries including10generated outputs; maintained repository receipt has1271. Verified subset and generated runtime/deployment hash relationships, not equality of these intentionally different maps.",
+  "limits": [
+    "Reviewer checked local archive bytes/source/run/stage/results against clean clone; parent obtained archive through authenticated GitHub and independently validated server digest.",
+    "Reviewer did not query GitHub protections/manual Windows status directly or rebuild artifact bytes independently.",
+    "Automated evidence is not human/City/native/legal acceptance."
+  ]
+}

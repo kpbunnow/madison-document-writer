@@ -1,0 +1,128 @@
+{
+  "source": "902be70db582a66ec54a0e2e747b880db5b852e2",
+  "tree": "333751215b67e5b730c8e5c49ad5161bee9a9202",
+  "sourceClean": true,
+  "receiptSha256": "1f77de068459f9238994621d808d4195aababa816c88eb88db68462925ae9ee8",
+  "verifiedFullInputHashes": 1271,
+  "passedUniqueCompleteUnitSuites": 442,
+  "serialBrowserClassCount": 13,
+  "completeFileDenominators": {
+    "javascript": 167,
+    "python": 71
+  },
+  "groups": {
+    "javascript": {
+      "runtime": {
+        "files": 167,
+        "unexecutedFiles": [
+          "app/modules/app_entry.js",
+          "app/modules/reports_entry.js"
+        ],
+        "statements": 15261,
+        "coveredStatements": 12984,
+        "branches": 10477,
+        "coveredBranches": 8736,
+        "statementRate": 0.8508,
+        "branchRate": 0.8338,
+        "rawRates": {
+          "statements": 0.8507961470414783,
+          "branches": 0.8338264770449556
+        },
+        "targetPass": {
+          "statements": true,
+          "branches": true
+        },
+        "minimumCoveredStatements": 12972
+      },
+      "highRisk": {
+        "files": 15,
+        "unexecutedFiles": [],
+        "statements": 2016,
+        "coveredStatements": 1872,
+        "branches": 1309,
+        "coveredBranches": 1182,
+        "statementRate": 0.9286,
+        "branchRate": 0.903,
+        "rawRates": {
+          "statements": 0.9285714285714286,
+          "branches": 0.9029793735676088
+        },
+        "targetPass": {
+          "statements": true,
+          "branches": true
+        },
+        "minimumCoveredStatements": 1815
+      }
+    },
+    "python": {
+      "runtime": {
+        "files": 38,
+        "unexecutedFiles": [],
+        "statements": 6391,
+        "coveredStatements": 5828,
+        "branches": 2492,
+        "coveredBranches": 2133,
+        "statementRate": 0.9119,
+        "branchRate": 0.8559,
+        "rawRates": {
+          "statements": 0.911907369738695,
+          "branches": 0.8559390048154093
+        },
+        "targetPass": {
+          "statements": true,
+          "branches": true
+        },
+        "minimumCoveredStatements": 5433
+      },
+      "developer": {
+        "files": 33,
+        "unexecutedFiles": [
+          "tools/check_format.py",
+          "tools/sync_version.py"
+        ],
+        "statements": 2661,
+        "coveredStatements": 2140,
+        "branches": 922,
+        "coveredBranches": 703,
+        "statementRate": 0.8042,
+        "branchRate": 0.7625,
+        "rawRates": {
+          "statements": 0.8042089440060127,
+          "branches": 0.762472885032538
+        },
+        "targetPass": {
+          "statements": true,
+          "branches": true
+        },
+        "minimumCoveredStatements": 2129
+      },
+      "highRisk": {
+        "files": 24,
+        "unexecutedFiles": [],
+        "statements": 5065,
+        "coveredStatements": 4663,
+        "branches": 2086,
+        "coveredBranches": 1814,
+        "statementRate": 0.9206,
+        "branchRate": 0.8696,
+        "rawRates": {
+          "statements": 0.9206317867719644,
+          "branches": 0.8696069031639502
+        },
+        "targetPass": {
+          "statements": true,
+          "branches": true
+        },
+        "minimumCoveredStatements": 4559
+      }
+    }
+  },
+  "notMeasured": [
+    "Code executing inside Chromium (browser suites and production-page workflows)",
+    "Developer JavaScript in tools/*.cjs"
+  ],
+  "targetConclusion": "All10 measured subgroup statement/branch targets pass raw arithmetic; JS12984/15261=85.0796147%. No rounded threshold credit.",
+  "limits": [
+    "Instrumented unit diagnostic; not Full gate, production-browser coverage or City/native acceptance."
+  ]
+}

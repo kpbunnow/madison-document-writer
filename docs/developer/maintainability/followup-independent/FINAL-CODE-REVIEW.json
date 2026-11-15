@@ -1,0 +1,285 @@
+{
+  "baseline": "eada72c161cc2dff1ef679c7da7c99b479256344",
+  "reviewedSource": "902be70db582a66ec54a0e2e747b880db5b852e2",
+  "sourceClean": true,
+  "files": [
+    {
+      "file": "app/modules/app_core.js",
+      "sha256": "afbebf6a6b32459fbb2f0c07f3a9c9f9cf6ce98516727e6dfe579ce1d56543bc"
+    },
+    {
+      "file": "app/modules/build_flags.d.ts",
+      "sha256": "ca6cdc50f7bbf61f0fdd6f1d3f3f5cdeb334aa4a847f1ba30254c1f9693b6b43"
+    },
+    {
+      "file": "app/modules/case_store_port.js",
+      "sha256": "25818f48a008e2c69aa255c6104be2433f116dc6edb60f9b56bfd213d83f56a9"
+    },
+    {
+      "file": "app/modules/contracts.js",
+      "sha256": "39a8b916bbb4c780c34450267120cc97ea1a16d5386242f45ca74e6208401a7e"
+    },
+    {
+      "file": "app/modules/editor_events.js",
+      "sha256": "d355f651efcd2f4064239906ad0c6f3707fb1899e5aed73db60f3124d8bb3c58"
+    },
+    {
+      "file": "app/modules/helper_requests.js",
+      "sha256": "c5505fcbfcc65ac5e79e93ee5ade4dc6378900dc301728258a1274ba92efb335"
+    },
+    {
+      "file": "app/modules/helper_stopped.js",
+      "sha256": "855677f121bccf6a6276e4549e7db825ce8cc1a8ad9a3c69691901b95537a77f"
+    },
+    {
+      "file": "app/modules/helper_transport.js",
+      "sha256": "c25f2902ccf78c5e3b89e756fb11e56dfb4aca16d735374035962aa7627aa28e"
+    },
+    {
+      "file": "app/modules/record_commit.js",
+      "sha256": "d36f3da944e73dfe394c2146b496860aeb1e41ceb7e3f0cf80053e01cf62371e"
+    },
+    {
+      "file": "app/modules/reinspection_entry.js",
+      "sha256": "68283fb141cc60160dbfee87ede75946ee24a39a03a8ad08e9ae94d797a35989"
+    },
+    {
+      "file": "app/modules/screen_html.js",
+      "sha256": "e13a9beac9b17354fb73e133dbad5d3d1aa803c3391fabadb270811d7907c7fe"
+    },
+    {
+      "file": "app/modules/shared_case_storage.js",
+      "sha256": "a47a2ed132bf24b447d00dba55e36c0befba7490cae3534f851f75a536ec589d"
+    },
+    {
+      "file": "app/modules/worksheet_workflow.js",
+      "sha256": "66738f2798ee629ed149bcf74a348a267bfae8fd410573595c8de2d3ccb8ba6e"
+    },
+    {
+      "file": "docs/developer/01-ARCHITECTURE.md",
+      "sha256": "0b669ebecc81941f91d9b67008ff497ed404fcdfaa62fdfd961f0f2f902677d8"
+    },
+    {
+      "file": "docs/developer/MAINTAINABILITY-FOLLOWUP-2026-11-15.md",
+      "sha256": "e57762c6e394869d2b9d6aaf157f8e457502baf089ee7d9c5438315e31ad98b7"
+    },
+    {
+      "file": "helper/case_store.py",
+      "sha256": "f8f7d62972809b6d58101c4144137d302bafd8f470f9506d2dbd8bced16d54ab"
+    },
+    {
+      "file": "helper/publication_validation.py",
+      "sha256": "52bf31f483bb7f81095741d81c1fe48ec65a31daed4b14e22fb98b904a63816c"
+    },
+    {
+      "file": "tests/README.md",
+      "sha256": "48e4d968fb2d7e9b40cc12c88a1a468496029a469238de02aef8243a9b96b03c"
+    },
+    {
+      "file": "tests/fixtures/import_workflow.cjs",
+      "sha256": "4096eb95621bf18098fa7bdfe2b48c479ae20326acc0d39e9590b1f8931d13f4"
+    },
+    {
+      "file": "tests/fixtures/publication_owner_reference.py.txt",
+      "sha256": "b52227758c763dbaaa51afa53028c04eeeb3f641958eb56a989695ee3dfa6559"
+    },
+    {
+      "file": "tests/unit/audit_case_store_port.js",
+      "sha256": "3d7c4ccdc1bfa437fbbd5055c6f8cdd18e43b56e462168ef8befb985dcc7b606"
+    },
+    {
+      "file": "tests/unit/audit_case_work_actions.js",
+      "sha256": "b5efa89d290b62e44f0349fa80948e982d7e375dd1f7c8f45b75c126cc67642e"
+    },
+    {
+      "file": "tests/unit/audit_check_focus_rules.js",
+      "sha256": "4941ffaf8e83ee0e22e8ca3300bab5947c072b6cdc32755b230d7391b9963dc7"
+    },
+    {
+      "file": "tests/unit/audit_check_target_rules.js",
+      "sha256": "43b6e9d54485569c64735698c7a0176b4c1415f4369629e7f83db2e00fe0adf8"
+    },
+    {
+      "file": "tests/unit/audit_checked_contracts.js",
+      "sha256": "8c8a1cf7db348f3826cf646d8829cb7463271c2c6c1fde5d5f763c7f20fc8991"
+    },
+    {
+      "file": "tests/unit/audit_continuing_item_consumers.js",
+      "sha256": "f88495ba6fb386c458558b47cb046260b856c81fa5f3ae9d82ee7cc2533989a2"
+    },
+    {
+      "file": "tests/unit/audit_correction_event_outcomes.js",
+      "sha256": "0773ae25b53a46b82a81e33d00da72e3cdd7dca448fb41cf1e263d943088ce28"
+    },
+    {
+      "file": "tests/unit/audit_diagnostic_orchestration.py",
+      "sha256": "7f378146bbd094d7e91bd55cc1cdf0c272fdf315e42c89711abd40233fdac7c9"
+    },
+    {
+      "file": "tests/unit/audit_editor_gesture_recovery.js",
+      "sha256": "26ef5b0816eab262b79743410eceacbe79c6e277b17f74c8bc472db00ef9eb92"
+    },
+    {
+      "file": "tests/unit/audit_editor_input_rules.js",
+      "sha256": "6a54b8bd1d208471d9128fbdf1d8727714223c7f89a1997505a0f197d51a510d"
+    },
+    {
+      "file": "tests/unit/audit_followup_draft_rules.js",
+      "sha256": "45f68e55477cb530beac73e5f3ffeda0033c181ddd44c8215f7b6b1e26ecd425"
+    },
+    {
+      "file": "tests/unit/audit_gate_orchestration.py",
+      "sha256": "b443f515b136ecdca6c08d01af2099da0d00fa45223c104e120dc4ad214e2eb0"
+    },
+    {
+      "file": "tests/unit/audit_helper_route_refusals.py",
+      "sha256": "40aaaaa7c02484ca1df943febce78f02339ab63151df9cb4c8ba362b253f01d5"
+    },
+    {
+      "file": "tests/unit/audit_language_action_rules.js",
+      "sha256": "26e6f1877d017891581aa621ddfa5e0d288eb6d73a4c0522a45692387cdb1035"
+    },
+    {
+      "file": "tests/unit/audit_module_boundaries.js",
+      "sha256": "da99a4c0786a41c5879d4b2d4af9df905866b9c807cedcbbc788658e8f45a994"
+    },
+    {
+      "file": "tests/unit/audit_packaging_orchestration.py",
+      "sha256": "b1b6a7c79dc0898cfb450c6f15b4a9b2f6a895e74cfbee96ee68c47ecae7429e"
+    },
+    {
+      "file": "tests/unit/audit_policy_proposal_safety.py",
+      "sha256": "e8cc38a1d1843e85a10b2feaad0167e1cdfb5fcb629dd33bf848e4ce62ceffd5"
+    },
+    {
+      "file": "tests/unit/audit_publication_owner.py",
+      "sha256": "8726186a6d23d76833358a1d480f96fd52472a87a2bf5da5b396ff117a110597"
+    },
+    {
+      "file": "tests/unit/audit_record_commit.js",
+      "sha256": "b8ed120e4445e1c0901a7aff8be6ebc702513d58cc4ca204fa2bb3c8f483e668"
+    },
+    {
+      "file": "tests/unit/audit_record_commit_rules.js",
+      "sha256": "54a7dd34528f3cd2a5c265ab56bb8388bd1d113de786e3d940f05368ab9e3e2d"
+    },
+    {
+      "file": "tests/unit/audit_reinspection_entry_rules.js",
+      "sha256": "a06b4c3e13c0f395aaa5cfbbfd4fad739600e400b8f479c23d17d285bac457d1"
+    },
+    {
+      "file": "tests/unit/audit_reports_startup.js",
+      "sha256": "40aeee08d0cb8dfcf016fa03993ec8380f7ed3208cf720ded11d45830677bfdd"
+    },
+    {
+      "file": "tests/unit/audit_saved_work_focus_rules.js",
+      "sha256": "f8b7c198914130f25e7273a1d46a54be185d5ecc1a25ae65bad5175629751a9f"
+    },
+    {
+      "file": "tests/unit/audit_scoped_edit_rules.js",
+      "sha256": "12abf0533e2622d0bdd37f478621e432486806c103c03cd8e65ba883dee5d522"
+    },
+    {
+      "file": "tests/unit/audit_shared_case_storage.js",
+      "sha256": "b78285cd5bbf8688c2bef82453be7fc59593d2b6cd6a97fa99ece47850ec9efd"
+    },
+    {
+      "file": "tests/unit/audit_shared_preflight_rules.js",
+      "sha256": "5d2eabb7d921e861dc9c2217e55b42ecbee369324fda173fcc67dd4f199b2987"
+    },
+    {
+      "file": "tests/unit/audit_walk_shortcut_rules.js",
+      "sha256": "5ce59d9fdf71ae75ab0b88b78a6a4ad5f9cb54edf2589fc954a792332d03daab"
+    },
+    {
+      "file": "tests/unit/audit_worksheet_workflow.js",
+      "sha256": "dcbae85c65bd8ffb9461aca2e6c05a982245730da1017394d43cd1a0535732b4"
+    },
+    {
+      "file": "tests/unit/audit_workspace_dispatch.js",
+      "sha256": "c9fe5510101a0b128031bc25fa275c4c8d3115b554c3a2dc168213d182c686a2"
+    },
+    {
+      "file": "tools/checked-js.json",
+      "sha256": "2e991d97bc5c5d7be1ea7f56370984d56bedc2f12601eed84bdd5f1631410110"
+    },
+    {
+      "file": "tools/complexity-baseline.json",
+      "sha256": "a84507333c2028884441c8f00ab9288e84e9ca6da70e0539034f7e3585252139"
+    },
+    {
+      "file": "tools/coverage-groups.json",
+      "sha256": "1741ac48ae9978d89247cc864d617bdbd28bfcbd1311ecbd3752faf23741ea39"
+    },
+    {
+      "file": "tools/hotspot_inventory.py",
+      "sha256": "2fec72851e3bf2209bae699fa004ba6c5a39e41697b655aa4f9662f7ae39b67f"
+    },
+    {
+      "file": "tools/maintainability_js.cjs",
+      "sha256": "6e938b05a413b253dc958b6c777830b8d58164824560d451afaab4f80325fd40"
+    },
+    {
+      "file": "tools/mutation-pilot.json",
+      "sha256": "8ec1b36e136ab7a857fdb08cef4fecae090efa109ebaada7c49257108c5e3568"
+    },
+    {
+      "file": "tools/run_tests.py",
+      "sha256": "5ce2ebd68864de15c82ee33e9e9fba9828625adbc7c68a7dd000fb0bfecb9a19"
+    },
+    {
+      "file": "tools/runtime-manifest.template.json",
+      "sha256": "213a02394a29fb2c1002cd42360b9f6a30e33691f724e59a139620cd557def05"
+    },
+    {
+      "file": "tools/service-areas.json",
+      "sha256": "409b809efa209fc7c16771e5f45682da5291b318127905c46712d6e89032f00d"
+    },
+    {
+      "file": "tools/source-inventory.json",
+      "sha256": "3da76909eff709b70ea46a13aae36e08ab901f3b280e6052a8570788aa451c49"
+    }
+  ],
+  "metricReceipt": {
+    "sha256": "4abdf25c3502bfc000b3713dff32a1eae1a3a211c8c88a9ba858d03d614f57d7",
+    "commit": "902be70db582a66ec54a0e2e747b880db5b852e2",
+    "sourceHashCount": 238,
+    "fullHashCount": 1271,
+    "allSourceHashesMatch": true
+  },
+  "unresolvedProductionFindings": [],
+  "finalTargetedPasses": [
+    {
+      "command": "node tests/unit/audit_editor_gesture_recovery.js",
+      "exit": 0
+    },
+    {
+      "command": "node tests/unit/audit_workspace_dispatch.js",
+      "exit": 0,
+      "scenarios": 1077
+    },
+    {
+      "command": "python3.14 -m unittest audit_policy_proposal_safety",
+      "exit": 0,
+      "tests": 2
+    }
+  ],
+  "confirmedFixedBug": {
+    "baseline": "4021c77443e17c1649ab58049fdaaa94ebf9b69b",
+    "description": "Pointerup applied old DOM row ordering to a replacement draft object or a repainted editor.",
+    "fix": "Retain pointerdown document identity; clear transient drag before rejecting replacement or disconnected body; use live editable check on authorized current document.",
+    "independentReproduction": "EDITOR-GESTURE-REVIEW.json",
+    "candidateBytesMatchFinal": true
+  },
+  "methodLimits": [
+    "Nine differential loader changes plus workspace dispatch improve real-owner import/source-map attribution, not scenario/assertion count.",
+    "New gestures, policy proposal, gate, diagnostic, packaging, correction event, helper route and Reports orchestration add meaningful actual-operation assertions.",
+    "131 JavaScript functions above 10 includes the new acknowledgment predicate; every leaf remains counted.",
+    "Typed scope remains narrow, not full coordinators/Python.",
+    "669 composition references and 52 pairs do not imply global decoupling; direct pure imports and live authority dependencies remain.",
+    "Historical/capability R labels and assigned current release identities are retained; no renumber authorized.",
+    "Independent AI review does not establish human/City/native/legal acceptance."
+  ],
+  "unchangedRuntimeFromD8fad66": true,
+  "finalSourceTestOnlyReview": "902be adds45meaningful actual navigation/preflight/new-notice assertions. Existing scenarios/assertions remain; independently passed final gesture suite; no production implementation changes."
+}

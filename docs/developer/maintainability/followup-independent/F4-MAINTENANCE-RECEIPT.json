@@ -1,0 +1,146 @@
+{
+  "reviewedSource": "67152e0fb105af1c62a8e02d9c8086ab3cf9e831",
+  "baseline": "eada72c161cc2dff1ef679c7da7c99b479256344",
+  "probeSha256": "cc951d0db2bf0c019ca6a620f394f98b2dd01f3f5a5340b5bb53bca29381d7cf",
+  "baselineInputs": [
+    {
+      "file": "app/modules/worksheet_workflow.js",
+      "sha256": "8c22d34249fcbbfe66fbacfda6ce1850b589a21bb8386b0172ea0f9e030a727a"
+    },
+    {
+      "file": "app/modules/reinspection_entry.js",
+      "sha256": "854be526aee8b0c15f6a16392727a81d126e2b16aae27ea8dc7ebba0fb3e6558"
+    }
+  ],
+  "syntheticEdit": {
+    "file": "app/modules/case_projection.js",
+    "from": "i.doneOn = res.on || r.date;",
+    "to": "i.doneOn = res.on || \"2026-02-02\";",
+    "purpose": "exercise both actual consumers from one true owner; deliberately hypothetical, never shipped"
+  },
+  "rows": [
+    {
+      "before": true,
+      "changed": false,
+      "unavailable": false,
+      "peerReads": 2,
+      "entryOn": "2026-02-01",
+      "worksheetFaults": [],
+      "effects": [
+        "clear",
+        "uid",
+        "save",
+        "render"
+      ],
+      "inputsUnchanged": true
+    },
+    {
+      "before": true,
+      "changed": false,
+      "unavailable": true,
+      "error": "authoring peer unavailable",
+      "peerReads": 1,
+      "effects": [
+        "clear",
+        "uid"
+      ]
+    },
+    {
+      "before": true,
+      "changed": true,
+      "unavailable": false,
+      "peerReads": 2,
+      "entryOn": "2026-02-02",
+      "worksheetFaults": [
+        "Previously confirmed compliance must carry forward unchanged."
+      ],
+      "effects": [
+        "clear",
+        "uid",
+        "save",
+        "render"
+      ],
+      "inputsUnchanged": true
+    },
+    {
+      "before": true,
+      "changed": true,
+      "unavailable": true,
+      "error": "authoring peer unavailable",
+      "peerReads": 1,
+      "effects": [
+        "clear",
+        "uid"
+      ]
+    },
+    {
+      "before": false,
+      "changed": false,
+      "unavailable": false,
+      "peerReads": 0,
+      "entryOn": "2026-02-01",
+      "worksheetFaults": [],
+      "effects": [
+        "clear",
+        "uid",
+        "save",
+        "render"
+      ],
+      "inputsUnchanged": true
+    },
+    {
+      "before": false,
+      "changed": false,
+      "unavailable": true,
+      "peerReads": 0,
+      "entryOn": "2026-02-01",
+      "worksheetFaults": [],
+      "effects": [
+        "clear",
+        "uid",
+        "save",
+        "render"
+      ],
+      "inputsUnchanged": true
+    },
+    {
+      "before": false,
+      "changed": true,
+      "unavailable": false,
+      "peerReads": 0,
+      "entryOn": "2026-02-02",
+      "worksheetFaults": [
+        "Previously confirmed compliance must carry forward unchanged."
+      ],
+      "effects": [
+        "clear",
+        "uid",
+        "save",
+        "render"
+      ],
+      "inputsUnchanged": true
+    },
+    {
+      "before": false,
+      "changed": true,
+      "unavailable": true,
+      "peerReads": 0,
+      "entryOn": "2026-02-02",
+      "worksheetFaults": [
+        "Previously confirmed compliance must carry forward unchanged."
+      ],
+      "effects": [
+        "clear",
+        "uid",
+        "save",
+        "render"
+      ],
+      "inputsUnchanged": true
+    }
+  ],
+  "limits": [
+    "Before uses exact baseline consumer bytes plus unchanged current pure/authoring implementations.",
+    "The narrow design gain removes a needless authoring-peer runtime requirement; total policy dependencies and app authoring owner remain.",
+    "No source edits, browser workloads, production rule change or score credit."
+  ]
+}

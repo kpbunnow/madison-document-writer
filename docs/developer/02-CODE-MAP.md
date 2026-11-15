@@ -1,14 +1,14 @@
 # Code ownership
 
-Current maintenance navigation (Phase 6 start, main dd584ce): use this table for changed owners; the detailed feature descriptions below retain their existing responsibilities.
+Current maintenance navigation (follow-up assessed source `902be70`): use this table for current owners. Detailed stage-specific extraction descriptions below preserve their historical checkpoints; the follow-up ownership update records subsequent changes.
 
 | Task / boundary | Actual owner(s) | Required evidence entry points |
 | --- | --- | --- |
 | Helper request/session/absence | helper_transport.js → helper_requests.js; helper_session.py and server.py retain authorization | audit_record_helper_adapters.js; audit_desktop_exit.js |
 | Import selection/refusal | accela_import.js; inspection_facts.js; helper/ssrs_reports.py | audit_feature_accela_import.js; audit_import_r13.py; 03-DOMAIN-RULES.md |
-| Save and pending retry | case_save_workflow.js; pending_case_saves.js; shared_case_storage.js; draft_persistence.js | audit_r50_errors.js; audit_storage.js; audit_shared_case_storage_parity.js |
+| Save and pending retry | case_save_workflow.js; pending_case_saves.js; shared_case_storage.js; case_store_port.js; draft_persistence.js | audit_r50_errors.js; audit_storage.js; audit_shared_case_storage_parity.js |
 | Source/proof verification | record_integrity.js; helper/case_integrity.py → integrity_verification.py | audit_integrity_verification_phases.py; audit_r31_integrity.py |
-| Store/publication and cash | helper/case_store.py → issuance_validation.py / cash_validation.py | audit_case_save_phases.py; audit_issuance_group_rules.py; audit_store_validation_phases.py |
+| Store/publication and cash | helper/case_store.py → issuance_validation.py / cash_validation.py / publication_validation.py | audit_case_save_phases.py; audit_issuance_group_rules.py; audit_store_validation_phases.py |
 | Reports verified index | helper/server.py → index_validation.py / parcel_history.py; reporting_reads.py retains bounded reads | audit_index_validation_phases.py; audit_calculation_phases.py; audit_report_facts.js |
 | Projection/value semantics | case_projection.js; helper/case_projection.py → projection_values.py | audit_case_projection.py; audit_case_projection_phases.py |
 | Pricing, parcel and mailing mirrors | citation_policy.js / shared.js / mailing_rules.js; helper/citation_pricing.py / projection_values.py / case_store.py | audit_policy_mirrors.py; audit_policy_inventory.py; tools/policy-compatibility.json |
@@ -120,3 +120,9 @@ report_navigation.createReportNavigation composes period, view/filter, drill, su
 The report_output CLI composes the real public Reports owners and accessibility enhancement. Its rows, counts, coverage, sheets and full enhanced/printed HTML match the prior bundle fixture across all eleven reports. Status names/colours live unchanged in report_metadata; core retains its original exports.
 
 Language browser, administration, picker and detail markup use the shared escaping screen tag. Raw fragments are limited to owned markup builders and results from the existing scoped escape adapter, retaining its call-time ordering. Numeric/enum metadata is stringified and escaped at interpolation. All supported-source output remains byte-identical; malformed scalar metadata is encoded rather than interpreted as markup. Printed/stored wording is outside this owner.
+
+## Follow-up checked save and publication owners
+
+`case_store_port.js` strictly checks the actual retained request producer, verified transport composition, acknowledgment narrowing and both saved-case comparison/merge algorithms. The real coordinators retain pending persistence, current-case reads after await, settlement/effect order and malformed-response uncertainty. `publication_validation.py` owns the read-only identity/source/visit/outcome/citation consistency operation; the store supplies calendar/current-document/special-policy callbacks and retains lock/history/write/receipt authority. Both new leaves and their coordinators remain in metrics, deployment and high-risk coverage inventories. See the final follow-up assessment and `audit_case_store_port.js`, `audit_publication_owner.py` for actual contracts/refusals.
+
+Inspection worksheet and reinspection-entry calculations directly reuse `case_projection.continuingItemsForVisits`; neither requires the full newDocuments authoring service for that calculation. Reads stay at their original live checkpoints, including entry reads after uid/day preparation.
