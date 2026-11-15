@@ -181,8 +181,17 @@ class R23Tests(unittest.TestCase):
         # Maintenance helpers can advance without renaming the documented release.
         release = json.loads((source / "build/generated/runtime-manifest.json").read_text())["release"]
         self.assertEqual((source / "build/generated/RELEASE").read_text().strip(), release)
-        for name in ["docs/developer/01-ARCHITECTURE.md", "docs/developer/04-PITFALLS.md"]:
-            self.assertIn(release.split()[-1], (source / name).read_text().splitlines()[0])
+        self.assertEqual(json.loads((source / "version.json").read_text())["release"], release)
+        review = source / "docs/developer" / (release.split()[-1] + "-REVIEW.md")
+        self.assertIn(release.split()[-1], review.read_text().splitlines()[0])
+        self.assertIn("Release " + release, review.read_text())
+        # Living guides have stable titles; the assigned release remains in its actual identity consumers and review.
+        for name, title in {
+            "docs/developer/00-START-HERE.md": "# Developer start guide",
+            "docs/developer/01-ARCHITECTURE.md": "# Current architecture",
+            "docs/developer/04-PITFALLS.md": "# Current pitfalls",
+        }.items():
+            self.assertEqual((source / name).read_text().splitlines()[0], title)
         self.assertIn("calendar_policy.json", launch.REQUIRED)
         self.assertIn("city-timezone.tzif", launch.REQUIRED)
         for name in ["helper/ssrs_fetch.ps1", "helper/ssrs_reports.py", "docs/staff/CASE-LOOKUP-GUIDE.md"]:
