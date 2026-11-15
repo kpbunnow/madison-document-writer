@@ -30,7 +30,10 @@ const assert = require("node:assert/strict"),
     new Function("module", "exports", b.outputFiles[0].text)(box, box.exports);
     return box.exports;
   }
-  const [current, legacy] = await Promise.all([compile(source), compile(source.slice(0, fn.start) + reference + source.slice(fn.end))]);
+  const [current, legacy] = await Promise.all([
+    compile('export * from "./reinspection_events.js";'),
+    compile(source.slice(0, fn.start) + reference + source.slice(fn.end)),
+  ]);
   let seed = 20261107,
     checked = 0;
   const random = (n) => {

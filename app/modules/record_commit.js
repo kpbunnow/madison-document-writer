@@ -1,3 +1,4 @@
+import { saveCaseStore, mergeSavedCase } from "./case_store_port.js";
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { caseFileName, summaryName } from "./case_file_rules.js";
@@ -45,30 +46,17 @@ function stageCandidate(services, cid, attempt, draft) {
 
 async function saveCandidate(services, attempt, staged) {
   const { candidate, key, base, checkpoint } = staged;
-  const result = await services.helperJSON("/cases/save", {
-    name: base ? base.name : caseFileName(candidate.case),
-    file: candidate,
-    baseRevision: (base && base.revision) || "",
-    baseCase: checkpoint ? checkpoint.case : null,
-    idempotencyEvent: attempt.id,
-  });
+  const result = await saveCaseStore(
+    services.helperJSON,
+    base ? base.name : caseFileName(candidate.case),
+    candidate,
+    base,
+    checkpoint,
+    attempt.id,
+    services,
+  );
   services.COMMITTED.set(key, result);
   return result;
-}
-
-// Fields the inspector did not touch locally take the saved values; local edits stay.
-function mergeSaved(services, cid, localBefore, result) {
-  const k = kase(cid),
-    savedCase = Object.assign({}, caseDetails(result.file.case), { id: cid });
-  new Set(Object.keys(localBefore).concat(Object.keys(savedCase))).forEach((key) => {
-    if (key === "id") return;
-    if (stableJSON(k[key]) === stableJSON(localBefore[key])) {
-      if (savedCase[key] === undefined) delete k[key];
-      else k[key] = clone(savedCase[key]);
-    }
-  });
-  services.mergeCaseEvents(k, clone(result.file));
-  return { k, savedCase };
 }
 
 function settleDraft(draft, attempt) {
@@ -124,7 +112,7 @@ export function createRecordCommit(services) {
       await retainAttempt(services, attempt, draft);
       const staged = stageCandidate(services, cid, attempt, draft);
       const result = await saveCandidate(services, attempt, staged);
-      const merged = mergeSaved(services, cid, staged.localBefore, result);
+      const merged = mergeSavedCase(services, kase(cid), cid, staged.localBefore, result);
       settleDraft(draft, attempt);
       closeRecordForm(attempt);
       await confirmSaved(services, cid, merged, result);

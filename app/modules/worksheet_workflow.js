@@ -1,3 +1,4 @@
+import { continuingItemsForVisits } from "./case_projection.js";
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { dueContext, dueDateSpacingConflicts } from "./deadline_assignment.js";
@@ -49,35 +50,33 @@ export function createWorksheetWorkflow(services) {
     if (!parseTime(r.time)) faults.push("Enter the reinspection time before generating a document.");
     if (!insp(r.inspectorId).name) faults.push("Select the inspector who performed this inspection.");
     if (unchecked(r).length) faults.push("Choose an outcome for every item.");
-    services.newDocuments
-      .continuingItems(
-        src,
-        reinspFor(r.caseId).filter((x) => x.id !== r.id),
+    continuingItemsForVisits(
+      src,
+      reinspFor(r.caseId).filter((x) => x.id !== r.id),
+    ).forEach((it) => {
+      const res = r.results[it.id];
+      if (!res) return;
+      if (it.withdrawn) {
+        if (res.oc !== "withdrawn") faults.push("Withdrawn items must remain withdrawn.");
+        return;
+      }
+      if (it.done) {
+        if (res.oc !== "corrected" || res.on !== it.doneOn || !res.carried)
+          faults.push("Previously confirmed compliance must carry forward unchanged.");
+        return;
+      }
+      if (!OUTCOMES.some((o) => o.id === res.oc)) faults.push("Choose a valid inspection outcome.");
+      const on = res.manualDate ? res.on : res.on || r.date;
+      if (!validISO(on) || on < initial || on > r.date) faults.push("Result dates must be between the initial inspection and this visit.");
+      // R62: a Best Interest Extension takes its due dates from the worksheet, as a normal Extension does.
+      if (
+        type &&
+        ["extension", "bestInterestExtension", "citation"].includes(type) &&
+        res.oc !== "corrected" &&
+        !services.dueCheck(res.due, r.date).ok
       )
-      .forEach((it) => {
-        const res = r.results[it.id];
-        if (!res) return;
-        if (it.withdrawn) {
-          if (res.oc !== "withdrawn") faults.push("Withdrawn items must remain withdrawn.");
-          return;
-        }
-        if (it.done) {
-          if (res.oc !== "corrected" || res.on !== it.doneOn || !res.carried)
-            faults.push("Previously confirmed compliance must carry forward unchanged.");
-          return;
-        }
-        if (!OUTCOMES.some((o) => o.id === res.oc)) faults.push("Choose a valid inspection outcome.");
-        const on = res.manualDate ? res.on : res.on || r.date;
-        if (!validISO(on) || on < initial || on > r.date) faults.push("Result dates must be between the initial inspection and this visit.");
-        // R62: a Best Interest Extension takes its due dates from the worksheet, as a normal Extension does.
-        if (
-          type &&
-          ["extension", "bestInterestExtension", "citation"].includes(type) &&
-          res.oc !== "corrected" &&
-          !services.dueCheck(res.due, r.date).ok
-        )
-          faults.push("Set a future due date for each outstanding item.");
-      });
+        faults.push("Set a future due date for each outstanding item.");
+    });
     if (src.type === "compliance" || src.items.every((i) => i.withdrawn))
       faults.push("This case is completed. New observations require a new case; correct a recording error through the document history.");
     if (["extension", "bestInterestExtension", "citation"].includes(type) && distinctDues(dueContext(r, true)).length > 3)

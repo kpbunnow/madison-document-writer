@@ -564,3 +564,16 @@ R33 court/mandatory-appearance/library correction now shares the focused citatio
 `audit_ui_timer_settlement.js` runs isolated positive and negative teardown checks: real DOM focus/render completion, every short/long callback, leaked application-interval refusal, callback failure and completion rejection. It preserves the original timer guard while adapting to jsdom31's pending rendering interval.
 
 Full Writer frame/modal/worksheet copy retirement preserves all seeded scenarios and replaces markup equality with field/action, escaping, state and adapter-order contracts; see docs/developer/SCREEN-BEHAVIOR-CONTRACTS.md. Model, issued-history and print fixtures remain independently protected.
+
+
+| Suite | Coverage |
+| --- | --- |
+| `audit_publication_owner.py` | Retained complete publication source, positive current/legacy/grouped/snow/scoped families, corrections, callback order and locked-store no-publication on failure. |
+| `audit_case_store_port.js` | Real checked request/verified transport/ack consumers; uncertain/malformed responses retain exact current retries and later edits. |
+| `audit_continuing_item_consumers.js` | Actual entry/worksheet consumers: prior compliance, exclusions and live replacements at original checkpoints. |
+| `audit_gate_orchestration.py` | Real CLI/producers/sealing/assembly in a synthetic tree; interruption, runtime drift and fast-mode refusal. |
+| `audit_helper_route_refusals.py` | Real helper status/body/refusal contracts and retained local work under subordinate failures. |
+| `audit_reports_startup.js` | Actual Reports composition, preferences, authenticated load refusal/retry and superseded reads in synthetic DOM. |
+| `audit_correction_event_outcomes.js` | Actual correction pending/withdrawal/review guards and replaced asynchronous controls. |
+| `audit_packaging_orchestration.py` | Original maintained packager against isolated synthetic evidence: all four archives, no native claim, stale/fast/missing/unclean refusal and malformed publication baseline. |
+| `audit_diagnostic_orchestration.py` | Actual diagnostic CLI/source binding, toolchain fields, byte/tree drift, isolated production/test copies, failed process/timeouts and complete scope refusal. |

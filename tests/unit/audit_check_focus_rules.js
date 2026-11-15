@@ -61,7 +61,10 @@ const assert = require("node:assert/strict"),
     );
     return box.exports;
   }
-  const [current, legacy] = await Promise.all([compile(source), compile(liftedSplice(source, "reinspection", "focusCheckTarget", reference))]);
+  const [current, legacy] = await Promise.all([
+    compile('export * from "./reinspection.js";'),
+    compile(liftedSplice(source, "reinspection", "focusCheckTarget", reference)),
+  ]);
   function run(api, input) {
     const x = structuredClone(input),
       calls = [],

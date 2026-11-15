@@ -36,7 +36,10 @@ const assert = require("node:assert/strict"),
       return box.exports;
     };
   }
-  const [current, legacy] = await Promise.all([compile(source), compile(source.slice(0, fn.start) + reference + source.slice(fn.end))]);
+  const [current, legacy] = await Promise.all([
+    compile('export * from "./new_documents.js";'),
+    compile(source.slice(0, fn.start) + reference + source.slice(fn.end)),
+  ]);
   const dom = new JSDOM(
     '<div id="r26-details"><details open></details></div><input data-special="reviewed" type="checkbox" checked><input data-special="noSafety" type="checkbox" checked>',
   );

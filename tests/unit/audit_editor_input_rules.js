@@ -310,7 +310,7 @@ function run(api, sc, listenerName, dom, targetKey) {
 }
 
 (async () => {
-  const [actual, legacy] = await Promise.all([compile(source), compile(legacySource)]);
+  const [actual, legacy] = await Promise.all([compile('export * from "./editor_events.js";'), compile(legacySource)]);
   // Repeated library entries have separate item identities. Undo restores the removed copy,
   // including its private edits and position, without duplicating an item already restored.
   for (const index of [0, 1, 2]) {

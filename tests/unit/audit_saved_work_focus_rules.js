@@ -55,7 +55,10 @@ const assert = require("node:assert/strict"),
     new Function("today", "document", "module", "exports", b.outputFiles[0].text)(new Date("2026-10-29T12:00:00Z"), dom, box, box.exports);
     return box.exports;
   }
-  const [current, legacy] = await Promise.all([compile(source), compile(liftedSplice(source, "languageCatalog", "showSafety", reference))]);
+  const [current, legacy] = await Promise.all([
+    compile('export * from "./language_catalog.js";'),
+    compile(liftedSplice(source, "languageCatalog", "showSafety", reference)),
+  ]);
   async function run(api, input) {
     const x = structuredClone(input),
       calls = [],

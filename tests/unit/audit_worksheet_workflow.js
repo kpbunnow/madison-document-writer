@@ -21,7 +21,7 @@ walk(parse("worksheet_workflow"), (n) => {
     used.add(n.property.name);
   }
 });
-assert.deepEqual([...used].sort(), ["sourceDocFor", "today", "newDocuments", "dueCheck", "saveDrafts", "render", "toast", "clearWalk"].sort());
+assert.deepEqual([...used].sort(), ["sourceDocFor", "today", "dueCheck", "saveDrafts", "render", "toast", "clearWalk"].sort());
 const entries = parse("app_core").body.flatMap((n) => (n.declaration || n).declarations || []),
   entry = entries.find((n) => n.id.name === "worksheetWorkflow");
 assert.equal(entry.init.callee.name, "createWorksheetWorkflow");
@@ -50,13 +50,24 @@ const copy = (v) => JSON.parse(JSON.stringify(v));
       {
         name: "data",
         setup(b) {
+          b.onLoad({ filter: /case_projection\.js$/ }, (args) => ({
+            contents: fs
+              .readFileSync(args.path, "utf8")
+              .replace(
+                "export function continuingItemsForVisits(source, visits) {",
+                "export function continuingItemsForVisits(source, visits) { trackContinuing(source, visits);",
+              ),
+            loader: "js",
+          }));
           b.onResolve({ filter: /\/data\// }, (a) => ({ path: path.join(root, "build/generated/modules/data", path.basename(a.path)) }));
         },
       },
     ],
   });
   const box = { exports: {} };
-  new Function("module", "exports", built.outputFiles[0].text)(box, box.exports);
+  new Function("module", "exports", "trackContinuing", built.outputFiles[0].text)(box, box.exports, (source, visits) =>
+    calls.push(["continuing", visits.map((x) => x.id)]),
+  );
   const { createWorksheetWorkflow, changeVisitDate, cleanVisit, continuingItemsForVisits, WriterState: s, INSPECTORS } = box.exports;
   assert.deepEqual(s, {});
   createWorksheetWorkflow(new Proxy({}, { get: (_, k) => assert.fail("premature service " + String(k)) }));
@@ -69,14 +80,6 @@ const copy = (v) => JSON.parse(JSON.stringify(v));
     },
     get today() {
       return day;
-    },
-    get newDocuments() {
-      return {
-        continuingItems(source, visits) {
-          calls.push(["continuing", visits.map((x) => x.id)]);
-          return continuingItemsForVisits(source, visits);
-        },
-      };
     },
     dueCheck(due, from) {
       calls.push(["due", due, from]);

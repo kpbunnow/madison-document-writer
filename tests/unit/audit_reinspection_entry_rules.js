@@ -30,7 +30,14 @@ const assert = require("node:assert/strict"),
     new Function("module", "exports", b.outputFiles[0].text)(box, box.exports);
     return box.exports;
   }
-  const [current, legacy] = await Promise.all([compile(source), compile(source.slice(0, fn.start) + reference + source.slice(fn.end))]);
+  const [current, legacy] = await Promise.all([
+    compile(source),
+    compile(
+      source.slice(0, fn.start) +
+        reference.replace("services.newDocuments.continuingItems(src)", "continuingItemsForVisits(src, reinspFor(src.caseId))") +
+        source.slice(fn.end),
+    ),
+  ]);
   let seed = 20261104,
     checked = 0;
   const random = (n) => {
@@ -76,7 +83,7 @@ const assert = require("node:assert/strict"),
           get(_, key) {
             const name = at + "." + String(key);
             calls.push("get:" + name);
-            if (key === "snow" || key === "recordIntegrity" || key === "newDocuments") return services(name);
+            if (key === "snow" || key === "recordIntegrity") return services(name);
             if (key === "today") return new Date("2026-10-28T12:00:00Z");
             return (...args) => {
               calls.push(["call:" + name, ...args.map((x) => (x && typeof x === "object" ? x.id || "object" : x))]);
@@ -95,8 +102,6 @@ const assert = require("node:assert/strict"),
                   return flags.noSource ? null : src;
                 case "uid":
                   return "visit-new";
-                case "continuingItems":
-                  return src.items;
               }
             };
           },

@@ -1,15 +1,19 @@
+// @ts-check
 /* Screen markup only. Values use the existing text escape; raw marks trusted renderer output. */
 import { esc } from "./presentation_format.js";
+/** @type {WeakMap<object,string>} */
 const fragments = new WeakMap();
+/** @param {unknown} value */
 export function raw(value) {
   const marker = Object.freeze({});
   fragments.set(marker, String(value));
   return marker;
 }
+/** @param {TemplateStringsArray} strings @param {unknown[]} values */
 function escapedScreenMarkup(strings, ...values) {
   let markup = strings[0];
   values.forEach((value, index) => {
-    markup += fragments.has(value) ? fragments.get(value) : esc(value);
+    markup += value !== null && typeof value === "object" && fragments.has(value) ? fragments.get(value) : esc(value);
     markup += strings[index + 1];
   });
   return markup;

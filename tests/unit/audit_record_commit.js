@@ -34,6 +34,13 @@ walk(parse("record_commit"), (n) => {
     used.add(n.property.name);
   }
 });
+// The checked consumer still reads the same lazy merge adapter at its original point.
+walk(
+  parse("case_store_port").body.find((n) => n.declaration?.id?.name === "mergeSavedCase"),
+  (n) => {
+    if (n.type === "MemberExpression" && n.object.name === "services") used.add(n.property.name);
+  },
+);
 assert.deepEqual([...used].sort(), fields.slice().sort());
 const declarations = parse("app_core").body.flatMap((n) => (n.declaration || n).declarations || []),
   entry = declarations.find((n) => n.id.name === "recordCommit");

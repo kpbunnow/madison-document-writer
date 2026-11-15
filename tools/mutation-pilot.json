@@ -342,6 +342,126 @@
       "suites": [
         "audit_policy_mirrors.py"
       ]
+    },
+    {
+      "id": "save-ack-revision-shape",
+      "category": "uncertain acknowledgment",
+      "file": "app/modules/case_store_port.js",
+      "find": "typeof value.revision === \"string\"",
+      "replace": "true",
+      "suites": [
+        "audit_case_store_port.js"
+      ]
+    },
+    {
+      "id": "save-retained-event-identity",
+      "category": "exact retry identity",
+      "file": "app/modules/case_store_port.js",
+      "find": "{ ...request, idempotencyEvent }",
+      "replace": "{ ...request, idempotencyEvent: \"different\" }",
+      "suites": [
+        "audit_case_store_port.js"
+      ]
+    },
+    {
+      "id": "publication-current-source",
+      "category": "publication source refusal",
+      "file": "helper/publication_validation.py",
+      "find": "or source[\"id\"] != snap.get(\"fromDocId\")",
+      "replace": "or False",
+      "suites": [
+        "audit_publication_owner.py"
+      ]
+    },
+    {
+      "id": "publication-signer-identity",
+      "category": "publication identity refusal",
+      "file": "helper/publication_validation.py",
+      "find": "snap[\"frozen\"][\"inspector\"].get(\"id\") != event[\"by\"]",
+      "replace": "False",
+      "suites": [
+        "audit_publication_owner.py"
+      ]
+    },
+    {
+      "id": "publication-linked-visit",
+      "category": "publication visit refusal",
+      "file": "helper/publication_validation.py",
+      "find": "not visit\n        or visit.get(\"sourceDocId\") != source[\"id\"]",
+      "replace": "False\n        or False",
+      "suites": [
+        "audit_publication_owner.py"
+      ]
+    },
+    {
+      "id": "worksheet-live-prior-visits",
+      "category": "live carried compliance",
+      "file": "app/modules/worksheet_workflow.js",
+      "find": "reinspFor(r.caseId).filter((x) => x.id !== r.id)",
+      "replace": "[]",
+      "suites": [
+        "audit_continuing_item_consumers.js"
+      ]
+    },
+    {
+      "id": "entry-live-prior-visits",
+      "category": "live carried compliance",
+      "file": "app/modules/reinspection_entry.js",
+      "find": "continuingItemsForVisits(src, reinspFor(src.caseId))",
+      "replace": "continuingItemsForVisits(src, [])",
+      "suites": [
+        "audit_continuing_item_consumers.js"
+      ]
+    },
+    {
+      "id": "gate-interrupted-process-evidence",
+      "category": "gate failure must not certify",
+      "file": "tools/verify_release.py",
+      "find": "if not passed:\n        raise SystemExit",
+      "replace": "if False:\n        raise SystemExit",
+      "suites": [
+        "audit_gate_orchestration.py"
+      ]
+    },
+    {
+      "id": "gate-browser-runtime-drift",
+      "category": "source bound verification",
+      "file": "tools/gate_stages.py",
+      "find": "if inputs != fingerprint(root):",
+      "replace": "if False:",
+      "suites": [
+        "audit_gate_orchestration.py"
+      ]
+    },
+    {
+      "id": "editor-fixed-case-number",
+      "category": "issued case identity",
+      "file": "app/modules/editor_events.js",
+      "find": "if (f === \"number\" && eventsFor(d.caseId).length) {",
+      "replace": "if (false) {",
+      "suites": [
+        "audit_editor_input_rules.js"
+      ]
+    },
+    {
+      "id": "packaging-fast-evidence",
+      "category": "full gate evidence only",
+      "file": "tools/package_release.py",
+      "find": "or gate.get(\"mode\") != \"full\"",
+      "replace": "or False",
+      "suites": [
+        "audit_packaging_orchestration.py"
+      ]
+    },
+    {
+      "id": "diagnostic-source-drift",
+      "category": "source-bound diagnostics",
+      "file": "tools/measure_maintainability.py",
+      "find": "metrics[\"measurementSource\"] = verify_source(before, inputs)",
+      "replace": "metrics[\"measurementSource\"] = {\"unbound\": True}",
+      "suites": [
+        "audit_diagnostic_orchestration.py"
+      ]
     }
   ]
 }

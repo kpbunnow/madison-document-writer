@@ -183,9 +183,6 @@ module.exports = async function createImportWorkflow({ today = new Date(), html 
   const worksheets = a.createWorksheetWorkflow({
     sourceDocFor: a.queries.sourceDocFor,
     today,
-    get newDocuments() {
-      return newDocuments;
-    },
     dueCheck: (...args) => reinspection.dueCheck(...args),
     saveDrafts: peer("saveDrafts"),
     render: peer("render"),

@@ -6,6 +6,11 @@
     "app/modules/address_format.js",
     "app/modules/defendant_contact.js",
     "app/modules/record_values.js",
-    "app/modules/presentation_format.js"
+    "app/modules/presentation_format.js",
+    "app/modules/case_store_port.js",
+    "app/modules/helper_requests.js",
+    "app/modules/helper_transport.js",
+    "app/modules/helper_stopped.js",
+    "app/modules/screen_html.js"
   ]
 }

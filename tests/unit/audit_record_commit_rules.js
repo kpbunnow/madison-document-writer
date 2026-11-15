@@ -136,7 +136,7 @@ async function run(api, sc) {
     name: "saved.json",
     revision: "r2",
     file: {
-      case: { id: "case", ...x.savedCase },
+      case: { id: "case", number: x.candidate.case.number, ...x.savedCase },
       events: x.savedEvents.map((id) => ({ id })),
     },
   };
