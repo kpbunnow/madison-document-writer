@@ -328,6 +328,15 @@ The owner's tester ran fresh clones of main on synthetic data. None of this clos
 - **S65-1 and S65-2:** open cases by inspector (soonest deadline first, Continue case) and both Reinspection results (corrected items ruled through, due dates unchanged) passed on synthetic cases in the R66 round; the case-file-could-not-be-included note and the wording approval remain City and division checks.
 - **Owner decisions of 2026-11-01:** a correction cannot add new items; a case that exists only as an unissued draft is not listed in Open cases by inspector; a completely blank Violator row is dropped when Recipients is closed. See 03-DOMAIN-RULES.md.
 
+## R83 release acceptance — OPEN
+
+| ID | City/staff check | Required result |
+| --- | --- | --- |
+| S83-1 | Install R83 from the shared release folder over R82 on a PC that uses the shared case folder, restart Document Writer once (Exit Document Writer, then the desktop icon), then start a PC still on R82 against the same share | The helper starts and Writer opens; Tools & settings → Connection & setup shows Program/helper versions Match; the R82 PC is told to restart and cannot save to the share |
+| S83-2 | On a City PC, in a notice with several fill-in bubbles: click the first bubble and type a detail; press Tab and Shift+Tab; type into the next bubble, then press Ctrl+Z; paste plain text into another; use a screen reader on one bubble. Also issue a notice for an Accela owner address that repeats its street line | No text box opens; the first letter replaces the selected bubble and the rest follows in the sentence; Tab and Shift+Tab move between open bubbles; Undo restores the bubble; pasted text fills it; the screen reader announces the bubble; the printed notice shows the typed details and the repeated street line once |
+
+All R83 items remain OPEN, together with the R82 and R81 items, SSRS-1 to SSRS-7 and the carried items. S82-1 is superseded by S83-1 and S82-2 by S83-2.
+
 ## R82 release acceptance — OPEN
 
 | ID | City/staff check | Required result |
