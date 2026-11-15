@@ -597,7 +597,6 @@ const reinspectionEntry = createReinspectionEntry(
       recordIntegrity: () => recordIntegrity,
       clearWalk: () => clearWalk,
       restoreWalkFor: () => restoreWalkFor,
-      newDocuments: () => newDocuments,
       uid: () => uid,
       saveDrafts: () => saveDrafts,
       render: () => render,
@@ -606,7 +605,7 @@ const reinspectionEntry = createReinspectionEntry(
       today: () => today,
       toast: () => toast,
     },
-    ["snow", "recordIntegrity", "newDocuments", "today"],
+    ["snow", "recordIntegrity", "today"],
   ),
 );
 export let { startReinspection } = reinspectionEntry;
@@ -1170,14 +1169,13 @@ const worksheetWorkflow = createWorksheetWorkflow(
     {
       sourceDocFor: () => sourceDocFor,
       today: () => today,
-      newDocuments: () => newDocuments,
       dueCheck: () => dueCheck,
       saveDrafts: () => saveDrafts,
       render: () => render,
       toast: () => toast,
       clearWalk: () => clearWalk,
     },
-    ["today", "newDocuments"],
+    ["today"],
   ),
 );
 export let { unissuedVisitFor, worksheetFaults, returnToWorksheet, restorePreviousDraft, discardWorksheet } = worksheetWorkflow;

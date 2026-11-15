@@ -819,6 +819,7 @@
     "tests/unit/audit_citation_review_templates.js",
     "tests/unit/audit_citation_workflow.js",
     "tests/unit/audit_complexity.js",
+    "tests/unit/audit_continuing_item_consumers.js",
     "tests/unit/audit_contracts.js",
     "tests/unit/audit_correction_change_rules.js",
     "tests/unit/audit_correction_panel_markup_rules.js",

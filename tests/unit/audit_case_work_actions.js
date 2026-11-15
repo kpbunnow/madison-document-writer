@@ -19,20 +19,7 @@ const defs = {
   reinspectionEntry: [
     "reinspection_entry",
     "createReinspectionEntry",
-    [
-      "snow",
-      "recordIntegrity",
-      "clearWalk",
-      "restoreWalkFor",
-      "newDocuments",
-      "uid",
-      "saveDrafts",
-      "render",
-      "sourceDocFor",
-      "unissuedVisitFor",
-      "today",
-      "toast",
-    ],
+    ["snow", "recordIntegrity", "clearWalk", "restoreWalkFor", "uid", "saveDrafts", "render", "sourceDocFor", "unissuedVisitFor", "today", "toast"],
   ],
 };
 const entries = parse("app_core").body.flatMap((n) => (n.declaration || n).declarations || []);
@@ -295,9 +282,6 @@ for (const [name, [file, ctor, fields]] of Object.entries(defs)) {
     },
     clearWalk: () => calls.push(["clearWalk"]),
     restoreWalkFor: (r) => calls.push(["walk", r]),
-    get newDocuments() {
-      return { continuingItems: (d) => d.items };
-    },
     uid: (p) => p + "-new",
     saveDrafts: () => calls.push(["save"]),
     render: () => calls.push(["render"]),
@@ -400,7 +384,7 @@ for (const [name, [file, ctor, fields]] of Object.entries(defs)) {
     JSON.stringify({
       passed: true,
       actionInputs: 4,
-      entryInputs: 12,
+      entryInputs: 11,
       inertConstruction: true,
       pendingAndUnsavedGuards: true,
       discardSaveOrder: true,
