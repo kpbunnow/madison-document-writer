@@ -579,3 +579,5 @@ Full Writer frame/modal/worksheet copy retirement preserves all seeded scenarios
 | `audit_diagnostic_orchestration.py` | Actual diagnostic CLI/source binding, toolchain fields, byte/tree drift, isolated production/test copies, failed process/timeouts and complete scope refusal. |
 | `audit_editor_gesture_recovery.js` | Actual pointer/keyboard/paste/picker handlers: one registration, normal/cancel/live-lock order and refusal of stale document or detached DOM row order. |
 | `audit_policy_proposal_safety.py` | Actual review-only policy proposal/CLI: forced manual review, immutable prior ranges/source facts and invalid-input refusal before output replacement. |
+| `audit_citation_disposition.js` | Independently loaded initial-citation-only eligibility, missing/invalid disposition refusals and retained correction closure. Actual controls/packets are also exercised in the existing citation-packet integration scenario. |
+| `audit_citation_only_closure.py` | Real atomic helper publication, idempotent retry, browser/helper projection parity, historical report closure/voids, correction guard and blank/partial/noninitial refusals. |

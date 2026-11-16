@@ -20,7 +20,8 @@
       "app/modules/shared_case_storage.js",
       "app/modules/case_store_port.js",
       "app/modules/record_commit.js",
-      "app/modules/helper_requests.js"
+      "app/modules/helper_requests.js",
+      "app/modules/citation_disposition.js"
     ]
   },
   "python": {
@@ -55,7 +56,8 @@
       "tools/release_inputs.py",
       "tools/release_publication.py",
       "tools/verify_release.py",
-      "helper/publication_validation.py"
+      "helper/publication_validation.py",
+      "helper/citation_disposition.py"
     ]
   },
   "targets": {

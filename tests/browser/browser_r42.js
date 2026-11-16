@@ -361,7 +361,7 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     await page.keyboard.press("Escape");
     await page.waitForFunction(() => !document.querySelector("[data-review-dialog]"));
     assert.equal(await page.evaluate(() => document.activeElement.id), "btn-review");
-    // All four copies appear by default; compact preview must not trim the print packet.
+    // All three current copies appear by default; compact preview must not trim the print packet.
     await page.evaluate(() => {
       doc(WriterState.state.docId).importRule = { kind: "initial", doc: "notice", cite: true, label: "Citation", status: "Citation" };
       render();
@@ -369,8 +369,8 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     await page.locator("[data-notecite]").first().check();
     await page.waitForFunction(() => initialCitations.enabled(doc(WriterState.state.docId)));
     await page.locator(".initial-citation-previews .cit").first().waitFor();
-    assert.equal(await page.locator(".initial-citation-previews .cit:visible").count(), 4);
-    assert.equal(await page.locator(".initial-citation-previews .cit").count(), 4);
+    assert.equal(await page.locator(".initial-citation-previews .cit:visible").count(), 3);
+    assert.equal(await page.locator(".initial-citation-previews .cit").count(), 3);
     await page.locator("[data-citation-copies]").click();
     assert.equal(await page.locator(".initial-citation-previews .cit:visible").count(), 1);
     const job = await page.evaluate(() => printJob(initialCitations.preview(doc(WriterState.state.docId))));
@@ -379,7 +379,7 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
       await print.setContent(job.html);
       await print.evaluate(() => document.fonts.ready);
       await print.emulateMedia({ media: "print" });
-      assert.equal(await print.locator(".cit:visible").count(), 4);
+      assert.equal(await print.locator(".cit:visible").count(), 3);
       await print.pdf({ path: path.join(OUT, "r42-full-citation-packet.pdf"), format: "Letter", printBackground: true, preferCSSPageSize: true });
     } finally {
       await print.close();
@@ -388,7 +388,7 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     fs.writeFileSync(
       path.join(OUT, "r42-editor-results.json"),
       JSON.stringify(
-        { passed: true, layouts: results, fullPacketCopies: 4, staffUsability: "Not measured; inspector and screen-reader sessions remain open." },
+        { passed: true, layouts: results, fullPacketCopies: 3, staffUsability: "Not measured; inspector and screen-reader sessions remain open." },
         null,
         2,
       ),
@@ -404,7 +404,7 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
         "caret retained",
         "readiness updates",
         "review dialog focus return",
-        "one screen copy and four print copies",
+        "one screen copy and three print copies",
         "three viewport sizes",
         "dark high contrast and system themes",
       ],

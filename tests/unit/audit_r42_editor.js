@@ -140,10 +140,10 @@ const test = async () => {
   d.items[0].cite = true;
   initialCitations.prepare(d);
   render();
-  assert.equal(document.querySelectorAll(".initial-citation-previews .cit").length, 4);
+  assert.equal(document.querySelectorAll(".initial-citation-previews .cit").length, 3);
   assert.equal(document.querySelectorAll(".initial-citation-previews [data-editor-extra-copy]").length, 0);
   const printable = printJob(initialCitations.preview(d));
-  assert.equal((printable.html.match(/class="cit /g) || []).length, 4);
+  assert.equal((printable.html.match(/class="cit /g) || []).length, 3);
   const printFrame = new JSDOM(printable.html).window.document;
   assert.equal(printFrame.body.querySelector("[data-editor-extra-copy]"), null, "fixed print body never inherits screen copy filtering");
   assert.equal(printFrame.body.querySelector(".document-workspace"), null, "screen-only copy CSS has no matching print ancestor");

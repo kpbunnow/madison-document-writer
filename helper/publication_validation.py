@@ -5,6 +5,8 @@ replay, authoring/special policy, atomic publication and integrity receipts. Cal
 and history operations are explicit call-time inputs, never cached authorities.
 """
 
+from citation_disposition import citation_only_item, citation_only_closed
+
 
 def _validate_publication_identity(
     *, event, record, check_date_window, calendar_date, mailing_max_day, mailing_message, special_types, supplemental_types
@@ -79,6 +81,7 @@ def _validate_followup_source(*, source, snap, items, documents, kind, supersede
         not source
         or source["id"] != snap.get("fromDocId")
         or source.get("type") == "compliance"
+        or citation_only_closed(source)
         or all((i.get("withdrawn") for i in source["items"]))
     ):
         raise ValueError("The follow-up must use the current open case document")
@@ -165,7 +168,13 @@ def validate_publication(
         _validate_snow_publication(snow_rules=snow_rules, snap=snap, documents=documents, superseded=superseded, voided=voided, event=event)
         return
     if kind in ("notice", "extension", "citation") and any(
-        (not i.get("done") and (not i.get("withdrawn")) and (not calendar_date(i.get("due")) or i["due"] <= snap["mailed"]) for i in items)
+        (
+            not i.get("done")
+            and (not i.get("withdrawn"))
+            and not citation_only_item(i)
+            and (not calendar_date(i.get("due")) or i["due"] <= snap["mailed"])
+            for i in items
+        )
     ):
         raise ValueError("Outstanding items require a future due date")
     if kind in special_types:

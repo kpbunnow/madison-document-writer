@@ -38,16 +38,16 @@ module.exports = async function (browser, page, out, axeScreen, work, base) {
     await print.setContent(data.html, { waitUntil: "load" });
     await print.evaluate(() => document.fonts.ready);
     await print.emulateMedia({ media: "print" });
-    assert.equal(await print.locator(".cit").count(), 4);
+    assert.equal(await print.locator(".cit").count(), 3);
     if (amount)
       assert.deepEqual(
         await print.locator(".cit .amt").allTextContents(),
-        Array(4).fill("$" + Number(amount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })),
+        Array(3).fill("$" + Number(amount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })),
       );
     if (data.snapshot.caseType === "snow-10.28")
       assert.deepEqual(
         await print.locator('.cit-cmt [data-cit$="|comment"]').allTextContents(),
-        Array(data.snapshot.authoringVersion >= 10 ? 3 : 4).fill(Object.values(data.snapshot.cits)[0].comment),
+        Array(data.snapshot.authoringVersion >= 10 ? 2 : 3).fill(Object.values(data.snapshot.cits)[0].comment),
       );
     const geometry = await print
       .locator(".sheet,.cit")
@@ -58,8 +58,9 @@ module.exports = async function (browser, page, out, axeScreen, work, base) {
     );
     await print.pdf({ path: path.join(out, label + ".pdf"), format: "Letter", printBackground: true, preferCSSPageSize: true });
     const actualText = execFileSync("pdftotext", [path.join(out, label + ".pdf"), "-"], { encoding: "utf8" });
-    for (const copy of ["COURT COPY", "AGENCY COPY", "INSPECTOR COPY", "DEFENDANT'S COPY"])
+    for (const copy of ["COURT COPY", "AGENCY COPY", "DEFENDANT'S COPY"])
       assert.equal(actualText.split(copy).length - 1, 1, label + " Chromium PDF contains " + copy);
+    assert.ok(!actualText.includes("INSPECTOR COPY"), "new packets omit the Inspector page");
     packetJobs.push({ label, html: data.html, operation: data.operation, pdfPath: path.join(out, label + ".pdf") });
     fs.writeFileSync(path.join(out, "r33-packet-jobs.json"), JSON.stringify(packetJobs));
     fs.writeFileSync(path.join(out, label + ".html"), data.html);
@@ -141,8 +142,8 @@ module.exports = async function (browser, page, out, axeScreen, work, base) {
   assert.equal(issued.snapshot.items[0].dueExempt, "snow-10.28");
   assert.ok(issued.html.includes("$134.00") && issued.html.includes("$197.00"));
   assert.ok(!/reinspection|Issue a citation; or|City Attorney|Due Date/i.test(issued.snapshot.frozen.body));
-  assert.equal((issued.html.match(/RM#203,/g) || []).length, 4);
-  assert.equal((issued.html.match(/Building Inspection Case Number/g) || []).length, 4);
+  assert.equal((issued.html.match(/RM#203,/g) || []).length, 3);
+  assert.equal((issued.html.match(/Building Inspection Case Number/g) || []).length, 3);
   const status = await page.evaluate((id) => ({ state: caseState(kase(id)), file: caseFile(id), summary: summarize(caseFile(id)) }), first.caseId);
   assert.equal(status.state.closed, true);
   assert.equal(status.state.label, "Cited – snow");

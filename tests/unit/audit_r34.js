@@ -76,12 +76,13 @@ const test = async () => {
   assert.equal(issued.frozen.snowCoverFormat, 10);
   assert.equal(__R34_PY(clone(issued)), issued.frozen.body);
   const html = printJob(issued).html;
-  assert.equal(comments(html), 3);
+  assert.equal(comments(html), 2);
   assert.ok(html.includes("snow-subject"));
   // 3. Authoring 9 (R33) snow citations keep the old cover and the defendant-copy comment.
   const r33 = clone(issued);
   r33.id = "r33-copy";
   r33.authoringVersion = 9;
+  r33.frozen.courtCopies = clone(globalCourtCopies());
   delete r33.frozen.snowCoverFormat;
   delete r33.frozen.body;
   assert.equal(snow.coverFormat(r33), 9);

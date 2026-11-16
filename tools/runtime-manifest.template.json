@@ -53,7 +53,8 @@
     "document-writer.ico",
     "index_validation.py",
     "parcel_history.py",
-    "projection_values.py"
+    "projection_values.py",
+    "citation_disposition.py"
   ],
   "optional": [
     "integrity_admin.py",
@@ -155,6 +156,7 @@
     "index_validation.py": "helper/index_validation.py",
     "parcel_history.py": "helper/parcel_history.py",
     "projection_values.py": "helper/projection_values.py",
-    "publication_validation.py": "helper/publication_validation.py"
+    "publication_validation.py": "helper/publication_validation.py",
+    "citation_disposition.py": "helper/citation_disposition.py"
   }
 }

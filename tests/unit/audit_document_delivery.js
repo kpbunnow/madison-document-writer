@@ -282,6 +282,7 @@ const copy = (v) => JSON.parse(JSON.stringify(v));
   reset();
   d.type = "citation";
   d.draft = true;
+  d.frozen.courtCopies = structuredClone(CIT_COPIES);
   d.items = [{ id: "charge", cite: true }];
   d.cits = { charge: { num: "C1", mandatoryAppearance: true } };
   assert.throws(() => printing.printJob(d), /Mandatory-appearance/);

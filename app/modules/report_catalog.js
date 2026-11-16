@@ -198,7 +198,7 @@ function reportDaysToCompliance(services, cell, count) {
       const d = (v) => services.daysBetween(v.c.opened, v.doneOn);
       const row = (label, l) => {
         const done = l.filter((v) => v.done && d(v) != null),
-          open = l.filter((v) => !v.done),
+          open = l.filter((v) => !v.done && !v.citationClosedOn),
           ds = done.map(d);
         return [
           label,

@@ -154,11 +154,11 @@ const test = async () => {
   const numbers = Object.values(cit.cits).map((c) => c.num);
   assert.deepEqual(numbers.sort(), nums.sort());
   assert.equal(summarize(caseFile(n.caseId)).citations.length, 2);
-  assert.equal((citationFaces(cit, true).match(/class="cit-form"/g) || []).length, 8);
+  assert.equal((citationFaces(cit, true).match(/class="cit-form"/g) || []).length, 6);
   assert.equal(citationFromNotice(notice.id).id, cit.id, "Legacy resume finds issued companion without duplication");
   console.log(
     "PASS R28 initial pair validation, normalized editing, preserved override" +
-      "s, two citations, no invented visit, atomic lost-response retry, four co" +
+      "s, two citations, no invented visit, atomic lost-response retry, three co" +
       "pies per charge and report counts",
   );
   process.exit(0);

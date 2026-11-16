@@ -176,7 +176,7 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
       .locator(".sheet")
       .evaluateAll((els) => els.map((el) => el.scrollHeight > el.clientHeight + 2 || el.scrollWidth > el.clientWidth + 2)))
       assert.equal(clipped, false, "long observation note stays inside each page");
-    // Initial and reinspection final packet paths must both retain four distinct approved copies per charge.
+    // Initial and reinspection final packet paths must both contain three distinct approved copies per charge.
     const packets = [];
     for (const reinspection of [false, true])
       for (const charges of [1, 2]) {
@@ -222,30 +222,30 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
         await printPage.setContent(job.html);
         await printPage.emulateMedia({ media: "print" });
         const faces = await printPage.locator(".cit").allTextContents();
-        assert.equal(faces.length, charges * 4);
+        assert.equal(faces.length, charges * 3);
         for (let n = 0; n < charges; n++) {
-          assert.match(faces[n * 4], /COURT COPY/);
-          assert.match(faces[n * 4 + 1], /AGENCY COPY/);
-          assert.match(faces[n * 4 + 2], /INSPECTOR COPY/);
-          assert.match(faces[n * 4 + 3], /DEFENDANT'S COPY/);
-          assert.match(faces[n * 4 + 1], /AGENCY RECORD/);
-          assert.match(faces[n * 4 + 2], /INSPECTOR RECORD/);
-          assert.match(faces[n * 4 + 3], /IF YOU WANT TO PLEAD NOT GUILTY/);
+          assert.match(faces[n * 3], /COURT COPY/);
+          assert.match(faces[n * 3 + 1], /AGENCY COPY/);
+          assert.ok(!faces.some((face) => face.includes("INSPECTOR COPY")), "new packets omit Inspector copies");
+          assert.match(faces[n * 3 + 2], /DEFENDANT'S COPY/);
+          assert.match(faces[n * 3 + 1], /AGENCY RECORD/);
+          assert.ok(!faces.some((face) => face.includes("INSPECTOR RECORD")), "new packets omit Inspector records");
+          assert.match(faces[n * 3 + 2], /IF YOU WANT TO PLEAD NOT GUILTY/);
         }
         const pdf = path.join(OUT, "r60-" + (reinspection ? "reinspection" : "initial") + "-" + charges + ".pdf");
         await printPage.pdf({ path: pdf, format: "Letter", printBackground: true, preferCSSPageSize: true });
         const text = execFileSync("pdftotext", ["-layout", pdf, "-"], { encoding: "utf8" });
-        for (const label of ["COURT COPY", "AGENCY COPY", "INSPECTOR COPY", "DEFENDANT'S COPY"])
+        for (const label of ["COURT COPY", "AGENCY COPY", "DEFENDANT'S COPY"])
           assert.equal(text.split(label).length - 1, charges, "PDF includes " + label);
         packets.push({ reinspection, charges, copies: faces.length });
       }
-    assert.equal(await page.locator(".document-workspace .cit:visible").count(), 8);
+    assert.equal(await page.locator(".document-workspace .cit:visible").count(), 6);
     assert.equal(await page.locator("[data-citation-copies]").getAttribute("aria-expanded"), "true");
     await page.locator("[data-citation-copies]").click();
     assert.equal(await page.locator(".document-workspace .cit:visible").count(), 2);
     assert.equal(await page.locator("[data-citation-copies]").getAttribute("aria-expanded"), "false");
     await page.locator("[data-citation-copies]").click();
-    assert.equal(await page.locator(".document-workspace .cit:visible").count(), 8);
+    assert.equal(await page.locator(".document-workspace .cit:visible").count(), 6);
     assert.equal(await page.locator("[data-citation-copies]").getAttribute("aria-expanded"), "true");
     const results = { passed: true, packets, addressZooms: [1, 1.25, 1.5, 2], historyItems: 12 };
     fs.writeFileSync(path.join(OUT, "r60-production-results.json"), JSON.stringify(results, null, 2));

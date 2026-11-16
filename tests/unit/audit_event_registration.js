@@ -76,6 +76,7 @@ const allowed = new Set([
   "editor_state.js",
   "document_types.js",
   "document_rules.js",
+  "citation_disposition.js",
   "writer_queries.js",
   "presentation_format.js",
   "screen_html.js",

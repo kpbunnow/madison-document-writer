@@ -1,3 +1,4 @@
+import { citationOnlyClosed } from "./citation_disposition.js";
 import { continuingItemsForVisits } from "./case_projection.js";
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
@@ -55,6 +56,10 @@ export function createReinspectionEntry(services) {
       return;
     }
     const src = services.sourceDocFor(cid);
+    if (citationOnlyClosed(src)) {
+      services.toast("This case closed with its initial citation; no follow-up inspection is required.");
+      return;
+    }
     if (!src || !src.items.length) {
       services.toast("Finish and issue the notice first — a reinspection works off the document the owner received");
       return;

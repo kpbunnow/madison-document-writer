@@ -533,3 +533,8 @@ The owner's tester ran a fresh clone of main on synthetic data. None of this clo
 - **Create-only anchor (A3):** a configured anchor folder produced exactly one 173-byte `.sha256` receipt and no temporary files, and `anchor-status.json` reported anchored. Permission refusal of a normal client remains City-only.
 - **Discarded notice draft (new finding):** discarding a new import's notice draft left the case with no document, draft or event, and importing its Initial Inspection again was refused with guidance pointing at a notice that no longer existed. Fixed after this run: such a case can start its notice again from its Initial Inspection. City check **OCL-8** below confirms it.
 
+
+
+## Initial citation-only and current copy-set acceptance (2026-11-16 development)
+
+Pending City/native acceptance: verify the new Court/Agency/Defendant packet per charge on MC-2000/City print settings, an older retained four-copy reprint and correction, blank repair due-date space for initial citation-only closure, Closed workspace/Reports state without compliance credit, partial-closure refusal, and owner-directed mouse/Tab order including Location Heading and keyboard reordering. Verify separate Accela closing procedures. Automated synthetic checks do not close these items or the mandatory-appearance/legal holds.

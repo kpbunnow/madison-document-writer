@@ -47,7 +47,7 @@ module.exports = async function (browser, page, out, axeScreen) {
       { number, ord, owner },
     );
   }
-  async function issue(expected, ord, label, manual = false) {
+  async function issue(expected, ord, label, manual = false, version = 11) {
     const pricing = page.locator("[data-review-details=pricing]:not([open]) summary");
     if (await pricing.count()) await pricing.click();
     assert.equal(await page.getByLabel("Base deposit for item 1", { exact: true }).getAttribute("readonly"), manual ? null : "");
@@ -67,7 +67,7 @@ module.exports = async function (browser, page, out, axeScreen) {
         c = Object.values(d.cits)[0];
       return { version: d.authoringVersion, cit: c, html: printJob(d).html, group: d.issuanceGroup, notice: doc(d.fromDocId)?.issuanceGroup };
     }, ids.citationId);
-    assert.equal(evidence.version, 11);
+    assert.equal(evidence.version, version);
     assert.equal(evidence.cit.ord, ord);
     assert.equal(evidence.cit.amount, expected);
     assert.deepEqual(evidence.group, evidence.notice);
@@ -82,27 +82,27 @@ module.exports = async function (browser, page, out, axeScreen) {
     // PC's fonts (R51 WP3 rule: assert pagination properties, not a font-dependent page count).
     const coverPages = await print.locator(".sheet").count();
     assert.ok(coverPages === 1 || coverPages === 2, "cover pages " + coverPages);
-    assert.equal(await print.locator(".cit").count(), 4, "four court copies");
-    assert.equal(geometry.length, coverPages + 4);
+    assert.equal(await print.locator(".cit").count(), 3, "Court, Agency and Defendant copies");
+    assert.equal(geometry.length, coverPages + 3);
     assert.equal(await print.locator(".sheet .n-notes").count(), 1);
     assert.ok(
       geometry.every((g) => g.height <= 1058 && !g.overflow),
       label + " print overflow: " + JSON.stringify(geometry),
     );
-    assert.equal(await print.locator(".cit .amt").count(), 4);
+    assert.equal(await print.locator(".cit .amt").count(), 3);
     assert.deepEqual(
       await print.locator(".cit .amt").allTextContents(),
-      Array(4).fill("$" + Number(expected).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })),
+      Array(3).fill("$" + Number(expected).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })),
     );
-    assert.equal(await print.locator(".cit-assessments").count(), 4);
+    assert.equal(await print.locator(".cit-assessments").count(), 3);
     if (["3236.00", "1966.00"].includes(expected))
       for (const fees of await print.locator(".cit-assessments").allTextContents())
         assert.ok(fees.includes(expected === "3236.00" ? "Jail $25.00" : "Jail $15.00"));
     await print.pdf({ path: path.join(out, label + ".pdf"), format: "Letter", printBackground: true, preferCSSPageSize: true });
     assert.equal(
       (fs.readFileSync(path.join(out, label + ".pdf"), "latin1").match(/\/Type\s*\/Page[^s]/g) || []).length,
-      coverPages + 4,
-      "cover pages plus four court copies, with no blank page",
+      coverPages + 3,
+      "cover pages plus three court copies, with no blank page",
     );
     fs.writeFileSync(path.join(out, label + ".html"), evidence.html);
     await print.screenshot({ path: path.join(out, label + ".png"), fullPage: true });
@@ -110,12 +110,12 @@ module.exports = async function (browser, page, out, axeScreen) {
     results.push({
       name: label,
       passed: true,
-      authoringVersion: 11,
+      authoringVersion: version,
       amount: expected,
       tier: evidence.cit.tier,
       counted: evidence.cit.countedOffenses,
       documentId: ids.citationId,
-      fourCopies: true,
+      threeCopies: true,
       realHelper: true,
     });
   }
@@ -138,6 +138,29 @@ module.exports = async function (browser, page, out, axeScreen) {
   await page.locator("[data-deposit-form] [name=depositSource]").fill("Synthetic approved manual base instruction.");
   await page.getByRole("button", { name: "Complete charge", exact: true }).click();
   await issue("1966.00", "SPS321.125", "r30-manual-base", true);
+  // Current initial-only disposition through the real UI, atomic store and original PDF path.
+  await create("QA-CITATION-ONLY", "28.202(3)(e)", "SYNTHETIC CITATION ONLY OWNER");
+  await page.evaluate(() => {
+    const d = doc(WriterState.state.docId),
+      k = docCase(d);
+    d.authoringVersion = 16;
+    d.importRule = { kind: "initial", doc: "notice", cite: true, status: "Citation" };
+    d.importInspection = { type: "initial", date: k.date, time: k.time };
+    render();
+  });
+  await page.locator("[data-citation-disposition]").selectOption("citation-only");
+  const closedId = await page.evaluate(() => doc(WriterState.state.docId).caseId);
+  assert.equal(await page.locator('[data-field="due"]').count(), 0);
+  await issue("323.00", "28.202(3)(e)", "initial-citation-only", false, 16);
+  assert.equal(await page.evaluate((id) => caseState(kase(id)).closed, closedId), true, "initial citation closes without a follow-up");
+  const closure = await page.evaluate((id) => {
+    const d = sourceDocFor(id),
+      summary = summarize(caseFile(id));
+    return { status: summary.case.status, due: d.items[0].due, done: d.items[0].done, withdrawn: d.items[0].withdrawn };
+  }, closedId);
+  assert.equal(closure.status, "Closed");
+  assert.equal(closure.due, "");
+  assert.ok(!closure.done && !closure.withdrawn, "no fabricated compliance or withdrawal");
   fs.writeFileSync(path.join(out, "r30-results.json"), JSON.stringify({ passed: true, results }, null, 2));
   return results;
 };

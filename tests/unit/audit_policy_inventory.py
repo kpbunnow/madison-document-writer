@@ -17,7 +17,7 @@ def validate(inventory):
     )
     ids = [r["id"] for r in inventory["rules"]]
     assert len(ids) == len(set(ids))
-    assert set(ids) == {"parcel", "mailing", "calendar", "deadlines", "pricing", "projection", "recovery"}
+    assert set(ids) == {"parcel", "mailing", "calendar", "deadlines", "pricing", "projection", "recovery", "initial-citation-only"}
     for rule in inventory["rules"]:
         assert rule["authority"] and rule["historicalVariants"] and rule["consumers"] and rule["owners"] and rule["suites"]
         for owner in rule["owners"]:

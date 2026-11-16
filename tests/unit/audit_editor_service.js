@@ -127,7 +127,7 @@ for (const [owner, factory] of Object.entries(owners)) {
   button.click();
   assert.equal(state.state.compactCitationCopies, d.id);
   assert.equal(renderCount, 1, "copy action remains synchronous");
-  assert.equal(document.querySelectorAll("[data-editor-extra-copy]").length, 3);
+  assert.equal(document.querySelectorAll("[data-editor-extra-copy]").length, 2);
   assert.equal(document.activeElement, button);
   button.click();
   assert.equal(state.state.compactCitationCopies, null);

@@ -118,16 +118,16 @@ const T =
   ").length===0,blockers(C).map(function(c){return c.t;}).join(' | '));\n\nst" +
   "ep('6. the printed document');\nvar pages=document.querySelectorAll('.des" +
   "k .sheet'),cits=document.querySelectorAll('.desk .cit');\nok('notice page" +
-  "s then citation pages',pages.length>=1&&cits.length===8);\nvar kids=Array" +
+  "s then citation pages',pages.length>=1&&cits.length===6);\nvar kids=Array" +
   ".prototype.map.call(document.querySelector('.desk').children,function(n)" +
   "{return n.className.split(' ')[0];});\nok('  order is sheet(s) first',kid" +
-  "s.indexOf('cit')>kids.lastIndexOf('sheet'),kids.join(' '));\nok('  4 copi" +
-  "es per citation',cits.length===8);\nvar labels=Array.prototype.map.call(c" +
+  "s.indexOf('cit')>kids.lastIndexOf('sheet'),kids.join(' '));\nok('  3 copi" +
+  "es per citation',cits.length===6);\nvar labels=Array.prototype.map.call(c" +
   "its,function(c){return c.querySelector('.cit-foot span:last-child').text" +
-  "Content;});\nok('  copy labels repeat correctly',labels.slice(0,4).join('" +
-  "|')===labels.slice(4).join('|'),labels.slice(0,4).join(' / '));\nok('  ag" +
-  "ency+inspector copies carry a record',Array.prototype.filter.call(cits,f" +
-  "unction(c){return !!c.querySelector('.cit-rec');}).length===4);\nok('  de" +
+  "Content;});\nok('  copy labels repeat correctly',labels.slice(0,3).join('" +
+  "|')===labels.slice(3).join('|'),labels.slice(0,3).join(' / '));\nok('  ag" +
+  "ency copy carries a record',Array.prototype.filter.call(cits,f" +
+  "unction(c){return !!c.querySelector('.cit-rec');}).length===2);\nok('  de" +
   "fendant copies carry instructions',Array.prototype.filter.call(cits,func" +
   "tion(c){return !!c.querySelector('.cit-inst');}).length===2);\nok('  no l" +
   "eaks anywhere',leaks(document.querySelector('.desk').innerHTML).length==" +

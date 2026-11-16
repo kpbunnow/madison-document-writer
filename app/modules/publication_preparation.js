@@ -1,9 +1,10 @@
+import { citationOnlyItem } from "./citation_disposition.js";
 import { inspAt } from "./inspection_facts.js";
 import { mailingDateMessage, mailingMaxDay, recordDay } from "../assets/shared.js";
 import { stableJSON, clone } from "./record_values.js";
 import { ISSUE_EVENT, REFERRED_ONLY } from "./document_types.js";
 import { doc, reinsp, originalNotice, recordHead, recordNow, isReferredCase, docsFor, docInsp } from "./writer_queries.js";
-import { isEffective, specialType } from "./document_rules.js";
+import { isEffective, specialType, activeRestrictions } from "./document_rules.js";
 import { validISO } from "./calendar.js";
 
 /* Lifecycle check phases. Each returns its faults in the order the single check produced them. */
@@ -13,6 +14,8 @@ function recordFaults(d, src, current) {
     baseline = d.expectedHead;
   if (Array.isArray(baseline) && stableJSON(baseline) !== stableJSON(recordHead(d.caseId)))
     faults.push("The case record changed after this draft began. Reopen the current case and review the draft before issuing.");
+  if (Array.isArray(d.items) && d.items.some(citationOnlyItem) && activeRestrictions(docsFor(d.caseId)).length)
+    faults.push("Citation-only closure requires every occupancy restriction to be released first.");
   if (d.type === "notice" && first) faults.push("A case can have only one original notice. Use its correction history.");
   if (d.type !== "notice" && (!src || !isEffective(src) || !current || current.id !== src.id))
     faults.push("The follow-up must use the current issued document.");

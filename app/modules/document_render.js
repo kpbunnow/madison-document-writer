@@ -1,9 +1,20 @@
-/* Document and citation-face renderers: authored notice HTML, print documents and the four court copies. */
+import { citationOnlyItem, canChooseCitationOnly } from "./citation_disposition.js";
+/* Document and citation-face renderers: authored notice HTML, print documents and retained court-copy definitions. */
 import { mailingMaxDay, recordDay } from "../assets/shared.js";
 
-import { citeAllowed, frozenOf, hasOwnInsp, isHistoryDoc, alignedExtension, datedExtension, simpleVacancy, specialType } from "./document_rules.js";
+import {
+  citeAllowed,
+  frozenOf,
+  citationCopiesFor,
+  hasOwnInsp,
+  isHistoryDoc,
+  alignedExtension,
+  datedExtension,
+  simpleVacancy,
+  specialType,
+} from "./document_rules.js";
 import { BOXN, BOXY, countBlanks, editableBlanks, esc, money, nl2 } from "./presentation_format.js";
-import { DOC_TYPES, OC_WORD, globalCourt, globalCourtContact, globalCourtCopies, globalCourtInstructions } from "./document_types.js";
+import { DOC_TYPES, OC_WORD, globalCourt, globalCourtContact, globalCourtInstructions } from "./document_types.js";
 
 import { copiesOf, emailList, violatorActive } from "./mailing_rules.js";
 import { defendantLines, ownerCopy, cleanOwnerCopyLines } from "./defendant_contact.js";
@@ -49,8 +60,8 @@ const finalDueCell = (services, it) =>
 
 function noticeDueSelectHTML(row) {
   const { it, num, dueSelection, dueSelected } = row;
-  return dueSelection && it.dueExempt !== "snow-10.28"
-    ? '<input type="checkbox" class="no-print due-pick" style="margin:0 6px 0 0;vertical-align:middle" data-due-select="' +
+  return dueSelection && it.dueExempt !== "snow-10.28" && !citationOnlyItem(it)
+    ? '<input type="checkbox" tabindex="-1" class="no-print due-pick" style="margin:0 6px 0 0;vertical-align:middle" data-due-select="' +
         esc(it.id) +
         '" aria-label="Select item ' +
         esc(num) +
@@ -83,10 +94,23 @@ function noticeDueDisabled(row) {
 
 function noticeDueInputs(services, row) {
   const { d, it, num } = row;
+  const option = canChooseCitationOnly(d, it)
+    ? '<select class="d-in no-print" tabindex="-1" data-citation-disposition="' +
+      esc(it.id) +
+      '" aria-label="Due date option for item ' +
+      esc(num) +
+      '"><option value="date">Due date</option><option value="citation-only"' +
+      (citationOnlyItem(it) ? " selected" : "") +
+      ">Citation only — close case</option></select>"
+    : "";
+  if (citationOnlyItem(it)) return option;
   return (
+    option +
     noticeDueSelectHTML(row) +
     noticeAffectedHTML(row) +
-    '<input type="date" class="d-in due-in" data-field="due" data-id="' +
+    '<input type="date"' +
+    (d.draft && !row.locked ? ' tabindex="-1"' : "") +
+    ' class="d-in due-in" data-field="due" data-id="' +
     `${esc(it.id)}` +
     '" value="' +
     `${esc(it.due || "")}` +
@@ -205,6 +229,7 @@ function noticeSectionsCell(row) {
     '<td class="c-sec">' +
     '<div class="sec-list ed" ' +
     `${rce}` +
+    (rce && d.draft ? ' tabindex="-1"' : "") +
     ' data-field="sections" data-id="' +
     `${esc(it.id)}` +
     '" data-ph="section">' +
@@ -291,7 +316,7 @@ function noticeCitationCell(row) {
         ? ""
         : !it.done && (citeAllowed(d) || it.cite)
           ? '<td class="c-cite no-print"><label title="Issue a citation with this not' +
-            'ice"><input type="checkbox" data-notecite="' +
+            'ice"><input type="checkbox" tabindex="-1" data-notecite="' +
             `${esc(it.id)}` +
             '" ' +
             `${it.cite ? "checked" : ""}` +
@@ -771,7 +796,7 @@ function renderCitationFaces(services, d, locked) {
   locked = true;
   const source = frozenOf(d) || {},
     COURT = citationCourt(source, d),
-    CIT_COPIES = source.courtCopies || globalCourtCopies(),
+    CIT_COPIES = citationCopiesFor(d),
     CIT_INSTRUCTIONS = source.courtInstructions || globalCourtInstructions(),
     COURT_CONTACT = source.courtContact || globalCourtContact();
 

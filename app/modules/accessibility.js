@@ -75,7 +75,7 @@ function enhanceDocumentControls() {
     el.setAttribute("role", "textbox");
     el.setAttribute("aria-label", names[key] || el.dataset.ph || key || "Document text");
     el.setAttribute("aria-multiline", String(["ownerBlock", "text", "sections", "comment"].includes(key)));
-    el.tabIndex = 0;
+    el.tabIndex = el.dataset.field === "sections" ? -1 : 0;
   });
   document.querySelectorAll("#app input,#app select,#overlay input,#overlay select").forEach((el, index) => {
     if (!controlNeedsName(el)) return;

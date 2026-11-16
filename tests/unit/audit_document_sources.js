@@ -302,7 +302,10 @@ for (const [name, [file, ctor, fields]] of Object.entries(defs)) {
   assert.equal(old.court.room, "old room");
   assert.equal(Object.hasOwn(old.court, "caseNumberLabel"), false);
   const defaults = sources.freezeSources({ ...d, frozen: undefined });
-  assert.deepEqual(defaults.courtCopies, CIT_COPIES);
+  assert.deepEqual(
+    defaults.courtCopies,
+    CIT_COPIES.filter((copy) => copy.record !== "INSPECTOR RECORD"),
+  );
   assert.equal(defaults.courtInstructions, CIT_INSTRUCTIONS);
   assert.ok(
     defaults.courtInstructions.includes("plea of guilty, no contest, or not guilty via email, regular mail, the court’s website or fax on or before"),

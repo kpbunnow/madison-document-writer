@@ -1,6 +1,6 @@
 import { kase, docCase, docInsp } from "./writer_queries.js";
-import { simpleVacancy, simplifiedBestInterest, frozenOf } from "./document_rules.js";
-import { BLOCKS, CIT_COPIES, CIT_INSTRUCTIONS, COURT, COURT_CONTACT, EXTERIOR_WORK } from "./document_types.js";
+import { simpleVacancy, simplifiedBestInterest, frozenOf, citationCopiesFor } from "./document_rules.js";
+import { BLOCKS, CIT_INSTRUCTIONS, COURT, COURT_CONTACT, EXTERIOR_WORK } from "./document_types.js";
 import { CITATION_POLICY } from "./citation_policy.js";
 import { clone } from "./record_values.js";
 import { nowISO } from "./calendar.js";
@@ -46,7 +46,7 @@ export function createDocumentSources(services) {
         ...clone((frozenOf(d) || {}).court || COURT),
         ...(d.authoringVersion >= 9 ? { room: "RM#203,", caseNumberLabel: CITATION_POLICY.mc2000CaseNumberLabel } : {}),
       },
-      courtCopies: clone((frozenOf(d) || {}).courtCopies || CIT_COPIES),
+      courtCopies: clone(citationCopiesFor(d, true)),
       courtInstructions: (frozenOf(d) || {}).courtInstructions || CIT_INSTRUCTIONS,
       courtContact: clone((frozenOf(d) || {}).courtContact || COURT_CONTACT),
       at: nowISO(),

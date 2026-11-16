@@ -162,9 +162,10 @@ module.exports = async function (browser, hostPage, OUT, axeScreen, work, base) 
       const retained = path.join(OUT, "r61-" + label + "-filed-original.pdf");
       fs.writeFileSync(retained, bytes);
       const text = execFileSync("pdftotext", [retained, "-"], { encoding: "utf8" });
-      for (const copy of ["COURT COPY", "AGENCY COPY", "INSPECTOR COPY", "DEFENDANT'S COPY"])
+      for (const copy of ["COURT COPY", "AGENCY COPY", "DEFENDANT'S COPY"])
         assert.equal(text.split(copy).length - 1, 1, label + " filed original contains " + copy);
-      receipts.push({ label, sha256: receipt.sha256, bytes: bytes.length, copies: 4, identicalRetrieval: true });
+      assert.ok(!text.includes("INSPECTOR COPY"), "new filed packets omit Inspector copies");
+      receipts.push({ label, sha256: receipt.sha256, bytes: bytes.length, copies: 3, identicalRetrieval: true });
     }
     return {
       passed: true,

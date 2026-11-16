@@ -819,7 +819,7 @@ async function axeThemes(page, screen) {
     assert.equal(headers.every(Boolean), true, job.type + " PDF letterhead last row clipped");
     if (job.type === "corrected-citation")
       assert.equal(
-        await printPage.locator(".cit-foot").evaluateAll((els) => els.length === 4 && els.every((el) => el.textContent.includes("Corrected rev. 1"))),
+        await printPage.locator(".cit-foot").evaluateAll((els) => els.length === 3 && els.every((el) => el.textContent.includes("Corrected rev. 1"))),
         true,
         "Every amended court copy has a revision marker",
       );

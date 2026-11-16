@@ -13,6 +13,8 @@ undefined keys omitted by JSON.stringify, UTF-16 string ordering); see the
 helpers below. Change both implementations together.
 """
 
+from citation_disposition import citation_only_closed
+
 import datetime
 import json
 import math
@@ -506,7 +508,7 @@ def case_status(k, facts):
         return "Not issued"
     if last_items is not None and jlen(items(last_items)) and all(truthy(get(i, "withdrawn")) for i in items(last_items)):
         return "Withdrawn"
-    if facts.comp is not None:
+    if facts.comp is not None or citation_only_closed(facts.last_items):
         return "Closed"
     if facts.ever_referred:
         return "Referred"
@@ -617,6 +619,7 @@ def document_history(docs, no):
                     "doneOn": jor(get(item, "doneOn"), ""),
                     "withdrawn": truthy(get(item, "withdrawn")),
                     "due": jor(get(item, "due"), ""),
+                    **({"citationClosedOn": issued_day(d)} if citation_only_closed({**d, "void": False, "superseded": False}) else {}),
                     "title": jor(get(item, "title"), ""),
                     "sections": jor(get(item, "sections"), []),
                     **violation_type(item),
@@ -680,6 +683,7 @@ def violation_row(ctx, it):
     kind = violation_type(current)
     return {
         "dueExempt": jor(get(current, "dueExempt"), ""),
+        **({"citationClosedOn": issued_day(last_items)} if citation_only_closed(last_items) else {}),
         "no": no,
         "title": jor(get(current, "title"), ""),
         "sections": list(jor(get(current, "sections"), [])),
@@ -729,7 +733,13 @@ def case_standing(k, facts, status):
         "noticeIssued": issued_day(notice if notice_doc is None else notice_doc) if notice is not None else "",
         "noticeActive": facts.notice_active,
         "status": status if facts.notice_active or live else "Withdrawn" if notice is not None else "Not issued",
-        "closedOn": record_day(get(last_doc, "filedAt")) if snow_closed else starts(facts.comp) if facts.comp is not None else "",
+        "closedOn": record_day(get(last_doc, "filedAt"))
+        if snow_closed
+        else starts(facts.comp)
+        if facts.comp is not None
+        else issued_day(facts.last_items)
+        if citation_only_closed(facts.last_items)
+        else "",
     }
 
 
@@ -816,6 +826,7 @@ def document_rows(docs, name_of):
             "effectiveTo": ends(d),
             "recordedAt": get(d, "issuedAt"),
             "allWithdrawn": jlen(items(d)) > 0 and all(truthy(get(i, "withdrawn")) for i in items(d)),
+            **({"citationOnlyClosed": True} if citation_only_closed({**d, "void": False, "superseded": False}) else {}),
             "revision": jor(get(d, "revision"), None),
             "superseded": truthy(get(d, "superseded")),
             "voidAt": record_day(get(d, "void", "at")) if truthy(get(d, "void")) else "",

@@ -44,6 +44,7 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
       WriterState.EVENTS = {};
       WriterState.PENDING = [];
       newDoc("a11y-case", "notice");
+      doc(WriterState.state.docId).importRule = { kind: "initial", doc: "notice", cite: true, status: "Citation" };
       doc(WriterState.state.docId).items = Array.from({ length: 3 }, (_, i) => ({
         id: "a11y-item-" + i,
         no: String(i + 1),
@@ -54,6 +55,35 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
       }));
       render();
     });
+    // Owner-directed table Tab sequence: reorder and heading controls, then editable text;
+    // ordinance, Cite and due-date controls remain clickable but are skipped.
+    await page.locator('[data-grip="a11y-item-0"]').focus();
+    await page.keyboard.press("Tab");
+    assert.equal(await page.evaluate(() => document.activeElement.dataset.direction), "down");
+    await page.keyboard.press("Tab");
+    assert.equal(await page.evaluate(() => document.activeElement.dataset.grpbtn), "a11y-item-0");
+    await page.locator('[data-field="text"][data-id="a11y-item-0"]').focus();
+    const skipped = '[data-field="sections"],[data-notecite],[data-due-select],[data-field="due"],[data-citation-disposition]';
+    let nextRow = false;
+    for (let step = 0; step < 20; step++) {
+      await page.keyboard.press("Tab");
+      const focused = await page.evaluate(
+        (selector) => ({ skipped: document.activeElement.matches(selector), grip: document.activeElement.dataset.grip }),
+        skipped,
+      );
+      assert.equal(focused.skipped, false, "Tab must skip the owner-excluded controls");
+      if (focused.grip === "a11y-item-1") {
+        nextRow = true;
+        break;
+      }
+    }
+    assert.ok(nextRow, "Tab retains legitimate row controls and reaches the next reorder grip");
+    for (const selector of ['[data-field="sections"]', "[data-notecite]", "[data-due-select]", '[data-field="due"]']) {
+      assert.ok(
+        await page.locator(selector).evaluateAll((nodes) => nodes.length > 0 && nodes.every((node) => node.tabIndex === -1)),
+        selector + " skipped by Tab",
+      );
+    }
     for (const theme of ["light", "dark", "high"]) {
       await page.evaluate((t) => A11Y.setTheme(t), theme);
       await page.keyboard.press("Tab");

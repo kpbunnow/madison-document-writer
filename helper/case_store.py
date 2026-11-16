@@ -19,6 +19,7 @@ from plain_files import UNSAFE_NAME_CHARS, plain_json_files, require_plain_file,
 import citation_pricing
 import cash_validation
 import publication_validation
+from citation_disposition import citation_only_closed, citation_only_item, validate_citation_only
 from issuance_validation import _validate_initial_notice_group, _validate_initial_citation_group
 import os
 import re
@@ -1135,6 +1136,8 @@ def _validate_correction_items(*, original, snap, same_type, record):
         raise ValueError("A correction cannot change document type, item identity, order or numbering")
     if snap.get("frozen", {}).get("case", {}).get("number") != original.get("frozen", {}).get("case", {}).get("number", record["case"]["number"]):
         raise ValueError("A correction cannot change case number")
+    if any(citation_only_item(old) != citation_only_item(new) for old, new in zip(original["items"], snap["items"])):
+        raise ValueError("A citation-only correction must retain its closure disposition")
     if original.get("type") == "citation":
         if any(
             (
@@ -1567,6 +1570,7 @@ def _validated_visit_source(*, visit, documents, superseded, voided, visits):
         not source
         or source["id"] != visit.get("sourceDocId")
         or source.get("type") == "compliance"
+        or citation_only_closed(source)
         or all(i.get("withdrawn") for i in source["items"])
     ):
         raise ValueError("An inspection must use the current open case document")
@@ -1633,6 +1637,14 @@ def validate_visit(record, visit, documents, superseded, voided, visits, at=None
 
 
 def validate_publication(record, event, documents, superseded, voided, visits, check_date_window=True):
+    snapshot = event.get("payload", {}).get("snapshot", {})
+    if (
+        isinstance(snapshot, dict)
+        and isinstance(snapshot.get("items"), list)
+        and any(citation_only_item(item) for item in snapshot["items"])
+        and active_restrictions(documents, superseded, voided)
+    ):
+        raise ValueError("Citation-only closure requires every occupancy restriction to be released first")
     return publication_validation.validate_publication(
         record,
         event,
@@ -1653,6 +1665,7 @@ def validate_publication(record, event, documents, superseded, voided, visits, c
 
 def _validate_authoring_document(*, snap, check_date_window, at):
     items = snap["items"]
+    validate_citation_only(snap, snap.get("frozen", {}).get("case", {}))
     live = [i for i in items if not i.get("done") and (not i.get("withdrawn"))]
     if snap.get("type") in ("notice", "extension", "citation") and len({i.get("due") for i in live if i.get("due")}) > 3:
         raise ValueError("A notice may have no more than three distinct outstanding due dates")

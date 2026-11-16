@@ -1,7 +1,7 @@
 import { editorState as editor } from "./editor_state.js";
 import { recordDay } from "../assets/shared.js";
-import { DOC_TYPES, CIT_COPIES } from "./document_types.js";
-import { frozenOf } from "./document_rules.js";
+import { DOC_TYPES } from "./document_types.js";
+import { citationCopiesFor } from "./document_rules.js";
 import { docCase } from "./writer_queries.js";
 
 /* Print job phases. Each takes the owner's `services` and runs in the order the single job used to. */
@@ -58,22 +58,37 @@ function writeDesk(services, fd, d) {
 // Refuse an incomplete new packet instead of filing a successful-looking
 // PDF with missing copies. Historical retained PDFs are never rewritten.
 function checkCitationPacket(d, stage) {
-  if (d.type !== "citation" || !(d.draft || d.authoringVersion >= 15)) return;
+  if (
+    d.type !== "citation" ||
+    !(d.draft || d.authoringVersion >= 15 || (d.frozen?.courtCopies?.length === 3 && d.frozen.courtCopies[2]?.instructions === true))
+  )
+    return;
   const faces = [...stage.querySelectorAll(".cit")],
     cited = d.items.filter((it) => it.cite && !it.withdrawn),
     // The rendered faces use the document's frozen copies; compare with those, not today's labels.
-    labels = ((frozenOf(d) || {}).courtCopies || CIT_COPIES).map((copy) => copy.label);
+    copies = citationCopiesFor(d),
+    labels = copies.map((copy) => copy.label),
+    count = labels.length,
+    complete =
+      count === 4 ||
+      (count === 3 &&
+        copies.every(
+          (copy, index) =>
+            copy.comment === (index !== 2) && copy.record === (index === 1 ? "AGENCY RECORD" : "") && copy.instructions === (index === 2),
+        ));
   if (
-    labels.length !== 4 ||
-    faces.length !== cited.length * 4 ||
+    !complete ||
+    faces.length !== cited.length * count ||
     faces.some(
       (face, index) =>
-        face.querySelector(".cit-foot span:last-child")?.textContent !== labels[index % 4] ||
-        face.querySelector(".cit-no")?.textContent.trim() !== String(d.cits?.[cited[Math.floor(index / 4)]?.id]?.num || "").trim(),
+        face.querySelector(".cit-foot span:last-child")?.textContent !== labels[index % count] ||
+        face.querySelector(".cit-no")?.textContent.trim() !== String(d.cits?.[cited[Math.floor(index / count)]?.id]?.num || "").trim(),
     )
   )
     throw new Error(
-      "The citation packet is incomplete. Court, Agency, Inspector and Defendant copies are required for every charge. Nothing was filed; " +
+      (count === 3 && copies[2]?.instructions === true
+        ? "The citation packet is incomplete. Court, Agency and Defendant copies are required for every charge. Nothing was filed; "
+        : "The citation packet is incomplete. Court, Agency, Inspector and Defendant copies are required for every charge. Nothing was filed; ") +
         (d.draft ? "your draft is retained." : "the issued record is unchanged and its PDF still needs filing."),
     );
 }
