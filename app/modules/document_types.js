@@ -1,6 +1,8 @@
 /* Stable document/event identities and approved metadata; no UI or persistence dependencies. */
 import { APPROVED_LANGUAGE } from "./data/approved_language.js";
 import { CITATION_POLICY } from "./citation_policy.js";
+// An initial citation delivers its paired notice's order furniture in one letter.
+export const deliveredByCitation = (d) => !!d && d.type === "notice" && d.authoringVersion >= 11 && !!d.issuanceGroup?.citationId;
 export const NEW_TYPES = [
   {
     id: "summaryAbatement",

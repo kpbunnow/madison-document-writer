@@ -1150,6 +1150,8 @@ def _validate_correction_items(*, original, snap, same_type, record):
         raise ValueError("A correction cannot change case number")
     if any(citation_only_item(old) != citation_only_item(new) for old, new in zip(original["items"], snap["items"])):
         raise ValueError("A citation-only correction must retain its closure disposition")
+    if snap.get("frozen", {}).get("omitRepairDueDate") != original.get("frozen", {}).get("omitRepairDueDate"):
+        raise ValueError("A correction must retain its source repair due-date column layout")
     if original.get("type") == "citation":
         if any(
             (

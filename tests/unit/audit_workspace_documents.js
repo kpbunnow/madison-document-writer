@@ -105,9 +105,15 @@ const { compile, listenerTarget } = require("../fixtures/equivalence_harness.cjs
   document = parse(workspaceDocumentsSummary(k, [notice, packet]));
   assert.deepEqual(
     [...document.querySelectorAll("[data-open]")].map((e) => e.dataset.open),
-    ["notice", "packet"],
-    "each document name opens its own record; packet PDF authority stays in the editor",
+    ["packet"],
+    "the initial citation is the only delivered document; its internal notice is not a second letter",
   );
+  assert.equal(parse(workspaceDocumentsSummary(k, [notice])).querySelector("[data-open]").dataset.open, "notice", "an orphan remains accessible");
+  for (const status of [{ void: true }, { superseded: true }, { revision: { number: 2 } }]) {
+    const retained = JSON.stringify([notice, packet]);
+    assert.equal(parse(workspaceDocumentsSummary(k, [notice, { ...packet, ...status }])).querySelectorAll("[data-open]").length, 1);
+    assert.equal(JSON.stringify([notice, packet]), retained, "presentation does not rewrite history");
+  }
   document = parse(workspaceDocumentsSummary(k, [{ ...issued, pendingAmendment: { key: "pending" } }]));
   assert.ok(document.body.textContent.includes("Save confirmation needed"));
   assert.equal(document.querySelector("[data-open]").dataset.open, issued.id);

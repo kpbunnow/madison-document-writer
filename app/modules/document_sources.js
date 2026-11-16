@@ -1,5 +1,5 @@
 import { kase, docCase, docInsp } from "./writer_queries.js";
-import { simpleVacancy, simplifiedBestInterest, frozenOf, citationCopiesFor } from "./document_rules.js";
+import { simpleVacancy, simplifiedBestInterest, frozenOf, citationCopiesFor, omitRepairDueDate } from "./document_rules.js";
 import { BLOCKS, CIT_INSTRUCTIONS, COURT, COURT_CONTACT, EXTERIOR_WORK } from "./document_types.js";
 import { CITATION_POLICY } from "./citation_policy.js";
 import { clone } from "./record_values.js";
@@ -33,6 +33,7 @@ export function createDocumentSources(services) {
       ...(lines ? { ownerMailingLines: lines } : {}),
       inspector: clone(docInsp(d)),
       body: services.docBody(d),
+      ...(omitRepairDueDate(d, true) ? { omitRepairDueDate: true } : {}),
       // Authoring-15+ Best Interest and authoring-16 Vacancy Extensions have no signer or division review.
       ...(d.special && !simplifiedBestInterest(d) && !simpleVacancy(d)
         ? {

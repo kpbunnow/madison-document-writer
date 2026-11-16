@@ -71,10 +71,21 @@ module.exports = async function (browser, page, out, axeScreen) {
     assert.equal(evidence.cit.ord, ord);
     assert.equal(evidence.cit.amount, expected);
     assert.deepEqual(evidence.group, evidence.notice);
+    if (label === "initial-citation-only") {
+      // Filing precedes the final workspace transition; wait for publication, not just the receipt.
+      await page.waitForFunction(() => WriterState.state.screen === "cases" && !WriterState.state.publicationBusy);
+      assert.equal(await page.locator('.case-document-list [data-open="' + ids.noticeId + '"]').count(), 0, "internal notice is not a second letter");
+      const issuedLink = page.locator('.case-document-list [data-open="' + ids.citationId + '"]');
+      assert.equal(await issuedLink.count(), 1, "one delivered citation in the workspace");
+      await issuedLink.click();
+      await page.locator(".desk .n-title").first().waitFor();
+      assert.equal(await page.locator(".desk .c-due").count(), 0, "reopened issued citation has no repair column");
+    }
     const print = await browser.newPage();
     await print.setContent(evidence.html, { waitUntil: "load" });
     await print.evaluate(() => document.fonts.ready);
     await print.emulateMedia({ media: "print" });
+    if (label === "initial-citation-only") assert.equal(await print.locator(".c-due").count(), 0, "issued PDF omits the repair column");
     const geometry = await print
       .locator(".sheet,.cit")
       .evaluateAll((els) => els.map((el) => ({ height: el.getBoundingClientRect().height, overflow: el.scrollHeight > el.clientHeight + 2 })));
@@ -151,6 +162,8 @@ module.exports = async function (browser, page, out, axeScreen) {
     render();
   });
   await page.locator("[data-citation-disposition]").selectOption("citation-only");
+  assert.match(await page.locator(".desk .n-title").first().textContent(), /CITATION/);
+  assert.equal(await page.locator(".desk .c-due").count(), 0, "draft omits the repair column");
   const closedId = await page.evaluate(() => doc(WriterState.state.docId).caseId);
   assert.equal(await page.locator('[data-field="due"]').count(), 0);
   await issue("701.00", "28.202(3)(e)", "initial-citation-only", false, 16);

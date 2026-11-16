@@ -1,4 +1,4 @@
-import { citationOnlyItem } from "./citation_disposition.js";
+import { citationOnlyItem, citationOnlyUndated } from "./citation_disposition.js";
 import { SNOW_TYPE, DOC_TYPES, NEW_TYPES, globalCourtCopies } from "./document_types.js";
 /* Rules read only their arguments and document metadata; no live workspace or UI wiring. */
 
@@ -33,7 +33,7 @@ export function activeRestrictions(documents) {
   return live.filter((d) => d.special?.mode !== "release" && !released.has(d.id));
 }
 
-export const deliveredByCitation = (d) => !!d && d.type === "notice" && d.authoringVersion >= 11 && !!d.issuanceGroup?.citationId;
+export { deliveredByCitation } from "./document_types.js";
 
 /* ---------- what an issued document renders from ----------
    Issuing freezes the document, and everything the document was written
@@ -44,6 +44,13 @@ export const deliveredByCitation = (d) => !!d && d.type === "notice" && d.author
    A draft has no frozen block and reads live; so does an issued document
    from a file written before this existed. */
 export const frozenOf = (d) => (d && d.frozen) || null;
+
+// A retained layout fact keeps issued packets and their corrections stable across updates.
+export function omitRepairDueDate(d, freezing = false) {
+  if (frozenOf(d)) return frozenOf(d).omitRepairDueDate === true;
+  if (d?.correction) return d.correction.omitRepairDueDate === true;
+  return !!(d?.draft || d?.initialPreview || (freezing && !d?.issuedAt)) && citationOnlyUndated(d);
+}
 
 /* New packets omit the Inspector page. Issued/frozen packets and their corrections keep their own copies;
    unfrozen legacy records retain the original four-copy fallback. No historical source is rewritten. */

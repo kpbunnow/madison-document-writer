@@ -58,6 +58,8 @@ def validate_carried_citation_only(items, source_items):
 
 
 def validate_citation_only(snapshot, case):
+    if "omitRepairDueDate" in snapshot.get("frozen", {}):
+        validate_undated_layout(snapshot)
     flagged = [item for item in snapshot["items"] if citation_only_item(item)]
     if not flagged:
         return
@@ -89,3 +91,17 @@ def validate_citation_only(snapshot, case):
         for item in flagged
     ):
         raise ValueError("Citation-only items retain a blank due date and are never marked corrected or cited again")
+
+
+def validate_undated_layout(snapshot):
+    """A new optional presentation fact; older issued packets keep their original columns."""
+    if (
+        snapshot["frozen"]["omitRepairDueDate"] is not True
+        or snapshot.get("type") not in ("notice", "citation")
+        or snapshot.get("fromReinspId")
+        or not isinstance(snapshot.get("importInspection"), dict)
+        or snapshot["importInspection"].get("type") != "initial"
+        or not snapshot["items"]
+        or any(not citation_only_item(item) or any(item.get(key) for key in ("due", "done", "doneOn")) for item in snapshot["items"])
+    ):
+        raise ValueError("A citation without the repair due-date column must contain only undated citation-only items")
