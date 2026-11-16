@@ -103,3 +103,5 @@ R81 upgrades R80 with the remembered-inspector Workspace list, Find a case, Mark
 R82 upgrades R81 with fill-in bubbles typed in place, Open cases by inspector first on Workspace (S82-2) and the internal service-area grouping, plus the installed update check (S82-1, superseding S81-1). SSRS-1 to SSRS-7, PY-1 and the carried City items remain OPEN. R82 is a release candidate, not a deployment approval.
 
 R83 upgrades R82 with fill-in bubbles that take typing directly, repeated owner mailing lines printed once, stale-continuation and reorder guards and helper normalization parity (S83-2), and the installed update check (S83-1, superseding S82-1). SSRS-1 to SSRS-7, PY-1 and the carried City items remain OPEN. R83 is a release candidate, not a deployment approval.
+
+R84 upgrades R83 with three-copy citation packets and the initial citation-only disposition and closure (S84-2), and the installed update check (S84-1, superseding S83-1). The MC-2000 print, external Accela closing, SSRS-1 to SSRS-7, PY-1 and the carried City items remain OPEN. R84 is a release candidate, not a deployment approval.
