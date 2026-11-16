@@ -1,5 +1,24 @@
 # Release changelog
 
+## 2026-11-16 R84 — Release package
+
+Release package assigned on the owner's request after R83 (helper 2026.11.16.85, build 85; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R84 upgrades R83. Every PC still needs Python 3.14.
+
+### Citations
+
+- New citation packets contain the Court, Agency and Defendant copies, without the Inspector page. Issued four-copy packets and their corrections keep their own copies (PR #534).
+- An initial-inspection Citation import offers **Citation only — no follow-up** in each selected violation's due-date cell (PR #534):
+  - the item's repair deadline is cleared, and only that item is affected;
+  - other violations keep their deadlines and keep the case open;
+  - the case closes at initial issuance only when no other violation needs follow-up and no occupancy restriction is active.
+- A later worksheet carries a citation-only item read-only. The item is excluded from observations, deadlines, new citations and compliance counts (PR #534).
+- Reports keep each citation-only item's closure date and count the case as closed when its initial citation closed it (PR #534).
+- Tab skips the violation section, Cite, the shared-date checkbox, the due-date option and the date. Location headings, location text and reorder controls stay reachable (PR #534).
+
+### Release verification
+
+- The full local gate and GitHub's Full gate passed on the exact release head. Native Windows, City printer and staff checks remain with S84-1 and S84-2.
+
 ## 2026-11-15 R83 — Release package
 
 Release package assigned on the owner's request after R82 (helper 2026.11.15.84, build 84; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R83 upgrades R82. Every PC still needs Python 3.14.

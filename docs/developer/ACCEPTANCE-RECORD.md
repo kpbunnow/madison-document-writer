@@ -328,6 +328,15 @@ The owner's tester ran fresh clones of main on synthetic data. None of this clos
 - **S65-1 and S65-2:** open cases by inspector (soonest deadline first, Continue case) and both Reinspection results (corrected items ruled through, due dates unchanged) passed on synthetic cases in the R66 round; the case-file-could-not-be-included note and the wording approval remain City and division checks.
 - **Owner decisions of 2026-11-01:** a correction cannot add new items; a case that exists only as an unissued draft is not listed in Open cases by inspector; a completely blank Violator row is dropped when Recipients is closed. See 03-DOMAIN-RULES.md.
 
+## R84 release acceptance — OPEN
+
+| ID | City/staff check | Required result |
+| --- | --- | --- |
+| S84-1 | Install R84 from the shared release folder over R83 on a PC that uses the shared case folder, restart Document Writer once (Exit Document Writer, then the desktop icon), then start a PC still on R83 against the same share | The helper starts and Writer opens; Tools & settings → Connection & setup shows Program/helper versions Match; the R83 PC is told to restart and cannot save to the share |
+| S84-2 | On a City PC with the MC-2000 stock: import an initial inspection with Citation status. Mark Cite on two violations, choose Citation only — no follow-up on one, and give the other a due date; issue and print. Then import a reinspection, issue a compliance letter, and check Reports. Separately, issue a case where every cited violation is citation-only, and open a correction of a retained four-copy citation | The packet prints Court, Agency and Defendant copies only, aligned on the stock; the citation-only item has no due date and the other keeps its own; the case stays open until compliance and the worksheet shows the citation-only item read-only; the all-citation-only case closes at issuance; the four-copy correction keeps its four copies; Reports show the expected open and closed counts |
+
+All R84 items remain OPEN, together with the R83 and R82 items, SSRS-1 to SSRS-7 and the carried items. S83-1 is superseded by S84-1.
+
 ## R83 release acceptance — OPEN
 
 | ID | City/staff check | Required result |
