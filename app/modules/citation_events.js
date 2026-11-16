@@ -1,9 +1,26 @@
+import { CITATION_ONLY, citationOnlyItem, canChooseCitationOnly } from "./citation_disposition.js";
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 /* Citation event ownership. Construction is inert; core registers at the original startup positions. */
 import { registerEventOnce } from "./event_registration.js";
 import { doc } from "./writer_queries.js";
 import { citeAllowed } from "./document_rules.js";
+function changeDisposition(services, el) {
+  const d = doc(editor.state.docId),
+    item = d?.items.find((i) => i.id === el.dataset.citationDisposition);
+  if (!d || services.isLocked(d) || !canChooseCitationOnly(d, item)) return;
+  if (!["date", "citation-only"].includes(el.value)) return;
+  if (el.value === "citation-only") {
+    item.dueExempt = CITATION_ONLY;
+    item.due = "";
+    item.doneOn = "";
+    if (d.dueWork?.selected) d.dueWork.selected = d.dueWork.selected.filter((id) => id !== item.id);
+  } else delete item.dueExempt;
+  workspace.DIRTY = true;
+  services.scheduleDraftSave();
+  services.render();
+}
+
 export function createCitationEvents(services) {
   function registerReviewInput(target = document) {
     return registerEventOnce(target, "citation.registerReviewInput", "input", (e) => {
@@ -28,6 +45,9 @@ export function createCitationEvents(services) {
   function registerReviewChange(target = document) {
     return registerEventOnce(target, "citation.registerReviewChange", "change", (e) => {
       const ds = e.target.dataset || {};
+      if (ds.citationDisposition) {
+        return changeDisposition(services, e.target);
+      }
       if (ds.reviewCit) {
         const d = doc(editor.state.docId);
         if (d && !services.isLocked(d)) {
@@ -55,6 +75,7 @@ export function createCitationEvents(services) {
     if (it && (it.cite || citeAllowed(d))) {
       it.cite = !it.cite;
       if (!it.cite) {
+        if (citationOnlyItem(it)) delete it.dueExempt;
         delete d.depositRequests?.[it.id];
         delete d.cits?.[it.id];
       }

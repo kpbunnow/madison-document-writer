@@ -1,3 +1,4 @@
+import { citationOnlyItem } from "./citation_disposition.js";
 import { recordCase } from "./record_sources.js";
 /* Live workspace queries, not startup: never capture array references or initialize shared state here. */
 import { workspaceState } from "./workspace_state.js";
@@ -76,7 +77,7 @@ export const eventsFor = (cid) => workspaceState.EVENTS[cid] || (workspaceState.
 
 export const openItems = (r) => {
   const src = doc(r.sourceDocId);
-  return src ? src.items.filter((i) => ocOf(r, i.id) && ocOf(r, i.id) !== "corrected" && ocOf(r, i.id) !== "withdrawn") : [];
+  return src ? src.items.filter((i) => !citationOnlyItem(i) && ocOf(r, i.id) && ocOf(r, i.id) !== "corrected" && ocOf(r, i.id) !== "withdrawn") : [];
 };
 
 export const doneItems = (r) => {

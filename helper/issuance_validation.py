@@ -1,5 +1,7 @@
 """Pure atomic initial-issuance group checks; the store retains transaction and save authority."""
 
+from citation_disposition import citation_only_item
+
 
 def _validate_initial_notice_group(event, documents):
     snap = event.get("payload", {}).get("snapshot", {})
@@ -62,7 +64,12 @@ def _citation_source_bad(citation, snap, group):
 
 
 def _selection_bad(cited, selected):
-    return len(cited) != len(selected) or {i.get("srcItemId") for i in cited} != {i["id"] for i in selected} or any(i.get("done") for i in selected)
+    return (
+        len(cited) != len(selected)
+        or {i.get("srcItemId") for i in cited} != {i["id"] for i in selected}
+        or any(i.get("done") for i in selected)
+        or {i.get("srcItemId") for i in cited if citation_only_item(i)} != {i["id"] for i in selected if citation_only_item(i)}
+    )
 
 
 def _selected_citations(snap):

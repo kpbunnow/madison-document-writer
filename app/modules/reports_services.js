@@ -624,7 +624,7 @@ function statusAt(c, date) {
   if (c.caseType === "snow-10.28") return "Cited – snow";
   if (restrictedAt(docs)) return "Occupancy restricted";
   if (last.allWithdrawn) return "Withdrawn";
-  if (docs.some((d) => d.type === "compliance")) return "Closed";
+  if (docs.some((d) => d.type === "compliance") || last.citationOnlyClosed) return "Closed";
   if (docs.some((d) => d.type === "referral")) return "Referred";
   return { ...STATUS_AT_DATE, noOccupancy: c.status }[last.type] || last.type;
 }
@@ -633,12 +633,23 @@ function violationAt(v, date) {
   if (!Array.isArray(v.history) || !v.history.length) return v;
   const history = v.history.filter((h) => versionAt(h, date)),
     latest = history[history.length - 1];
-  return latest ? Object.assign({}, v, latest, { type: latest.key || v.type, typeLabel: latest.label || v.typeLabel }) : null;
+  return latest
+    ? Object.assign({}, v, latest, {
+        type: latest.key || v.type,
+        typeLabel: latest.label || v.typeLabel,
+        ...(v.citationClosedOn ? { citationClosedOn: latest.citationClosedOn || "" } : {}),
+      })
+    : null;
 }
 
 function scopedViolOpenAt(services, v, date) {
   const latest = violationAt(v, date);
-  return !!latest && !latest.withdrawn && (!latest.done || (services.validISO(latest.doneOn) && latest.doneOn > date));
+  return (
+    !!latest &&
+    !latest.withdrawn &&
+    (!latest.citationClosedOn || latest.citationClosedOn > date) &&
+    (!latest.done || (services.validISO(latest.doneOn) && latest.doneOn > date))
+  );
 }
 
 function groupBy(list, fn) {

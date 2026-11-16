@@ -84,6 +84,25 @@ function run(api, sc) {
   return JSON.stringify({ value, error, calls, docs: state.DOCS, dirty: state.DIRTY, editor: state.state });
 }
 
+// The owner-approved new fact is checked independently, then removed only from the
+// comparison view. Every retained return/state/callback/failure assertion remains.
+const historicalCopies = JSON.parse(fs.readFileSync("app/assets/approved_language.json", "utf8")).citationCopies;
+function comparisonView(raw, sc) {
+  const result = JSON.parse(raw),
+    created = result.docs.find((d) => d.id === "d-new");
+  if (created) {
+    const expected = sc.src.frozen.courtCopies || historicalCopies;
+    const returned = result.value?.id === created.id ? result.value : null;
+    for (const draft of [created, returned].filter(Boolean)) {
+      if (sc.src.type === "citation") {
+        assert.deepEqual(draft.correction.courtCopies, expected, "new correction captures its exact source copy set");
+        delete draft.correction.courtCopies;
+      } else assert.ok(!Object.hasOwn(draft.correction, "courtCopies"), "non-citation correction shape is unchanged");
+    }
+  }
+  return JSON.stringify(result);
+}
+
 (async () => {
   const [current, legacy] = await Promise.all([
     compile('export {createCorrectionWorkflow} from "./correction_workflow.js";'),
@@ -104,7 +123,7 @@ function run(api, sc) {
   const seen = new Set();
   for (let n = 0; n < 6000; n++) {
     const sc = scenario();
-    const [before, after] = [run(legacy, sc), run(current, sc)];
+    const [before, after] = [run(legacy, sc), comparisonView(run(current, sc), sc)];
     assert.equal(after, before, `start correction scenario ${n} differs from the retained module:\n${JSON.stringify(sc)}`);
     for (const f of wanted) if (after.includes(f)) seen.add(f);
     const parsed = JSON.parse(after);
@@ -112,7 +131,20 @@ function run(api, sc) {
     if (parsed.error) seen.add("error");
   }
   for (const f of [...wanted, "existing", "error"]) assert.ok(seen.has(f), "scenarios reach: " + f);
-  console.log("PASS start correction matches the retained module over 6000 scenarios");
+  for (const count of [3, 4]) {
+    const sc = scenario();
+    Object.assign(sc, { docId: "src", fault: "", fail: 0, existing: null });
+    sc.src.type = "citation";
+    sc.src.frozen.courtCopies = historicalCopies
+      .filter((copy) => count === 4 || copy.record !== "INSPECTOR RECORD")
+      .map((copy) => ({ ...copy, label: copy.label + " retained source" }));
+    assert.equal(
+      comparisonView(run(current, sc), sc),
+      run(legacy, sc),
+      "explicit " + count + "-copy source retains all other start-correction behavior",
+    );
+  }
+  console.log("PASS start correction: 6000 retained scenarios, exact new copy facts and two explicit source-copy cases");
 })().catch((error) => {
   console.error(error);
   process.exitCode = 1;

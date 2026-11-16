@@ -1,3 +1,4 @@
+import { citationOnlyItem, citationOnlyCarryValid } from "./citation_disposition.js";
 import { continuingItemsForVisits } from "./case_projection.js";
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
@@ -27,6 +28,56 @@ export function cleanVisit(r) {
   return out;
 }
 
+function invalidResultDate(value, earliest, latest) {
+  return !validISO(value) || value < earliest || value > latest;
+}
+
+function visitWorksheetFaults(services, r, type) {
+  const src = r && doc(r.sourceDocId);
+  if (!r || !src) return ["The inspection source is missing. Reopen the case record."];
+  const faults = [],
+    initial = docCase(src).date || "",
+    earliest = inspAt(src).date || initial;
+  if (!validISO(r.date) || r.date > recordDay(services.today) || r.date < earliest)
+    faults.push("Inspection date must be between the source inspection and today.");
+  if (!parseTime(r.time)) faults.push("Enter the reinspection time before generating a document.");
+  if (!insp(r.inspectorId).name) faults.push("Select the inspector who performed this inspection.");
+  if (unchecked(r).length) faults.push("Choose an outcome for every item.");
+  continuingItemsForVisits(
+    src,
+    reinspFor(r.caseId).filter((x) => x.id !== r.id),
+  ).forEach((it) => {
+    const res = r.results[it.id];
+    if (!res) return;
+    if (citationOnlyItem(it) && !it.withdrawn) {
+      if (!citationOnlyCarryValid(res)) faults.push("Citation-only items carry forward without a new observation, deadline or citation.");
+      return;
+    }
+    if (it.withdrawn) {
+      if (res.oc !== "withdrawn") faults.push("Withdrawn items must remain withdrawn.");
+      return;
+    }
+    if (it.done) {
+      if (res.oc !== "corrected" || res.on !== it.doneOn || !res.carried)
+        faults.push("Previously confirmed compliance must carry forward unchanged.");
+      return;
+    }
+    if (!OUTCOMES.some((o) => o.id === res.oc)) faults.push("Choose a valid inspection outcome.");
+    const on = res.manualDate ? res.on : res.on || r.date;
+    if (invalidResultDate(on, initial, r.date)) faults.push("Result dates must be between the initial inspection and this visit.");
+    // R62: a Best Interest Extension takes its due dates from the worksheet, as a normal Extension does.
+    if (type && ["extension", "bestInterestExtension", "citation"].includes(type) && res.oc !== "corrected" && !services.dueCheck(res.due, r.date).ok)
+      faults.push("Set a future due date for each outstanding item.");
+  });
+  if (src.type === "compliance" || src.items.every((i) => i.withdrawn))
+    faults.push("This case is completed. New observations require a new case; correct a recording error through the document history.");
+  if (["extension", "bestInterestExtension", "citation"].includes(type) && distinctDues(dueContext(r, true)).length > 3)
+    faults.push("Use no more than three distinct due dates.");
+  if (["extension", "bestInterestExtension", "citation"].includes(type) && dueDateSpacingConflicts(dueContext(r, true)).length)
+    faults.push("Keep distinct due dates at least seven days apart.");
+  return [...new Set(faults)];
+}
+
 // Worksheet queries/validation and retained draft transitions; peer/UI/persistence adapters stay supplied.
 export function createWorksheetWorkflow(services) {
   function unissuedVisitFor(cid, documents = docsFor(cid)) {
@@ -39,52 +90,7 @@ export function createWorksheetWorkflow(services) {
     );
   }
 
-  function worksheetFaults(r, type) {
-    const src = r && doc(r.sourceDocId);
-    if (!r || !src) return ["The inspection source is missing. Reopen the case record."];
-    const faults = [],
-      initial = docCase(src).date || "",
-      earliest = inspAt(src).date || initial;
-    if (!validISO(r.date) || r.date > recordDay(services.today) || r.date < earliest)
-      faults.push("Inspection date must be between the source inspection and today.");
-    if (!parseTime(r.time)) faults.push("Enter the reinspection time before generating a document.");
-    if (!insp(r.inspectorId).name) faults.push("Select the inspector who performed this inspection.");
-    if (unchecked(r).length) faults.push("Choose an outcome for every item.");
-    continuingItemsForVisits(
-      src,
-      reinspFor(r.caseId).filter((x) => x.id !== r.id),
-    ).forEach((it) => {
-      const res = r.results[it.id];
-      if (!res) return;
-      if (it.withdrawn) {
-        if (res.oc !== "withdrawn") faults.push("Withdrawn items must remain withdrawn.");
-        return;
-      }
-      if (it.done) {
-        if (res.oc !== "corrected" || res.on !== it.doneOn || !res.carried)
-          faults.push("Previously confirmed compliance must carry forward unchanged.");
-        return;
-      }
-      if (!OUTCOMES.some((o) => o.id === res.oc)) faults.push("Choose a valid inspection outcome.");
-      const on = res.manualDate ? res.on : res.on || r.date;
-      if (!validISO(on) || on < initial || on > r.date) faults.push("Result dates must be between the initial inspection and this visit.");
-      // R62: a Best Interest Extension takes its due dates from the worksheet, as a normal Extension does.
-      if (
-        type &&
-        ["extension", "bestInterestExtension", "citation"].includes(type) &&
-        res.oc !== "corrected" &&
-        !services.dueCheck(res.due, r.date).ok
-      )
-        faults.push("Set a future due date for each outstanding item.");
-    });
-    if (src.type === "compliance" || src.items.every((i) => i.withdrawn))
-      faults.push("This case is completed. New observations require a new case; correct a recording error through the document history.");
-    if (["extension", "bestInterestExtension", "citation"].includes(type) && distinctDues(dueContext(r, true)).length > 3)
-      faults.push("Use no more than three distinct due dates.");
-    if (["extension", "bestInterestExtension", "citation"].includes(type) && dueDateSpacingConflicts(dueContext(r, true)).length)
-      faults.push("Keep distinct due dates at least seven days apart.");
-    return [...new Set(faults)];
-  }
+  const worksheetFaults = (r, type) => visitWorksheetFaults(services, r, type);
 
   function returnToWorksheet(d) {
     const r = d && reinsp(d.fromReinspId);

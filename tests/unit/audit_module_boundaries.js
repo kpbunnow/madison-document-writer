@@ -9,6 +9,7 @@ const root = path.resolve(__dirname, "../..");
 const directory = path.join(root, "app/modules");
 const graph = moduleGraph(directory);
 const allowed = {
+  "citation_disposition.js": [],
   "case_store_port.js": ["./record_values.js"],
   "ui_icons.js": [],
   "address_format.js": ["./mailing_rules.js"],
@@ -35,12 +36,13 @@ const allowed = {
   "calendar.js": ["../assets/shared.js"],
   "inspection_facts.js": ["./calendar.js", "./document_rules.js", "./writer_queries.js"],
   "document_types.js": ["./data/approved_language.js", "./citation_policy.js"],
-  "document_rules.js": ["./document_types.js"],
-  "writer_queries.js": ["./workspace_state.js", "./data/inspectors.js", "./document_rules.js", "./record_sources.js"],
+  "document_rules.js": ["./citation_disposition.js", "./document_types.js"],
+  "writer_queries.js": ["./citation_disposition.js", "./workspace_state.js", "./data/inspectors.js", "./document_rules.js", "./record_sources.js"],
   "record_sources.js": ["./document_rules.js", "./document_types.js"],
   "case_migrations.js": ["./document_types.js", "./record_values.js"],
   "case_file_rules.js": ["../assets/shared.js", "./record_values.js", "./document_rules.js"],
   "case_projection.js": [
+    "./citation_disposition.js",
     "./data/library.js",
     "../assets/shared.js",
     "./document_types.js",
@@ -97,7 +99,14 @@ const scopedServices = {
     "./writer_queries.js",
   ],
   "contact_events.js": ["./editor_state.js", "./mailing_rules.js", "./presentation_format.js", "./workspace_state.js", "./writer_queries.js"],
-  "citation_events.js": ["./document_rules.js", "./editor_state.js", "./event_registration.js", "./workspace_state.js", "./writer_queries.js"],
+  "citation_events.js": [
+    "./citation_disposition.js",
+    "./document_rules.js",
+    "./editor_state.js",
+    "./event_registration.js",
+    "./workspace_state.js",
+    "./writer_queries.js",
+  ],
   "recovery_events.js": ["./editor_state.js", "./event_registration.js", "./recovery_state.js", "./workspace_state.js", "./writer_queries.js"],
   "utility_events.js": ["./event_registration.js", "./imports_state.js", "./editor_state.js", "./writer_queries.js"],
   "import_events.js": ["./event_registration.js", "./imports_state.js", "./editor_state.js"],
@@ -136,6 +145,7 @@ const scopedServices = {
   ],
   "due_date_events.js": ["./event_registration.js", "./workspace_state.js"],
   "case_status.js": [
+    "./citation_disposition.js",
     "./editor_state.js",
     "../assets/shared.js",
     "./calendar.js",
@@ -221,6 +231,7 @@ const scopedServices = {
   "writer_startup.js": ["./startup_state.js", "./startup_state.js"],
   "case_workspace_actions.js": ["./editor_state.js", "./record_values.js", "./case_file_rules.js", "./writer_queries.js", "./workspace_state.js"],
   "reinspection_entry.js": [
+    "./citation_disposition.js",
     "./case_projection.js",
     "./editor_state.js",
     "./inspection_facts.js",
@@ -243,6 +254,7 @@ const scopedServices = {
   "record_ids.js": [],
   "catalog_queries.js": ["./data/library.js"],
   "document_readiness.js": [
+    "./citation_disposition.js",
     "./case_records.js",
     "./inspection_facts.js",
     "../assets/shared.js",
@@ -322,6 +334,7 @@ const scopedServices = {
   "catalog_forms.js": ["./document_rules.js", "./data/library.js", "./catalog_state.js"],
   "record_history.js": ["../assets/shared.js", "./writer_queries.js", "./presentation_format.js", "./editor_state.js", "./screen_html.js"],
   "worksheet_workflow.js": [
+    "./citation_disposition.js",
     "./case_projection.js",
     "./editor_state.js",
     "./deadline_assignment.js",
@@ -420,8 +433,16 @@ const scopedServices = {
     "./mailing_rules.js",
     "./workspace_state.js",
   ],
-  "correction_workflow.js": ["./editor_state.js", "../assets/shared.js", "./record_values.js", "./writer_queries.js", "./workspace_state.js"],
+  "correction_workflow.js": [
+    "./document_rules.js",
+    "./editor_state.js",
+    "../assets/shared.js",
+    "./record_values.js",
+    "./writer_queries.js",
+    "./workspace_state.js",
+  ],
   "publication_preparation.js": [
+    "./citation_disposition.js",
     "./inspection_facts.js",
     "../assets/shared.js",
     "./record_values.js",
@@ -512,6 +533,7 @@ const scopedServices = {
     "./screen_html.js",
   ],
   "reinspection.js": [
+    "./citation_disposition.js",
     "./screen_html.js",
     "./editor_state.js",
     "../assets/shared.js",
@@ -645,6 +667,7 @@ const scopedServices = {
   ],
   "address_parser.js": ["./editor_state.js", "./mailing_rules.js", "./presentation_format.js", "./workspace_state.js", "./writer_queries.js"],
   "new_documents.js": [
+    "./citation_disposition.js",
     "./screen_html.js",
     "./editor_state.js",
     "../assets/shared.js",
@@ -669,6 +692,7 @@ const scopedServices = {
     "./writer_queries.js",
   ],
   "document_render.js": [
+    "./citation_disposition.js",
     "../assets/shared.js",
     "./citation_policy.js",
     "./data/build_identity.js",

@@ -1,3 +1,4 @@
+import { citationOnlyClosed, citationOnlyItem, citationOnlyFollowup } from "./citation_disposition.js";
 /* Explicit record facts in, derived report facts out. No workspace, UI, clock or I/O dependencies. */
 import { SUMMARY_VERSION, normParcel, recordDay } from "../assets/shared.js";
 import { DOC_TYPES, SCHEMA, STATUS_OF } from "./document_types.js";
@@ -174,7 +175,7 @@ function caseStatus(k, { restrictions, lastItems, lastDoc, comp, everReferred })
   if (restrictions.length) return "Occupancy restricted";
   if (!lastDoc) return "Not issued";
   if (lastItems && lastItems.items.length && lastItems.items.every((i) => i.withdrawn)) return "Withdrawn";
-  if (comp) return "Closed";
+  if (comp || citationOnlyClosed(lastItems)) return "Closed";
   if (everReferred) return "Referred";
   if (lastDoc.type === "noOccupancy" && lastDoc.special?.mode === "release" && !lastItems) return "Restriction released";
   return STATUS_OF[(lastItems || lastDoc).type] || (lastItems || lastDoc).type;
@@ -263,6 +264,23 @@ function visitOutcome(visits, noOf, no) {
   return outcome;
 }
 
+function citationDispositionDay(docs, no, currentOnly = false) {
+  const source = docs.find(
+    (d) =>
+      d.type === "citation" &&
+      d.issuanceGroup &&
+      !d.fromReinspId &&
+      (!currentOnly || (!d.void && !d.superseded)) &&
+      d.items.some((item) => String(item.no) === no && citationOnlyItem(item)),
+  );
+  return source ? issuedDay(source) : "";
+}
+
+function citationClosureDay(d, docs) {
+  const root = docs.find((item) => item.id === (d.revision?.rootId || d.id)) || d;
+  return citationOnlyClosed({ ...root, void: false, superseded: false }) ? issuedDay(root) : starts(d);
+}
+
 function documentHistory(docs, no, LIBRARY) {
   return docs
     .filter((d) => !supplemental(d))
@@ -280,6 +298,9 @@ function documentHistory(docs, no, LIBRARY) {
             doneOn: item.doneOn || "",
             withdrawn: !!item.withdrawn,
             due: item.due || "",
+            ...(citationOnlyItem(item) && (d.type === "citation" || citationOnlyFollowup(d)) && citationDispositionDay(docs, no)
+              ? { citationClosedOn: citationDispositionDay(docs, no) }
+              : {}),
             title: item.title || "",
             sections: item.sections || [],
             ...violationType(item, LIBRARY),
@@ -297,7 +318,7 @@ function visitHistory(docs, visits, no, LIBRARY) {
       const parent = docs.find((d) => d.id === r.sourceDocId),
         sourceItem = parent?.items.find((i) => String(i.no) === no),
         res = sourceItem && r.results[sourceItem.id];
-      if (res)
+      if (res && !(citationOnlyItem(sourceItem) && res.carried))
         entries.push({
           docId: r.id,
           issued: r.date,
@@ -335,6 +356,7 @@ function violationRow(ctx, it) {
     ty = violationType(current, LIBRARY);
   return {
     dueExempt: current.dueExempt || "",
+    ...(citationOnlyItem(current) && citationDispositionDay(docs, no, true) ? { citationClosedOn: citationDispositionDay(docs, no, true) } : {}),
     no: no,
     title: current.title || "",
     sections: (current.sections || []).slice(),
@@ -378,7 +400,13 @@ function caseStanding(k, facts, status) {
     noticeActive: noticeActive,
     status: noticeActive || live.length ? status : notice ? "Withdrawn" : "Not issued",
     closedOn:
-      isSnowCase(k) && lastDoc?.filedAt && lastDoc.frozen?.snowCloseOnFiling !== false ? recordDay(lastDoc.filedAt) : comp ? starts(comp) : "",
+      isSnowCase(k) && lastDoc?.filedAt && lastDoc.frozen?.snowCloseOnFiling !== false
+        ? recordDay(lastDoc.filedAt)
+        : comp
+          ? starts(comp)
+          : citationOnlyClosed(facts.lastItems)
+            ? citationClosureDay(facts.lastItems, facts.docs)
+            : "",
   };
 }
 
@@ -448,6 +476,7 @@ const documentRows = (docs, nameOf) =>
     effectiveTo: ends(d),
     recordedAt: d.issuedAt,
     allWithdrawn: d.items.length > 0 && d.items.every((i) => i.withdrawn),
+    ...(citationOnlyClosed({ ...d, void: false, superseded: false }) ? { citationOnlyClosed: true } : {}),
     revision: d.revision || null,
     superseded: !!d.superseded,
     voidAt: d.void ? recordDay(d.void.at) : "",

@@ -243,7 +243,7 @@ const test = async () => {
     assert.match(citationDepositFault(c, initialCitations.preview(d), d.items[0]), /calculated deposit/);
     const face = document.createElement("div");
     face.innerHTML = citationFaces(initialCitations.preview(d), true);
-    assert.equal(face.querySelectorAll(".cit-assessments").length, 4);
+    assert.equal(face.querySelectorAll(".cit-assessments").length, 3);
     for (const fees of face.querySelectorAll(".cit-assessments")) assert.ok(fees.textContent.includes("Jail $15.00"));
     editCitation(d, "r30-0", "cc", "38");
     assert.equal(c.assessments.court, 3800);
@@ -260,7 +260,7 @@ const test = async () => {
             assert.ok(f?.tiers?.length || i.citationManualSections[o], o);
           }
   });
-  check("Court-cost transition and all four assessment copies", () => {
+  check("Court-cost transition and all three current assessment copies", () => {
     reset();
     const d = draft("9.25(4)");
     const c = d.cits["r30-0"];
@@ -270,7 +270,7 @@ const test = async () => {
     assert.equal(c.amount, "3236.00");
     const el = document.createElement("div");
     el.innerHTML = citationFaces(initialCitations.preview(d), true);
-    assert.equal(el.querySelectorAll(".cit .amt").length, 4);
+    assert.equal(el.querySelectorAll(".cit .amt").length, 3);
     for (const amount of el.querySelectorAll(".cit .amt")) assert.equal(amount.textContent, "$3,236.00");
     for (const fees of el.querySelectorAll(".cit-assessments")) assert.ok(fees.textContent.includes("Jail $25.00"));
     assert.equal(courtCents("2026-07-29"), 3800);

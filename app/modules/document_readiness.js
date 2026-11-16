@@ -1,3 +1,4 @@
+import { citationOnlyItem, citationOnlyFault, citationOnlyFollowup } from "./citation_disposition.js";
 import { caseNumberAllowed } from "./case_records.js";
 import { inspAt } from "./inspection_facts.js";
 import { normParcel, recordDay } from "../assets/shared.js";
@@ -21,19 +22,21 @@ function readinessNoDates({ comp, special, d, services }) {
 }
 
 function readinessLive({ comp, d }) {
-  return comp ? d.items.filter((i) => !i.withdrawn) : d.items.filter((i) => !i.done && !i.withdrawn);
+  return comp
+    ? d.items.filter((i) => !i.withdrawn && !citationOnlyItem(i))
+    : d.items.filter((i) => !i.done && !i.withdrawn && !(citationOnlyFollowup(d) && citationOnlyItem(i)));
 }
 
 function readinessNoComply({ comp, d, services }) {
   return comp
     ? d.items
-        .filter((i) => !i.withdrawn)
+        .filter((i) => !i.withdrawn && !citationOnlyItem(i))
         .filter((i) => !validISO(i.doneOn) || i.doneOn > recordDay(services.today) || i.doneOn < (docCase(d).date || "")).length
     : 0;
 }
 
 function readinessNotAllDone({ comp, d }) {
-  return comp ? d.items.filter((i) => !i.done && !i.withdrawn).length : 0;
+  return comp ? d.items.filter((i) => !i.done && !i.withdrawn && !citationOnlyItem(i)).length : 0;
 }
 
 function readinessBlanks({ live }) {
@@ -41,7 +44,7 @@ function readinessBlanks({ live }) {
 }
 
 function readinessNoDue({ noDates, live }) {
-  return noDates ? 0 : live.filter((i) => !i.due).length;
+  return noDates ? 0 : live.filter((i) => !i.due && !citationOnlyItem(i)).length;
 }
 
 /* A Reinspection Notice reports the reinspection and prints every due date already assigned, including ones that have
@@ -218,7 +221,9 @@ const baseReadinessRules = [
         ? "Snow item is exempt from due dates"
         : noDue
           ? noDue + " item" + (noDue === 1 ? " has" : "s have") + " no due date"
-          : "Every item has a due date",
+          : d.items.some(citationOnlyItem)
+            ? "Citation-only items need no repair deadline; other violations keep their deadlines"
+            : "Every item has a due date",
   },
   {
     id: "past-due",
@@ -289,7 +294,7 @@ const baseTargetRules = [
     ),
   ({ live }) =>
     itemTargets(
-      live.filter((i) => !i.due),
+      live.filter((i) => !i.due && !citationOnlyItem(i)),
       "due",
     ),
   ({ live, services, d }) =>
@@ -536,6 +541,7 @@ export function createDocumentReadiness(services) {
       .concat(services.snow.checks(d))
       .concat(services.initialCitations.checks(d))
       .concat(importStatusChecks(d))
+      .concat(citationOnlyFault(d) ? [{ ok: false, t: citationOnlyFault(d) }] : [])
       .concat(services.newDocuments.specialChecks(d))
       .concat(services.authoringChecks(d))
       .concat(d.correction ? services.correctionChecks(d) : services.lifecycleChecks(d))

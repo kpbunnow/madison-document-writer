@@ -97,7 +97,7 @@ module.exports = async function (browser, page, out, axeScreen, work, base) {
   await print.setContent(evidence.html, { waitUntil: "load" });
   await print.evaluate(() => document.fonts.ready);
   await print.emulateMedia({ media: "print" });
-  assert.deepEqual(await print.locator(".cit .amt").allTextContents(), Array(4).fill("$6,411.00"));
+  assert.deepEqual(await print.locator(".cit .amt").allTextContents(), Array(3).fill("$6,411.00"));
   fs.writeFileSync(path.join(out, "r31-print.html"), evidence.html);
   const amounts = await print.locator(".cit .amt").evaluateAll((els) =>
     els.map((el) => ({

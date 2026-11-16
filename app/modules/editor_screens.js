@@ -5,9 +5,9 @@ import { editorState as editor } from "./editor_state.js";
 import { rememberLanguageFocus, restoreLanguageFocus } from "./language_discovery.js";
 import { recordDay } from "../assets/shared.js";
 
-import { DOC_TYPES, globalCourtCopies } from "./document_types.js";
+import { DOC_TYPES } from "./document_types.js";
 import { checkAttr, esc } from "./presentation_format.js";
-import { deliveredByCitation, frozenOf, isEffective, specialType } from "./document_rules.js";
+import { deliveredByCitation, citationCopiesFor, isEffective, specialType } from "./document_rules.js";
 import { doc, docCase, kase, recordHead, reinsp } from "./writer_queries.js";
 
 import { localSaveText } from "./saved_work.js";
@@ -89,7 +89,7 @@ function editorWorkHTML({ d, editable, services }) {
       ? html`<div class="banner info no-print" id="initial-citation-replaces"><div><strong>This inspection will be issued as a citation.</strong> The owner receives only the citation letter and its court copies. The letter carries the items, due dates, appeal and rent-abatement language shown on this working paper, which is not mailed as a separate Official Notice.</div></div>`
       : "") +
     (citation
-      ? html`<div class="editor-preview-tools no-print"><span>Working document · four copies per charge in the issued PDF</span><button type="button" class="btn no-print" data-citation-copies aria-expanded="${editor.state.compactCitationCopies !== d.id}">${editor.state.compactCitationCopies !== d.id ? "Show representative court copies" : "Show all four citation copies"}</button></div>`
+      ? html`<div class="editor-preview-tools no-print"><span>Working document · ${citationCopiesFor(d).length} copies per charge in the issued PDF</span><button type="button" class="btn no-print" data-citation-copies aria-expanded="${editor.state.compactCitationCopies !== d.id}">${editor.state.compactCitationCopies !== d.id ? "Show representative court copies" : "Show all citation copies"}</button></div>`
       : "") +
     html`<div class="desk">${raw(services.record.documentHTML(d))}</div>` +
     (services.record.initialCitations.enabled(d)
@@ -238,7 +238,7 @@ function edPrimary(services, d, ready = edReadiness(services, d)) {
 function edEnhance() {
   const d = doc(editor.state.docId);
   if (!d || editor.state.screen !== "write") return;
-  const count = ((frozenOf(d) || {}).courtCopies || globalCourtCopies()).length || 1;
+  const count = citationCopiesFor(d).length || 1;
   for (const parent of document.querySelectorAll(".document-workspace .desk,.document-workspace .initial-citation-previews")) {
     parent
       .querySelectorAll(".cit")

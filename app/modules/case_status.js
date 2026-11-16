@@ -1,3 +1,4 @@
+import { citationOnlyClosed } from "./citation_disposition.js";
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
 import { caseNumberAllowed } from "./case_records.js";
@@ -13,7 +14,8 @@ import { recordDay } from "../assets/shared.js";
 const snowCaseClosed = (current) => !!current && !!current.filedAt && current.frozen?.snowCloseOnFiling !== false;
 // Any other case closes on withdrawal, a compliance letter, or a voided last document, with no restriction in force.
 const ordinaryCaseClosed = ({ current, last, restrictions, withdrawn }) =>
-  !restrictions.length && (withdrawn || (!!current && current.type === "compliance") || (!current && !!last && !!last.void));
+  !restrictions.length &&
+  (withdrawn || citationOnlyClosed(current) || (!!current && current.type === "compliance") || (!current && !!last && !!last.void));
 
 function caseIsClosed(services, k, facts) {
   return services.snow.isCase(k) ? snowCaseClosed(facts.current) : ordinaryCaseClosed(facts);

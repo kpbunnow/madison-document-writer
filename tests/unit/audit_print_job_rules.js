@@ -62,7 +62,8 @@ function scenario() {
       items,
       cits,
       depositRequests: chance(8) ? { i0: {} } : {},
-      frozen: labels ? { courtCopies: labels.map((label) => ({ label })) } : undefined,
+      // Retained four-copy policy is explicit in this historical differential corpus. New live defaults are tested separately.
+      frozen: { courtCopies: (labels || ["Court", "Agency", "Inspector", "Defendant"]).map((label) => ({ label })) },
     },
     nullDoc: chance(20),
     depositFault: chance(8),

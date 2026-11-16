@@ -1,3 +1,4 @@
+import { citationOnlyItem } from "./citation_disposition.js";
 import { html as screen, raw } from "./screen_html.js";
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
@@ -43,7 +44,7 @@ import {
 
 import { INSPECTORS } from "./data/inspectors.js";
 
-const outstandingNumbers = (d) => (d.items || []).filter((i) => !i.done && !i.withdrawn).map((i) => String(i.no));
+const outstandingNumbers = (d) => (d.items || []).filter((i) => !i.done && !i.withdrawn && !citationOnlyItem(i)).map((i) => String(i.no));
 /* The affected list is derived for authoring 16, so the stored record and helper checks still name the items. */
 const syncAffected = (d) => {
   if (allItemExtension(d)) (d.special ||= {}).affected = outstandingNumbers(d);
@@ -243,7 +244,7 @@ function allItemReadiness({ add, selected, d, s, need, services, day }) {
     vacancyDueReadiness({ add, services, s, d, day, selected });
   }
   add(
-    d.items.filter((i) => i.done || i.withdrawn).every((i) => i.due === (s.originalDues?.[i.no] ?? i.due)),
+    d.items.filter((i) => i.done || i.withdrawn || citationOnlyItem(i)).every((i) => i.due === (s.originalDues?.[i.no] ?? i.due)),
     "Corrected items keep their dates.",
     "affected",
   );
@@ -295,7 +296,7 @@ function laterDueReadiness({ services, d, s, add, selected }) {
   const dates = [
     ...new Set(
       d.items
-        .filter((i) => !i.done && !i.withdrawn)
+        .filter((i) => !i.done && !i.withdrawn && !citationOnlyItem(i))
         .map((i) => i.due)
         .filter(Boolean),
     ),
@@ -518,7 +519,7 @@ const e = (v) => esc(v),
     const i = insp(docCase(d).inspectorId);
     return i.name + " at " + i.phone + (i.email ? " or " + i.email : "");
   },
-  selected = (d, s) => (d.items || []).filter((i) => (s.affected || []).includes(String(i.no)) && !i.done && !i.withdrawn);
+  selected = (d, s) => (d.items || []).filter((i) => (s.affected || []).includes(String(i.no)) && !i.done && !i.withdrawn && !citationOnlyItem(i));
 
 // Bound narrative rows so long findings paginate without an oversized row.
 function narrativeParagraphs(paras) {
@@ -921,7 +922,7 @@ function extensionFields(d, s, rowAffectedSelection) {
       ? '<p class="hint">Select affected items and enter their new due dates in Violation items. Other items keep their original dates.</p>'
       : screen`<fieldset class="r26-items"><legend>Affected outstanding items</legend>${raw(
           d.items
-            .filter((i) => !i.done && !i.withdrawn)
+            .filter((i) => !i.done && !i.withdrawn && !citationOnlyItem(i))
             .map(
               (i) =>
                 screen`<label><input type="checkbox" data-special-item="${raw(e(i.no))}" ${raw((s.affected || []).includes(String(i.no)) ? "checked" : "")}> Item ${raw(e(i.no))} · ${raw(e(i.title || i.text.slice(0, 60)))}</label>${raw(
@@ -1405,7 +1406,7 @@ function scopedCreateSpecial(nd, r, type) {
     s = requireDated(type, clone(r.actionDetails?.[type] || {}), ALL_ITEM_EXTENSIONS);
   s.originalDues = Object.fromEntries(src.items.map((i) => [i.no, i.due || ""]));
   const extension = ["bestInterestExtension", "vacancyExtension"].includes(type),
-    open = (i) => extension && (r.results[i.id] || {}).oc !== "corrected" && !i.done && !i.withdrawn;
+    open = (i) => extension && (r.results[i.id] || {}).oc !== "corrected" && !i.done && !i.withdrawn && !citationOnlyItem(i);
   const d = {
     id: services.uid("d"),
     caseId: r.caseId,
@@ -1709,7 +1710,7 @@ export function initNewDocuments(services) {
       dated = d.type === "bestInterestExtension" || (d.type === "vacancyExtension" && s.deadlineMode === "dated");
     if (simpleVacancy(d)) {
       // Uncorrected items print no due date; their source deadlines stay in originalDues.
-      d.items.forEach((i) => (i.due = !i.done && !i.withdrawn ? "" : (s.originalDues?.[i.no] ?? i.due)));
+      d.items.forEach((i) => (i.due = !i.done && !i.withdrawn && !citationOnlyItem(i) ? "" : (s.originalDues?.[i.no] ?? i.due)));
       return;
     }
     d.items.forEach((i) => {
@@ -1750,7 +1751,7 @@ export function initNewDocuments(services) {
       out = [],
       // Affected items are checkboxes (data-special-item), not data-special fields: beside each due date in the items
       // table for an editable authoring-13 draft, otherwise in the Affected outstanding items fieldset.
-      outstanding = d.items.some((i) => !i.done && !i.withdrawn),
+      outstanding = d.items.some((i) => !i.done && !i.withdrawn && !citationOnlyItem(i)),
       affectedTarget = rowAffectedSelection(d)
         ? outstanding
           ? ".desk [data-special-item]"

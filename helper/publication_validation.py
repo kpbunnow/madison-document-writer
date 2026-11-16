@@ -5,6 +5,8 @@ replay, authoring/special policy, atomic publication and integrity receipts. Cal
 and history operations are explicit call-time inputs, never cached authorities.
 """
 
+from citation_disposition import citation_only_item, citation_only_closed, validate_carried_citation_only
+
 
 def _validate_publication_identity(
     *, event, record, check_date_window, calendar_date, mailing_max_day, mailing_message, special_types, supplemental_types
@@ -79,11 +81,13 @@ def _validate_followup_source(*, source, snap, items, documents, kind, supersede
         not source
         or source["id"] != snap.get("fromDocId")
         or source.get("type") == "compliance"
+        or citation_only_closed(source)
         or all((i.get("withdrawn") for i in source["items"]))
     ):
         raise ValueError("The follow-up must use the current open case document")
     if [(i.get("srcItemId"), str(i.get("no"))) for i in items] != [(i.get("id"), str(i.get("no"))) for i in source["items"]]:
         raise ValueError("A follow-up must retain every item and its numbering")
+    validate_carried_citation_only(items, source["items"])
     referred = any(
         (d[0].get("type") in ("referral", "referralUpdate") for key, d in documents.items() if key not in superseded and key not in voided)
     )
@@ -110,14 +114,14 @@ def _validate_followup_visit(*, visits, source, documents, snap, items, rid, sup
 
 
 def _validate_followup_outcomes(*, kind, items, source):
-    if kind == "compliance" and any((not i.get("done") and (not i.get("withdrawn")) for i in items)):
+    if kind == "compliance" and any((not i.get("done") and (not i.get("withdrawn")) and not citation_only_item(i) for i in items)):
         raise ValueError("A compliance letter cannot close unresolved items")
     for item, previous in zip(items, source["items"]):
         if previous.get("withdrawn") and (not item.get("withdrawn")) or (previous.get("done") and (not item.get("done"))):
             raise ValueError("Prior compliance and withdrawals must remain in later documents")
     if kind == "reinspectionNotice":
         # A Reinspection Notice is a status update: it never assigns, moves or removes a due date.
-        if all(i.get("done") or i.get("withdrawn") for i in items):
+        if all(i.get("done") or i.get("withdrawn") or citation_only_item(i) for i in items):
             raise ValueError("A Reinspection Notice needs at least one outstanding item")
         if any(not i.get("withdrawn") and (i.get("due") or "") != (p.get("due") or "") for i, p in zip(items, source["items"])):
             raise ValueError("A Reinspection Notice keeps every due date as assigned")
@@ -165,7 +169,13 @@ def validate_publication(
         _validate_snow_publication(snow_rules=snow_rules, snap=snap, documents=documents, superseded=superseded, voided=voided, event=event)
         return
     if kind in ("notice", "extension", "citation") and any(
-        (not i.get("done") and (not i.get("withdrawn")) and (not calendar_date(i.get("due")) or i["due"] <= snap["mailed"]) for i in items)
+        (
+            not i.get("done")
+            and (not i.get("withdrawn"))
+            and not citation_only_item(i)
+            and (not calendar_date(i.get("due")) or i["due"] <= snap["mailed"])
+            for i in items
+        )
     ):
         raise ValueError("Outstanding items require a future due date")
     if kind in special_types:

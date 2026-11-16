@@ -124,7 +124,7 @@ module.exports = async function (browser, page, out, axeScreen) {
       .then((texts) => texts.some((text) => text.includes(data.snapshot.frozen.snowLetter.closing))),
     "approved closing retained",
   );
-  assert.deepEqual(m.comments, [1, 1, 1, 0], "comment on court, agency and inspector copies only");
+  assert.deepEqual(m.comments, [1, 1, 0], "comment on Court and Agency copies only");
   assert.ok(
     m.geometry.every((g) => g.height <= 1058 && !g.overflow),
     "geometry " + JSON.stringify(m.geometry),
@@ -133,7 +133,7 @@ module.exports = async function (browser, page, out, axeScreen) {
   await print.pdf({ path: pdfPath, format: "Letter", printBackground: true, preferCSSPageSize: true });
   await print.close();
   const pages = (fs.readFileSync(pdfPath, "latin1").match(/\/Type\s*\/Page[^s]/g) || []).length;
-  assert.equal(pages, m.coverSheets + 4, "snow cover, any language continuation and four copies; no blank page");
+  assert.equal(pages, m.coverSheets + 3, "snow cover, any language continuation and three copies; no blank page");
   results.push({
     name: "r34-snow-cover",
     passed: true,

@@ -1,3 +1,4 @@
+import { citationOnlyItem } from "./citation_disposition.js";
 import { html, raw } from "./screen_html.js";
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
@@ -29,7 +30,7 @@ import { canonicalOrdinance } from "./citation_policy.js";
 function worksheetItemShown({ r, it }) {
   const oc = ocOf(r, it.id);
   if (editor.state.riFilter === "corrected") return oc === "corrected";
-  if (editor.state.riFilter === "open") return oc && oc !== "corrected" && oc !== "withdrawn";
+  if (editor.state.riFilter === "open") return !citationOnlyItem(it) && oc && oc !== "corrected" && oc !== "withdrawn";
   if (editor.state.riFilter === "todo") return !oc;
   return true;
 }
@@ -270,7 +271,7 @@ function worksheetItemContext({ src, it, r, readOnly, dueCheck }) {
     oc = res.oc || "";
   const walkCurrent = worksheetWalkCurrent(readOnly, it);
   const late = it.due && daysBetween(it.due, r.date) > 0;
-  const open = worksheetOutcomeOpen(oc);
+  const open = !citationOnlyItem(it) && worksheetOutcomeOpen(oc);
   const carried = !!res.carried,
     lock = readOnly || carried;
   const dc = open ? dueCheck(res.due, r.date) : null;
@@ -290,6 +291,8 @@ function worksheetCarriedHTML({ carried, oc, res, services }) {
 
 function worksheetItemHTML({ it, src, r, readOnly, dueCheck, services }) {
   const { ix, res, oc, walkCurrent, late, open, carried, lock, dc, walkHidden } = worksheetItemContext({ src, it, r, readOnly, dueCheck });
+  if (citationOnlyItem(it) && !it.withdrawn)
+    return html`<div class="ri-item" data-ri-item="${it.id}"><div class="ri-top"><span class="ri-no">${it.no}.</span><span class="ri-ttl">${it.title || "Violation item"}</span></div><div class="ri-body">${raw(markBlanks(it.text || ""))}</div><p class="ri-carried">Closed by initial citation; no follow-up required. Excluded from compliance counts.</p></div>`;
   return html`<div class="ri-item ${walkCurrent ? "ri-walk-current" : ""}" data-ri-item="${it.id}" data-oc="${oc}" ${walkHidden ? "hidden" : ""} ${raw(walkCurrent ? html`data-ri-walk-current="true" aria-current="step" tabindex="-1"` : "")}>
       <div class="ri-top">
         <span class="ri-no">${it.no || String(ix + 1)}.</span>
@@ -351,11 +354,13 @@ function worksheetCheckPanelHTML(list, checkRowHTML) {
 
 function followupItemDue(it, res, type, hasHistory, cleared) {
   // A Reinspection Notice never changes a due date: every item keeps the date it was already assigned.
-  return (hasHistory && type !== "compliance") || it.withdrawn
+  return citationOnlyItem(it)
     ? ""
-    : cleared || type === "compliance" || type === "reinspectionNotice"
-      ? it.due
-      : res.due;
+    : (hasHistory && type !== "compliance") || it.withdrawn
+      ? ""
+      : cleared || type === "compliance" || type === "reinspectionNotice"
+        ? it.due
+        : res.due;
 }
 
 /* Follow-up drafting calculations consume an explicit view of lookups (reinspectionFollowupLookups). Each lookup reads
@@ -983,7 +988,7 @@ function worksheetDateChecks(r, src, view, add) {
 function worksheetItemCheck({ r, i, initial, dueRelevant, view, add, out }) {
   const res = r.results[i.id] || {},
     on = res.manualDate ? res.on : res.on || r.date;
-  if (i.done || i.withdrawn) return;
+  if (i.done || i.withdrawn || citationOnlyItem(i)) return;
   if (!OUTCOMES.some((o) => o.id === res.oc)) {
     add("Item " + i.no + ": choose an outcome.", '[data-setoc][data-item="' + checkAttr(i.id) + '"]', "Item " + i.no + " outcome");
     return;

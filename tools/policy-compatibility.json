@@ -254,6 +254,37 @@
         "audit_backup_integrity_records.js",
         "audit_recovery_validation_parity.js"
       ]
+    },
+    {
+      "id": "initial-citation-only",
+      "authority": "Owner request 2026-11-16: selected initial cited violations have no repair follow-up; other violations retain their deadlines and keep the case open.",
+      "owners": [
+        {
+          "file": "app/modules/citation_disposition.js",
+          "symbols": [
+            "citationOnlyClosed",
+            "citationOnlyFault"
+          ]
+        },
+        {
+          "file": "helper/citation_disposition.py",
+          "symbols": [
+            "citation_only_closed",
+            "validate_citation_only"
+          ]
+        }
+      ],
+      "consumers": [
+        "app/modules/case_projection.js",
+        "helper/case_projection.py",
+        "helper/case_store.py"
+      ],
+      "historicalVariants": "Optional explicit disposition only; ordinary missing deadlines remain refused. Retained snapshots and original closure dates stay intact. No invented compliance or external closing write.",
+      "suites": [
+        "audit_citation_disposition.js",
+        "audit_feature_citation_packets.js",
+        "audit_citation_only_closure.py"
+      ]
     }
   ],
   "clones": [

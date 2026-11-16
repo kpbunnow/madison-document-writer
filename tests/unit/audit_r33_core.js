@@ -27,7 +27,7 @@ Object.assign(global, { window: dom.window, document: dom.window.document });
   fresh.inspectorId = "i4";
   fresh.authoringVersion = 9;
   fresh.frozen = null;
-  assert.equal((citationFaces(fresh, true).match(/RM#203,/g) || []).length, 4);
+  assert.equal((citationFaces(fresh, true).match(/RM#203,/g) || []).length, 3);
   fresh.frozen = freezeSources(fresh);
   assert.equal(fresh.frozen.court.room, "RM#203,");
   for (const c of Object.values(fresh.cits))
@@ -35,11 +35,11 @@ Object.assign(global, { window: dom.window, document: dom.window.document });
   assert.ok(citationFaces({ ...fresh, draft: true }, true).includes("preview is on hold"));
   fresh.draft = false;
   const html = citationFaces(fresh, true);
-  assert.equal((html.match(/NONE – MANDATORY APPEARANCE/g) || []).length, 4);
-  assert.equal((html.match(/Building Inspection Case Number/g) || []).length, 4);
-  assert.equal((html.match(/RM#203,/g) || []).length, 4);
+  assert.equal((html.match(/NONE – MANDATORY APPEARANCE/g) || []).length, 3);
+  assert.equal((html.match(/Building Inspection Case Number/g) || []).length, 3);
+  assert.equal((html.match(/RM#203,/g) || []).length, 3);
   for (const c of Object.values(fresh.cits)) c.ord = "23.20(2)";
-  assert.equal((citationFaces(fresh, true).match(/NONE – MANDATORY APPEARANCE/g) || []).length, 4);
+  assert.equal((citationFaces(fresh, true).match(/NONE – MANDATORY APPEARANCE/g) || []).length, 3);
   const rows = policyAt("2026-10-12").entries.filter((e) => e.ordinance === "29.40(4)(b)"),
     small = rows.find((e) => /Less than/i.test(e.description)),
     large = rows.find((e) => /or More/i.test(e.description));

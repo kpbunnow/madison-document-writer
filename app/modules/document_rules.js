@@ -1,4 +1,5 @@
-import { SNOW_TYPE, DOC_TYPES, NEW_TYPES } from "./document_types.js";
+import { citationOnlyItem } from "./citation_disposition.js";
+import { SNOW_TYPE, DOC_TYPES, NEW_TYPES, globalCourtCopies } from "./document_types.js";
 /* Rules read only their arguments and document metadata; no live workspace or UI wiring. */
 
 export const alignedExtension = (d) => d?.authoringVersion >= 12 && ["bestInterestExtension", "vacancyExtension"].includes(d.type);
@@ -43,6 +44,17 @@ export const deliveredByCitation = (d) => !!d && d.type === "notice" && d.author
    A draft has no frozen block and reads live; so does an issued document
    from a file written before this existed. */
 export const frozenOf = (d) => (d && d.frozen) || null;
+
+/* New packets omit the Inspector page. Issued/frozen packets and their corrections keep their own copies;
+   unfrozen legacy records retain the original four-copy fallback. No historical source is rewritten. */
+export function citationCopiesFor(d, freezing = false) {
+  const retained = frozenOf(d)?.courtCopies || d?.correction?.courtCopies,
+    copies = globalCourtCopies();
+  if (retained) return retained;
+  return ((freezing && !d?.issuedAt) || d?.draft || d?.initialPreview) && !d?.correction
+    ? copies.filter((copy) => copy.record !== "INSPECTOR RECORD")
+    : copies;
+}
 
 /* The inspection a document was written from (division, 09/18/2026). A
    follow-up carries its own inspDate/inspTime, taken from the reinspection;
@@ -99,6 +111,7 @@ export function clearProhibitedCitations(target) {
   for (const it of target.items) {
     if (!it.cite) continue;
     it.cite = false;
+    if (citationOnlyItem(it)) delete it.dueExempt;
     delete target.depositRequests?.[it.id];
     delete target.cits?.[it.id];
     cleared = true;
@@ -111,7 +124,7 @@ export const libraryKey = (lib) => (lib ? JSON.stringify([lib.c, lib.g, lib.o]) 
 
 export const itemLibraryKey = (it) => it.libraryKey || libraryKey(it.lib);
 
-export const dueItems = (d) => (d.items || []).filter((i) => !i.done && !i.withdrawn && i.dueExempt !== "snow-10.28");
+export const dueItems = (d) => (d.items || []).filter((i) => !i.done && !i.withdrawn && i.dueExempt !== "snow-10.28" && !citationOnlyItem(i));
 
 export const distinctDues = (items) => [...new Set(items.map((i) => i.due).filter(Boolean))];
 

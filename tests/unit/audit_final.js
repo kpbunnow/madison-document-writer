@@ -81,8 +81,8 @@ const T =
   "ter(d=>d.draft)[0];WriterState.state.docId=C.id;render();\nok('citation  " +
   " clean',leaks(document.querySelector('.desk').innerHTML).length===0);\nok" +
   "('  no blockers',blockers(C).length===0,blockers(C).map(c=>c.t).join(' |" +
-  " '));\nok('  four copies',document.querySelectorAll('.desk .cit').length=" +
-  "==4);\nissueDocument(C);\n\nvar r3=visit('none',false);\ndocFromReinspection" +
+  " '));\nok('  three copies',document.querySelectorAll('.desk .cit').length=" +
+  "==3);\nissueDocument(C);\n\nvar r3=visit('none',false);\ndocFromReinspection" +
   "(r3,'referral');\nvar R=WriterState.DOCS.filter(d=>d.draft)[0];WriterStat" +
   "e.state.docId=R.id;render();\nok('referral   clean',leaks(document.queryS" +
   "elector('.desk').innerHTML).length===0);\nok('  no blockers',blockers(R)." +

@@ -64,7 +64,8 @@ export const citSelector = (id, field) => '[data-review-cit="' + checkAttr(id) +
 /* ---------- writer: the document is the editor ---------- */
 /* the whole printable document: the notice, then one page per citation copy */
 /* ---------- Wisconsin Uniform Municipal Court Citation (MC-2000) ----------
-   The four copies differ: agency and inspector carry a disposition record,
+   Current packets omit the Inspector page; retained four-copy packets keep it.
+   The copies differ: agency and historical inspector carry a disposition record,
    the defendant's carries the plea instructions instead of the narrative.
    Facsimile of the form on file — confirm against the court's own stock
    before this is used to produce a filed citation. */

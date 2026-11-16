@@ -81,7 +81,7 @@ export const DOCBODY = APPROVED_LANGUAGE.documentBodies;
 
 export const COURT = APPROVED_LANGUAGE.court;
 
-/* The four copies are not identical. The court copy carries the narrative
+/* Retained four-copy definitions support issued history; citationCopiesFor selects three for new packets. The copies are not identical. The court copy carries the narrative
    only; agency and inspector copies add a disposition record for the court to
    complete; the defendant's copy drops the narrative and carries the plea
    instructions instead. Transcribed from the division's own citations. */
@@ -249,7 +249,7 @@ export const FIELD_NAMES = {
   num: "Citation number",
 };
 
-/* One citation is filed per ordinance, and each of the four copies is its own
+/* One citation is filed per ordinance, and each selected copy is its own
    letter page, laid out to the MC-2000 (02/06) form. */
 export const globalCourt = () => COURT,
   globalCourtCopies = () => CIT_COPIES,

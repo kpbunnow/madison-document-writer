@@ -63,7 +63,7 @@ module.exports = async function (browser, page, out, axeScreen, work, base) {
     await print.setContent(e.html, { waitUntil: "load" });
     await print.evaluate(() => document.fonts.ready);
     await print.emulateMedia({ media: "print" });
-    assert.equal(await print.locator(".cit").count(), 4);
+    assert.equal(await print.locator(".cit").count(), 3);
     assert.ok(await print.locator(".amt").evaluateAll((els) => els.every((x) => x.scrollWidth <= x.clientWidth + 1)));
     await print.pdf({ path: path.join(out, label + ".pdf"), format: "Letter", printBackground: true, preferCSSPageSize: true });
     fs.writeFileSync(path.join(out, label + ".html"), e.html);
