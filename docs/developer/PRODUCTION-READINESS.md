@@ -105,3 +105,5 @@ R82 upgrades R81 with fill-in bubbles typed in place, Open cases by inspector fi
 R83 upgrades R82 with fill-in bubbles that take typing directly, repeated owner mailing lines printed once, stale-continuation and reorder guards and helper normalization parity (S83-2), and the installed update check (S83-1, superseding S82-1). SSRS-1 to SSRS-7, PY-1 and the carried City items remain OPEN. R83 is a release candidate, not a deployment approval.
 
 R84 upgrades R83 with three-copy citation packets and the initial citation-only disposition and closure (S84-2), and the installed update check (S84-1, superseding S83-1). The MC-2000 print, external Accela closing, SSRS-1 to SSRS-7, PY-1 and the carried City items remain OPEN. R84 is a release candidate, not a deployment approval.
+
+R85 upgrades R84 with the single Workspace entry for an initial citation, citation draft wording and the citation-only packet layout without a repair column (S85-2), and the installed update check (S85-1, superseding S84-1). The MC-2000 print, external Accela closing, SSRS-1 to SSRS-7, PY-1 and the carried City items remain OPEN. R85 is a release candidate, not a deployment approval.

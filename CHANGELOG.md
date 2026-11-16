@@ -1,5 +1,19 @@
 # Release changelog
 
+## 2026-11-16 R85 — Release package
+
+Release package assigned on the owner's request after R84 (helper 2026.11.16.86, build 86; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R85 upgrades R84. Every PC still needs Python 3.14.
+
+### Citations
+
+- Workspace lists an initial citation once. Its internal deadline record is no longer shown as a second issued letter, and that record stays visible if its citation packet is missing (PR #536).
+- An initial citation draft shows the citation heading and the approved initial-citation wording before it is issued (PR #536).
+- A packet in which every cited violation is Citation only — no follow-up omits the empty repair Due Date column. Mixed cases keep their deadlines, corrections keep their source layout, and earlier issued packets are unchanged (PR #536).
+
+### Release verification
+
+- The full local gate and GitHub's Full gate passed on the exact release head. Native Windows, City printer and staff checks remain with S85-1 and S85-2.
+
 ## 2026-11-16 R84 — Release package
 
 Release package assigned on the owner's request after R83 (helper 2026.11.16.85, build 85; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R84 upgrades R83. Every PC still needs Python 3.14.
