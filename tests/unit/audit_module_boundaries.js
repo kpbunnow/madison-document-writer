@@ -37,7 +37,7 @@ const allowed = {
   "inspection_facts.js": ["./calendar.js", "./document_rules.js", "./writer_queries.js"],
   "document_types.js": ["./data/approved_language.js", "./citation_policy.js"],
   "document_rules.js": ["./citation_disposition.js", "./document_types.js"],
-  "writer_queries.js": ["./workspace_state.js", "./data/inspectors.js", "./document_rules.js", "./record_sources.js"],
+  "writer_queries.js": ["./citation_disposition.js", "./workspace_state.js", "./data/inspectors.js", "./document_rules.js", "./record_sources.js"],
   "record_sources.js": ["./document_rules.js", "./document_types.js"],
   "case_migrations.js": ["./document_types.js", "./record_values.js"],
   "case_file_rules.js": ["../assets/shared.js", "./record_values.js", "./document_rules.js"],
@@ -334,6 +334,7 @@ const scopedServices = {
   "catalog_forms.js": ["./document_rules.js", "./data/library.js", "./catalog_state.js"],
   "record_history.js": ["../assets/shared.js", "./writer_queries.js", "./presentation_format.js", "./editor_state.js", "./screen_html.js"],
   "worksheet_workflow.js": [
+    "./citation_disposition.js",
     "./case_projection.js",
     "./editor_state.js",
     "./deadline_assignment.js",
@@ -532,6 +533,7 @@ const scopedServices = {
     "./screen_html.js",
   ],
   "reinspection.js": [
+    "./citation_disposition.js",
     "./screen_html.js",
     "./editor_state.js",
     "../assets/shared.js",
@@ -665,6 +667,7 @@ const scopedServices = {
   ],
   "address_parser.js": ["./editor_state.js", "./mailing_rules.js", "./presentation_format.js", "./workspace_state.js", "./writer_queries.js"],
   "new_documents.js": [
+    "./citation_disposition.js",
     "./screen_html.js",
     "./editor_state.js",
     "../assets/shared.js",

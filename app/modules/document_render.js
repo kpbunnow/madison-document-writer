@@ -1,4 +1,4 @@
-import { citationOnlyItem, canChooseCitationOnly } from "./citation_disposition.js";
+import { citationOnlyItem, canChooseCitationOnly, citationOnlyFollowup } from "./citation_disposition.js";
 /* Document and citation-face renderers: authored notice HTML, print documents and retained court-copy definitions. */
 import { mailingMaxDay, recordDay } from "../assets/shared.js";
 
@@ -101,7 +101,7 @@ function noticeDueInputs(services, row) {
       esc(num) +
       '"><option value="date">Due date</option><option value="citation-only"' +
       (citationOnlyItem(it) ? " selected" : "") +
-      ">Citation only — close case</option></select>"
+      ">Citation only — no follow-up</option></select>"
     : "";
   if (citationOnlyItem(it)) return option;
   return (
@@ -149,6 +149,8 @@ function noticeDueHistory(services, row, referralHistoryHTML) {
 
 function noticeDueValue(services, row, referralHistoryHTML) {
   const { d, it } = row;
+  if (citationOnlyFollowup(d) && citationOnlyItem(it) && !it.withdrawn)
+    return '<span class="done-note"><strong>Closed by initial citation</strong>No follow-up required</span>';
   return "".concat(
     it.withdrawn
       ? `<span class="done-note withdrawn-note"><strong>Withdrawn</strong>Entered in error</span>` +

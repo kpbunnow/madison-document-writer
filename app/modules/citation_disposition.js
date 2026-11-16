@@ -13,8 +13,14 @@ export const canChooseCitationOnly = (d, item) =>
   !item.done &&
   !item.withdrawn;
 
-export function citationOnlyClosed(d) {
+export const citationOnlyCarryValid = (res) => !!res?.carried && res.oc === "none" && !res.on && !res.due && !res.cite && !res.note;
+export const citationOnlyFollowup = (d) => !!d?.fromDocId && !d.issuanceGroup && !d.initialPreview;
+export const citationOnlyClosureRequested = (d) => {
   const live = (d?.items || []).filter((item) => !item.done && !item.withdrawn);
+  return live.length > 0 && live.every(citationOnlyItem);
+};
+
+export function citationOnlyClosed(d) {
   return (
     !!d &&
     d.type === "citation" &&
@@ -26,19 +32,18 @@ export function citationOnlyClosed(d) {
     !!d.issuanceGroup?.noticeId &&
     !!d.issuanceGroup?.citationId &&
     d.fromDocId === d.issuanceGroup.noticeId &&
-    live.length > 0 &&
-    live.every((item) => citationOnlyItem(item) && item.cite && !item.due)
+    citationOnlyClosureRequested(d) &&
+    d.items.filter((item) => !item.done && !item.withdrawn).every((item) => item.cite && !item.due)
   );
 }
 
 export function citationOnlyFault(d) {
   const flagged = (d.items || []).filter(citationOnlyItem);
   if (!flagged.length) return "";
-  if (!["notice", "citation"].includes(d.type) || d.fromReinspId || d.importInspection?.type !== "initial")
-    return "Citation-only closure is available only on the initial inspection.";
-  if (flagged.some((i) => i.due || i.done || (!i.cite && !i.withdrawn)))
-    return "Citation-only items need a citation and a blank due date; they are not marked corrected.";
-  if (d.items.some((i) => !i.done && !i.withdrawn && !citationOnlyItem(i)))
-    return "Citation-only closure must cover every remaining violation before the case can close.";
+  const carried = citationOnlyFollowup(d);
+  if (!carried && (!["notice", "citation"].includes(d.type) || d.fromReinspId || d.importInspection?.type !== "initial"))
+    return "Citation-only disposition is available only on the initial inspection.";
+  if (flagged.some((i) => i.due || i.done || i.doneOn || (carried ? i.cite : !i.cite && !i.withdrawn)))
+    return "Citation-only items retain a blank due date and are never marked corrected or cited again.";
   return "";
 }

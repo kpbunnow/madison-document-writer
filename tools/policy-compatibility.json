@@ -257,7 +257,7 @@
     },
     {
       "id": "initial-citation-only",
-      "authority": "Owner request 2026-11-16: initial citation without repair follow-up; all remaining violations must be covered before closure.",
+      "authority": "Owner request 2026-11-16: selected initial cited violations have no repair follow-up; other violations retain their deadlines and keep the case open.",
       "owners": [
         {
           "file": "app/modules/citation_disposition.js",

@@ -163,6 +163,75 @@ module.exports = async function (browser, page, out, axeScreen) {
   assert.equal(closure.status, "Closed");
   assert.equal(closure.due, "");
   assert.ok(!closure.done && !closure.withdrawn, "no fabricated compliance or withdrawal");
+  // A selected violation closes independently; ordinary work and its deadline stay open.
+  const mixed = await create("QA-CITATION-MIXED", "28.202(3)(e)", "SYNTHETIC MIXED OWNER");
+  const mixedCase = await page.evaluate(() => {
+    const d = doc(WriterState.state.docId),
+      k = docCase(d),
+      day = recordDay(today);
+    d.authoringVersion = 16;
+    d.importRule = { kind: "initial", doc: "notice", cite: true, status: "Citation" };
+    d.importInspection = { type: "initial", date: k.date, time: k.time };
+    d.items.push({
+      id: uid("x"),
+      no: "2",
+      title: "Other repair",
+      text: "Repair the other synthetic wall.",
+      sections: ["27.05(2)(c)"],
+      cite: false,
+      done: false,
+      due: addDays(day, 21),
+    });
+    render();
+    return d.caseId;
+  });
+  await page.locator("[data-citation-disposition]").selectOption("citation-only");
+  await issue(mixed.amount, "28.202(3)(e)", "initial-citation-mixed", false, 16);
+  const sourceItems = await page.evaluate((id) => {
+    const summary = summarize(caseFile(id));
+    if (caseState(kase(id)).closed || summary.case.status === "Closed") throw Error("Mixed case closed other work");
+    if (!summary.violations[0].citationClosedOn || !summary.violations[1].due) throw Error("Mixed disposition or ordinary deadline lost");
+    return sourceDocFor(id).items.map((item) => item.id);
+  }, mixedCase);
+  await page.evaluate((id) => startReinspection(id), mixedCase);
+  assert.equal(
+    await page.locator('[data-ri-item="' + sourceItems[0] + '"] [data-setoc]').count(),
+    0,
+    "closed citation-only item offers no new observation",
+  );
+  assert.match(await page.locator('[data-ri-item="' + sourceItems[0] + '"]').innerText(), /Closed by initial citation/);
+  await page.locator("#ri-time").fill("09:00");
+  await page.locator('[data-setoc="corrected"][data-item="' + sourceItems[1] + '"]').click();
+  const complianceId = await page.evaluate(() => {
+    const r = reinsp(WriterState.state.reinspId);
+    if (doneItems(r).length !== 1 || openItems(r).length || unchecked(r).length) throw Error("Closed item distorted worksheet outcomes");
+    docFromReinspection(r, "compliance");
+    const d = doc(WriterState.state.docId);
+    if (d.type !== "compliance") throw Error("Compliance follow-up was not created");
+    d.mailed = recordDay(today);
+    render();
+    return d.id;
+  });
+  assert.deepEqual(await page.evaluate(() => blockers(doc(WriterState.state.docId))), []);
+  await axeScreen(page, "citation-only-mixed-compliance");
+  await page.locator("#btn-final").click();
+  await page.locator("#fin-go").click();
+  await page.waitForFunction((id) => doc(id) && !doc(id).draft && doc(id).filedAt, complianceId);
+  const completed = await page.evaluate((id) => summarize(caseFile(id)), mixedCase);
+  assert.equal(completed.case.status, "Closed");
+  assert.equal(completed.violations[0].done, false);
+  assert.equal(completed.violations[0].withdrawn, false);
+  assert.equal(completed.violations[0].due, "");
+  assert.ok(completed.violations[0].citationClosedOn);
+  assert.equal(completed.violations[1].done, true);
+  assert.equal(completed.visits.at(-1).results.length, 1, "only the ordinary violation has a new observation");
+  results.push({
+    name: "initial-citation-mixed-followup",
+    passed: true,
+    otherViolationKeptOpen: true,
+    closedAfterCompliance: true,
+    noFalseCompliance: true,
+  });
   fs.writeFileSync(path.join(out, "r30-results.json"), JSON.stringify({ passed: true, results }, null, 2));
   return results;
 };

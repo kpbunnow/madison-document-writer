@@ -1,8 +1,8 @@
 {
   "counts": {
-    "complexity": 3,
+    "complexity": 0,
     "max-depth": 0,
-    "max-lines-per-function": 44,
+    "max-lines-per-function": 29,
     "python": 3
   },
   "violations": {
@@ -34,7 +34,6 @@
     "app/modules/shared_case_storage.js:createSharedCaseStorage#1:max-lines-per-function": 96,
     "app/modules/storage_status.js:createStorageStatus#1:max-lines-per-function": 87,
     "app/modules/utility_events.js:createUtilityEvents#1:max-lines-per-function": 84,
-    "app/modules/worksheet_workflow.js:createWorksheetWorkflow#1:max-lines-per-function": 112,
     "app/modules/writer_handoff.js:createWriterHandoff#1:max-lines-per-function": 91,
     "helper/case_integrity.py:__init__:C901": 12,
     "helper/case_store.py:file_lock:C901": 13,

@@ -13,7 +13,7 @@ undefined keys omitted by JSON.stringify, UTF-16 string ordering); see the
 helpers below. Change both implementations together.
 """
 
-from citation_disposition import citation_only_closed
+from citation_disposition import citation_only_closed, citation_only_item, citation_only_followup
 
 import datetime
 import json
@@ -600,6 +600,27 @@ def visit_outcome(visits, no_of, no):
     return outcome
 
 
+def citation_disposition_day(docs, no, current_only=False):
+    source = next(
+        (
+            d
+            for d in docs
+            if get(d, "type") == "citation"
+            and truthy(get(d, "issuanceGroup"))
+            and not truthy(get(d, "fromReinspId"))
+            and (not current_only or not truthy(get(d, "void")) and not truthy(get(d, "superseded")))
+            and any(jstr(get(item, "no")) == no and citation_only_item(item) for item in items(d))
+        ),
+        None,
+    )
+    return issued_day(source) if source is not None else ""
+
+
+def citation_closure_day(d, docs):
+    root = next((item for item in docs if get(item, "id") == jor(get(d, "revision", "rootId"), get(d, "id"))), d)
+    return issued_day(root) if citation_only_closed({**root, "void": False, "superseded": False}) else starts(d)
+
+
 def document_history(docs, no):
     history = []
     for d in docs:
@@ -619,7 +640,13 @@ def document_history(docs, no):
                     "doneOn": jor(get(item, "doneOn"), ""),
                     "withdrawn": truthy(get(item, "withdrawn")),
                     "due": jor(get(item, "due"), ""),
-                    **({"citationClosedOn": issued_day(d)} if citation_only_closed({**d, "void": False, "superseded": False}) else {}),
+                    **(
+                        {"citationClosedOn": citation_disposition_day(docs, no)}
+                        if citation_only_item(item)
+                        and (get(d, "type") == "citation" or citation_only_followup(d))
+                        and citation_disposition_day(docs, no)
+                        else {}
+                    ),
                     "title": jor(get(item, "title"), ""),
                     "sections": jor(get(item, "sections"), []),
                     **violation_type(item),
@@ -640,7 +667,7 @@ def visit_history(docs, visits, no):
         if not isinstance(get(r, "results"), dict):
             raise TypeError("visit without results")
         res = r["results"].get(jstr(get(source_item, "id")), UNDEF)
-        if truthy(res):
+        if truthy(res) and not (citation_only_item(source_item) and truthy(get(res, "carried"))):
             corrected = jeq(get(res, "oc"), "corrected")
             entries.append(
                 {
@@ -683,7 +710,11 @@ def violation_row(ctx, it):
     kind = violation_type(current)
     return {
         "dueExempt": jor(get(current, "dueExempt"), ""),
-        **({"citationClosedOn": issued_day(last_items)} if citation_only_closed(last_items) else {}),
+        **(
+            {"citationClosedOn": citation_disposition_day(docs, no, True)}
+            if citation_only_item(current) and citation_disposition_day(docs, no, True)
+            else {}
+        ),
         "no": no,
         "title": jor(get(current, "title"), ""),
         "sections": list(jor(get(current, "sections"), [])),
@@ -737,7 +768,7 @@ def case_standing(k, facts, status):
         if snow_closed
         else starts(facts.comp)
         if facts.comp is not None
-        else issued_day(facts.last_items)
+        else citation_closure_day(facts.last_items, facts.docs)
         if citation_only_closed(facts.last_items)
         else "",
     }

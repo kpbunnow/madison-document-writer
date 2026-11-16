@@ -1,4 +1,4 @@
-import { citationOnlyClosed } from "./citation_disposition.js";
+import { citationOnlyClosed, citationOnlyItem } from "./citation_disposition.js";
 import { continuingItemsForVisits } from "./case_projection.js";
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
@@ -17,6 +17,11 @@ function refreshImportedVisit(open, importedRow) {
       if (!res.carried && !res.manualDate && (!res.on || res.on === oldDate)) res.on = open.date;
     });
   }
+}
+
+function carriedResult(it) {
+  const oc = it.withdrawn ? "withdrawn" : citationOnlyItem(it) ? "none" : it.done ? "corrected" : "";
+  return oc ? { oc, on: citationOnlyItem(it) ? "" : it.doneOn || "", due: "", note: "", cite: false, carried: true } : null;
 }
 
 export function createReinspectionEntry(services) {
@@ -83,8 +88,8 @@ export function createReinspectionEntry(services) {
       ...(importedRow ? { importInspection: inspectionIdentity(importedRow) } : {}),
     };
     continuingItemsForVisits(src, reinspFor(src.caseId)).forEach((it) => {
-      if (it.done || it.withdrawn)
-        r.results[it.id] = { oc: it.withdrawn ? "withdrawn" : "corrected", on: it.doneOn || "", due: "", note: "", cite: false, carried: true };
+      const carried = carriedResult(it);
+      if (carried) r.results[it.id] = carried;
     });
     editor.WORK.walk = null;
     workspace.REINSP.push(r);

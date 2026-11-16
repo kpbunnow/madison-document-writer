@@ -116,7 +116,8 @@ require("../fixtures/scenarios.cjs").run(__filename, {
   assert.equal((citationFaces(oldFallback,true).match(/class="cit /g)||[]).length,4,'legacy missing-copy metadata retains its original fallback');
   assert.equal(freezeSources(oldFallback).courtCopies.length,4,'freezing an issued legacy source retains its fallback too');
   d.items.push({id:'other',no:'2',group:'KITCHEN',text:'Other work.',sections:['27.05(2)(c)'],due:addDays(day,30),cite:false});
-  assert.ok(checks(d).some(c=>!c.ok && /cover every remaining violation/.test(c.t)),'cannot silently close other open violations');
+  assert.ok(!checks(d).some(c=>!c.ok && /cover every remaining violation/.test(c.t)),'mixed citation-only and ordinary items may issue together');
+  assert.equal(d.items[1].due,addDays(day,30),'other violations keep their deadlines');
   d.items.pop(); render();
   selector=document.querySelector('[data-citation-disposition="citation-only-item"]');
   selector.value='date'; selector.dispatchEvent(new window.Event('change',{bubbles:true}));
@@ -142,8 +143,8 @@ require("../fixtures/scenarios.cjs").run(__filename, {
     assert.deepEqual(source.frozen.courtCopies,copies,'source copies are independently cloned');
   }
 
-  if (process.env.DW_CITATION_RECORDS) {
-    const records=JSON.parse(process.env.DW_CITATION_RECORDS), summaries=records.map(record=>summarize(record));
+  if (process.env.DW_CITATION_RECORDS_FILE) {
+    const records=JSON.parse(require('node:fs').readFileSync(process.env.DW_CITATION_RECORDS_FILE,'utf8')), summaries=records.map(record=>summarize(record));
     const reports=await require('./report_exports.cjs')();
     const {statusAt,openAt,violOpenAt}=reports.rules;
     const [closed,corrected,voided]=summaries.map(s=>s.case);
@@ -162,9 +163,23 @@ require("../fixtures/scenarios.cjs").run(__filename, {
     assert.equal(statusAt(c,'2026-08-15'),'Notice');
     assert.equal(violOpenAt(summaries[2].violations[0],'2026-08-05'),false);
     assert.equal(violOpenAt(summaries[2].violations[0],'2026-08-15'),true,'void restores outstanding work');
+    for (const summary of summaries.slice(3,5)) {
+      assert.notEqual(summary.case.status,'Closed','mixed cases stay open through ordinary follow-up');
+      assert.ok(summary.violations[0].citationClosedOn);
+      assert.equal(summary.violations[0].done,false);
+      assert.equal(violOpenAt(summary.violations[0],'2026-09-05'),false,'citation-only item stays out of open counts');
+      assert.equal(violOpenAt(summary.violations[1],'2026-09-05'),true,'ordinary violation remains open');
+    }
+    if(summaries[5]) {
+      assert.equal(summaries[5].case.status,'Closed');
+      assert.equal(summaries[5].case.closedOn,'2026-10-01');
+      assert.equal(summaries[5].violations[0].done,false);
+      assert.equal(summaries[5].violations[0].citationClosedOn,'2026-08-01');
+      assert.equal(summaries[5].violations[1].done,true);
+    }
     require('node:fs').writeFileSync(process.env.DW_CITATION_PROJECTIONS,JSON.stringify(summaries));
   }
-  console.log('PASS citation-only initial controls, tab order, ordinary deadline refusal, all-three new copies, retained-four legacy, mixed-case guard and deselection');
+  console.log('PASS citation-only initial controls, tab order, ordinary deadline refusal, all-three new copies, retained-four legacy, mixed-case follow-up and deselection');
 
   }
   console.log('PASS audit_r61_development.js: new three-copy defaults, compact preview, incomplete packet refused');

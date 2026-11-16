@@ -19,7 +19,16 @@ from plain_files import UNSAFE_NAME_CHARS, plain_json_files, require_plain_file,
 import citation_pricing
 import cash_validation
 import publication_validation
-from citation_disposition import citation_only_closed, citation_only_item, validate_citation_only
+from citation_disposition import (
+    citation_only_closed,
+    citation_only_item,
+    validate_citation_only,
+    validate_carried_citation_only,
+    citation_only_closure_requested,
+    citation_only_followup,
+    validate_citation_only_result,
+    require_citation_only_lifecycle,
+)
 from issuance_validation import _validate_initial_notice_group, _validate_initial_citation_group
 import os
 import re
@@ -193,7 +202,7 @@ def _validate_selected_item_dates(*, assert_fact, selected, snap, mailed, origin
 
 def _validate_all_item_facts(*, snap, s, assert_fact, kind, require, mailed):
     """Preserve the historical special-format check order."""
-    outstanding = [i for i in snap["items"] if not i.get("done") and (not i.get("withdrawn"))]
+    outstanding = [i for i in snap["items"] if not i.get("done") and (not i.get("withdrawn")) and not citation_only_item(i)]
     affected = s.get("affected", [])
     assert_fact(
         isinstance(affected, list) and outstanding and (sorted(map(str, affected)) == sorted((str(i.get("no")) for i in outstanding))),
@@ -215,7 +224,9 @@ def _validate_selected_item_facts(*, s, assert_fact, snap, simple_best, require,
     """Preserve the historical special-format check order."""
     affected = s.get("affected", [])
     assert_fact(isinstance(affected, list) and affected and (len(set(affected)) == len(affected)), "Choose affected outstanding item numbers")
-    selected = [i for i in snap["items"] if str(i.get("no")) in affected and (not i.get("done")) and (not i.get("withdrawn"))]
+    selected = [
+        i for i in snap["items"] if str(i.get("no")) in affected and (not i.get("done")) and (not i.get("withdrawn")) and not citation_only_item(i)
+    ]
     assert_fact(len(selected) == len(affected), "Affected items must be outstanding source items")
     assert_fact(s.get("noSafety") is True, "Extensions must exclude reviewed safety and urgent obligations")
     if not simple_best:
@@ -358,6 +369,7 @@ def _special_publication_source(*, snap, documents, superseded, voided, kind, ri
         raise ValueError("The source changed; review the current case")
     if [(i.get("srcItemId"), str(i.get("no"))) for i in snap["items"]] != [(i.get("id"), str(i.get("no"))) for i in source["items"]]:
         raise ValueError("Scoped actions retain all item identities, numbers and order")
+    validate_carried_citation_only(snap["items"], source["items"])
     return source
 
 
@@ -1435,11 +1447,13 @@ def validate_history(record, historical_ids=frozenset(), cross_case_history=(), 
     """Protect links and identity even on import, migration, and an empty share."""
     documents, superseded, voided, visits = ({}, set(), set(), [])
     head = set()
+    citation_only_seen = False
     validate_issuance_groups(record)
     events = sorted(record.get("events", []), key=event_order)
     for event in events:
         payload = event.get("payload", {})
         kind = event["type"]
+        citation_only_seen = require_citation_only_lifecycle(kind, payload, citation_only_seen)
         if payload.get("lifecycle") and (not isinstance(payload.get("expectedHead"), list) or set(payload["expectedHead"]) != head):
             raise ValueError("This action does not include the complete reviewed case history")
         if record_event(event):
@@ -1601,7 +1615,9 @@ def _validate_visit_outcomes(*, record, visit, source, visits):
         raise ValueError("An inspection must retain an outcome for every source item")
     for item in continuing_items(source, visits):
         result = results[item["id"]]
-        if item.get("withdrawn"):
+        if citation_only_item(item) and not item.get("withdrawn"):
+            validate_citation_only_result(result)
+        elif item.get("withdrawn"):
             if result.get("oc") != "withdrawn" or not result.get("carried"):
                 raise ValueError("A withdrawn item cannot be counted as newly compliant")
         elif item.get("done"):
@@ -1638,10 +1654,13 @@ def validate_visit(record, visit, documents, superseded, voided, visits, at=None
 
 def validate_publication(record, event, documents, superseded, voided, visits, check_date_window=True):
     snapshot = event.get("payload", {}).get("snapshot", {})
+    if isinstance(snapshot, dict) and isinstance(snapshot.get("items"), list) and any(citation_only_item(item) for item in snapshot["items"]):
+        validate_citation_only(snapshot, record.get("case", {}))
     if (
         isinstance(snapshot, dict)
         and isinstance(snapshot.get("items"), list)
-        and any(citation_only_item(item) for item in snapshot["items"])
+        and not citation_only_followup(snapshot)
+        and citation_only_closure_requested(snapshot)
         and active_restrictions(documents, superseded, voided)
     ):
         raise ValueError("Citation-only closure requires every occupancy restriction to be released first")
@@ -1666,7 +1685,7 @@ def validate_publication(record, event, documents, superseded, voided, visits, c
 def _validate_authoring_document(*, snap, check_date_window, at):
     items = snap["items"]
     validate_citation_only(snap, snap.get("frozen", {}).get("case", {}))
-    live = [i for i in items if not i.get("done") and (not i.get("withdrawn"))]
+    live = [i for i in items if not i.get("done") and (not i.get("withdrawn")) and not citation_only_item(i)]
     if snap.get("type") in ("notice", "extension", "citation") and len({i.get("due") for i in live if i.get("due")}) > 3:
         raise ValueError("A notice may have no more than three distinct outstanding due dates")
     # A library entry may appear on a notice more than once (owner direction 2026-11-10); each copy is its own item.

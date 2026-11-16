@@ -27,9 +27,14 @@ for (const patch of [{ cite: false }, { done: true }, { withdrawn: true }]) asse
 for (const patch of [{ due: "2026-12-01" }, { done: true }, { cite: false }])
   assert.match(citationOnlyFault({ ...draft, items: [{ ...item, ...patch }] }), /blank due date/);
 assert.match(citationOnlyFault({ ...draft, fromReinspId: "visit" }), /only on the initial/);
-assert.match(citationOnlyFault({ ...draft, items: [item, { id: "other", cite: false }] }), /every remaining violation/);
+assert.equal(citationOnlyFault({ ...draft, items: [item, { id: "other", cite: false, due: "2026-12-01" }] }), "", "other violations stay open");
 const issued = { ...draft, draft: false, type: "citation", fromDocId: "notice", issuanceGroup: { noticeId: "notice", citationId: "citation" } };
 assert.ok(citationOnlyClosed(issued));
+assert.equal(
+  citationOnlyClosed({ ...issued, items: [item, { id: "other", cite: false, due: "2026-12-01" }] }),
+  false,
+  "partial citation-only disposition cannot close other violations",
+);
 assert.ok(citationOnlyClosed({ ...issued, id: "corrected-citation", revision: { originalIssued: "2026-08-01" } }));
 for (const patch of [
   { draft: true },

@@ -24,6 +24,73 @@ def citation_only_pair():
     return record
 
 
+def mixed_pair():
+    value = citation_only_pair()
+    for event in value["events"]:
+        snapshot = event["payload"]["snapshot"]
+        item = copy.deepcopy(snapshot["items"][0])
+        item.update(id="other_notice" if snapshot["type"] == "notice" else "other_citation", no="2", cite=False, due="2026-09-01")
+        item.pop("dueExempt")
+        if snapshot["type"] == "citation":
+            item["srcItemId"] = "other_notice"
+        snapshot["items"].append(item)
+    return value
+
+
+def followup(record, kind, day, due=""):
+    value = copy.deepcopy(record)
+    source = value["events"][-1]["payload"]["snapshot"]
+    rid = "visit-" + kind
+    results = {
+        item["id"]: {"oc": "none", "carried": True, "on": "", "due": "", "note": "", "cite": False}
+        if item.get("dueExempt") == CITATION_ONLY
+        else {"oc": "corrected" if kind == "compliance" else "none", "on": day, "due": due, "cite": False}
+        for item in source["items"]
+    }
+    visit = {
+        "id": rid,
+        "sourceDocId": source["id"],
+        "caseId": value["case"]["id"],
+        "date": day,
+        "time": "10:00",
+        "inspectorId": "inspector_1",
+        "results": results,
+    }
+    value["events"].append(
+        {
+            "id": rid + "-event",
+            "at": day + "T15:00:00Z",
+            "by": "inspector_1",
+            "type": "reinspection.recorded",
+            "payload": {"reinspection": visit, "lifecycle": 1, "expectedHead": [e["id"] for e in value["events"]]},
+        }
+    )
+    snap = copy.deepcopy(source)
+    snap.update(id=kind + "-followup", type=kind, fromDocId=source["id"], fromReinspId=rid, mailed=day, inspDate=day, inspTime="10:00", cits={})
+    snap.pop("issuanceGroup", None)
+    snap["importInspection"] = {"type": "reinspection", "date": day, "time": "10:00"}
+    snap.pop("importRule", None)
+    for item in snap["items"]:
+        old = item["id"]
+        item.update(id=kind + "-" + old, srcItemId=old, cite=False)
+        if item.get("dueExempt") == CITATION_ONLY:
+            item.update(due="", done=False, doneOn="")
+        else:
+            item.update(
+                done=kind == "compliance", doneOn=day if kind == "compliance" else "", due=source["items"][1]["due"] if kind == "compliance" else due
+            )
+    value["events"].append(
+        {
+            "id": kind + "-event",
+            "at": day + "T15:00:00.001Z",
+            "by": "inspector_1",
+            "type": kind + ".issued",
+            "payload": {"docId": snap["id"], "snapshot": snap, "lifecycle": 1, "expectedHead": [e["id"] for e in value["events"]]},
+        }
+    )
+    return value
+
+
 class CitationOnlyClosure(unittest.TestCase):
     def test_store_accepts_complete_atomic_pair_and_retains_retry(self):
         value = citation_only_pair()
@@ -52,7 +119,7 @@ class CitationOnlyClosure(unittest.TestCase):
             case_store.validate_history(value)
 
     def test_refuses_invalid_or_inconsistent_closure_without_publishing(self):
-        for fault in ("dated", "not-cited", "corrected", "reinspection", "mixed", "unpaired", "snow"):
+        for fault in ("dated", "not-cited", "corrected", "reinspection", "unpaired", "snow"):
             value = citation_only_pair()
             notice, citation = [event["payload"]["snapshot"] for event in value["events"]]
             for snapshot in (notice, citation):
@@ -64,11 +131,6 @@ class CitationOnlyClosure(unittest.TestCase):
                     snapshot["items"][0].update(done=True, doneOn="2026-08-01")
                 elif fault == "reinspection":
                     snapshot["importInspection"]["type"] = "reinspection"
-                elif fault == "mixed":
-                    item = copy.deepcopy(snapshot["items"][0])
-                    item.update(id="other", no="2", cite=False, due="2026-09-01")
-                    item.pop("dueExempt")
-                    snapshot["items"].append(item)
             if fault == "unpaired":
                 citation["items"][0].pop("dueExempt")
                 citation["items"][0]["due"] = "2026-09-01"
@@ -107,13 +169,18 @@ class CitationOnlyClosure(unittest.TestCase):
                 "payload": {"docId": original["id"], "reason": "Synthetic withdrawal"},
             }
         )
-        records = [value, corrected, voided]
+        mixed = mixed_pair()
+        extended = followup(mixed, "extension", "2026-09-01", "2026-10-01")
+        completed = followup(extended, "compliance", "2026-10-01")
+        records = [value, corrected, voided, mixed, extended, completed]
         with tempfile.TemporaryDirectory() as temp:
             output = Path(temp) / "projections.json"
+            inputs = Path(temp) / "records.json"
+            inputs.write_text(json.dumps(records))
             result = subprocess.run(
                 ["node", "tests/unit/audit_feature_citation_packets.js"],
                 cwd=Path(__file__).resolve().parents[2],
-                env={**os.environ, "DW_CITATION_RECORDS": json.dumps(records), "DW_CITATION_PROJECTIONS": str(output)},
+                env={**os.environ, "DW_CITATION_RECORDS_FILE": str(inputs), "DW_CITATION_PROJECTIONS": str(output)},
                 capture_output=True,
                 text=True,
                 timeout=120,
@@ -124,6 +191,73 @@ class CitationOnlyClosure(unittest.TestCase):
             self.assertEqual(
                 case_projection.json_text(case_projection.reportable(browser)), case_projection.json_text(case_projection.projected(record)[0])
             )
+
+    def test_mixed_case_publication_and_two_followups(self):
+        value = mixed_pair()
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            saved = case_store.save_case(root, "101 TEST LANE - QA-LIFE.json", value)
+            summary = case_projection.projected(saved["file"])[0]
+            self.assertNotEqual(summary["case"]["status"], "Closed")
+            self.assertEqual(summary["violations"][0]["citationClosedOn"], "2026-08-01")
+            self.assertEqual(summary["violations"][1]["due"], "2026-09-01")
+            for kind, day, due in [("extension", "2026-09-01", "2026-10-01"), ("compliance", "2026-10-01", "")]:
+                updated = followup(saved["file"], kind, day, due)
+                saved = case_store.save_case(root, saved["name"], updated, saved["revision"], saved["file"]["case"], kind + "-event")
+                summary = case_projection.projected(saved["file"])[0]
+                self.assertFalse(summary["violations"][0]["done"])
+                self.assertFalse(summary["violations"][0]["withdrawn"])
+                self.assertEqual(summary["violations"][0]["due"], "")
+                self.assertEqual(summary["violations"][0]["citationClosedOn"], "2026-08-01")
+                self.assertEqual(len(summary["visits"][-1]["results"]), 1, "closed citation-only item creates no new observation")
+            self.assertEqual(summary["case"]["status"], "Closed")
+            self.assertEqual(summary["case"]["closedOn"], "2026-10-01")
+            self.assertTrue(summary["violations"][1]["done"])
+
+    def test_followup_cannot_change_the_original_disposition_or_reinspect_it(self):
+        value = followup(mixed_pair(), "extension", "2026-09-01", "2026-10-01")
+        for fault in ["drop", "add", "cite", "date", "observe"]:
+            bad = copy.deepcopy(value)
+            snapshot = bad["events"][-1]["payload"]["snapshot"]
+            if fault == "drop":
+                snapshot["items"][0].pop("dueExempt")
+                snapshot["items"][0]["due"] = "2026-10-01"
+            if fault == "add":
+                snapshot["items"][1].update(dueExempt=CITATION_ONLY, due="")
+            if fault == "cite":
+                snapshot["items"][0]["cite"] = True
+            if fault == "date":
+                snapshot["items"][0]["due"] = "2026-10-01"
+            if fault == "observe":
+                bad["events"][-2]["payload"]["reinspection"]["results"]["charged_item"].update(oc="corrected", on="2026-09-01")
+            reason = (
+                "original citation-only dispositions"
+                if fault in ("drop", "add")
+                else "without a new observation"
+                if fault == "observe"
+                else "blank due date"
+            )
+            with self.subTest(fault=fault), self.assertRaisesRegex(ValueError, reason):
+                case_store.validate_history(bad)
+
+    def test_compliance_cannot_close_the_other_unresolved_violation(self):
+        value = followup(mixed_pair(), "compliance", "2026-09-01")
+        value["events"][-2]["payload"]["reinspection"]["results"]["other_citation"].update(oc="none")
+        value["events"][-1]["payload"]["snapshot"]["items"][1].update(done=False, doneOn="")
+        with self.assertRaisesRegex(ValueError, "cannot close unresolved items"):
+            case_store.validate_history(value)
+
+    def test_lifecycle_and_supported_authoring_are_required_for_new_dispositions(self):
+        for target in ("visit", "document"):
+            bad = followup(mixed_pair(), "extension", "2026-09-01", "2026-10-01")
+            bad["events"][-2 if target == "visit" else -1]["payload"].pop("lifecycle")
+            with self.subTest(target=target), self.assertRaisesRegex(ValueError, "reviewed lifecycle"):
+                case_store.validate_history(bad)
+        bad = citation_only_pair()
+        for event in bad["events"]:
+            event["payload"]["snapshot"]["authoringVersion"] = 1
+        with self.assertRaises(ValueError):
+            case_store.validate_history(bad)
 
     def test_correction_cannot_drop_closure(self):
         original = citation_only_pair()["events"][-1]["payload"]["snapshot"]

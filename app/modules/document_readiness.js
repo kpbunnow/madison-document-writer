@@ -1,4 +1,4 @@
-import { citationOnlyItem, citationOnlyFault } from "./citation_disposition.js";
+import { citationOnlyItem, citationOnlyFault, citationOnlyFollowup } from "./citation_disposition.js";
 import { caseNumberAllowed } from "./case_records.js";
 import { inspAt } from "./inspection_facts.js";
 import { normParcel, recordDay } from "../assets/shared.js";
@@ -22,19 +22,21 @@ function readinessNoDates({ comp, special, d, services }) {
 }
 
 function readinessLive({ comp, d }) {
-  return comp ? d.items.filter((i) => !i.withdrawn) : d.items.filter((i) => !i.done && !i.withdrawn);
+  return comp
+    ? d.items.filter((i) => !i.withdrawn && !citationOnlyItem(i))
+    : d.items.filter((i) => !i.done && !i.withdrawn && !(citationOnlyFollowup(d) && citationOnlyItem(i)));
 }
 
 function readinessNoComply({ comp, d, services }) {
   return comp
     ? d.items
-        .filter((i) => !i.withdrawn)
+        .filter((i) => !i.withdrawn && !citationOnlyItem(i))
         .filter((i) => !validISO(i.doneOn) || i.doneOn > recordDay(services.today) || i.doneOn < (docCase(d).date || "")).length
     : 0;
 }
 
 function readinessNotAllDone({ comp, d }) {
-  return comp ? d.items.filter((i) => !i.done && !i.withdrawn).length : 0;
+  return comp ? d.items.filter((i) => !i.done && !i.withdrawn && !citationOnlyItem(i)).length : 0;
 }
 
 function readinessBlanks({ live }) {
@@ -220,7 +222,7 @@ const baseReadinessRules = [
         : noDue
           ? noDue + " item" + (noDue === 1 ? " has" : "s have") + " no due date"
           : d.items.some(citationOnlyItem)
-            ? "Citation-only disposition: no repair due date; the case closes when issued"
+            ? "Citation-only items need no repair deadline; other violations keep their deadlines"
             : "Every item has a due date",
   },
   {

@@ -13,6 +13,7 @@ function changeDisposition(services, el) {
   if (el.value === "citation-only") {
     item.dueExempt = CITATION_ONLY;
     item.due = "";
+    item.doneOn = "";
     if (d.dueWork?.selected) d.dueWork.selected = d.dueWork.selected.filter((id) => id !== item.id);
   } else delete item.dueExempt;
   workspace.DIRTY = true;

@@ -1,4 +1,4 @@
-import { citationOnlyClosed } from "./citation_disposition.js";
+import { citationOnlyClosed, citationOnlyItem, citationOnlyFollowup } from "./citation_disposition.js";
 /* Explicit record facts in, derived report facts out. No workspace, UI, clock or I/O dependencies. */
 import { SUMMARY_VERSION, normParcel, recordDay } from "../assets/shared.js";
 import { DOC_TYPES, SCHEMA, STATUS_OF } from "./document_types.js";
@@ -264,6 +264,23 @@ function visitOutcome(visits, noOf, no) {
   return outcome;
 }
 
+function citationDispositionDay(docs, no, currentOnly = false) {
+  const source = docs.find(
+    (d) =>
+      d.type === "citation" &&
+      d.issuanceGroup &&
+      !d.fromReinspId &&
+      (!currentOnly || (!d.void && !d.superseded)) &&
+      d.items.some((item) => String(item.no) === no && citationOnlyItem(item)),
+  );
+  return source ? issuedDay(source) : "";
+}
+
+function citationClosureDay(d, docs) {
+  const root = docs.find((item) => item.id === (d.revision?.rootId || d.id)) || d;
+  return citationOnlyClosed({ ...root, void: false, superseded: false }) ? issuedDay(root) : starts(d);
+}
+
 function documentHistory(docs, no, LIBRARY) {
   return docs
     .filter((d) => !supplemental(d))
@@ -281,7 +298,9 @@ function documentHistory(docs, no, LIBRARY) {
             doneOn: item.doneOn || "",
             withdrawn: !!item.withdrawn,
             due: item.due || "",
-            ...(citationOnlyClosed({ ...d, void: false, superseded: false }) ? { citationClosedOn: issuedDay(d) } : {}),
+            ...(citationOnlyItem(item) && (d.type === "citation" || citationOnlyFollowup(d)) && citationDispositionDay(docs, no)
+              ? { citationClosedOn: citationDispositionDay(docs, no) }
+              : {}),
             title: item.title || "",
             sections: item.sections || [],
             ...violationType(item, LIBRARY),
@@ -299,7 +318,7 @@ function visitHistory(docs, visits, no, LIBRARY) {
       const parent = docs.find((d) => d.id === r.sourceDocId),
         sourceItem = parent?.items.find((i) => String(i.no) === no),
         res = sourceItem && r.results[sourceItem.id];
-      if (res)
+      if (res && !(citationOnlyItem(sourceItem) && res.carried))
         entries.push({
           docId: r.id,
           issued: r.date,
@@ -337,7 +356,7 @@ function violationRow(ctx, it) {
     ty = violationType(current, LIBRARY);
   return {
     dueExempt: current.dueExempt || "",
-    ...(citationOnlyClosed(lastItems) ? { citationClosedOn: issuedDay(lastItems) } : {}),
+    ...(citationOnlyItem(current) && citationDispositionDay(docs, no, true) ? { citationClosedOn: citationDispositionDay(docs, no, true) } : {}),
     no: no,
     title: current.title || "",
     sections: (current.sections || []).slice(),
@@ -386,7 +405,7 @@ function caseStanding(k, facts, status) {
         : comp
           ? starts(comp)
           : citationOnlyClosed(facts.lastItems)
-            ? issuedDay(facts.lastItems)
+            ? citationClosureDay(facts.lastItems, facts.docs)
             : "",
   };
 }
