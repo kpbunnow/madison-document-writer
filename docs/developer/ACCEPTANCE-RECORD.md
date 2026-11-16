@@ -328,6 +328,15 @@ The owner's tester ran fresh clones of main on synthetic data. None of this clos
 - **S65-1 and S65-2:** open cases by inspector (soonest deadline first, Continue case) and both Reinspection results (corrected items ruled through, due dates unchanged) passed on synthetic cases in the R66 round; the case-file-could-not-be-included note and the wording approval remain City and division checks.
 - **Owner decisions of 2026-11-01:** a correction cannot add new items; a case that exists only as an unissued draft is not listed in Open cases by inspector; a completely blank Violator row is dropped when Recipients is closed. See 03-DOMAIN-RULES.md.
 
+## R85 release acceptance — OPEN
+
+| ID | City/staff check | Required result |
+| --- | --- | --- |
+| S85-1 | Install R85 from the shared release folder over R84 on a PC that uses the shared case folder, restart Document Writer once (Exit Document Writer, then the desktop icon), then start a PC still on R84 against the same share | The helper starts and Writer opens; Tools & settings → Connection & setup shows Program/helper versions Match; the R84 PC is told to restart and cannot save to the share |
+| S85-2 | On a City PC with the MC-2000 stock: start an initial citation from a Citation import and review the draft; issue one packet where every cited violation is Citation only — no follow-up and one mixed packet; print both; open Workspace for each case; open a correction of the fully citation-only packet | The draft shows the citation heading and wording; the fully citation-only packet prints without a repair Due Date column and the mixed packet keeps its deadlines; Workspace lists each citation once; the correction keeps the source layout |
+
+All R85 items remain OPEN, together with the R84 and R83 items, SSRS-1 to SSRS-7 and the carried items. S84-1 is superseded by S85-1.
+
 ## R84 release acceptance — OPEN
 
 | ID | City/staff check | Required result |
