@@ -33,7 +33,7 @@ export function activeRestrictions(documents) {
   return live.filter((d) => d.special?.mode !== "release" && !released.has(d.id));
 }
 
-export const deliveredByCitation = (d) => !!d && d.type === "notice" && d.authoringVersion >= 11 && !!d.issuanceGroup?.citationId;
+export { deliveredByCitation } from "./document_types.js";
 
 /* ---------- what an issued document renders from ----------
    Issuing freezes the document, and everything the document was written

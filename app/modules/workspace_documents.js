@@ -1,9 +1,8 @@
 /* Read-only, newest-first document links. The existing editor route retains preflight and all record/PDF actions. */
 import { html, raw } from "./screen_html.js";
-import { DOC_TYPES } from "./document_types.js";
+import { DOC_TYPES, deliveredByCitation } from "./document_types.js";
 import { recordDay } from "../assets/shared.js";
 import { fmtDate } from "./presentation_format.js";
-import { deliveredByCitation } from "./document_rules.js";
 
 // Issuance/revision timestamps describe history order; mailing dates can be deliberately backdated.
 const historyTime = (d) => (d.draft ? d.created : d.revision?.at || d.issuedAt || d.mailed || d.created) || "";
