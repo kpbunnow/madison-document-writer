@@ -139,7 +139,9 @@ module.exports = async function (browser, page, out, axeScreen) {
   await page.getByRole("button", { name: "Complete charge", exact: true }).click();
   await issue("1966.00", "SPS321.125", "r30-manual-base", true);
   // Current initial-only disposition through the real UI, atomic store and original PDF path.
-  await create("QA-CITATION-ONLY", "28.202(3)(e)", "SYNTHETIC CITATION ONLY OWNER");
+  const citationOnly = await create("QA-CITATION-ONLY", "28.202(3)(e)", "SYNTHETIC CITATION ONLY OWNER");
+  assert.equal(citationOnly.amount, "701.00", "the earlier occupancy citation remains counted for this property");
+  assert.equal(citationOnly.tier, "2nd");
   await page.evaluate(() => {
     const d = doc(WriterState.state.docId),
       k = docCase(d);
@@ -151,7 +153,7 @@ module.exports = async function (browser, page, out, axeScreen) {
   await page.locator("[data-citation-disposition]").selectOption("citation-only");
   const closedId = await page.evaluate(() => doc(WriterState.state.docId).caseId);
   assert.equal(await page.locator('[data-field="due"]').count(), 0);
-  await issue("323.00", "28.202(3)(e)", "initial-citation-only", false, 16);
+  await issue("701.00", "28.202(3)(e)", "initial-citation-only", false, 16);
   assert.equal(await page.evaluate((id) => caseState(kase(id)).closed, closedId), true, "initial citation closes without a follow-up");
   const closure = await page.evaluate((id) => {
     const d = sourceDocFor(id),
