@@ -72,12 +72,14 @@ module.exports = async function (browser, page, out, axeScreen) {
     assert.equal(evidence.cit.amount, expected);
     assert.deepEqual(evidence.group, evidence.notice);
     if (label === "initial-citation-only") {
-      assert.equal(await page.locator(".desk .c-due").count(), 0, "issued citation has no repair column");
-      await page.getByRole("button", { name: "Back to Workspace", exact: true }).click();
+      // Filing precedes the final workspace transition; wait for publication, not just the receipt.
+      await page.waitForFunction(() => WriterState.state.screen === "cases" && !WriterState.state.publicationBusy);
       assert.equal(await page.locator('.case-document-list [data-open="' + ids.noticeId + '"]').count(), 0, "internal notice is not a second letter");
       const issuedLink = page.locator('.case-document-list [data-open="' + ids.citationId + '"]');
       assert.equal(await issuedLink.count(), 1, "one delivered citation in the workspace");
       await issuedLink.click();
+      await page.locator(".desk .n-title").first().waitFor();
+      assert.equal(await page.locator(".desk .c-due").count(), 0, "reopened issued citation has no repair column");
     }
     const print = await browser.newPage();
     await print.setContent(evidence.html, { waitUntil: "load" });
