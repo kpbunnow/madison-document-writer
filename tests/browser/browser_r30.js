@@ -74,14 +74,16 @@ module.exports = async function (browser, page, out, axeScreen) {
     if (label === "initial-citation-only") {
       assert.equal(await page.locator(".desk .c-due").count(), 0, "issued citation has no repair column");
       await page.getByRole("button", { name: "Back to Workspace", exact: true }).click();
-      assert.equal(await page.locator('[data-open="' + ids.noticeId + '"]').count(), 0, "internal notice is not a second letter");
-      assert.equal(await page.locator('[data-open="' + ids.citationId + '"]').count(), 1, "one delivered citation in the workspace");
-      await page.locator('[data-open="' + ids.citationId + '"]').click();
+      assert.equal(await page.locator('.case-document-list [data-open="' + ids.noticeId + '"]').count(), 0, "internal notice is not a second letter");
+      const issuedLink = page.locator('.case-document-list [data-open="' + ids.citationId + '"]');
+      assert.equal(await issuedLink.count(), 1, "one delivered citation in the workspace");
+      await issuedLink.click();
     }
     const print = await browser.newPage();
     await print.setContent(evidence.html, { waitUntil: "load" });
     await print.evaluate(() => document.fonts.ready);
     await print.emulateMedia({ media: "print" });
+    if (label === "initial-citation-only") assert.equal(await print.locator(".c-due").count(), 0, "issued PDF omits the repair column");
     const geometry = await print
       .locator(".sheet,.cit")
       .evaluateAll((els) => els.map((el) => ({ height: el.getBoundingClientRect().height, overflow: el.scrollHeight > el.clientHeight + 2 })));
