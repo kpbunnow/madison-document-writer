@@ -321,7 +321,8 @@ function edScreenWrite(services) {
     ready = edReadiness(services, d),
     primary = edPrimary(services, d, ready);
   const actions = editorActionsHTML({ d, locked, primary, services });
-  const tyLabel = (DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type;
+  const displayType = services.record.initialCitations.enabled(d) && d.authoringVersion >= 11 ? "citation" : d.type;
+  const tyLabel = (DOC_TYPES.find((t) => t.id === displayType) || {}).label || displayType;
   const fr = d.fromReinspId ? reinsp(d.fromReinspId) : null;
   const editable = !locked;
   // The Inspection section appears only when it holds something to act on; ordinary inspection, property and

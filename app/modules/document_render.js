@@ -5,6 +5,7 @@ import { mailingMaxDay, recordDay } from "../assets/shared.js";
 import {
   citeAllowed,
   frozenOf,
+  omitRepairDueDate,
   citationCopiesFor,
   hasOwnInsp,
   isHistoryDoc,
@@ -306,6 +307,7 @@ function noticeActionCell(services, row, historyNotesHTML) {
             "</span></div>"
           : "",
     ) +
+    (!row.dueColumn && d.draft ? '<div class="no-print">' + noticeDueValue(services, row, () => "") + noticeDueActions(row) + "</div>" : "") +
     "</td>\n      "
   );
 }
@@ -329,11 +331,13 @@ function noticeCitationCell(row) {
 }
 
 function noticeDueCell(services, row, referralHistoryHTML) {
+  if (!row.dueColumn) return "";
+  return '<td class="c-due">' + noticeDueValue(services, row, referralHistoryHTML) + "\n        " + noticeDueActions(row) + "</td>";
+}
+
+function noticeDueActions(row) {
   const { d, it, num, locked, struct } = row;
   return (
-    '<td class="c-due">' +
-    noticeDueValue(services, row, referralHistoryHTML) +
-    "\n        " +
     "".concat(
       d.correction && !locked
         ? '<button class="lnk no-print" data-withdraw="' + `${esc(it.id)}` + '">' + `${it.withdrawn ? "Restore item" : "Withdraw item"}` + "</button>"
@@ -347,8 +351,7 @@ function noticeDueCell(services, row, referralHistoryHTML) {
             `${esc(num)}` +
             '" title="Remove this item">&times;</button>'
         : "",
-    ) +
-    "</td>"
+    )
   );
 }
 
@@ -357,7 +360,7 @@ const noticeRowLocked = (d, it) => (it.done && !d.correction) || it.withdrawn;
 const noticeRowDone = (d, it) => (it.done && d.type !== "compliance") || (d.correction && it.withdrawn);
 
 function noticeRows(services, d, context, historyNotesHTML, referralHistoryHTML) {
-  const { aligned, ce, dis, struct, citeColumn, dueSelection, dueSelected, affectedRows, locked } = context;
+  const { aligned, ce, dis, struct, citeColumn, dueColumn, dueSelection, dueSelected, affectedRows, locked } = context;
   let last = null;
   return d.items
     .map((it, ix) => {
@@ -367,7 +370,9 @@ function noticeRows(services, d, context, historyNotesHTML, referralHistoryHTML)
         last = g;
         if (g)
           head =
-            '<tr class="grp"><td colspan="5"><span class="ed" ' +
+            '<tr class="grp"><td colspan="' +
+            (dueColumn ? 5 : 4 + Number(citeColumn)) +
+            '"><span class="ed" ' +
             `${ce}` +
             ' data-field="group" data-id="' +
             `${esc(it.id)}` +
@@ -378,7 +383,7 @@ function noticeRows(services, d, context, historyNotesHTML, referralHistoryHTML)
       const b = countBlanks(it.text);
       const num = noticeRowNumber(struct, it, ix);
       const rce = noticeRowLocked(d, it) ? "" : ce;
-      const row = { d, it, ix, num, b, rce, struct, dis, citeColumn, locked, aligned, dueSelected, dueSelection, affectedRows };
+      const row = { d, it, ix, num, b, rce, struct, dis, citeColumn, dueColumn, locked, aligned, dueSelected, dueSelection, affectedRows };
       return (
         head +
         '<tr data-row="' +
@@ -488,7 +493,7 @@ function noticeInspectionFieldsHTML(d, k, dis) {
 }
 
 function noticeHeaderHTML(services, d, k, i, context) {
-  const { aligned, ce, dis, locked } = context;
+  const { aligned, ce, dis, locked, presentation } = context;
   return (
     '<div class="n-head">' +
     '<img class="n-seal" src="' +
@@ -498,7 +503,7 @@ function noticeHeaderHTML(services, d, k, i, context) {
     '"' +
     (aligned ? ' style="font-size:11pt!important"' : "") +
     ">" +
-    "".concat(noticeTitleHTML(d, aligned)) +
+    "".concat(noticeTitleHTML(presentation, aligned)) +
     '</div>\n      <div class="n-meta">\n        <dl class="n-col">\n          <dt>Case number:</dt><dd><strong class="ed" ' +
     `${ce}` +
     ' data-case="number" aria-readonly="' +
@@ -551,13 +556,16 @@ function noticeMailingHTML(services, d, k, ce) {
   );
 }
 
-function noticeTableHTML(services, d, rows, citeColumn) {
+function noticeTableHTML(services, d, rows, citeColumn, dueColumn) {
   return (
     '<table class="notice"><thead><tr><th class="c-no">Item No.</th><th class="c-sec">Violation Section No.</th><th class="c-ab">Abate</th><th>Corrections Required</th>' +
     `${citeColumn ? '<th class="c-cite no-print">Cite</th>' : ""}` +
-    '<th class="c-due">' +
-    `${services.hasItemInspectionHistory(d) ? "Inspection History" : isHistoryDoc(d) ? "" : d.type === "compliance" ? "Date Complied" : "Due Date"}` +
-    "</th></tr></thead>\n      <tbody>" +
+    (dueColumn
+      ? '<th class="c-due">' +
+        `${services.hasItemInspectionHistory(d) ? "Inspection History" : isHistoryDoc(d) ? "" : d.type === "compliance" ? "Date Complied" : "Due Date"}` +
+        "</th>"
+      : "") +
+    "</tr></thead>\n      <tbody>" +
     "".concat(rows || '<tr class="n-empty"><td colspan="6">No items yet — use Violation Items to add violations.</td></tr>') +
     "</tbody></table>"
   );
@@ -699,6 +707,8 @@ function noticeNotesHTML(blocks) {
 
 function renderNoticeSheet(services, d) {
   const aligned = alignedExtension(d);
+  const presentation = services.initialCitations.enabled(d) && d.authoringVersion >= 11 ? services.initialCitations.preview(d) : d;
+  const dueColumn = !omitRepairDueDate(d);
   const k = services.docCase(d),
     i = services.docInsp(d),
     blocks = services.docBlocks(d),
@@ -719,7 +729,7 @@ function renderNoticeSheet(services, d) {
   const rows = noticeRows(
     services,
     d,
-    { aligned, ce, dis, struct, citeColumn, dueSelection, dueSelected, affectedRows, locked },
+    { aligned, ce, dis, struct, citeColumn, dueColumn, dueSelection, dueSelected, affectedRows, locked },
     (d, it) => renderHistoryNotes(services, d, it),
     (d, it) => renderReferralHistory(services, d, it),
   );
@@ -730,14 +740,14 @@ function renderNoticeSheet(services, d) {
     '">\n    ' +
     "".concat(noticeVoidHTML(services, d)) +
     "\n    " +
-    noticeHeaderHTML(services, d, k, i, { aligned, ce, dis, locked }) +
+    noticeHeaderHTML(services, d, k, i, { aligned, ce, dis, locked, presentation }) +
     noticeMailingHTML(services, d, k, ce) +
     '<div class="n-body">' +
-    `${services.docBody(d)}` +
+    `${services.docBody(presentation)}` +
     "</div>\n\n\n    " +
     "".concat(noticeRuledHTML(d)) +
     "\n    " +
-    noticeTableHTML(services, d, rows, citeColumn) +
+    noticeTableHTML(services, d, rows, citeColumn, dueColumn) +
     "\n    " +
     noticeSignerHTML(d, aligned) +
     "\n    " +

@@ -3,6 +3,7 @@ import { html, raw } from "./screen_html.js";
 import { DOC_TYPES } from "./document_types.js";
 import { recordDay } from "../assets/shared.js";
 import { fmtDate } from "./presentation_format.js";
+import { deliveredByCitation } from "./document_rules.js";
 
 // Issuance/revision timestamps describe history order; mailing dates can be deliberately backdated.
 const historyTime = (d) => (d.draft ? d.created : d.revision?.at || d.issuedAt || d.mailed || d.created) || "";
@@ -36,7 +37,10 @@ function documentEntry(d) {
 }
 
 export function workspaceDocumentsSummary(k, documents, ordered = orderedCaseDocuments(documents)) {
-  const issued = ordered.filter((d) => !d.draft);
+  const packets = new Set(ordered.filter((d) => !d.draft && d.type === "citation").map((d) => d.id));
+  // The paired notice is internal deadline provenance, not a second issued letter.
+  // Keep an orphan visible so a missing packet never hides the only accessible record.
+  const issued = ordered.filter((d) => !d.draft && !(deliveredByCitation(d) && packets.has(d.issuanceGroup.citationId)));
   return issued.length
     ? html`<ul class="case-document-list" aria-label="Issued documents for ${k.address}, ${k.number}">${raw(issued.map(documentEntry).join(""))}</ul>`
     : '<p class="case-document-note">No issued documents.</p>';

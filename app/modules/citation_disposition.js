@@ -1,6 +1,13 @@
 /* An initial citation can resolve the case without recording correction or a repair deadline. */
 export const CITATION_ONLY = "initial-citation-only";
 export const citationOnlyItem = (item) => item?.dueExempt === CITATION_ONLY;
+// Omit the repair column only when it has no dates or other outcomes to communicate.
+export const citationOnlyUndated = (d) =>
+  ["notice", "citation"].includes(d?.type) &&
+  !d.fromReinspId &&
+  d.importInspection?.type === "initial" &&
+  !!d.items?.length &&
+  d.items.every((item) => citationOnlyItem(item) && !item.due && !item.done && !item.doneOn);
 export const canChooseCitationOnly = (d, item) =>
   !!d?.draft &&
   d.type === "notice" &&

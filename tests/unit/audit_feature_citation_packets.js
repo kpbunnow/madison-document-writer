@@ -81,6 +81,9 @@ require("../fixtures/scenarios.cjs").run(__filename, {
     items:[{id:'citation-only-item',no:'1',group:'KITCHEN',text:'Repair wall.',sections:['27.05(2)(c)'],cite:true,due:addDays(day,30)}]});
   d.dueWork={selected:['citation-only-item'],date:addDays(day,30)};
   render();
+  assert.match(document.querySelector('.n-title').textContent,/CITATION/,'initial citation draft uses its issued header');
+  assert.ok(document.querySelector('.n-body').textContent.includes('We are issuing a citation for the documented violation.'));
+  assert.ok(!document.querySelector('.n-body').textContent.includes('If you complete the work by the due date, you may avoid:'));
   let selector=document.querySelector('[data-citation-disposition="citation-only-item"]');
   assert.ok(selector,'initial cited item offers an explicit due-date disposition');
   assert.equal(selector.tabIndex,-1);
@@ -97,6 +100,9 @@ require("../fixtures/scenarios.cjs").run(__filename, {
   assert.deepEqual(d.dueWork.selected,[],'citation-only items leave the shared-date selection');
   assert.ok(!d.items[0].done && !d.items[0].withdrawn,'closure is not reported as correction or withdrawal');
   assert.equal(document.querySelector('[data-field="due"]'),null,'citation-only repair deadline is blank');
+  assert.equal(document.querySelector('.desk .c-due'),null,'undated citation draft has no repair due-date column');
+  assert.ok(document.querySelector('.desk [data-citation-disposition]'),'disposition remains editable outside the removed column');
+  assert.ok(document.querySelector('.desk [data-del]'),'removal remains available outside the removed column');
   assert.ok(!checks(d).some(c=>!c.ok && /no due date/.test(c.t)),'explicit disposition satisfies the missing deadline rule');
   WriterState.DOCS.push({id:'active-restriction',caseId:d.caseId,type:'noOccupancy',items:[],special:{mode:'impose'}});
   assert.ok(checks(d).some(c=>!c.ok && /every occupancy restriction/.test(c.t)),'citation-only closure cannot bypass an existing occupancy restriction');
@@ -108,6 +114,11 @@ require("../fixtures/scenarios.cjs").run(__filename, {
   assert.ok(parsed.body.textContent.includes('COURT COPY') && parsed.body.textContent.includes('AGENCY COPY') && parsed.body.textContent.includes("DEFENDANT'S COPY"));
   assert.equal((printJob(preview).html.match(/class="cit /g)||[]).length,3);
   const frozen=freezeSources(preview);
+  assert.equal(frozen.omitRepairDueDate,true,'new issue retains its column layout');
+  const retainedUndated={...preview,draft:false,initialPreview:false,issuedAt:day+'T15:00:00Z',frozen};
+  assert.equal(new DOMParser().parseFromString(printJob(retainedUndated).html,'text/html').querySelector('.c-due'),null,'issued PDF omits the whole repair column');
+  const retainedOld={...retainedUndated,frozen:{...frozen}}; delete retainedOld.frozen.omitRepairDueDate;
+  assert.ok(new DOMParser().parseFromString(printJob(retainedOld).html,'text/html').querySelector('.c-due'),'earlier issued packets keep their original column');
   assert.equal(frozen.courtCopies.length,3,'new issue captures the selected copy set');
   const legacy={...preview,cits:clone(preview.cits),draft:false,initialPreview:false,issuedAt:day+'T15:00:00Z',frozen:{...frozen,courtCopies:clone(globalCourtCopies())}};
   assert.equal((citationFaces(legacy,true).match(/class="cit /g)||[]).length,4,'issued four-copy definitions remain intact');
@@ -116,11 +127,15 @@ require("../fixtures/scenarios.cjs").run(__filename, {
   assert.equal((citationFaces(oldFallback,true).match(/class="cit /g)||[]).length,4,'legacy missing-copy metadata retains its original fallback');
   assert.equal(freezeSources(oldFallback).courtCopies.length,4,'freezing an issued legacy source retains its fallback too');
   d.items.push({id:'other',no:'2',group:'KITCHEN',text:'Other work.',sections:['27.05(2)(c)'],due:addDays(day,30),cite:false});
+  render();
+  assert.ok(document.querySelector('.desk th.c-due'),'mixed cases still show deadlines');
+  assert.equal(freezeSources(initialCitations.preview(d)).omitRepairDueDate,undefined);
   assert.ok(!checks(d).some(c=>!c.ok && /cover every remaining violation/.test(c.t)),'mixed citation-only and ordinary items may issue together');
   assert.equal(d.items[1].due,addDays(day,30),'other violations keep their deadlines');
   d.items.pop(); render();
   selector=document.querySelector('[data-citation-disposition="citation-only-item"]');
   selector.value='date'; selector.dispatchEvent(new window.Event('change',{bubbles:true}));
+  assert.ok(document.querySelector('.desk th.c-due'),'returning to a repair deadline restores the column');
   assert.equal(d.items[0].dueExempt,undefined);
   assert.equal(d.items[0].due,'','return to normal never invents a deadline');
   assert.ok(checks(d).some(c=>!c.ok && /no due date/.test(c.t)));
@@ -138,6 +153,7 @@ require("../fixtures/scenarios.cjs").run(__filename, {
     assert.ok(correction && correction.correction,'actual correction draft opens');
     assert.deepEqual(correction.correction.courtCopies,copies,'correction captures its source set before issued fields are removed');
     assert.deepEqual(freezeSources(correction).courtCopies,copies,'correction publication retains exactly its source copies');
+    assert.equal(freezeSources(correction).omitRepairDueDate,true,'correction retains the source column layout');
     assert.equal((citationFaces(correction,true).match(/class="cit /g)||[]).length,copies.length);
     correction.correction.courtCopies[0].label='changed draft copy';
     assert.deepEqual(source.frozen.courtCopies,copies,'source copies are independently cloned');

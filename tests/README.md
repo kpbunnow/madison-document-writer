@@ -158,7 +158,7 @@ covers, or a new suite under its feature.
 | `audit_workspace_task_reads.js` | Once-per-operation artifact display facts and live location/verification changes on the next operation |
 | `audit_preview_refresh.js` | Unchanged screen preview reuse; DOM/model/layout/font/document/replacement/failure invalidation and listener preservation |
 | `audit_success_messages.js` | Compact routine success status with complete history, alerts, Undo, keyboard focus, dialog scope and timer cleanup |
-| `audit_workspace_documents.js` | Complete inline issued history and draft links: descending issue/revision and City dates, labels, escaping, read-only state, PDF-location independence and existing record dispatch |
+| `audit_workspace_documents.js` | Delivered issued history and draft links: descending issue/revision and City dates, one initial citation with internal notice/orphan handling, labels, escaping, read-only state, PDF-location independence and existing record dispatch |
 | `audit_workspace_open_cases.js` | Workspace inspector-card updates preserve local row/input DOM and focus; one server-case click uses the existing explicit import route |
 | `audit_workspace_jump.js` | Workspace Find a case in this list: marks matches, Enter scrolls and focuses the first, never hides a row |
 | `audit_workspace_html.js` | Approved document-first Workspace contracts across the retained 1,033 empty/queue/legacy-filter/proof/draft/deadline variants; all cases, safe actions, escaped text and state preservation |
@@ -247,7 +247,7 @@ covers, or a new suite under its feature.
 | `audit_r35.js` | Initial-inspection citation replaces the Official Notice |
 | `audit_properties.js`, `audit_properties_helper.py` | Property-based pricing and storage checks with replayed seeds |
 | `audit_r59_charge_select.js` | Several item sections: explicit charged-ordinance select, pricing from the configured schedule, changed choice clears the previous charge's values, unscheduled and multi-row ordinances, different-charge path, save/reopen |
-| `audit_feature_citation_packets.js` | Feature suite: frozen copy labels and complete four-copy packets, compact editor preview, a refused retry filing explains itself |
+| `audit_feature_citation_packets.js` | Feature suite: three-copy new packets and retained four-copy packets, frozen copy labels, matching citation draft headings/wording, undated repair-column omission and retained correction layouts, mixed-case deadlines, compact editor preview and refused retry filing |
 
 ## Snow citations
 

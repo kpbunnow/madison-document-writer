@@ -92,6 +92,27 @@ def followup(record, kind, day, due=""):
 
 
 class CitationOnlyClosure(unittest.TestCase):
+    def test_optional_undated_column_fact_is_validated_and_old_packets_remain_supported(self):
+        value = citation_only_pair()
+        case_store.validate_history(value)
+        for event in value["events"]:
+            event["payload"]["snapshot"]["frozen"]["omitRepairDueDate"] = True
+        case_store.validate_history(value)
+        for invalid in (False, "true", 1):
+            changed = copy.deepcopy(value)
+            changed["events"][-1]["payload"]["snapshot"]["frozen"]["omitRepairDueDate"] = invalid
+            with self.assertRaisesRegex(ValueError, "repair due-date column"):
+                case_store.validate_history(changed)
+        changed = mixed_pair()
+        changed["events"][-1]["payload"]["snapshot"]["frozen"]["omitRepairDueDate"] = True
+        with self.assertRaisesRegex(ValueError, "repair due-date column"):
+            case_store.validate_history(changed)
+        original = value["events"][-1]["payload"]["snapshot"]
+        changed = copy.deepcopy(original)
+        changed["frozen"].pop("omitRepairDueDate")
+        with self.assertRaisesRegex(ValueError, "retain its source repair due-date column"):
+            case_store._validate_correction_items(original=original, snap=changed, same_type=True, record=value)
+
     def test_store_accepts_complete_atomic_pair_and_retains_retry(self):
         value = citation_only_pair()
         with tempfile.TemporaryDirectory() as temp:
