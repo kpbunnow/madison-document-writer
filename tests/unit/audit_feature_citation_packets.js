@@ -109,7 +109,7 @@ require("../fixtures/scenarios.cjs").run(__filename, {
   assert.equal((printJob(preview).html.match(/class="cit /g)||[]).length,3);
   const frozen=freezeSources(preview);
   assert.equal(frozen.courtCopies.length,3,'new issue captures the selected copy set');
-  const legacy={...preview,draft:false,initialPreview:false,issuedAt:day+'T15:00:00Z',frozen:{...frozen,courtCopies:clone(globalCourtCopies())}};
+  const legacy={...preview,cits:clone(preview.cits),draft:false,initialPreview:false,issuedAt:day+'T15:00:00Z',frozen:{...frozen,courtCopies:clone(globalCourtCopies())}};
   assert.equal((citationFaces(legacy,true).match(/class="cit /g)||[]).length,4,'issued four-copy definitions remain intact');
   assert.equal((printJob(legacy).html.match(/class="cit /g)||[]).length,4);
   const oldFallback={...legacy,frozen:{...legacy.frozen}}; delete oldFallback.frozen.courtCopies;
@@ -129,6 +129,19 @@ require("../fixtures/scenarios.cjs").run(__filename, {
   assert.equal(d.items[0].cite,false);
   assert.equal(d.items[0].dueExempt,undefined,'removing citation also removes the exemption');
   assert.equal(document.querySelector('[data-citation-disposition]'),null);
+  // Open the actual correction owner: issued fields are cleared, but its retained copy fact must survive.
+  for (const copies of [frozen.courtCopies,clone(globalCourtCopies())]) {
+    const source={...legacy,id:'correction-copy-source',caseId:d.caseId,eventId:'copy-source-event',frozen:{...frozen,courtCopies:clone(copies)}};
+    WriterState.DOCS=[source]; WriterState.EVENTS[d.caseId]=[{id:source.eventId,type:'citation.issued',at:source.issuedAt,payload:{docId:source.id,snapshot:clone(source)}}];
+    const correction=startCorrection(source.id);
+    assert.ok(correction && correction.correction,'actual correction draft opens');
+    assert.deepEqual(correction.correction.courtCopies,copies,'correction captures its source set before issued fields are removed');
+    assert.deepEqual(freezeSources(correction).courtCopies,copies,'correction publication retains exactly its source copies');
+    assert.equal((citationFaces(correction,true).match(/class="cit /g)||[]).length,copies.length);
+    correction.correction.courtCopies[0].label='changed draft copy';
+    assert.deepEqual(source.frozen.courtCopies,copies,'source copies are independently cloned');
+  }
+
   if (process.env.DW_CITATION_RECORDS) {
     const records=JSON.parse(process.env.DW_CITATION_RECORDS), summaries=records.map(record=>summarize(record));
     const reports=await require('./report_exports.cjs')();

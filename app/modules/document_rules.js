@@ -48,7 +48,7 @@ export const frozenOf = (d) => (d && d.frozen) || null;
 /* New packets omit the Inspector page. Issued/frozen packets and their corrections keep their own copies;
    unfrozen legacy records retain the original four-copy fallback. No historical source is rewritten. */
 export function citationCopiesFor(d, freezing = false) {
-  const retained = frozenOf(d)?.courtCopies,
+  const retained = frozenOf(d)?.courtCopies || d?.correction?.courtCopies,
     copies = globalCourtCopies();
   if (retained) return retained;
   return ((freezing && !d?.issuedAt) || d?.draft || d?.initialPreview) && !d?.correction

@@ -1,5 +1,6 @@
 import { workspaceState as workspace } from "./workspace_state.js";
 import { editorState as editor } from "./editor_state.js";
+import { citationCopiesFor } from "./document_rules.js";
 import { recordDay } from "../assets/shared.js";
 import { caseDetails, clone } from "./record_values.js";
 import { doc, docCase, docInsp, docsFor, kase, recordHead } from "./writer_queries.js";
@@ -50,6 +51,7 @@ function recipientRows(src) {
 function correctionRecord(services, src) {
   return {
     targetId: src.id,
+    ...(src.type === "citation" ? { courtCopies: clone(citationCopiesFor(src)) } : {}),
     baseEventId: src.eventId,
     expectedHead: recordHead(src.caseId),
     reason: "",

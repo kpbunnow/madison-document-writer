@@ -432,7 +432,14 @@ const scopedServices = {
     "./mailing_rules.js",
     "./workspace_state.js",
   ],
-  "correction_workflow.js": ["./editor_state.js", "../assets/shared.js", "./record_values.js", "./writer_queries.js", "./workspace_state.js"],
+  "correction_workflow.js": [
+    "./document_rules.js",
+    "./editor_state.js",
+    "../assets/shared.js",
+    "./record_values.js",
+    "./writer_queries.js",
+    "./workspace_state.js",
+  ],
   "publication_preparation.js": [
     "./citation_disposition.js",
     "./inspection_facts.js",
