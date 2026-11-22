@@ -322,7 +322,7 @@ module.exports = async function (browser, page, out, axeScreen, work, base) {
   await reports.goto(base + "/madison-reports.html");
   await reports.waitForFunction(() => typeof ReportsState.S !== "undefined" && ReportsState.S.phase === "ready");
   await reports.locator("#report-menu").evaluate((el) => (el.open = true));
-  await reports.locator("[data-screen=overriddenDeposits]").click();
+  await reports.locator(".rail [data-screen=overriddenDeposits]").click();
   await axeScreen(reports, "r33-overridden-deposits");
   assert.ok((await reports.locator("body").innerText()).includes("Synthetic Administrator"));
   assert.ok((await reports.locator("body").innerText()).includes("245.67"));

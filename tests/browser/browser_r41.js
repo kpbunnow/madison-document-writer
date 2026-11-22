@@ -108,7 +108,7 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
         .then((t) => t.includes("Work in progress")),
       true,
     );
-    // Complete issued history is directly linked in the case row; drafts stay under Case options.
+    // Issued history and the separate In progress group are directly accessible in the case row.
     await page.evaluate(() => {
       const current = doc("qdoc-1");
       current.issuedAt = "2026-11-05T16:00:00Z";
@@ -120,12 +120,15 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
       render();
     });
     const history = page.locator('[data-queue-case="queue-1"] td[data-label="Issued documents"]');
-    assert.deepEqual(await history.locator("[data-open]").evaluateAll((els) => els.map((e) => e.dataset.open)), [
+    const issuedHistory = history.locator('ul[aria-label^="Issued documents"]');
+    assert.deepEqual(await issuedHistory.locator("[data-open]").evaluateAll((els) => els.map((e) => e.dataset.open)), [
       "panel-withdrawn",
       "panel-replaced",
       "qdoc-1",
     ]);
-    assert.deepEqual(await history.locator(".case-document-date").allTextContents(), ["11/07/2026", "11/06/2026", "11/05/2026"]);
+    assert.deepEqual(await issuedHistory.locator(".case-document-date").allTextContents(), ["11/07/2026", "11/06/2026", "11/05/2026"]);
+    assert.equal(await history.locator('.case-drafts [data-open="panel-draft"]').isVisible(), true);
+    assert.match(await history.locator('.case-drafts [data-open="panel-draft"]').getAttribute("aria-label"), /draft created/);
     for (const word of ["Withdrawn", "Replaced"]) assert.ok((await history.textContent()).includes(word));
     assert.equal(await page.locator("[data-case-documents],[data-case-pdf],.case-documents-panel").count(), 0);
     for (const label of ["View issued PDF", "Open record", "All documents"]) assert.ok(!(await history.textContent()).includes(label));

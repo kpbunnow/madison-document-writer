@@ -1803,9 +1803,6 @@
     font-size: 17px;
     font-weight: 650;
   }
-  .editor-mobile-bar {
-    display: none;
-  }
   @media (max-width: 760px) {
     body:has(.document-workspace) .rail-brand {
       padding: 8px 16px;
@@ -1865,9 +1862,6 @@
     body:has(.document-workspace) .content {
       padding-top: 10px;
     }
-    .document-workspace {
-      padding-bottom: 112px;
-    }
     .document-workspace .editor-context {
       flex-direction: row;
       flex-wrap: wrap;
@@ -1903,39 +1897,6 @@
     }
     .document-workspace .editor-preview-tools {
       margin: 8px 0 6px;
-    }
-    .editor-mobile-bar {
-      display: block;
-      position: fixed;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      z-index: 700;
-      padding: 6px 12px calc(6px + env(safe-area-inset-bottom));
-      border-top: 1px solid var(--rule);
-      background: var(--surface);
-      box-shadow: 0 -2px 8px #19334514;
-    }
-    .editor-mobile-save {
-      display: block;
-      margin-bottom: 4px;
-      color: var(--ink-2);
-      font-size: 12px;
-    }
-    .editor-mobile-actions {
-      display: flex;
-      gap: 6px;
-    }
-    .editor-mobile-actions .btn {
-      flex: 1 1 0;
-      min-width: 0;
-      min-height: 44px;
-      line-height: 1.2;
-      white-space: normal;
-    }
-    body:has(.document-workspace :is(input, select, textarea, [contenteditable]:not([contenteditable="false"])):focus) .editor-mobile-bar,
-    body:has(.modal, .picker) .editor-mobile-bar {
-      display: none;
     }
   }
   /* Document cards (860px and below), so nothing widens the page at 320px: long header values such as the
@@ -2573,6 +2534,17 @@
     flex-wrap: wrap;
     gap: 8px;
   }
+  .workspace-cases .case-drafts {
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px solid var(--rule-soft);
+  }
+  .workspace-cases .case-drafts h3 {
+    margin: 0 0 4px;
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
   .case-document strong {
     font-size: 1rem;
   }
@@ -2654,6 +2626,14 @@
     padding-top: 14px;
   }
   .editor-toolbar {
+    position: sticky;
+    top: 8px;
+    z-index: 600;
+    padding: 12px;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    background: var(--surface);
+    box-shadow: 0 2px 8px #19334514;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -2663,6 +2643,34 @@
   .editor-toolbar .editor-sections,
   .editor-toolbar .editor-readiness {
     margin: 0;
+  }
+  .editor-control-actions {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+  .editor-control-save {
+    flex-basis: 100%;
+    color: var(--ink-2);
+    font-size: 0.8125rem;
+  }
+  .editor-task-indicator {
+    display: inline-flex;
+    justify-content: center;
+    min-width: 1.25em;
+    margin-left: 4px;
+    font-weight: 700;
+    color: var(--ok);
+  }
+  .editor-task-indicator[data-task-state="check"] {
+    color: var(--flag);
+  }
+  /* A focused editing field must never sit under sticky controls or a virtual keyboard. */
+  body:has(.document-workspace :is(input, select, textarea, [contenteditable]:not([contenteditable="false"])):focus) .editor-controls {
+    position: static;
   }
   .editor-carried {
     margin: 0 0 8px;
@@ -2683,7 +2691,33 @@
 }
 @media screen and (max-width: 760px) {
   .editor-toolbar {
+    top: 0;
     align-items: stretch;
+    gap: 8px;
+    padding: 8px;
+  }
+  .editor-toolbar .editor-sections {
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+  .editor-control-actions {
+    width: 100%;
+    margin-left: 0;
+  }
+  .editor-control-actions > .btn {
+    flex: 1;
+    min-width: 0;
+    white-space: normal;
+  }
+  .editor-control-actions > .editor-more {
+    position: static;
+  }
+  .editor-control-actions > .editor-more > div {
+    width: min(100%, 260px);
+    min-width: 0;
+  }
+  .editor-control-save {
+    margin: 0;
   }
   body:has(.document-workspace) .topbar .crumb {
     white-space: normal;
@@ -2845,5 +2879,12 @@
   }
   .tools-section a.btn {
     text-decoration: none;
+  }
+}
+
+/* Short viewports at high zoom keep the working document reachable. */
+@media screen and (max-height: 600px) {
+  .editor-controls {
+    position: static;
   }
 }

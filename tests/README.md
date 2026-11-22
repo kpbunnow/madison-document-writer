@@ -163,7 +163,7 @@ covers, or a new suite under its feature.
 | `audit_workspace_jump.js` | Workspace Find a case in this list: marks matches, Enter scrolls and focuses the first, never hides a row |
 | `audit_workspace_html.js` | Approved document-first Workspace contracts across the retained 1,033 empty/queue/legacy-filter/proof/draft/deadline variants; all cases, safe actions, escaped text and state preservation |
 | `audit_workspace_document_reads.js` | Bounded document identity reads at 500 cases/2,000 documents, document order, fresh array replacement/in-place edits, standalone live queries and failed-calculation isolation |
-| `audit_workspace_rows.js` | Reused row presentation invalidates for in-place records/documents, live proof/actions, dates, staff/source replacements and visit results; unserializable inputs render fresh |
+| `audit_workspace_rows.js` | Reused row presentation invalidates for in-place records/documents, live proof/actions, dates, staff/source replacements and visit results; unserializable inputs render fresh; drafts are accessible beside issued links |
 | `audit_workspace_repaint.js` | Repeated row DOM updates retain controls, focus and options; replace changed cases, reconcile sort/add/remove and conservatively fall back for changed frame/duplicate/nested/detached shapes |
 | `audit_workspace_dispatch.js` | Differential first-match actions, exact synchronous permission/effect ordering, outcomes and state across overlapping attributes |
 | `audit_case_save_phases.py` | Real-filesystem old/new save parity: merge/retry refusals, lock/write order, exact recovery and case bytes with controlled anchor clock |
@@ -404,7 +404,7 @@ covers, or a new suite under its feature.
 | `audit_usability_phase1.js` | R56 usability: Inspection section only when actionable, special check links, save/removal wording, quick views and More views that keep search and inspector until Clear search and inspector, issued-document Save case to shared folder when connected or Download workspace backup with Connect shared folder when not, Done-only Recipients, recovery groups, report export labels |
 | `audit_sort_due.js` | Sort by due date: soonest first inside each location heading, one run without headings, undated and invalid dates last, equal dates keep their order, and the button's handler (numbers follow, Undo restores, a stale Undo and a draft that cannot reorder are refused); the page button is checked in `audit_usability_phase2.js` |
 | `audit_usability_phase2.js` | R56 usability: one counted Fix next issue control without duplicate counts, a single Review checklist, a decision-focused issuance dialog that still validates at issuance, row selection with Apply date to selected items, unchanged worksheet and batch due dates, authoring-13 Affected selection beside due dates (authoring 12 unchanged) |
-| `audit_usability_phase3.js` | R56 usability: named search scopes with a shared-search offer that keeps the workspace query, Open case in Writer and Back to Reports/Open Reports labels with restored report filters, date mode and sort through the existing-tab return message and the page-load return, Review all items and One item at a time modes with a step indicator and collapsed tips, shortcut sheet labels matching OUTCOMES, narrow-screen editor task bar structure, Browse language/Review catalog/Select for this notice, collapsed Administrator tools |
+| `audit_usability_phase3.js` | R56 usability: named search scopes with a shared-search offer that keeps the workspace query, Open case in Writer and Back to Reports/Open Reports labels with restored report filters, date mode and sort through the existing-tab return message and the page-load return, Review all items and One item at a time modes with a step indicator and collapsed tips, shortcut sheet labels matching OUTCOMES, single responsive editor controls, live task indicators and device-save state, Browse language/Review catalog/Select for this notice, collapsed Administrator tools |
 | `audit_r29.js` | Navigation and continuity |
 | `audit_event_registration.js` | Original feature-registration order/capture/checkpoints, inert lazy interfaces, per-target idempotence, synchronous routing and captured confirmation/input/keyboard behavior; next-issue multi-target cycling, live-check resets, replacement and stale/issued guards, targetless/advisory Review fallback |
 | `audit_record_rules.js` | Standalone deterministic migration, immutable replay/carry-forward, explicit summary facts, source precedence and record/history/merge refusals |
@@ -510,10 +510,10 @@ workflow. Each receives the arguments named in its row.
 | `browser_r33.js`, `browser_r33_focus.js`, `browser_r34.js` | Snow citations, covers and PDFs (`r33_focus` is called by `r33`) |
 | `browser_r40.js` | R40 production checks |
 | `browser_r41.js`, `browser_r44.js` | Busy workspace; saved-work panel |
-| `browser_r42.js`, `browser_r43.js` | Task navigation and preview, remove button and due-date separation; charge cards |
+| `browser_r42.js`, `browser_r43.js` | Single responsive task navigation/actions, sticky and editing clearance, preview, remove button and due-date separation; charge cards |
 | `browser_r45.js`, `browser_r50_import.js` | Import with real workbook bytes |
 | `browser_r46.js`, `browser_r47.js` | Reinspection phase; language catalog |
-| `browser_r48.js`, `browser_r49.js` | Reports; deployable instructions and helper reads |
+| `browser_r48.js`, `browser_r49.js` | Grouped Reports choice/date/refresh controls and navigation; deployable instructions and helper reads |
 | `browser_r54.js` | R54 extension layout and print geometry |
 | `browser_r59.js` | R59 type tokens across Writer and Reports, reflow and zoom, selected inspection and issued case highlights |
 | `browser_r60.js` | Production keyboard dialog, address geometry at zoom, long referral pagination and distinct four-copy initial/reinspection PDFs |

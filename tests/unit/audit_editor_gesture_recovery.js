@@ -166,7 +166,7 @@ const assert = require("node:assert/strict"),
   reset();
   document.body.insertAdjacentHTML(
     "beforeend",
-    '<button data-editor-review>Review</button><button data-editor-command="command-target">Run</button><button id="command-target" disabled>Target</button><div class="topbar"><button class="editor-primary" disabled>Primary</button></div><button data-mobile-primary>Mobile</button>',
+    '<button data-editor-review>Review</button><button data-editor-command="command-target">Run</button><button id="command-target" disabled>Target</button><div class="editor-controls"><button class="editor-primary" disabled>Primary</button></div>',
   );
   s.state.picker = true;
   document.querySelector("[data-editor-review]").click();
@@ -190,10 +190,10 @@ const assert = require("node:assert/strict"),
   assert.equal(commandClicks, 1);
   const primary = document.querySelector(".editor-primary");
   primary.addEventListener("click", () => primaryClicks++);
-  document.querySelector("[data-mobile-primary]").click();
+  primary.click();
   assert.equal(primaryClicks, 0);
   primary.disabled = false;
-  document.querySelector("[data-mobile-primary]").click();
+  primary.click();
   assert.equal(primaryClicks, 1);
   s.DOCS = [];
   s.state.modal = null;
