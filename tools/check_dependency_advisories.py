@@ -8,6 +8,7 @@ could not be checked is never reported as clean.
 
 import argparse
 import json
+import http.client
 import os
 from pathlib import Path
 import re
@@ -42,7 +43,7 @@ def fetch_json(url, data=None, headers=None):
             return json.load(response)
     except urllib.error.HTTPError as error:
         raise Unavailable(url + ": HTTP " + str(error.code)) from error
-    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as error:
+    except (OSError, http.client.HTTPException, json.JSONDecodeError) as error:
         raise Unavailable(url + ": " + str(error)) from error
 
 
@@ -65,9 +66,12 @@ def python_findings(root, fetch):
     for manifest in PYTHON_MANIFESTS:
         for name, version in python_pins((root / manifest).read_text(encoding="utf-8")):
             data = fetch(PYPI.format(name=name, version=version))
-            if data.get("info", {}).get("version") != version:
+            if not isinstance(data, dict) or not isinstance(data.get("info"), dict) or data["info"].get("version") != version:
                 raise Unavailable("PyPI returned another version for " + name + "==" + version)
-            for vulnerability in data.get("vulnerabilities") or []:
+            vulnerabilities = data.get("vulnerabilities")
+            if not isinstance(vulnerabilities, list) or any(not isinstance(item, dict) for item in vulnerabilities):
+                raise Unavailable("PyPI returned incomplete advisory data for " + name + "==" + version)
+            for vulnerability in vulnerabilities:
                 if vulnerability.get("withdrawn"):
                     continue
                 findings.append(
@@ -87,7 +91,10 @@ def python_findings(root, fetch):
 def workflow_pins(root, key):
     pins = set()
     for path in sorted((root / WORKFLOWS).glob("*.yml")):
-        pins.update(re.findall(key + r":\s*'(\d+\.\d+\.\d+)'", path.read_text(encoding="utf-8")))
+        pins.update(
+            match[1]
+            for match in re.findall(r"(?m)^\s*" + re.escape(key) + r":\s*(['\"]?)(\d+\.\d+\.\d+)\1\s*(?:#.*)?$", path.read_text(encoding="utf-8"))
+        )
     return sorted(pins)
 
 
@@ -95,7 +102,19 @@ def version_key(version):
     return tuple(int(part) for part in version.lstrip("v").split("."))
 
 
+def require_runtime_index(pins, index, flag):
+    """An empty, malformed or unrelated answer cannot prove the pinned runtime is current."""
+    if not isinstance(index, list) or any(
+        not isinstance(entry, dict) or not isinstance(entry.get("version"), str) or not isinstance(entry.get(flag), bool) for entry in index
+    ):
+        raise Unavailable("The runtime release index has an invalid shape")
+    known = {entry["version"].removeprefix("v") for entry in index}
+    if not pins or set(pins) - known:
+        raise Unavailable("The runtime release index does not confirm every pinned version")
+
+
 def node_findings(pins, index):
+    require_runtime_index(pins, index, "security")
     findings = []
     for pinned in pins:
         line = version_key(pinned)[0]
@@ -113,6 +132,7 @@ def node_findings(pins, index):
 
 
 def python_runtime_findings(pins, manifest):
+    require_runtime_index(pins, manifest, "stable")
     findings = []
     for pinned in pins:
         series = version_key(pinned)[:2]
@@ -135,6 +155,12 @@ def leaflet_findings(root, fetch):
         raise ValueError(LEAFLET + " does not declare its Leaflet version")
     version = match.group(1)
     advisories = fetch(NPM_BULK, json.dumps({"leaflet": [version]}).encode(), {"Content-Type": "application/json"})
+    if (
+        not isinstance(advisories, dict)
+        or not isinstance(advisories.get("leaflet", []), list)
+        or any(not isinstance(item, dict) for item in advisories.get("leaflet", []))
+    ):
+        raise Unavailable("npm returned invalid Leaflet advisory data")
     return [
         {"kind": "vendored-advisory", "file": LEAFLET, "package": "leaflet", "version": version, "id": item.get("url"), "title": item.get("title")}
         for item in advisories.get("leaflet", [])
@@ -149,6 +175,16 @@ def dependabot_status(fetch, repository, token):
         alerts = fetch(DEPENDABOT.format(repository=repository), None, {"Authorization": "Bearer " + token, "Accept": "application/vnd.github+json"})
     except Unavailable as error:
         return {"available": False, "reason": str(error)}
+    if not isinstance(alerts, list) or any(
+        not isinstance(a, dict)
+        or not isinstance(a.get("dependency"), dict)
+        or not isinstance(a["dependency"].get("package"), dict)
+        or not isinstance(a["dependency"]["package"].get("name"), str)
+        or not isinstance(a.get("security_advisory"), dict)
+        or not isinstance(a["security_advisory"].get("ghsa_id"), str)
+        for a in alerts
+    ):
+        return {"available": False, "reason": "GitHub returned invalid Dependabot alert data"}
     return {
         "available": True,
         "openAlerts": [

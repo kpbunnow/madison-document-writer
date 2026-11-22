@@ -63,6 +63,7 @@ require("../fixtures/scenarios.cjs").run(__filename, {
   assert.equal(new DOMParser().parseFromString(printableHTML(),'text/html').body.querySelector('[data-editor-extra-copy]'),null,'printing strips editor-only filtering');
   assert.equal((printJob(citation).html.match(/class="cit /g)||[]).length,3);
   const currentVersion=citation.authoringVersion, currentCopies=freezeSources(citation).courtCopies;
+  assert.ok(citationReview(citation).includes('Each completed charge produces 3 court copies.'));
   citation.frozen={...freezeSources(citation),courtCopies:[currentCopies[1],currentCopies[1],currentCopies[2]]};
   assert.throws(()=>printJob(citation),/packet is incomplete/,'three faces must include the Court, not a duplicate Agency role');
   citation.draft=false; citation.authoringVersion=11;
@@ -153,6 +154,7 @@ require("../fixtures/scenarios.cjs").run(__filename, {
     assert.ok(correction && correction.correction,'actual correction draft opens');
     assert.deepEqual(correction.correction.courtCopies,copies,'correction captures its source set before issued fields are removed');
     assert.deepEqual(freezeSources(correction).courtCopies,copies,'correction publication retains exactly its source copies');
+    assert.ok(citationReview(correction).includes('Each completed charge produces '+copies.length+' court copies.'),'the review hint retains the source copy count');
     assert.equal(freezeSources(correction).omitRepairDueDate,true,'correction retains the source column layout');
     assert.equal((citationFaces(correction,true).match(/class="cit /g)||[]).length,copies.length);
     correction.correction.courtCopies[0].label='changed draft copy';

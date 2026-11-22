@@ -971,6 +971,7 @@
     "tests/unit/audit_maintainability_measurement.py",
     "tests/unit/audit_malformed_input_rules.py",
     "tests/unit/audit_manual_publication.py",
+    "tests/unit/audit_manual_search.js",
     "tests/unit/audit_markup_inventory.js",
     "tests/unit/audit_mcr_helper_validation.py",
     "tests/unit/audit_message_paint_rules.js",

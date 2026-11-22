@@ -33,16 +33,65 @@ module.exports = async function (browser, hostPage, OUT, axeScreen, axeThemes) {
     await doc.waitForLoadState();
     await axeScreen(doc, "r49-program-manual");
     assert.match(await doc.locator("h1").innerText(), /Program instruction manual/);
-    assert.equal(await doc.locator("nav a").count(), 22);
+    const contents = doc.locator('nav[aria-label="Manual contents"]');
+    assert.equal(await contents.locator("a").count(), 22);
+    assert.equal(await doc.locator('nav[aria-label="Manual navigation"] a:visible').count(), 2);
+    await doc.locator(".skip").focus();
+    assert.ok(
+      await doc.locator(".skip").evaluate((el) => {
+        const rect = el.getBoundingClientRect();
+        return document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2) === el;
+      }),
+      "focused skip link remains above the sticky navigation",
+    );
     await doc.bringToFront();
-    await doc.locator("nav a").nth(3).focus();
+    const search = doc.locator("#manual-search-input"),
+      clear = doc.locator("#manual-search-clear");
+    assert.equal(await clear.isVisible(), false);
+    await search.fill("ticket");
+    await doc.waitForFunction(() => [...document.querySelectorAll("#manual-search-results mark")].some((m) => /citation/i.test(m.textContent)));
+    const firstResult = doc.locator("#manual-search-results a").first(),
+      target = (await firstResult.getAttribute("href")).slice(1);
+    await firstResult.click();
+    await doc.waitForFunction((id) => document.activeElement.id === id, target);
+    await doc.locator("[data-manual-search-link]").click();
+    assert.equal(await search.inputValue(), "ticket", "returning to search retains the query");
+    await clear.click();
+    assert.equal(await search.inputValue(), "");
+    assert.equal(await doc.locator("#manual-search-results li").count(), 0);
+    assert.equal(await search.evaluate((el) => document.activeElement === el), true);
+    await doc.getByRole("link", { name: "Contents", exact: true }).click();
+    await contents.locator("a").nth(3).focus();
     await Promise.all([doc.waitForURL(/#chapter-4$/, { timeout: 5000 }), doc.keyboard.press("Enter")]);
     assert.match(doc.url(), /#chapter-4/);
     for (const width of [390, 320]) {
       await doc.setViewportSize({ width, height: 844 });
       assert.equal(await doc.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, "manual reflow " + width);
       await axeScreen(doc, "r49-manual-" + width);
+      await doc.locator("[data-manual-search-link]").click();
+      assert.ok(
+        await search.evaluate((el) => el.getBoundingClientRect().top >= document.querySelector(".manual-tools").getBoundingClientRect().bottom),
+        "sticky navigation does not obscure search",
+      );
     }
+    await doc.setViewportSize({ width: 816, height: 1056 });
+    await doc.emulateMedia({ media: "print" });
+    await doc.evaluate(() =>
+      Promise.all(
+        [...document.images].map((img) => {
+          img.loading = "eager";
+          return img.decode();
+        }),
+      ),
+    );
+    assert.ok(
+      await doc
+        .locator("figure img:visible")
+        .evaluateAll((images) => images.length > 0 && images.every((img) => img.getBoundingClientRect().height <= 674)),
+      "all manual figures fit the printed page vertically",
+    );
+    await doc.locator("#figure-mobile-editor").screenshot({ path: path.join(OUT, "r49-manual-portrait-print.png") });
+    await doc.emulateMedia({ media: "screen" });
     const pdf = await context.request.get(base + "Program_Instruction_Manual.pdf");
     assert.equal(pdf.ok(), true);
     assert.equal((await pdf.body()).subarray(0, 5).toString(), "%PDF-");

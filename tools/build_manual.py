@@ -20,6 +20,7 @@ from html.parser import HTMLParser
 import base64
 import hashlib
 import json
+import math
 import os
 import re
 import shutil
@@ -269,7 +270,10 @@ def word_figure(item, staff, number):
     """The same figure for Word: the still, or the clip's poster with its steps."""
     image = Path(staff) / (item["image"] if item["kind"] == "image" else item["poster"])["file"]
     label = ("Figure " if item["kind"] == "image" else "Video ") + str(number) + ". " + item["caption"]
-    text = "![" + label.replace("]", "\\]") + "](" + image.as_posix() + "){width=6.5in}"
+    width, height = item["size"]
+    # A phone-width screenshot must fit vertically too. Round down so Word's unit conversion cannot exceed the cap.
+    inches = math.floor(min(6.5, 7 * width / height) * 1000) / 1000
+    text = "![" + label.replace("]", "\\]") + "](" + image.as_posix() + "){width=" + str(inches) + "in}"
     if item["kind"] == "clip":
         text += "\n\n*The HTML manual plays this video with captions. Steps shown: " + " ".join(cue_texts(item["loaded"]["captions"])) + "*"
     return text
@@ -342,6 +346,7 @@ SEARCH_PANEL = (
     '<section class="manual-search" aria-labelledby="manual-search-title" data-manual-search hidden><h2 id="manual-search-title">Search this manual</h2>'
     "<p>Type a word or phrase, such as <em>due date</em>, <em>reinspection</em> or <em>backup</em>. Results link to the matching section.</p>"
     '<label for="manual-search-input">Search words</label> <input id="manual-search-input" type="search" autocomplete="off" spellcheck="false">'
+    '<button id="manual-search-clear" type="button" hidden>Clear search</button>'
     '<p id="manual-search-status" role="status"></p><ol id="manual-search-results"></ol></section>'
 )
 
@@ -360,7 +365,12 @@ def render(staff, staging, digest, pandoc=run_pandoc, printer=print_pdf):
     style = (staff / "manual-style.css").read_text(encoding="utf-8")
     script = (staff / SEARCH_SCRIPT).read_text(encoding="utf-8")
     nav = '<p class="downloads"><a href="Program_Instruction_Manual.pdf">Printable PDF</a><a href="Program_Instruction_Manual.docx">Word manual</a><a href="PROGRAM-MANUAL.md">Markdown source</a></p>'
-    nav += SEARCH_PANEL + '<nav aria-label="Manual contents"><h2>Contents</h2><ol>' + contents(fragment) + '</ol></nav><div id="instructions">'
+    nav += (
+        SEARCH_PANEL
+        + '<nav id="manual-contents" tabindex="-1" aria-label="Manual contents"><h2>Contents</h2><ol>'
+        + contents(fragment)
+        + '</ol></nav><div id="instructions" tabindex="-1">'
+    )
     first = fragment.find("<h2")
     if first < 0 or 'id="chapter-1"' not in fragment:
         raise ValueError("The manual has no chapter headings")
@@ -371,7 +381,8 @@ def render(staff, staging, digest, pandoc=run_pandoc, printer=print_pdf):
         + digest
         + '"><title>Program instruction manual</title><style>'
         + style
-        + '</style></head><body><a class="skip" href="#instructions">Skip contents</a><main>'
+        + '</style></head><body><a class="skip" href="#instructions">Skip contents</a>'
+        + '<nav class="manual-tools" aria-label="Manual navigation"><a href="#manual-search-input" data-manual-search-link hidden>Search manual</a><a href="#manual-contents">Contents</a></nav><main>'
         + fragment
         + '</div><p class="meta">End of program instructions. See the packaged production readiness and City acceptance record for release decisions. '
         + colophon(digest)

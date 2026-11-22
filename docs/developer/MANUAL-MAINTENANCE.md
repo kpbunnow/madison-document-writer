@@ -81,3 +81,8 @@ HTML edition embeds the media.
 
 The browser suite opens the manual from Tools & settings and runs axe on it at several widths. Clips must keep their
 caption track.
+
+Keep Search manual and Contents reachable through the sticky navigation, including at 320px. Search highlights
+synonyms using the original passage text, and Clear search returns focus to the input. Script-free contents must
+remain usable. Print figures preserve their aspect ratio and fit within 6.5 inches wide and 7 inches tall in Word;
+the HTML print style also caps image height at 7 inches so portrait screenshots do not split across PDF pages.

@@ -5,6 +5,7 @@ from pathlib import Path
 import re
 import tempfile
 import unittest
+from unittest import mock
 
 import check_dependency_advisories as advisories
 
@@ -87,8 +88,12 @@ class DependencyAdvisories(unittest.TestCase):
             **{
                 "ruff/0.17.6": vulnerable,
                 "radon/6.0.1": withdrawn,
-                "nodejs.org": [{"version": "v24.22.4", "security": True}, {"version": "v24.23.0", "security": False}],
-                "python-versions": [{"version": "3.14.11", "stable": True}],
+                "nodejs.org": [
+                    {"version": "v24.22.3", "security": True},
+                    {"version": "v24.22.4", "security": True},
+                    {"version": "v24.23.0", "security": False},
+                ],
+                "python-versions": [{"version": "3.14.10", "stable": True}, {"version": "3.14.11", "stable": True}],
                 "advisories/bulk": {"leaflet": [{"url": "https://github.com/advisories/GHSA-z", "title": "XSS"}]},
                 "dependabot": [
                     {
@@ -112,6 +117,52 @@ class DependencyAdvisories(unittest.TestCase):
     def test_pypi_must_answer_for_the_pinned_version(self):
         fetch = Responses(**{"ruff/0.17.6": {"info": {"version": "0.17.7"}, "vulnerabilities": []}})
         self.assertEqual(advisories.report(self.folder, fetch)["unavailable"], ["PyPI advisories: PyPI returned another version for ruff==0.17.6"])
+
+    def test_empty_or_unrelated_runtime_indexes_are_not_clean_evidence(self):
+        for key, label, answer in [
+            ("nodejs.org", "Node release index", []),
+            ("nodejs.org", "Node release index", [{"version": "v22.30.0", "security": True}]),
+            ("python-versions", "CPython release manifest", []),
+            ("python-versions", "CPython release manifest", [{"version": "3.15.0", "stable": True}]),
+        ]:
+            with self.subTest(key=key, answer=answer):
+                result = advisories.report(self.folder, Responses(**{key: answer}))
+                self.assertTrue(any(item.startswith(label + ": ") for item in result["unavailable"]))
+
+    def test_connection_reset_is_recorded_as_an_unavailable_source(self):
+        with mock.patch("urllib.request.urlopen", side_effect=ConnectionResetError("connection reset")):
+            with self.assertRaises(advisories.Unavailable):
+                advisories.fetch_json("https://example.invalid/advisories")
+
+    def test_yaml_quote_styles_do_not_hide_runtime_pins(self):
+        path = self.folder / advisories.WORKFLOWS / "verify.yml"
+        for quote in ("'", '"', ""):
+            with self.subTest(quote=quote):
+                path.write_text("node-version: " + quote + "24.22.3" + quote + " # pinned\n", encoding="utf-8")
+                self.assertEqual(advisories.workflow_pins(self.folder, "node-version"), ["24.22.3"])
+
+    def test_malformed_release_indexes_are_unavailable(self):
+        for answer in ({}, [None], [{"version": None}]):
+            with self.subTest(answer=answer):
+                with self.assertRaises(advisories.Unavailable):
+                    advisories.node_findings(["24.22.3"], answer)
+
+    def test_missing_advisory_fields_are_not_clean_evidence(self):
+        for key, answer in [
+            ("ruff/0.17.6", {"info": {"version": "0.17.6"}}),
+            ("ruff/0.17.6", {"info": {"version": "0.17.6"}, "vulnerabilities": {}}),
+            ("nodejs.org", [{"version": "v24.22.3", "security": True}, {"version": "v24.22.4"}]),
+            ("python-versions", [{"version": "3.14.10", "stable": True}, {"version": "3.14.11"}]),
+            ("advisories/bulk", []),
+            ("advisories/bulk", {"leaflet": None}),
+        ]:
+            with self.subTest(key=key, answer=answer):
+                self.assertTrue(advisories.report(self.folder, Responses(**{key: answer}))["unavailable"])
+        for answer in ({}, [None]):
+            with self.subTest(dependabot=answer):
+                status = advisories.dependabot_status(Responses(**{"dependabot": answer}), "owner/repo", "token")
+                self.assertFalse(status["available"])
+                self.assertNotIn("openAlerts", status)
 
 
 if __name__ == "__main__":
