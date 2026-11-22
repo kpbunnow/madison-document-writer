@@ -532,7 +532,8 @@ workflow. Each receives the arguments named in its row.
 | --- | --- |
 | `audit_r55_documentation.py` | Manual identity, type/status guidance, retained chapter anchors, current security/acceptance wording; every edition (PDF inspection required) carries the current source digest |
 | `audit_staff_guides.py` | Nine guides match tagged manual sections; read-only drift checks, unique lookup support content, malformed/duplicate/missing tags, destination safety and caught write-failure restoration |
-| `audit_manual_publication.py` | Manual editions are staged, validated and replaced together; failures and interruptions leave the previous set; stale editions are detected |
+| `audit_manual_publication.py` | Manual editions are staged, validated and replaced together; failures and interruptions leave the previous set; stale editions are detected; portrait figures retain their aspect ratio within printed page bounds |
+| `audit_manual_search.js` | Manual search highlights synonyms and accents without HTML injection, reports the complete result count, opens nested transcripts, and clears results with focus returned to search |
 | `audit_release_inputs.py` | Real synthetic packaging, generated input drift, local-data exclusion, source ownership and linked/staged input refusal |
 
 ## Former suite names

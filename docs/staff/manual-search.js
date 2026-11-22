@@ -9,6 +9,7 @@
     input = document.getElementById("manual-search-input"),
     status = document.getElementById("manual-search-status"),
     list = document.getElementById("manual-search-results"),
+    clear = document.getElementById("manual-search-clear"),
     body = document.getElementById("instructions");
   if (!panel || !input || !status || !list || !body) return;
   // Everyday words staff may use for the program's own terms.
@@ -31,10 +32,7 @@
     login: ["sign-in", "session"],
   };
   var fold = function (text) {
-    return text
-      .normalize("NFKD")
-      .replace(/[̀-ͯ]/g, "")
-      .toLowerCase();
+    return text.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
   };
   var words = function (text) {
     return fold(text).match(/[a-z0-9]+(?:[.()][a-z0-9]+)*/g) || [];
@@ -82,46 +80,46 @@
       section: section && section !== chapter ? section.textContent.replace(/\s+/g, " ").trim().slice(0, 80) : "",
     });
   });
-  var matches = function (entry, term) {
+  var wordMatches = function (word, term) {
     var options = [term].concat(RELATED[term] || []);
+    return options.some(function (option) {
+      return word.indexOf(option) === 0;
+    });
+  };
+  var matches = function (entry, term) {
     return entry.words.some(function (word) {
-      return options.some(function (option) {
-        return word.indexOf(option) === 0;
+      return wordMatches(word, term);
+    });
+  };
+  var highlights = function (text, terms) {
+    // Keep original offsets/text: folding accents or using a synonym must not lose the visible match.
+    return Array.from(text.matchAll(/[\p{L}\p{N}]+(?:[.()][\p{L}\p{N}]+)*/gu)).filter(function (match) {
+      return terms.some(function (term) {
+        return wordMatches(fold(match[0]), term);
       });
     });
   };
   var snippet = function (text, terms) {
-    var lower = fold(text),
-      at = -1;
-    terms.forEach(function (term) {
-      var i = lower.indexOf(term);
-      if (i >= 0 && (at < 0 || i < at)) at = i;
-    });
+    var hits = highlights(text, terms),
+      at = hits.length ? hits[0].index : 0;
     var start = Math.max(0, at - 70),
       piece = (start ? "… " : "") + text.slice(start, start + 220) + (start + 220 < text.length ? " …" : "");
     var span = document.createElement("span");
-    var pattern = new RegExp(
-      "(" +
-        terms
-          .map(function (t) {
-            return t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-          })
-          .join("|") +
-        ")",
-      "gi",
-    );
-    piece.split(pattern).forEach(function (part, i) {
-      if (i % 2) {
-        var mark = document.createElement("mark");
-        mark.textContent = part;
-        span.appendChild(mark);
-      } else span.appendChild(document.createTextNode(part));
+    var cursor = 0;
+    highlights(piece, terms).forEach(function (match) {
+      span.appendChild(document.createTextNode(piece.slice(cursor, match.index)));
+      var mark = document.createElement("mark");
+      mark.textContent = match[0];
+      span.appendChild(mark);
+      cursor = match.index + match[0].length;
     });
+    span.appendChild(document.createTextNode(piece.slice(cursor)));
     return span;
   };
   var timer = null;
   var search = function () {
     var terms = words(input.value);
+    if (clear) clear.hidden = !input.value;
     list.textContent = "";
     if (!terms.length) {
       status.textContent = "";
@@ -145,12 +143,11 @@
       })
       .sort(function (a, b) {
         return b.score - a.score;
-      })
-      .slice(0, 40);
+      });
     status.textContent = found.length
-      ? found.length + (found.length === 40 ? " or more" : "") + " matching passages. Select one to go to it."
+      ? (found.length > 40 ? "Showing 40 of " : "") + found.length + " matching passages. Select one to go to it."
       : "No passages contain every word. Try fewer or different words.";
-    found.forEach(function (result) {
+    found.slice(0, 40).forEach(function (result) {
       var item = document.createElement("li"),
         link = document.createElement("a");
       link.href = "#" + result.entry.el.id;
@@ -165,17 +162,30 @@
     clearTimeout(timer);
     timer = setTimeout(search, 150);
   });
+  if (clear)
+    clear.addEventListener("click", function () {
+      clearTimeout(timer);
+      input.value = "";
+      search();
+      input.focus();
+    });
   list.addEventListener("click", function (event) {
     var link = event.target.closest("a");
     if (!link) return;
     var target = document.getElementById(link.getAttribute("href").slice(1));
     if (!target) return;
     var details = target.closest("details");
-    if (details) details.open = true;
+    while (details) {
+      details.open = true;
+      details = details.parentElement.closest("details");
+    }
     target.setAttribute("tabindex", "-1");
     setTimeout(function () {
       target.focus();
     }, 0);
   });
   panel.hidden = false;
+  document.querySelectorAll("[data-manual-search-link]").forEach(function (link) {
+    link.hidden = false;
+  });
 })();

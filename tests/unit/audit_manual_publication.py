@@ -99,6 +99,15 @@ class ManualPublication(unittest.TestCase):
         word = zipfile.ZipFile(self.staff / "Program_Instruction_Manual.docx").read("word/document.xml").decode()
         self.assertIn("The HTML manual plays this video with captions", word)
 
+    def test_portrait_figures_fit_a_printed_page_without_stretching(self):
+        media = manual.load_media(self.staff)
+        for name, item in media.items():
+            with self.subTest(name=name):
+                text = manual.word_figure(item, self.staff, 1)
+                width = float(re.search(r"\{width=([0-9.]+)in\}", text)[1])
+                self.assertLessEqual(width, 6.5)
+                self.assertLessEqual(width * item["size"][1] / item["size"][0], 7)
+
     def test_changed_missing_or_unplaced_media_are_never_published(self):
         record = json.loads((self.staff / "manual-media.json").read_text(encoding="utf-8"))
         first, clip = record["items"][0], next(i for i in record["items"] if i["kind"] == "clip")

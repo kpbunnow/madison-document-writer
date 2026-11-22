@@ -35,11 +35,15 @@ const assert = require("node:assert/strict"),
     new Function("module", "exports", b.outputFiles[0].text)(box, box.exports);
     return box.exports;
   }
-  // Owner-approved UI change: replace only the old numeric tier control in the retained presentation.
+  // Owner-approved UI change: replace only the old numeric tier control and stale copy-count sentence in the retained presentation.
   // The new control is checked independently; all remaining HTML/state/effect assertions stay exact.
   const oldTierControl = `field(i, c, "tierOverride", "Approved tier override", "number", 'min="1" step="1"')`;
   assert.equal(reference.split(oldTierControl).length, 2);
-  const reviewedReference = reference.replace(oldTierControl, "offenseLevelSelect(i, c)");
+  const oldCopyHint = "Each completed charge produces four matching court copies.";
+  assert.equal(reference.split(oldCopyHint).length, 2);
+  const reviewedReference = reference
+    .replace(oldTierControl, "offenseLevelSelect(i, c)")
+    .replace(oldCopyHint, 'Each completed charge produces " + citationCopiesFor(d).length + " court copies.');
   const [current, old] = await Promise.all([load(source), load(source.slice(0, fn.start) + reviewedReference + source.slice(fn.end))]);
   function run(api, x) {
     const calls = [];
@@ -162,6 +166,10 @@ const assert = require("node:assert/strict"),
     const a = run(current, x);
     assert.deepEqual(a, run(old, x), "review:" + n);
     if (a.value) {
+      assert.ok(
+        a.value.includes("Each completed charge produces " + (x.correction ? 4 : 3) + " court copies."),
+        "the hint agrees with the new/retained packet, independently of the comparison view",
+      );
       if (a.value.includes("Deposit ready")) ready++;
       if (a.value.includes("Wording approval required")) held++;
       if (a.value.includes("Completion required")) request++;

@@ -146,6 +146,7 @@ Covered sources:
 - **When it runs:** weekly, on demand, and after a dependency manifest changes on main. It does not run on pull requests and does not start the full gate, so it adds no redundant gate runs.
 - **What it may do:** it is read-only. It never edits manifests, opens pull requests or suppresses a finding.
 - **When it fails:** on any finding, and on any source it could not read. A source it could not read is reported as "NOT CHECKED", never as clean.
+- **Runtime index validation:** Node and CPython release indexes must contain every pinned version before comparison. Empty, malformed or unrelated indexes and interrupted connections are unavailable evidence, never a clean runtime result.
 - **Dependabot alerts:** it reads them through the workflow token. When GitHub refuses that read, the run reports that the alerts were not read and that this "is not an empty alert list". An empty list is reported only when GitHub actually returns one. On 2026-11-22 the repository's own API returned an empty open-alert list. Dependabot security updates are enabled.
 - **Grouping:** compatible updates are grouped monthly, so routine maintenance opens few pull requests. Each one still needs the exact-head full gate. Security updates are not grouped.
 

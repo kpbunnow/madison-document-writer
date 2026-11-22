@@ -39,7 +39,7 @@ Open the charge card for each selected item. Its summary shows the charged ordin
 
 *Shown in the program manual: Citation review: each charge card summarizes the ordinance, citation number, dates and amount, and opens for editing and pricing details.*
 
-The panel's hint still says each completed charge produces four matching court copies; new citations produce three distinct copies per charge (Court, Agency and Defendant), as described under Citation copies below.
+The panel shows the number of court copies for the packet being prepared: three for a new citation, or the original copy set for a correction. New copies are Court, Agency and Defendant, as described under Citation copies below.
 
 **Manual violation level.** In Citation review, open Pricing details and authorization. Violation level defaults to Automatic — from citation history. Select First violation, Second violation or Third violation to use that scheduled level, and enter the approved source or reason in Tier override — approved source (at least 10 characters). The base, assessments and total recalculate from the configured schedule; some schedules use the same amount for second and later violations. Select Automatic to clear the manual level and its source and use current history again. The counted citation history is retained. Issued citations and unchanged historical corrections keep their original deposit.
 

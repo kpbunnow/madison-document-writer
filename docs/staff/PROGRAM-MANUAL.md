@@ -8,7 +8,7 @@ This manual explains how inspectors prepare documents, preserve case history, re
 
 R85 is a release candidate for City acceptance. Its security checks require the same ordinary document, history and recovery procedures described below. Automated verification does not replace the outstanding City Windows and network tests, staff and assistive technology acceptance, or legal and seasonal policy decisions listed in the carried-forward City acceptance record. New mandatory-appearance citations remain blocked until approved defendant instructions are supplied and integrated. Historical frozen reprints remain available. No live deployment is included in this release.
 
-**How to use this manual.** Start with [Find a task](#find-a-task) or the contents. In the HTML manual, Search this manual finds every passage that contains your words and links to it; the browser's own Find (Ctrl+F) also works. Chapters 1 to 18 follow a working day, from opening the program to reports; chapters 19 to 22 cover administration, accessibility, troubleshooting and practice. Screenshots show the program with synthetic cases and a synthetic inspector, Taylor Example; your cases, names and dates will differ. Short videos with captions show the main workflows step by step; the Word and PDF manuals show a still from each video and list its steps.
+**How to use this manual.** Start with [Find a task](#find-a-task) or the contents. In the HTML manual, Search this manual finds passages that contain your words or related program terms and highlights the matching words. Search manual and Contents stay available at the top as you read; Clear search clears the results and returns to the search field; the browser's own Find (Ctrl+F) also works. Chapters 1 to 18 follow a working day, from opening the program to reports; chapters 19 to 22 cover administration, accessibility, troubleshooting and practice. Screenshots show the program with synthetic cases and a synthetic inspector, Taylor Example; your cases, names and dates will differ. Short videos with captions show the main workflows step by step; the Word and PDF manuals show a still from each video and list its steps.
 
 ## Find a task
 
@@ -235,7 +235,7 @@ Open the charge card for each selected item. Its summary shows the charged ordin
 
 <!-- media:citation-review -->
 
-The panel's hint still says each completed charge produces four matching court copies; new citations produce three distinct copies per charge (Court, Agency and Defendant), as described under Citation copies below.
+The panel shows the number of court copies for the packet being prepared: three for a new citation, or the original copy set for a correction. New copies are Court, Agency and Defendant, as described under Citation copies below.
 
 **Manual violation level.** In Citation review, open Pricing details and authorization. Violation level defaults to Automatic — from citation history. Select First violation, Second violation or Third violation to use that scheduled level, and enter the approved source or reason in Tier override — approved source (at least 10 characters). The base, assessments and total recalculate from the configured schedule; some schedules use the same amount for second and later violations. Select Automatic to clear the manual level and its source and use current history again. The counted citation history is retained. Issued citations and unchanged historical corrections keep their original deposit.
 
