@@ -18,7 +18,7 @@ command -v pdftotext
 command -v pandoc
 ```
 
-Use Node **24.19.0** (CI's pin), and pdftotext for full manual/PDF checks. Pandoc is needed if changing/regenerating the staff manual; no manual change is part of this exercise. Find compliant installed tools or install from the documented trusted package sources. Record actual versions. Do not reuse Python 3.12, silently skip a missing tool, loosen package hashes, disable TLS or alter approved locks/vendor files.
+Use Node **24.22.3** (CI's pin), and pdftotext for full manual/PDF checks. Pandoc is needed if changing/regenerating the staff manual; no manual change is part of this exercise. Find compliant installed tools or install from the documented trusted package sources. Record actual versions. Do not reuse Python 3.12, silently skip a missing tool, loosen package hashes, disable TLS or alter approved locks/vendor files.
 
 From the clone root:
 
@@ -27,6 +27,7 @@ mkdir -p "$DW_HANDOFF_RUNTIME" "$DW_HANDOFF_ARTIFACTS"
 "$DW_HANDOFF_PYTHON" -m venv "$DW_HANDOFF_RUNTIME/venv"
 export PATH="$DW_HANDOFF_RUNTIME/venv/bin:$PATH"
 npm ci --cache "$DW_HANDOFF_RUNTIME/npm-cache"
+python3 -m pip install --require-hashes -r requirements-bootstrap.txt
 python3 -m pip install --require-hashes -r requirements-dev.txt
 export PLAYWRIGHT_BROWSERS_PATH="$DW_HANDOFF_RUNTIME/browsers"
 npx playwright install chromium
