@@ -470,6 +470,7 @@ covers, or a new suite under its feature.
 | `audit_production_build_guard.js` | Production-only suites recognise a test bundle from its content (not the environment) and stop with one clear message; real production and test pages are classified when the runner supplies both |
 | `audit_scenario_harness.js` | Feature suites run each scenario in its own process; any throw, rejection, non-zero exit or silent scenario fails the suite |
 | `audit_suite_classes.py` | Suites that may launch Chromium are found through the local modules they require, so they stay serial |
+| `audit_dependency_advisories.py` | Synthetic, offline: advisory monitoring covers every hash-pinned Python manifest, vendored Leaflet and the CI Node/CPython patch levels; unreadable sources and unavailable Dependabot alerts are never reported as clean |
 | `audit_development_workflow.py` | Read-only pinned CI, PR format and title-as-data safety, clean Git/content provenance and source-ZIP fallback |
 | `audit_suite_process.py` | The suite deadline stops scenario descendants as well as the parent; output and failure statuses are preserved |
 
