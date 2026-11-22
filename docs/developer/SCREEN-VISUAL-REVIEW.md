@@ -118,6 +118,20 @@ Decoded viewport pixels differ in 91 cross-browser comparisons. These are not al
 
 Same-CSS control runs have zero style/geometry differences in each browser, but 58 old-browser and 57 new-browser raw PNG differences. The original exact-image assertions remain unchanged and these diagnostic replay commands exit unsuccessfully; neither control nor cross-browser replay is claimed as exact PNG parity. All 582 mode-qualified captures and comparisons per browser, decoded-pixel counts/bounds, computed-style classifications, production audit results and print comparison are retained outside source under the maintenance evidence directory. No tolerance, reference regeneration or assertion bypass was introduced.
 
+## Playwright / Chromium maintenance review — 2026-11-22
+
+This dependency-only change moves Playwright 1.64.1 / Chromium 156.0.8078.4 to Playwright 1.65.1 / Chromium 159.0.8154.6, with Node 24.22.3 and Python 3.14.10. No application stylesheet, shell reference, print golden, approved wording or release identity changes. The complete production browser audit passes on the new browser. Its historical print checks, including page counts and authored-content hashes, are unchanged.
+
+Playwright 1.65 refuses to type into an inert element. One import scenario had typed a new case number into the page behind an open import review, which is modal and makes the page inert. The scenario now closes the review with Exit first, as a user must; every assertion is unchanged. See DEPENDENCY-SECURITY.md.
+
+The browser audit captured 309 synthetic DOM states. Each was replayed with the current CSS in both browsers, in normal and forced colors, for 618 comparisons per browser:
+- **Geometry:** every element's geometry is identical across browsers in all 618 comparisons, and so is every `::before`/`::after` style.
+- **Computed styles:** these differ only in how values are written. Chromium 159 writes the `outline` shorthand as width, style, colour, where 156 wrote colour, style, width. It writes `flex-start`/`flex-end` alignment as `flow-start`/`flow-end`. One `right` offset is rounded to -26.3906px instead of -26.4px. None of these changes layout.
+- **Pixels:** decoded pixels differ in 29 cross-browser comparisons. Most differ by 1 to 15 pixels; the largest differ by 43 to 74 pixels, all in text or control-edge antialiasing. The largest pairs (shared report views, review dialog, saved report view) were inspected directly and are visually indistinguishable.
+- **Same-CSS controls:** with no CSS change, 55 old-browser and 56 new-browser comparisons have raw PNG differences, and none have style or geometry differences. 12 of the 29 cross-browser pixel differences are on captures that also differ within a single browser.
+
+No tolerance, reference regeneration or assertion change was introduced. Exact PNG parity is not claimed. Captures and comparison output are retained outside source. This is a technical dependency review, not staff or native Windows acceptance.
+
 ## R75 accessibility and readable typography — 2026-11-06
 
 The owner explicitly requested WCAG 2.2 improvements and consistent, user-friendly screen fonts/sizing. Baseline main is `431c45b3dc9c20d83df80cbf5c172161fad562ab`; its complete production browser audit passed 292 accessibility checkpoints with pinned Node 24.19.0, Python 3.14.10, Playwright 1.64.1 and Chromium 156.0.8078.4. The candidate appends screen-only styles for relative typography, contrast focus rings, pointer targets and mobile wrapping/focus clearance. The previous 47,055 stylesheet bytes are unchanged (SHA-256 `ff7edd74419074db45e487741ea5a53a87460f121a02c6e16db058312d24a921`). Existing print CSS and historical goldens are unchanged.
