@@ -1,0 +1,65 @@
+name: Dependency advisories
+
+# Read-only weekly advisory and patch-level report. It never edits manifests, opens pull requests or suppresses a
+# finding, and it does not run the full gate. Findings fail the run so they stay visible; a source that could not be
+# read also fails it and is reported as not checked, never as clean.
+on:
+  schedule:
+    - cron: '23 15 * * 2'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - package-lock.json
+      - requirements-bootstrap.txt
+      - requirements-dev.txt
+      - helper/requirements-runtime.txt
+      - tools/analysis-requirements.txt
+      - app/assets/leaflet.js
+      - tools/check_dependency_advisories.py
+      - .github/workflows/dependency-advisories.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependency-advisories-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  advisories:
+    name: Dependency advisories
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out the reviewed head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.22.3'
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.14.10'
+      - name: Audit the npm lockfile
+        id: npm
+        continue-on-error: true
+        run: npm audit --package-lock-only --audit-level=low
+      - name: Check Python manifests, vendored Leaflet and runtime patch levels
+        id: report
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python tools/check_dependency_advisories.py
+      - name: Fail when any finding or unchecked source remains
+        if: steps.npm.outcome != 'success' || steps.report.outcome != 'success'
+        env:
+          NPM_OUTCOME: ${{ steps.npm.outcome }}
+          REPORT_OUTCOME: ${{ steps.report.outcome }}
+        run: |
+          echo "::error::npm audit: $NPM_OUTCOME; Python, vendored and runtime report: $REPORT_OUTCOME. See the step logs above."
+          exit 1

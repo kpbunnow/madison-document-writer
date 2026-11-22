@@ -1,16 +1,45 @@
 version: 2
+# Grouped monthly compatible updates keep the number of full-gate runs low; security updates are not grouped and
+# are opened as soon as GitHub publishes an alert. Every update still needs the exact-head full gate before merge.
 updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
+    groups:
+      github-actions:
+        patterns: ['*']
+        update-types: [minor, patch]
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: monthly
     open-pull-requests-limit: 3
+    groups:
+      npm-development:
+        dependency-type: development
+        update-types: [minor, patch]
+  # Root development and bootstrap manifests, and the maintainability analysis manifest.
   - package-ecosystem: pip
-    directory: /
+    directories:
+      - /
+      - /tools
     schedule:
       interval: monthly
     open-pull-requests-limit: 3
+    groups:
+      python-development:
+        patterns: ['*']
+        update-types: [minor, patch]
+    ignore:
+      # Radon 6.0.1 requires mando >=0.6,<0.8.
+      - dependency-name: mando
+        versions: ['>=0.8']
+  # The helper runtime manifest must change together with its vendored Windows wheels, so routine version updates are
+  # off (limit 0). Security alerts and security update pull requests for it are not affected by this limit.
+  - package-ecosystem: pip
+    directories:
+      - /helper
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 0
