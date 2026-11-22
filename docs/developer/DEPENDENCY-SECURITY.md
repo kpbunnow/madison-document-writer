@@ -57,3 +57,35 @@ Verification:
   against the Node release keys from `nodejs/release-keys`.
 - **pip 26.3:** installed from `requirements-bootstrap.txt` with `--require-hashes`, then the hash-checked
   `requirements-dev.txt` installed under it, and `npm ci` succeeded on Node 24.22.3.
+
+### Batch 2: browser automation and compatible development tools
+
+| Component | Before | After | Reason |
+| --- | --- | --- | --- |
+| Playwright | 1.64.1 | 1.65.1 | Newest release. Its pinned Chromium moves with it. |
+| Chromium (Playwright download) | 156.0.8078.4 (revision 1248) | 159.0.8154.6 (revision 1255) | Moves with Playwright; the CI browser cache key still derives from the installed Playwright version and the lockfile hash. |
+| axe-core | 4.14.0 | 4.14.1 | Compatible patch release. |
+| ESLint | 10.14.0 | 10.15.0 | Compatible minor release. |
+| fast-check | 4.10.2 | 4.11.0 | Compatible minor release. |
+| jsdom | 31.0.0 | 31.0.1 | Compatible patch release; its Node engine range includes Node 24.22.3. |
+| Prettier | 3.9.10 | 3.10.1 | Compatible minor release; every maintained file is unchanged by it. |
+| minimatch (through ESLint) | 11.0.1, forced by an `overrides` entry | 11.0.9, chosen by ESLint's own range | ESLint 10.15.0 and `@eslint/config-array` 0.23.6 now require `^11.0.5`. The development-only override, which forced a version below that range, is removed so the owning packages select it. |
+| Hypothesis | 6.170.14 | 6.170.17 | Compatible patch release. |
+| PyYAML | 6.0.3 | 6.0.4 | Compatible patch release. |
+| Ruff | 0.17.3 | 0.17.6 | Compatible patch release. |
+| coverage | 7.17.3 | 7.17.4 | Compatible patch release (analysis manifest). |
+
+Unchanged:
+- **mando 0.7.1:** stays below 0.8 because Radon 6.0.1 requires `mando>=0.6,<0.8`.
+- **esbuild, globals, TypeScript and rrweb-cssom:** already the newest releases.
+- **Other transitive packages:** follow their owning packages through the lockfile.
+
+Advisories: `npm audit` reports no vulnerabilities, and PyPI records no advisory for any new or retained pinned version.
+Python hashes are PyPI's published SHA-256 digests for every file of each release, sorted as before.
+
+Compatibility finding:
+- **Change:** Playwright 1.65 refuses to type into an inert element.
+- **Effect:** One browser scenario typed a new case number into the Workspace page while the earlier import review was
+  still open over it as a modal. A user cannot do that.
+- **Fix:** The scenario now closes the review with Exit first, as `findInspections` already did before searching. All
+  of the scenario's assertions are unchanged.
