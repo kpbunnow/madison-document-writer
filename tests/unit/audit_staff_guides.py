@@ -127,6 +127,22 @@ class StaffGuides(unittest.TestCase):
             self.assertEqual((self.staff / name).read_bytes(), before[name])
         self.assertFalse(list(self.staff.glob(".guide-staging-*")))
 
+    def test_figures_become_manual_pointers_and_links_open_the_manual(self):
+        (self.staff / "PROGRAM-MANUAL.md").write_text(
+            "<!-- guide:procedure:start -->\n## Procedure\n\nSee [chapter 4](#chapter-4).\n\n<!-- media:sample-still -->\n<!-- guide:procedure:end -->\n",
+            encoding="utf-8",
+        )
+        (self.staff / "manual-media.json").write_text(
+            json.dumps({"items": [{"id": "sample-still", "caption": "A synthetic screen."}]}), encoding="utf-8"
+        )
+        text = staff_guides.generate(self.staff)["TEST-GUIDE.md"]
+        self.assertIn("See [chapter 4](PROGRAM-MANUAL.html#chapter-4).", text)
+        self.assertIn("*Shown in the program manual: A synthetic screen.*", text)
+        self.assertNotIn("<!-- media:", text)
+        (self.staff / "manual-media.json").write_text(json.dumps({"items": []}), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "unrecorded media"):
+            staff_guides.generate(self.staff)
+
 
 if __name__ == "__main__":
     unittest.main()

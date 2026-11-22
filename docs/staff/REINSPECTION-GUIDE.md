@@ -12,9 +12,15 @@ Current instructions are consolidated in PROGRAM-MANUAL.html and Program_Instruc
 
 Open Reinspect from the case or import an eligible unused completed reinspection. To return to an unfinished worksheet, use Continue reinspection in the case details (beside Discard reinspection draft) or the case's main action in Workspace. Enter the actual physical inspection date and time and the responsible inspector. Review all items, which shows every item, is the entry view. Carried compliance and withdrawn items remain visible and cannot be casually reset. Progress covers active items; withdrawn items are listed separately.
 
+*Shown in the program manual: The reinspection worksheet: the visit date and time, progress counts and each item's outcome buttons.*
+
 **Mark the rest.** While items still wait for a result, the worksheet offers All corrected and All no change beside the items-still-to-result message. Choose one to give every waiting item that result, then change the few that differ. Items you already resulted are left alone, and Undo on the confirmation message reverses the step.
 
-**One item at a time.** Choose One item at a time to bring the next unanswered item into focus; Review all items returns to the complete worksheet at any time. Four steps show progress: record the outcome, complete required details, continue to the next item, then review the inspection and permitted follow-up. The current item shows its original number, wording and original deadline. Choose 1 Corrected, 2 Progress made, 3 No change or 4 No access. Under After an outcome, Go to next unanswered item moves on at once; Complete details first keeps the item open for its date, notes and any new due date. Previous item goes back. Skip for now leaves details unfinished; Return to unfinished details finds them again. Keyboard shortcuts and tips, collapsed below, lists the keys. Nothing is recorded until you choose an outcome.
+**One item at a time.** Choose One item at a time to bring the next unanswered item into focus; Review all items returns to the complete worksheet at any time. Four steps show progress: record the outcome, complete required details, continue to the next item, then review the inspection and permitted follow-up. The current item shows its original number, wording and original deadline. Choose 1 Corrected, 2 Progress made, 3 No change or 4 No access. Under After an outcome, Go to next unanswered item moves on at once; Complete details first keeps the item open for its date, notes and any new due date. Previous item goes back. Skip for now leaves details unfinished; Return to unfinished details finds them again. Keyboard shortcuts and tips, collapsed below, lists the keys ([chapter 20](PROGRAM-MANUAL.html#chapter-20)). Nothing is recorded until you choose an outcome.
+
+*Shown in the program manual: One item at a time brings the next unanswered item into focus. Keys 1 to 4 record its outcome.*
+
+*Shown in the program manual: Record a reinspection one item at a time and choose the follow-up.*
 
 | Date field | What it records |
 | --- | --- |
@@ -30,4 +36,4 @@ Open Inspection checks for missing or inconsistent facts. A check reveals all ro
 
 Save draft & return to Workspace retains incomplete or invalid work only after device saving succeeds. A draft's Review inspection action returns to the worksheet and retains its previous draft. Restore previous draft and inspection recovers that exact paired state, including private wording. A pending issuance must be confirmed through its retained attempt before changing the worksheet.
 
-One physical visit may support a primary follow-up and compatible scoped documents. Issuing another compatible document does not create another inspection. See the next two chapters for eligibility and authority requirements.
+One physical visit may support a primary follow-up and compatible scoped documents. Issuing another compatible document does not create another inspection. See [chapter 10](PROGRAM-MANUAL.html#chapter-10) and [chapter 11](PROGRAM-MANUAL.html#chapter-11) for eligibility and authority requirements.

@@ -21,4 +21,4 @@ The snow item has no due date. Ordinary deadline assignment, reminders, overdue 
 
 **Division policy decisions.** The packaged defaults use a July 1 season boundary, count prior different owners at the same property and close on PDF filing. These defaults, the description, labels, contacts and seasonal content need actual division confirmation. The bundled sand-site list is the supplied 2025–26 material with no named current seasonal review. A warning does not certify the list for 2026–27.
 
-Tools & settings → Review snow-letter content records the administrator, reason, source and confirmation. New snapshots freeze the content actually used. Old reprints do not automatically adopt a later season or price.
+Tools & settings → Administrator tools → Review snow-letter content records the administrator, reason, source and confirmation. New snapshots freeze the content actually used. Old reprints do not automatically adopt a later season or price.
