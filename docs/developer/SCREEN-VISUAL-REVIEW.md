@@ -137,3 +137,19 @@ No tolerance, reference regeneration or assertion change was introduced. Exact P
 The owner explicitly requested WCAG 2.2 improvements and consistent, user-friendly screen fonts/sizing. Baseline main is `431c45b3dc9c20d83df80cbf5c172161fad562ab`; its complete production browser audit passed 292 accessibility checkpoints with pinned Node 24.19.0, Python 3.14.10, Playwright 1.64.1 and Chromium 156.0.8078.4. The candidate appends screen-only styles for relative typography, contrast focus rings, pointer targets and mobile wrapping/focus clearance. The previous 47,055 stylesheet bytes are unchanged (SHA-256 `ff7edd74419074db45e487741ea5a53a87460f121a02c6e16db058312d24a921`). Existing print CSS and historical goldens are unchanged.
 
 The requested visual changes deliberately change geometry and pixels. The strict comparison stops on the first Workspace screen; it remains unchanged and this is not a parity pass. A separate diagnostic replay examines 12 representative desktop/mobile Writer/Reports DOM captures, with no body overflow or clipped measured screen controls. Before/after Workspace, recipients, mobile notice and Reports screenshots were reviewed; mobile navigation/section choices wrap visibly and paper retains its document styling. Actual production tests separately exercise keyboard focus, themes/forced colors, resizing/reflow, text spacing and dialog lifecycle. The current screen references record this explained change while retaining historical provenance. See [R75-ACCESSIBILITY-REVIEW.md](R75-ACCESSIBILITY-REVIEW.md) for the notes disposition, criterion coverage, verification and outstanding City/manual acceptance. Neither this review nor axe supplies a complete WCAG conformance claim.
+
+## Screen polish — 2026-11-22
+
+The owner asked for graphic user interface polish "as you see fit". The polish is limited to an append-only, screen-only block in `ui-refresh.css`. It adds no colours and changes no application behaviour, approved print style, print golden or wording.
+
+It fixes three visual inconsistencies on Writer screens:
+- **Workspace panels:** the Open cases by inspector and Start case work panels had no space below them. The panel that followed (case table, empty state or another panel) sat 1 px away, at every width. Both now have the 16 px gap used elsewhere on the page.
+- **Tools & settings exit note:** "Finished for the day? …" sat 8 px under the Saved work cards. It now has 16 px of space above it.
+- **Program manual links:** the two manual links are styled as buttons but kept the browser's link underline. They now match the other buttons. They remain links with the same text, targets and focus styling.
+
+The before and after builds were compared on the 309 synthetic DOM states captured by the browser audit, in Chromium 159, in normal and forced colors (618 comparisons):
+- **Unchanged:** 406 comparisons have identical styles and geometry, 52 of them with raw PNG differences. That matches the same-CSS control noise recorded above (55 and 56).
+- **Changed:** 212 comparisons, on 106 screens. The only properties that change directly are the new margins on `.workspace-start`, `.open-cases-card` and `[data-tools-exit]`, and `text-decoration` on the Tools manual links.
+- **Reflow:** every other difference is the resulting 11–16 px shift or growth of content and containers below those elements. In three forced-colors captures, a control's hover border also changes, because the replay's fixed mouse point now rests on a different control.
+
+The production browser audit, including axe checks, themes and responsive layouts, is run on the polished build. The current shell and CSS references record this explained change. This is technical visual review, not staff or native Windows acceptance.

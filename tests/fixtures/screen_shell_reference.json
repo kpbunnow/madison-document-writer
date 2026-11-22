@@ -26,12 +26,12 @@
   },
   "files": {
     "madison-document-writer.html": {
-      "beforeNormalizedShellSha256": "3f35958d01ef250305273284879bcef239656145065a235e5f2826f346d10ec9",
-      "normalizedShellSha256": "75936c3b560d33cd483fa2fef86e539eda58866dd4e26dc01209af5a8d9d3bdd"
+      "beforeNormalizedShellSha256": "75936c3b560d33cd483fa2fef86e539eda58866dd4e26dc01209af5a8d9d3bdd",
+      "normalizedShellSha256": "8bc08185e0928299c5b437b3226c570cf6d664654b97e7a82615f1cae22f8042"
     },
     "madison-reports.html": {
-      "beforeNormalizedShellSha256": "25a62557a4911d7f72a09119721edaaa68b43c0f8b4a2815ffb88a66d76069e9",
-      "normalizedShellSha256": "d9ffcd8b50f0f829597d33016a25f2ce9ba82b9f8e08a04c9d49091f4a593114"
+      "beforeNormalizedShellSha256": "d9ffcd8b50f0f829597d33016a25f2ce9ba82b9f8e08a04c9d49091f4a593114",
+      "normalizedShellSha256": "b7c54e0651dd22a2d594ba69a8c6f83b384af861196bc330b2a2f988ace19e3d"
     }
   },
   "reviews": [
@@ -271,6 +271,22 @@
         }
       },
       "evidence": "Owner request 2026-11-13; inline blank entry replaces the corrective-action dialog."
+    },
+    {
+      "date": "2026-11-22",
+      "sourceCommit": "d677a46219aadf02c8a7a9a8a012828abbd85ee8",
+      "scope": "Screen polish in the shared stylesheet: Workspace panel spacing, Tools exit-note spacing and link-button underline (Writer screens; Reports has no matching elements). Screen-only, append-only stylesheet block. Approved print unchanged.",
+      "files": {
+        "madison-document-writer.html": {
+          "before": "75936c3b560d33cd483fa2fef86e539eda58866dd4e26dc01209af5a8d9d3bdd",
+          "after": "8bc08185e0928299c5b437b3226c570cf6d664654b97e7a82615f1cae22f8042"
+        },
+        "madison-reports.html": {
+          "before": "d9ffcd8b50f0f829597d33016a25f2ce9ba82b9f8e08a04c9d49091f4a593114",
+          "after": "b7c54e0651dd22a2d594ba69a8c6f83b384af861196bc330b2a2f988ace19e3d"
+        }
+      },
+      "evidence": "Owner request 2026-11-22 (graphic user interface polish); see SCREEN-VISUAL-REVIEW.md."
     }
   ]
 }
