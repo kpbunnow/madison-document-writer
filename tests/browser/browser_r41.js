@@ -151,9 +151,11 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     const options = page.locator('[data-queue-case="queue-1"] .case-options');
     await options.locator("summary").focus();
     await page.keyboard.press("Enter");
-    assert.equal(await options.locator('[data-open="panel-draft"]').textContent(), "Official Notice");
-    assert.ok((await options.textContent()).includes("Draft"));
+    assert.equal(await options.evaluate((el) => el.open), true);
+    assert.equal(await history.locator('.case-drafts [data-open="panel-draft"]').textContent(), "Official Notice");
+    assert.ok((await history.locator(".case-drafts").textContent()).includes("Draft"));
     await page.keyboard.press("Enter");
+    assert.equal(await options.evaluate((el) => el.open), false);
     const record = history.locator('[data-open="qdoc-1"]');
     await record.focus();
     await page.keyboard.press("Enter");
