@@ -101,11 +101,16 @@ async function openIssuedFromWorkspace(page, docId, message) {
 }
 
 /* The available inspections open in the import window; a new search starts after Exit closes the previous one. */
-async function findInspections(page) {
+// An open import review is a modal over an inert page; close it with Exit, as a user must before using the page.
+async function exitImportReview(page) {
   if (await page.locator("#acc-exit").count()) {
     await page.locator("#acc-exit").click();
     await page.locator("#acc-exit").waitFor({ state: "detached" });
   }
+}
+
+async function findInspections(page) {
+  await exitImportReview(page);
   await page.locator("#lookup-form").getByRole("button", { name: "Find Case Inspections", exact: true }).click();
 }
 
@@ -1404,6 +1409,8 @@ async function axeThemes(page, screen) {
   await page.waitForFunction(() => WriterState.state.screen === "cases");
   await page.locator('.workspace-start [data-nav="import"]').click();
   await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
+  // The earlier review of this case is still open over the page; close it before typing the next search.
+  await exitImportReview(page);
   await page.locator("#lookup-number").fill(sqlNumber);
   await findInspections(page);
   await page.waitForFunction(() => !!WriterState.state.acc && !WriterState.LOOKUP_BUSY);
@@ -1418,6 +1425,7 @@ async function axeThemes(page, screen) {
   await page.locator('.writer-navigation [data-nav="cases"]').click();
   await page.locator('.workspace-start [data-nav="import"]').click();
   await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
+  await exitImportReview(page);
   await page.locator("#lookup-number").fill(sqlNumber);
   lookupRows = [
     {
@@ -1453,6 +1461,7 @@ async function axeThemes(page, screen) {
   await page.waitForFunction(() => WriterState.state.screen === "cases");
   await page.locator('.workspace-start [data-nav="import"]').click();
   await page.getByRole("heading", { name: "Import inspection", exact: true }).waitFor();
+  await exitImportReview(page);
   await page.locator("#lookup-number").fill(sqlNumber);
   await findInspections(page);
   await page.waitForFunction(() => !!WriterState.state.acc && !WriterState.LOOKUP_BUSY);

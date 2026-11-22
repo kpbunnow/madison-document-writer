@@ -10,18 +10,15 @@
     "format:check": "python3 tools/check_format.py"
   },
   "devDependencies": {
-    "axe-core": "4.14.0",
+    "axe-core": "4.14.1",
     "esbuild": "0.28.2",
-    "eslint": "10.14.0",
-    "fast-check": "4.10.2",
+    "eslint": "10.15.0",
+    "fast-check": "4.11.0",
     "globals": "17.14.0",
-    "jsdom": "31.0.0",
-    "playwright": "1.64.1",
+    "jsdom": "31.0.1",
+    "playwright": "1.65.1",
     "typescript": "7.0.2",
-    "prettier": "3.9.10",
+    "prettier": "3.10.1",
     "rrweb-cssom": "0.8.0"
-  },
-  "overrides": {
-    "minimatch": "11.0.1"
   }
 }
