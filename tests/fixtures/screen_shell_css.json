@@ -72,10 +72,10 @@
     },
     "ui-refresh.css": {
       "beforeSha256": "e0144fc15123ce89544458f0084c070a2eba18948cae9c687c28e8f68d859c7a",
-      "afterSha256": "8dd20fd776738db1a8b1f21b35ca700b13f8f96090964c42e91e96e393c6f6d1",
+      "afterSha256": "77a9fbc84723a7b4689979918a5944d4d68b89da34ab387c1372bfc0e25aa6e6",
       "beforeBytes": 48561,
-      "afterBytes": 59824,
-      "retainedRulesSha256": "22bda91a2e1cbaf7223bdd2924d0b62cf238fe303b7f6fdf0f775c72134138bf"
+      "afterBytes": 60225,
+      "retainedRulesSha256": "557e34c3bf0b772b74c0fa38f5d5cb0b470d0fc3e81e12719881b5ceb53d81dc"
     }
   },
   "selectorChanges": [
@@ -690,6 +690,20 @@
       ],
       "retainedSelectors": [],
       "declarationsSha256": "8f6d507015dbb1ebb5d3c6a18994858802d2c61e8a25235297a6574e54bb6bcf"
+    },
+    {
+      "date": "2026-11-22",
+      "sourceCommit": "d677a46219aadf02c8a7a9a8a012828abbd85ee8",
+      "scope": "Screen polish (owner request 2026-11-22): 16px spacing below .open-cases-card and .workspace-start, 16px above the Tools exit note ([data-tools-exit]), and no underline on .tools-section a.btn link buttons. Append-only screen block; preserves all 59,824 earlier stylesheet bytes. No new colours.",
+      "rules": {
+        "ui-refresh.css": {
+          "beforeSha256": "8dd20fd776738db1a8b1f21b35ca700b13f8f96090964c42e91e96e393c6f6d1",
+          "afterSha256": "77a9fbc84723a7b4689979918a5944d4d68b89da34ab387c1372bfc0e25aa6e6",
+          "unchangedRulesSha256": "22bda91a2e1cbaf7223bdd2924d0b62cf238fe303b7f6fdf0f775c72134138bf",
+          "unchangedPrefixBytes": 59824
+        }
+      },
+      "evidence": "Owner request 2026-11-22 (graphic user interface polish); see SCREEN-VISUAL-REVIEW.md."
     }
   ],
   "reviews": [

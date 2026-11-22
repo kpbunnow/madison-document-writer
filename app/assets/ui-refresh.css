@@ -2832,3 +2832,18 @@
     outline-offset: 2px;
   }
 }
+
+/* Screen polish (owner request 2026-11-22): stacked Workspace panels and the Tools exit note get the same spacing
+   as other panels, and link buttons are styled like buttons rather than underlined text. */
+@media screen {
+  .open-cases-card,
+  .workspace-start {
+    margin-bottom: 16px;
+  }
+  [data-tools-exit] {
+    margin-top: 16px;
+  }
+  .tools-section a.btn {
+    text-decoration: none;
+  }
+}
