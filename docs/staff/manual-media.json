@@ -1,0 +1,350 @@
+{
+  "format": "document-writer-manual-media",
+  "version": 1,
+  "items": [
+    {
+      "id": "workspace-open-cases",
+      "kind": "image",
+      "chapter": 4,
+      "caption": "Workspace on a City PC: Open cases by inspector lists the chosen inspector's open cases, each with its soonest due date.",
+      "alt": "Workspace screen. The Open cases by inspector card shows Taylor Example selected and three synthetic cases with case numbers, addresses, descriptions and due dates.",
+      "image": {
+        "file": "manual-media/workspace-open-cases.png",
+        "bytes": 52529,
+        "sha256": "05b405cbdbc43a741d7e15a43bae3c802b2cc91f8fc91158b13b48531d958e5e"
+      }
+    },
+    {
+      "id": "import-window",
+      "kind": "image",
+      "chapter": 4,
+      "caption": "The import window shows the inspection that can be imported. Start Official Notice confirms it; Exit returns to the list.",
+      "alt": "Import window titled Inspections for CB2026-900-00101, showing one Initial Inspection with status Official Notice and the buttons Start Official Notice, Clear import, Save draft and return to Workspace, and Exit.",
+      "image": {
+        "file": "manual-media/import-window.png",
+        "bytes": 82399,
+        "sha256": "68cca4c9a00cc1e294690f48458260ad8c65aa6db4797808454b767f21ce4b6e"
+      }
+    },
+    {
+      "id": "notice-editor",
+      "kind": "image",
+      "chapter": 5,
+      "caption": "A new Official Notice. The header shows the case and its state; Recipients, Violation Items and Review share the task bar with Fix next issue.",
+      "alt": "Official Notice editor with the header CB2026-900-00101, Official Notice, Draft, not issued; buttons Save draft and return to Workspace and Issue; a task bar with Recipients, Violation Items, Review and Fix next issue; and the notice page below.",
+      "image": {
+        "file": "manual-media/notice-editor.png",
+        "bytes": 62486,
+        "sha256": "b455f8fa6a0162d0313721355593f62c304c07dd90271bb2eb16c2fd9f1fc5d0"
+      }
+    },
+    {
+      "id": "language-picker",
+      "kind": "image",
+      "chapter": 6,
+      "caption": "The language picker. Search across checklists; a selected entry turns green and reads Selected · remove from notice.",
+      "alt": "Select for this notice dialog with a search for smoke alarm, Violation Categories on the left, a selected Smoke alarms entry with Add again and Favorite buttons, and Done adding at the bottom.",
+      "image": {
+        "file": "manual-media/language-picker.png",
+        "bytes": 64566,
+        "sha256": "96f6a1311b6c04ffdbad229ca13129ae041db476034d6c398fd8a5a187d7e0b7"
+      }
+    },
+    {
+      "id": "fill-in-bubble",
+      "kind": "image",
+      "chapter": 5,
+      "caption": "A selected fill-in bubble shows a double ring. Typing replaces it with the detail.",
+      "alt": "Violation items table with item 1, Handrails, whose fill-in bubble is selected, and item 2, Smoke alarms, with an empty bubble.",
+      "image": {
+        "file": "manual-media/fill-in-bubble.png",
+        "bytes": 65367,
+        "sha256": "83cf5e2fc19e3bce36e162f9b8e979fec6984e85c40d91182785162790aa429d"
+      }
+    },
+    {
+      "id": "assign-due-dates",
+      "kind": "image",
+      "chapter": 5,
+      "caption": "Assign due dates: select the items that share a deadline, enter the date and choose Apply date to selected items.",
+      "alt": "Assign due dates panel showing 2 of 2 items selected, a date entered and the buttons Select all, Clear selection, Apply date to selected items and Sort by due date.",
+      "image": {
+        "file": "manual-media/assign-due-dates.png",
+        "bytes": 41202,
+        "sha256": "d8ccb39381bde56ef254387eb16e6a464021a80213221e9daf036b6e162f45bc"
+      }
+    },
+    {
+      "id": "review-dialog",
+      "kind": "image",
+      "chapter": 12,
+      "caption": "Review lists the checks that must be fixed before issuing, then advisories; here every check has passed.",
+      "alt": "Review dialog reading No concerns. This document is ready to issue, with the count of checks passed.",
+      "image": {
+        "file": "manual-media/review-dialog.png",
+        "bytes": 89838,
+        "sha256": "a97a5127d0d41110f1d9c8a47565889b5e0be0d65f91757e654bf543a99b4f59"
+      }
+    },
+    {
+      "id": "issue-dialog",
+      "kind": "image",
+      "chapter": 12,
+      "caption": "The issue dialog confirms the mailed date and names the case file the issued document is saved to.",
+      "alt": "Finalize this official notice dialog with Every check passed, the mailed date field, and Cancel, Save draft and return to Workspace and Issue document buttons.",
+      "image": {
+        "file": "manual-media/issue-dialog.png",
+        "bytes": 97871,
+        "sha256": "04f2014849f3d45c1fac5b757720a76ff4a3c89aff4390d7eef0f2a306057d81"
+      }
+    },
+    {
+      "id": "workspace-issued",
+      "kind": "image",
+      "chapter": 3,
+      "caption": "After issuing, Workspace highlights the case. Each row shows its issued documents, next due date, inspector and one recommended action.",
+      "alt": "Workspace case table with 100 SAMPLE ST highlighted, an Official Notice link with its issue date, the next due date, inspector Taylor Example and a Reinspect button.",
+      "image": {
+        "file": "manual-media/workspace-issued.png",
+        "bytes": 49776,
+        "sha256": "d251e3850b109b665c0f74cb76388e86cca3ea7494fd8fc3eb10396fa317190b"
+      }
+    },
+    {
+      "id": "reinspection-worksheet",
+      "kind": "image",
+      "chapter": 9,
+      "caption": "The reinspection worksheet: the visit date and time, progress counts and each item's outcome buttons.",
+      "alt": "Reinspection worksheet with the visit date, time and inspector, counts of corrected, outstanding and not yet resulted items, and Corrected, Progress made, No change and No access buttons for each item.",
+      "image": {
+        "file": "manual-media/reinspection-worksheet.png",
+        "bytes": 57119,
+        "sha256": "d67c61f53d087aeae88bb58404bbd6b6dba20ab3bdd8458ee22e543a8c01613a"
+      }
+    },
+    {
+      "id": "one-item-at-a-time",
+      "kind": "image",
+      "chapter": 9,
+      "caption": "One item at a time brings the next unanswered item into focus. Keys 1 to 4 record its outcome.",
+      "alt": "One item at a time view showing four steps, item 1 Handrails with its original due date and the outcome buttons.",
+      "image": {
+        "file": "manual-media/one-item-at-a-time.png",
+        "bytes": 56798,
+        "sha256": "b62a38cd2614881d26206c2a99902a091dd995a2bbcddbe8730b4f9cec8d0374"
+      }
+    },
+    {
+      "id": "follow-up-chooser",
+      "kind": "image",
+      "chapter": 10,
+      "caption": "Choose next action: pick the follow-up group, then the document, and Create draft.",
+      "alt": "Choose next action card with the options Give more time, Take enforcement action, Restrict occupancy and Confirm compliance, a document choice and a Create draft button.",
+      "image": {
+        "file": "manual-media/follow-up-chooser.png",
+        "bytes": 34668,
+        "sha256": "2d8a087a2f7360417b75af28c4fb55492a192e5032dfd5fa0f193acefec1031f"
+      }
+    },
+    {
+      "id": "citation-review",
+      "kind": "image",
+      "chapter": 7,
+      "caption": "Citation review: each charge card summarizes the ordinance, citation number, dates and amount, and opens for editing and pricing details.",
+      "alt": "Initial-inspection citations panel with a charge card for item 1, 27.05(2)(i) Handrails, showing its citation number, a deposit ready amount, the suggested court session, and the Edit charge and dates and Pricing details and authorization disclosures.",
+      "image": {
+        "file": "manual-media/citation-review.png",
+        "bytes": 27328,
+        "sha256": "a9747dcb1ecda0a00259819b12a086749e6b1ff28640f8b290bf1126a8144b74"
+      }
+    },
+    {
+      "id": "tools-settings",
+      "kind": "image",
+      "chapter": 18,
+      "caption": "Tools & settings groups its actions: Cases & planning, Saved work & connection, Program instructions, Display & help and Administrator tools.",
+      "alt": "Tools and settings screen with cards for Reminders, Batch draft due dates, Saved work and connection, Open saved case, the Exit Document Writer button, program manual links, color theme, message history and keyboard shortcuts.",
+      "image": {
+        "file": "manual-media/tools-settings.png",
+        "bytes": 58199,
+        "sha256": "ef6c1c45fa91ccfdb9d484a0ae5a731f72aad0dca37b6cf5ed46d18303e3d4db"
+      }
+    },
+    {
+      "id": "saved-work",
+      "kind": "image",
+      "chapter": 14,
+      "caption": "Saved work & connection keeps three separate facts: this device, shared cases and PDF filing.",
+      "alt": "Saved work and connection screen with sections This device, Shared cases and PDF filing, and disclosures for backups and connection checks.",
+      "image": {
+        "file": "manual-media/saved-work.png",
+        "bytes": 56914,
+        "sha256": "043c586ec68db586fc2117e7fafab1b245051ac4765ea8ee882a4913a85a536d"
+      }
+    },
+    {
+      "id": "exit-dialog",
+      "kind": "image",
+      "chapter": 1,
+      "caption": "Exit Document Writer saves this device's drafts, lists anything unfinished and asks before the workspace is cleared.",
+      "alt": "Exit Document Writer dialog explaining what happens on exit, with the Exit Document Writer button.",
+      "image": {
+        "file": "manual-media/exit-dialog.png",
+        "bytes": 67086,
+        "sha256": "8e4da89eabf22bc5c64c914cd3b04a0fcf5c2fa2a14d632133b12e3a0586887f"
+      }
+    },
+    {
+      "id": "keyboard-shortcuts",
+      "kind": "image",
+      "chapter": 20,
+      "caption": "Press ? outside a text field for the keyboard shortcuts sheet.",
+      "alt": "Keyboard shortcuts dialog listing keys such as ?, Tab, Escape, Ctrl+S, 1 to 4 and U with their actions.",
+      "image": {
+        "file": "manual-media/keyboard-shortcuts.png",
+        "bytes": 55830,
+        "sha256": "c56a54d1d99bc3d989dcc4dad1c41670b02712840453fb63c02d542f54783efd"
+      }
+    },
+    {
+      "id": "order-language",
+      "kind": "image",
+      "chapter": 6,
+      "caption": "Order language → Browse language searches all approved and standard language without a case open.",
+      "alt": "Browse language screen with a search for handrail, status and checklist filters and matching entries.",
+      "image": {
+        "file": "manual-media/order-language.png",
+        "bytes": 61765,
+        "sha256": "dcea609acbdbb20b5b13a0aeb1796825b7f16ab17878d2886eaa11e55926ee93"
+      }
+    },
+    {
+      "id": "reports",
+      "kind": "image",
+      "chapter": 16,
+      "caption": "Reports opens in its own tab. Choose a report in the rail; each report states its population and dates.",
+      "alt": "Reports screen showing 1. Open cases by area, with the report list in the left rail, the As of date, quick ranges, area and inspector filters, and a table of open cases by area.",
+      "image": {
+        "file": "manual-media/reports.png",
+        "bytes": 57395,
+        "sha256": "6d999018f92772349e512bc04becfc6cacacc7be157267c0fa6ffb73a85b5c2e"
+      }
+    },
+    {
+      "id": "data-definitions",
+      "kind": "image",
+      "chapter": 17,
+      "caption": "Data and definitions shows the read time, included case files and any excluded summaries before you rely on totals.",
+      "alt": "Data and definitions report showing coverage counts and definitions.",
+      "image": {
+        "file": "manual-media/data-definitions.png",
+        "bytes": 46383,
+        "sha256": "73d283aaab4528825b6423ef4fb9153cb4f59d7bcc6e9e9cb52aa82f516eca05"
+      }
+    },
+    {
+      "id": "mobile-editor",
+      "kind": "image",
+      "chapter": 20,
+      "caption": "On a narrow screen the editor uses a compact header and one task bar at the bottom.",
+      "alt": "Phone-width citation draft with a compact header, the navigation at the top and a bottom bar holding the save state, Fix next issue, Review and Issue.",
+      "image": {
+        "file": "manual-media/mobile-editor.png",
+        "bytes": 32083,
+        "sha256": "cab88ecc539bad9db3b42047c8e0b5b1f320bc23f318bddba460505496a443cd"
+      }
+    },
+    {
+      "id": "clip-import-case",
+      "kind": "clip",
+      "chapter": 4,
+      "caption": "Find an open case, review its inspection and start the document.",
+      "alt": "Screen recording of Workspace: choosing an inspector, showing open cases, selecting a case and confirming its inspection.",
+      "duration": 15.5,
+      "video": {
+        "file": "manual-media/clip-import-case.webm",
+        "bytes": 158118,
+        "sha256": "b291d661c7133b502c95ef630a01a83b79dc6b50af86a51482902ee2bbdf1ef1"
+      },
+      "poster": {
+        "file": "manual-media/clip-import-case.png",
+        "bytes": 87992,
+        "sha256": "843a81d895cc8f1d43187016f75c681e3d11a9ca97eb2369d711ded3ddfcaa31"
+      },
+      "captions": {
+        "file": "manual-media/clip-import-case.vtt",
+        "bytes": 298,
+        "sha256": "2a97ac9ae3123902bde69bc272d3aac653d901d372383729f2926bdad91ec0b1"
+      }
+    },
+    {
+      "id": "clip-notice-language",
+      "kind": "clip",
+      "chapter": 5,
+      "caption": "Add order language and type the fill-in details.",
+      "alt": "Screen recording of the language picker: searching, selecting two entries, choosing Done adding and typing into fill-in bubbles.",
+      "duration": 24,
+      "video": {
+        "file": "manual-media/clip-notice-language.webm",
+        "bytes": 381606,
+        "sha256": "9cc7f43c1efff92cb00b1770cf55cc7cebe9153020a7c0b995fe48abb121cecf"
+      },
+      "poster": {
+        "file": "manual-media/clip-notice-language.png",
+        "bytes": 123305,
+        "sha256": "f84d726a8b0d7c78a301f9ebdc5843f7dde2d7dd841c4e687ed110656627fad6"
+      },
+      "captions": {
+        "file": "manual-media/clip-notice-language.vtt",
+        "bytes": 382,
+        "sha256": "37d14a4a887b5751006ff233657550c89d3639e9cedca01839ac9df17274f6ac"
+      }
+    },
+    {
+      "id": "clip-due-dates-issue",
+      "kind": "clip",
+      "chapter": 12,
+      "caption": "Assign a shared due date, review the checks and issue the notice.",
+      "alt": "Screen recording of assigning one due date to both items, opening Review, choosing Issue and Issue document, and returning to Workspace.",
+      "duration": 22.4,
+      "video": {
+        "file": "manual-media/clip-due-dates-issue.webm",
+        "bytes": 317224,
+        "sha256": "090497ec05f947a1cd2338ee3c33b4e1daf372bfec53a0a40a6bae0c1f318d1c"
+      },
+      "poster": {
+        "file": "manual-media/clip-due-dates-issue.png",
+        "bytes": 63448,
+        "sha256": "a896b74feb73c29a248ce4208096d1e5ffd601dd42be919f98d0c7389567372b"
+      },
+      "captions": {
+        "file": "manual-media/clip-due-dates-issue.vtt",
+        "bytes": 394,
+        "sha256": "ad7e1c20996af32b67ffbd18d499705fbe62a422d0e026db98717c6131f774d5"
+      }
+    },
+    {
+      "id": "clip-reinspection",
+      "kind": "clip",
+      "chapter": 9,
+      "caption": "Record a reinspection one item at a time and choose the follow-up.",
+      "alt": "Screen recording of the reinspection worksheet: One item at a time, recording Corrected and Progress made with a new due date, and choosing a follow-up.",
+      "duration": 24.8,
+      "video": {
+        "file": "manual-media/clip-reinspection.webm",
+        "bytes": 350814,
+        "sha256": "88255819cb859530564dcc1efe21d3a3e4383353ff5fdf4a805e98c181529eab"
+      },
+      "poster": {
+        "file": "manual-media/clip-reinspection.png",
+        "bytes": 105617,
+        "sha256": "a99cadf455cb05fbb3d91212eb8f42100a7da8af432bfb435a172bcfbbab8cd8"
+      },
+      "captions": {
+        "file": "manual-media/clip-reinspection.vtt",
+        "bytes": 493,
+        "sha256": "702d88514d0d5178badaee7e9f199b5b68a231f74485435bcebe2cc207011756"
+      }
+    }
+  ]
+}
