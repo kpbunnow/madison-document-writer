@@ -61,6 +61,15 @@ class DevelopmentWorkflow(unittest.TestCase):
         self.assertIn("'@ | & $cityPython -", offline)
         self.assertNotIn("requirements-bootstrap.txt", offline)
 
+    def test_every_action_is_pinned_to_a_full_sha_with_its_exact_release(self):
+        lines = [line for path in sorted((ROOT / ".github/workflows").glob("*.yml")) for line in path.read_text(encoding="utf-8").splitlines()]
+        uses = [line.split("uses:", 1)[1].strip() for line in lines if re.match(r"^\s*(?:- )?uses:", line)]
+        self.assertTrue(uses)
+        for use in uses:
+            self.assertRegex(use, r"^actions/[a-z-]+@[0-9a-f]{40} # v\d+\.\d+\.\d+$")
+        # The cache action's major upgrade is reviewed separately; its tag and commit must agree.
+        self.assertIn("actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0", uses)
+
     def workflow(self, name):
         # GitHub uses YAML's event key "on"; BaseLoader avoids YAML 1.1's boolean coercion of that key.
         return yaml.load((ROOT / ".github/workflows" / name).read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
