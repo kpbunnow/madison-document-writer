@@ -1,0 +1,8 @@
+# Installer tooling bootstrap for development and CI only, installed before requirements-dev.txt with:
+#   python -m pip install --require-hashes -r requirements-bootstrap.txt
+# pip 26.3 vendors urllib3 2.8.0, which fixes CVE-2026-97687, CVE-2026-97688 and CVE-2026-97689 in the urllib3 2.7.0
+# vendored by pip 26.2.2 (the pip bundled with CPython 3.14.10). Hashes are PyPI's published SHA-256 for 26.3.
+# City PCs do not use this file: the offline parser installer runs the PC's own pip with --no-index against local wheels.
+pip==26.3 \
+    --hash=sha256:f3b60b20ffaadd4415ed7957212a38ac63fa4c5fa375bd0f4a797777940fad13 \
+    --hash=sha256:6c36ae7da8695be67e3cd9f7d87919667ced53f57ce2ede75d89b5912ed2bc4c

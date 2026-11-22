@@ -10,7 +10,8 @@ checkout; `$RUNTIME` below stands for that folder.
 
 Use Node.js, Python 3.14.10 (minimum 3.14), Chromium and pdftotext (poppler-utils, required by the gate's manual
 check); regenerating the manual also needs pandoc. Dependency versions are pinned by
-`package-lock.json` and hash-checked `requirements-dev.txt`. Recorded cloud
+`package-lock.json` and hash-checked `requirements-dev.txt`. `requirements-bootstrap.txt` installs the
+hash-pinned pip first (see DEPENDENCY-SECURITY.md); CI pins Node 24.22.3. Recorded cloud
 environments: the R53 import used Node 24.19.0, Python 3.12.14 and system
 Chromium 154.0.8037.57; R54 verification used Node 22.22.0, Python 3.12.3 and
 Chromium 141.0.7390.37 through `DW_BROWSER`. R56 regenerated the manual and ran final
@@ -23,6 +24,7 @@ environment's allowed domains must include `cdn.playwright.dev` and
 python3.14 -m venv "$RUNTIME/venv"
 export PATH="$RUNTIME/venv/bin:$PATH"
 npm ci --cache "$RUNTIME/npm-cache"
+python3 -m pip install --require-hashes -r requirements-bootstrap.txt
 python3 -m pip install --require-hashes -r requirements-dev.txt
 ```
 

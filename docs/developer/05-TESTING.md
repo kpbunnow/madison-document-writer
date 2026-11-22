@@ -3,6 +3,7 @@
 For a full local verification or release-evidence run from a fresh source copy:
 
     npm ci
+    python3 -m pip install --require-hashes -r requirements-bootstrap.txt
     python3 -m pip install --require-hashes -r requirements-dev.txt
     npx playwright install chromium
     python3 tools/build.py

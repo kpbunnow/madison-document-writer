@@ -27,6 +27,40 @@ class DevelopmentWorkflow(unittest.TestCase):
                     else:
                         self.assertEqual(pin, "3.14.10", name)
 
+    def test_every_node_job_uses_one_exact_patched_release(self):
+        # Exact patch pins only; a range or "lts/*" would change the toolchain without review.
+        pins = [
+            step["with"]["node-version"]
+            for path in (ROOT / ".github/workflows").glob("*.yml")
+            for job in self.workflow(path.name)["jobs"].values()
+            for step in job["steps"]
+            if "setup-node@" in step.get("uses", "")
+        ]
+        self.assertTrue(pins)
+        self.assertEqual(set(pins), {"24.22.3"})
+
+    def test_tooling_installs_bootstrap_the_hash_pinned_pip_first(self):
+        lock = (ROOT / "requirements-bootstrap.txt").read_text(encoding="utf-8")
+        requirements = [line for line in lock.splitlines() if line and not line.startswith((" ", "#"))]
+        self.assertEqual(requirements, ["pip==26.3 \\"], "the bootstrap installs pip alone, never standalone vendored libraries")
+        self.assertEqual(len(re.findall(r"--hash=sha256:[0-9a-f]{64}", lock)), 2)
+        for path in (ROOT / ".github/workflows").glob("*.yml"):
+            for name, job in self.workflow(path.name)["jobs"].items():
+                commands = "\n".join(step.get("run", "") for step in job["steps"])
+                if "-r requirements-dev.txt" not in commands:
+                    continue
+                bootstrap = commands.find("--require-hashes -r requirements-bootstrap.txt")
+                self.assertGreaterEqual(bootstrap, 0, f"{path.name}/{name}")
+                self.assertLess(bootstrap, commands.find("-r requirements-dev.txt"), f"{path.name}/{name}")
+                self.assertIn("assert pip.__version__ == '26.3'", commands, f"{path.name}/{name}")
+
+    def test_offline_parser_install_runs_on_the_bundled_city_pip(self):
+        steps = self.workflow("windows-recovery.yml")["jobs"]["windows-recovery"]["steps"]
+        offline = next(s for s in steps if s.get("name") == "Verify bundled CPython 3.14 parser installs offline")["run"]
+        self.assertIn('python -m venv "$env:RUNNER_TEMP\\city-python"', offline)
+        self.assertIn("'@ | & $cityPython -", offline)
+        self.assertNotIn("requirements-bootstrap.txt", offline)
+
     def workflow(self, name):
         # GitHub uses YAML's event key "on"; BaseLoader avoids YAML 1.1's boolean coercion of that key.
         return yaml.load((ROOT / ".github/workflows" / name).read_text(encoding="utf-8"), Loader=yaml.BaseLoader)

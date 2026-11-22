@@ -32,6 +32,7 @@ Use Python 3.14 or later for development; CI pins 3.14.10. Windows installation 
 From a clean source copy:
 
     npm ci
+    python3 -m pip install --require-hashes -r requirements-bootstrap.txt
     python3 -m pip install --require-hashes -r requirements-dev.txt
     npx playwright install chromium
     python3 tools/build.py
