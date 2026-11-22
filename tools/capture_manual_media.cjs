@@ -321,7 +321,7 @@ const flows = {
   },
   async issue(s) {
     s.caption("Choose Issue, check the mailed date, then Issue document.");
-    await s.click(s.page.locator(".topbar-actions .btn-primary"));
+    await s.click(s.page.locator(".editor-controls .editor-primary"));
     await s.page.locator("#fin-go").waitFor();
     await s.pause(1500);
   },
@@ -492,8 +492,8 @@ still(
 still(
   "mobile-editor",
   20,
-  "On a narrow screen the editor uses a compact header and one task bar at the bottom.",
-  "Phone-width citation draft with a compact header, the navigation at the top and a bottom bar holding the save state, Fix next issue, Review and Issue.",
+  "On a narrow screen the editor uses a compact header and one responsive control area above the working document.",
+  "Phone-width citation draft with a compact header and a single control area holding document tasks, current checks, save state, Save draft and Issue.",
 );
 
 /* Clips: cut from recorded sessions by caption marks. */
@@ -666,11 +666,11 @@ async function stills(browser, helper, wanted, out) {
   await reports.waitForTimeout(1200);
   await shot("data-definitions", reports);
   await reports.close();
-  // Phone width: the compact editor with its bottom task bar.
+  // Phone width: the compact editor with its shared task controls.
   await page.setViewportSize({ width: 390, height: 844 });
   await flows.workspace(s);
   await page.locator("[data-open], button", { hasText: "Continue document" }).first().click();
-  await page.locator(".editor-mobile-bar").waitFor();
+  await page.locator(".editor-controls").waitFor();
   await s.quiet();
   await shot("mobile-editor");
   await context.close();
