@@ -23,13 +23,18 @@ const assert = require("node:assert/strict"),
   const box = { exports: {} };
   new Function("document", "fetch", "module", "exports", compiled.outputFiles[0].text)(document, fetch, box, box.exports);
   const { createReportsServices, ReportsState: s } = box.exports;
-  const api = createReportsServices({ render: () => {}, uniq: (v) => [...new Set(v)], plural: (n, label) => n + " " + label + (n === 1 ? "" : "s") });
+  const api = createReportsServices({
+    render: () => {},
+    uniq: (v) => [...new Set(v)],
+    plural: (n, label) => n + " " + label + (n === 1 ? "" : "s"),
+    validISO: (value) => /^\d{4}-\d{2}-\d{2}$/.test(value),
+  });
   const ids = Array.from({ length: 2001 }, (_, i) => String(700000000000 + i));
   const summary = (id, number) => ({ summaryVersion: 6, case: { number, parcel: id }, violations: [], citations: [], referrals: [] });
   const index = { ok: true, summaries: ids.map((id, i) => summary(id, "QA-" + i)) };
   const DOWN = "the city parcel layer could not be reached (synthetic outage)";
 
-  async function load(post) {
+  async function load(post, refresh = false, cache = { parcels: {}, missing: [] }) {
     posts = [];
     s.S = {};
     reply = (url, options) =>
@@ -39,8 +44,8 @@ const assert = require("node:assert/strict"),
           ? { ok: true }
           : options.method === "POST"
             ? post(JSON.parse(options.body).ids)
-            : { parcels: {}, missing: [] };
-    await api.loadAll(false);
+            : cache;
+    await api.loadAll(refresh);
   }
 
   // Outage: two unreachable batches, then the remaining 1,001 parcels are not attempted for this load.
@@ -69,6 +74,27 @@ const assert = require("node:assert/strict"),
   // Batches that confirm parcels missing, or return partial results, are answers, not an outage.
   await load((batch) => ({ ok: false, error: "Partial synthetic lookup", partial: true, parcels: {}, missing: batch }));
   assert.equal(posts.length, 5);
+  // Refresh failures retain existing locations. Feedback must describe the actual model rather than claim all
+  // unqueried cases are unlocated (the second cached case is beyond the two attempted batches).
+  const cache = {
+    parcels: Object.fromEntries([ids[0], ids[1500]].map((id) => [id, { history: [{ fetched: "2026-11-01", lat: 43.1, lon: -89.4 }] }])),
+    missing: [],
+  };
+  await load(() => ({ ok: false, error: DOWN, partial: false, parcels: {}, missing: [] }), true, cache);
+  assert.equal(posts.length, 2);
+  assert.equal(s.S.M.cases.filter((c) => c.located).length, 2);
+  assert.equal(s.S.M.byNo["QA-1500"].located, true);
+  assert.match(s.S.parcelNote, /cached locations are retained where available/);
+  assert.equal(s.S.M.cases.length, 2001);
+  await load(
+    () => {
+      throw Error("synthetic request failure");
+    },
+    true,
+    cache,
+  );
+  assert.equal(s.S.M.cases.filter((c) => c.located).length, 2);
+  assert.match(s.S.parcelNote, /Cached locations are retained where available/);
   console.log("PASS Reports parcel lookup stops after two unreachable batches and keeps every answered batch");
 })().catch((e) => {
   console.error(e);
