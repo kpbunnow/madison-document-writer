@@ -1147,6 +1147,7 @@
     "tests/unit/audit_recovery_event_rules.js",
     "tests/unit/audit_recovery_history.js",
     "tests/unit/audit_recovery_modal_markup_rules.js",
+    "tests/unit/audit_recovery_selection.js",
     "tests/unit/audit_recovery_state.js",
     "tests/unit/audit_recovery_validation_parity.js",
     "tests/unit/audit_reinspection_batch.js",
