@@ -55,4 +55,43 @@ These grow linearly with the number of shared cases and are not changed here:
 - **Reports index.** It returns every summary in one response: about 3.2 KB per case, so 32 MB at 10,000 cases. The
   helper verifies each summary against its case. Paging or a compact summary would need a reporting format decision.
 
-Browser timings, the 20,000-case results and the long-session results are recorded below when complete.
+## 20,000 cases (after the fix)
+
+| Operation | Median |
+| --- | --- |
+| Open one case | 112 ms |
+| New case save + summary | 617 + 304 ms |
+| Filing update of a cited case | 394 ms |
+| New initial citation | 30.6 s |
+| `/citations/history` | 27.4 s, 82 MB |
+| `/reporting/index` (warm) | 43.4 s, 64 MB |
+| `/cases/list` | 284 ms, 1.9 MB |
+
+The remaining linear costs above roughly double again from 10,000 to 20,000 cases.
+
+## In the browser
+
+The production pages were timed against the same folders:
+- **Workspace:** from opening the page to the drawn Workspace.
+- **Open saved case:** the shared case list in its dialog.
+- **Reports:** first load and two refreshes.
+
+In this environment the City parcel layer cannot be reached.
+
+| Cases | Workspace opens | Open saved case list | Reports first load | Reports refresh | Reports JS heap |
+| --- | --- | --- | --- | --- | --- |
+| 5,000 | 0.5–0.7 s | 0.3–0.4 s | 45–48 s | 39 s | 45 MB |
+| 10,000 | 0.5 s | 0.5–0.7 s | 90–99 s | 79 s | 48 MB |
+| 20,000 | 0.5–0.6 s | 1.2–1.4 s | 171–194 s | 153–155 s | 141–150 MB |
+
+Workspace opening does not depend on the size of the share.
+
+Reports time was mostly two things:
+- **The index request:** about 10, 21 and 41 s at the three sizes.
+- **Parcel lookups:** 33, 63 and 123 sequential batches of 500 parcels, each waiting about 3 s on the unreachable layer,
+  and repeated on every refresh because failures are not cached.
+
+The browser's own processing was under 2 s at 5,000 cases. After two unreachable batches in a row, Reports now stops
+looking up parcels for that load and says how many were not looked up (PR #553). Parcels already cached are
+unaffected. With the City layer reachable, the first lookup is limited by the City service and later loads use the
+cache; that timing could not be measured here.
