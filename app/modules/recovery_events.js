@@ -80,10 +80,15 @@ const WORKING_ACTIONS = [
 
 // The dialog is redrawn after a copy is chosen; keep keyboard focus on that copy's row.
 function chooseRecoveryRow(services, row) {
-  return services.recovery
-    .selectRecovery(row)
-    .then(() => document.querySelector('[data-recovery-row][aria-pressed="true"]')?.focus())
+  const pending = services.recovery.selectRecovery(row),
+    token = recovery.RECOVERY_SELECT_SEQ;
+  return pending
+    .then(() => {
+      if (editor.state.modal === "recovery" && recovery.RECOVERY_SELECT_SEQ === token && recovery.RECOVERY.selectedRow === row)
+        document.querySelector('[data-recovery-row][aria-pressed="true"]')?.focus();
+    })
     .catch((err) => {
+      if (editor.state.modal !== "recovery" || recovery.RECOVERY_SELECT_SEQ !== token) return;
       recovery.RECOVERY.error = err.message;
       services.ui.render();
     });

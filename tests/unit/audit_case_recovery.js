@@ -91,6 +91,8 @@ const copy = (v) => JSON.parse(JSON.stringify(v)),
     helperFailure,
     sharedKind,
     holdRead,
+    holdList,
+    releaseList,
     holdShared,
     releaseRead,
     releaseShared,
@@ -118,7 +120,11 @@ const copy = (v) => JSON.parse(JSON.stringify(v)),
     async helperJSON(url, body) {
       calls.push(["helper", url, body && copy(body)]);
       if (helperFailure) throw helperFailure;
-      if (url === "/draft-backups/list") return { backups: [row] };
+      if (url === "/draft-backups/list") {
+        const backups = [row];
+        if (holdList) await new Promise((r) => (releaseList = r));
+        return { backups };
+      }
       if (url === "/draft-backups/read") {
         if (holdRead) await new Promise((r) => (releaseRead = r));
         return { backup: b };
@@ -210,6 +216,7 @@ const copy = (v) => JSON.parse(JSON.stringify(v)),
     helperFailure = null;
     sharedKind = "equal";
     holdRead = false;
+    holdList = false;
     holdShared = false;
     setup = false;
     accept = true;
@@ -301,6 +308,37 @@ const copy = (v) => JSON.parse(JSON.stringify(v)),
   assert.equal(s.RECOVERY.error, "offline");
   assert.deepEqual(s.RECOVERY.list, []);
   reset();
+  holdList = true;
+  const previousList = api.listRecovery();
+  await tick();
+  holdList = false;
+  const newerRow = { ...row, name: "newer.json" };
+  row = newerRow;
+  await api.listRecovery();
+  releaseList();
+  await previousList;
+  assert.deepEqual(s.RECOVERY.list, [newerRow], "a superseded list cannot replace a newer result");
+  reset();
+  holdList = true;
+  const pendingList = api.listRecovery();
+  await tick();
+  const importedRow = { ...row, imported: b };
+  s.RECOVERY.list = [importedRow];
+  await api.selectRecovery(importedRow);
+  releaseList();
+  await pendingList;
+  assert.equal(s.RECOVERY.selectedRow, importedRow, "an import supersedes an earlier list request");
+  assert.deepEqual(s.RECOVERY.list, [importedRow]);
+  assert.equal(s.RECOVERY.loading, false);
+  reset();
+  holdRead = true;
+  const previousSelection = api.selectRecovery(row);
+  await tick();
+  await api.listRecovery();
+  releaseRead();
+  await previousSelection;
+  assert.equal(s.RECOVERY.selected, null, "reopening the list must invalidate an earlier pending selection");
+  reset();
   holdRead = true;
   let selection = api.selectRecovery(row);
   await tick();
@@ -323,6 +361,7 @@ const copy = (v) => JSON.parse(JSON.stringify(v)),
   reset();
   await api.selectRecovery({ ...row, imported: b });
   assert.equal(s.RECOVERY.selected, b);
+  assert.equal(s.RECOVERY.selectedRow.imported, b, "selection retains the chosen source row without altering backup data");
   const comparison = calls.find((c) => Array.isArray(c) && c[0] === "compare");
   assert.equal(comparison.at(-1), true);
   assert.ok(calls.some((c) => Array.isArray(c) && c[1] === "/cases/resolve?number=BLD2026-00001"));
