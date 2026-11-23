@@ -11,8 +11,8 @@ export {normParcel,recordDay,mailingMaxDay,mailingDateMessage} from '../assets/s
 export {cleanOwnerAddress} from './mailing_rules.js';
 export {ownerMailingLines} from './defendant_contact.js';
 export {validISO} from './calendar.js';
-export {dueDateSpacingConflicts} from './deadline_assignment.js';
-export {sameSite,siteBasis,resolveCitationAmount} from './citation_policy.js';
+export {dueDateSpacingConflicts,orderByDue} from './deadline_assignment.js';
+export {sameSite,siteBasis,resolveCitationAmount,canonicalOrdinance,tierOrdinal,cents,withinWindow,assessmentCents,respondentKey} from './citation_policy.js';
 export {createCaseRecovery} from './case_recovery.js';`,
       resolveDir: path.resolve(__dirname, "../../app/modules"),
     },
@@ -42,7 +42,15 @@ export {createCaseRecovery} from './case_recovery.js';`,
     dates: (input.dates || []).map((v) => a.validISO(v)),
     calendar: (input.calendar || []).map(({ type, at }) => [a.recordDay(at), a.mailingMaxDay(type, a.recordDay(at)), a.mailingDateMessage(type)]),
     due: (input.due || []).map((items) => a.dueDateSpacingConflicts(items.filter((i) => !i.done && !i.withdrawn)).length > 0),
+    dueConflicts: (input.dueConflicts || []).map((items) => a.dueDateSpacingConflicts(items).map((c) => [c.dates, c.items.map((i) => i.id)])),
+    dueOrder: (input.dueOrder || []).map((items) => a.orderByDue(items).map((i) => i.id)),
     pricing: (input.pricing || []).map((v) => a.resolveCitationAmount(v)),
+    ordinances: (input.ordinances || []).map((v) => a.canonicalOrdinance(v)),
+    tiers: (input.tiers || []).map((v) => a.tierOrdinal(v)),
+    cents: (input.cents || []).map((v) => a.cents(v)),
+    windows: (input.windows || []).map(({ prior, violation, window }) => a.withinWindow(prior, violation, window)),
+    assessments: (input.assessments || []).map(({ base, court, date }) => a.assessmentCents(base, court, date)),
+    respondents: (input.respondents || []).map((k) => a.respondentKey(k)),
     recovery: (input.recovery || []).map(({ backup, row }) => {
       try {
         a.createCaseRecovery({ walkIdentity: () => "" }).validateRecovery(backup, row);

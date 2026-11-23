@@ -530,7 +530,8 @@ def digest(data):
 
 
 def encoded(record):
-    return json.dumps(record, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    # NaN and Infinity are not JSON: a case file holding them could not be read by the browser on any PC.
+    return json.dumps(record, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")
 
 
 def event_order(event):
@@ -1708,7 +1709,7 @@ def _validate_citation_court(*, check_date_window, snap):
 
 
 def _citation_amount(value):
-    if isinstance(value, bool) or not re.fullmatch("(?:0|[1-9]\\d*)(?:\\.\\d{1,2})?", str(value)):
+    if isinstance(value, bool) or not re.fullmatch("(?:0|[1-9][0-9]*)(?:\\.[0-9]{1,2})?", str(value)):
         raise ValueError("Citation money values must be nonnegative amounts with at most two decimal places")
     return Decimal(str(value))
 
@@ -1723,7 +1724,7 @@ def _validate_citation_identity(*, item, snap, numbers):
         if not (
             citation_pricing.canonical_ordinance(c["ord"])
             if snap.get("authoringVersion", 0) >= 6
-            else re.fullmatch("(?:\\d+\\.\\d+|SPS ?\\d+\\.\\d+)(?:\\([A-Za-z0-9]+\\))*", str(c["ord"]))
+            else re.fullmatch("(?:[0-9]+\\.[0-9]+|SPS ?[0-9]+\\.[0-9]+)(?:\\([A-Za-z0-9]+\\))*", str(c["ord"]))
         ):
             raise ValueError("Enter one complete citation ordinance, not a list of sections")
         if any((re.search("\\(\\s*\\)", str(c.get(k, ""))) for k in ("desc", "comment", "statute", "deptId"))):

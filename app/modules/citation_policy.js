@@ -3,11 +3,13 @@ import { normParcel as normalizedParcel } from "../assets/shared.js";
 import { CITATION_POLICY as P } from "./data/citation_policy.js";
 import { violatorActive, violatorOf } from "./mailing_rules.js";
 export const CITATION_POLICY = P;
+// The same explicit whitespace set as helper/citation_pricing.py: JavaScript's and Python's \s differ (U+0085, U+FEFF and
+// the separators U+001C to U+001F), so neither runtime's class is used for ordinance text.
+const WHITESPACE = /[\t\n\v\f\r \x1c-\x1f\x85\xa0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+/g;
 export function canonicalOrdinance(value) {
   let t = String(value || "")
-    .trim()
+    .replace(WHITESPACE, "")
     .replace(new RegExp(P.prefix, "i"), "")
-    .replace(/\s+/g, "")
     .replace(/^sps/i, "SPS")
     .replace(/\(([^)]+)\)/g, (_, x) => "(" + x.toLowerCase() + ")");
   if (/\)\d+$/.test(t)) t += ".";
@@ -159,8 +161,14 @@ export function sameSite(a, b) {
   );
 }
 export const siteBasis = (k) => (normalizedParcel(k?.parcel) ? "parcel" : propertyKey(k?.address) ? "address" : "unavailable");
+// A real calendar date in YYYY-MM-DD form, as the helper's date.fromisoformat requires.
+const calendarDay = (value) => {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value) || Number(value.slice(0, 4)) < 1) return false;
+  const time = Date.parse(value + "T00:00:00Z");
+  return Number.isFinite(time) && new Date(time).toISOString().slice(0, 10) === value;
+};
 export function withinWindow(date, violationDate, window) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !violationDate || date > violationDate) return false;
+  if (!calendarDay(date) || !calendarDay(violationDate) || date > violationDate) return false;
   if (typeof window === "string") return true;
   if (window.kind === "site-season") {
     const start = window.startMonthDay || "07-01",
