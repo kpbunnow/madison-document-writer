@@ -242,14 +242,17 @@ module.exports = async function (browser, page, context, out, axeScreen) {
   await page.locator('[data-case-action-group="occupancy"]').check();
   await page.locator('[data-case-action-type="noOccupancy"]').check();
   await page.locator("[data-create-case-action]").click();
+  // The release inspection is the recorded visit's own date: a run that crosses midnight in Chicago records the visit
+  // on the new day, after `day` was taken at the start of the test.
+  const releaseDay = await page.evaluate((cid) => reinspFor(cid).at(-1).date, linked.cid);
   await facts({
     mode: "release",
     releases: restriction,
-    effective: day,
-    releaseInspection: day,
+    effective: releaseDay,
+    releaseInspection: releaseDay,
     releaseFacts: "SYNTHETIC release reinspection verifies every condition under QA-RELEASE.",
     placardRemoved: true,
-    removalDate: day,
+    removalDate: releaseDay,
     releaseFormRef: "SYNTHETIC approved written release form / procedure",
     releaseVisitId: await page.evaluate((cid) => reinspFor(cid).at(-1).id, linked.cid),
   });
