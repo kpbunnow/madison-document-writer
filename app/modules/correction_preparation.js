@@ -77,7 +77,9 @@ function correctionChangeList(d, old, view) {
     (old.revision && (old.revision.actionDate || old.revision.originalIssued)) || old.mailed || recordDay(old.issuedAt),
     d.correction.actionDate,
   );
-  CASE_CORRECTION_FIELDS.forEach((k) => add("case." + k, FIELD_NAMES[k], view.caseOf(old)[k], view.caseOf(d)[k]));
+  // An empty list and a missing one are the same recipients: older frozen cases have no emails or ccList key.
+  const listValue = (v) => (Array.isArray(v) && !v.length ? undefined : v);
+  CASE_CORRECTION_FIELDS.forEach((k) => add("case." + k, FIELD_NAMES[k], listValue(view.caseOf(old)[k]), listValue(view.caseOf(d)[k])));
   ["type", "mailed", "inspDate", "inspTime", "inspectorId"].forEach((k) =>
     add(k, FIELD_NAMES[k], k === "inspectorId" ? view.inspectorOf(old).id : old[k], d[k]),
   );
