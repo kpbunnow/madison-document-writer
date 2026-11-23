@@ -132,6 +132,18 @@ const assert = require("node:assert/strict"),
     if (random(2)) x.d.correction.outcomes = { item: "corrected" };
     compare(x);
   }
+  // A frozen case without an emails/ccList key and a draft with empty lists record no recipient change.
+  for (const field of ["emails", "ccList"]) {
+    const x = fixture("notice", 17);
+    x.d.correction.case[field] = [];
+    assert.deepEqual(run(current, x).changes, [], field + ": an empty list is not a change");
+    x.d.correction.case[field] = field === "emails" ? [{ addr: "qa@example.invalid", kind: "Owner" }] : [{ name: "QA COPY", kind: "Copy" }];
+    assert.deepEqual(
+      run(current, x).changes.map((c) => [c.path, c.before]),
+      [["case." + field, null]],
+      field + ": an added recipient is still a change",
+    );
+  }
   console.log("PASS correction change equivalence " + checked + " scenarios: historical cutoffs, field order, citation/visit changes and lazy reads");
 })().catch((e) => {
   console.error(e);
