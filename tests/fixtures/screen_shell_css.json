@@ -72,10 +72,10 @@
     },
     "ui-refresh.css": {
       "beforeSha256": "e0144fc15123ce89544458f0084c070a2eba18948cae9c687c28e8f68d859c7a",
-      "afterSha256": "595c2e2996236dbf805b5a92524b09c7a5fbd526f52d8d4600511628185fb7de",
+      "afterSha256": "fee862cf2b204c51b35300dbff5c6b9febb513fcb60ea17e06f3d6039be31254",
       "beforeBytes": 48561,
-      "afterBytes": 62431,
-      "retainedRulesSha256": "1b052c2cea0cc87582923b7eabd3f8aff77504aa8b5621dc37842bfc86d43524"
+      "afterBytes": 63156,
+      "retainedRulesSha256": "799011b382d9bb108498f26f96d7ab424b475cda45b297359fa64761328469bd"
     }
   },
   "selectorChanges": [
@@ -977,6 +977,20 @@
         }
       },
       "evidence": "docs/developer/SCREEN-VISUAL-REVIEW.md (Recovery selection and dark-theme contrast, 2026-11-23)"
+    },
+    {
+      "date": "2026-11-23",
+      "sourceCommit": "c0918a3c2e567db5a12467ade65fb0c6851633a9",
+      "scope": "Dark-theme contrast from the 2026-11-23 theme sweep: in the Dark and system-dark themes .revision-eyebrow uses the dark civic colour, and links on the white document paper (.sheet .lnk) and the map attribution link (.leaflet-container .leaflet-control-attribution a) use the paper's existing #174f82. Append-only screen block; preserves all 62,431 earlier stylesheet bytes. Approved print and vendored Leaflet CSS unchanged.",
+      "rules": {
+        "ui-refresh.css": {
+          "beforeSha256": "595c2e2996236dbf805b5a92524b09c7a5fbd526f52d8d4600511628185fb7de",
+          "afterSha256": "fee862cf2b204c51b35300dbff5c6b9febb513fcb60ea17e06f3d6039be31254",
+          "unchangedRulesSha256": "1b052c2cea0cc87582923b7eabd3f8aff77504aa8b5621dc37842bfc86d43524",
+          "unchangedPrefixBytes": 62431
+        }
+      },
+      "evidence": "docs/developer/SCREEN-VISUAL-REVIEW.md (Dark-theme contrast sweep, 2026-11-23)"
     }
   ]
 }

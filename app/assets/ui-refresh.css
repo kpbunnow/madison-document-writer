@@ -2922,6 +2922,27 @@
   }
 }
 
+/* Dark-theme contrast found by the 2026-11-23 theme sweep: the correction draft's eyebrow, links drawn on the white
+   document paper (such as Withdraw item) and the map attribution link kept colours meant for another background. */
+@media screen {
+  [data-theme="dark"] .revision-eyebrow {
+    color: var(--civic);
+  }
+  [data-theme="dark"] .sheet .lnk,
+  [data-theme="dark"] .leaflet-container .leaflet-control-attribution a {
+    color: #174f82;
+  }
+  @media (prefers-color-scheme: dark) {
+    [data-theme="system"] .revision-eyebrow {
+      color: var(--civic);
+    }
+    [data-theme="system"] .sheet .lnk,
+    [data-theme="system"] .leaflet-container .leaflet-control-attribution a {
+      color: #174f82;
+    }
+  }
+}
+
 /* Short viewports at high zoom keep the working document reachable. */
 @media screen and (max-height: 600px) {
   .editor-controls {
