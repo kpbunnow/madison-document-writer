@@ -42,6 +42,8 @@ How each edition handles the media:
      synthetic inspector Taylor Example. City-only services (the report server, GIS and Outlook) get synthetic answers.
    - **Requirements:** `ffmpeg` (for VP9 and palette PNGs) and the project's CPython 3.14 (`PYTHON`).
    - **Output:** it rewrites the named files and their entries in `manual-media.json`.
+   - **Theme:** media are captured in the Dark color theme, which the manual's introduction states. Set
+     `MANUAL_THEME=light` only to compare; keep one theme across the whole set.
 3. Look at every changed image and watch every changed clip with captions on before committing.
 
 Defining the media:

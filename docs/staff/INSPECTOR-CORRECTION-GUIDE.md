@@ -16,6 +16,10 @@ Choose the action that reflects what actually happened. Edit an unissued draft d
 4. Review and issue the linked revision. Until its shared save is confirmed, the earlier issued version remains effective in the program.
 5. Confirm the correction's original PDF and complete outside amendment, mailing and recording steps under the actual procedure.
 
+The video shows a correction of an issued Official Notice: the reason, a changed corrective action, Review correction and Save & issue correction.
+
+*Shown in the program manual: Correct an issued notice: give the reason, make the change, review it and issue the correction.*
+
 **Withdraw an item.** Within correction, select withdrawal for an item entered in error and record a specific reason. Its original number remains. It is excluded from compliance credit. Do not delete it or label it corrected to remove it from the count.
 
 **When Correct and Withdraw are missing.** Open Document actions on the issued document. If Correct document and Withdraw are not offered, the same place states why (for example, an unfinished worksheet or document draft must be finished or discarded first, or a later document depends on this one). Resolve what it names and the buttons return.

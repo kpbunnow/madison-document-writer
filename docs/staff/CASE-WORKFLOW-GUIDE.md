@@ -123,6 +123,10 @@ Workspace backup, a case-record export, an unfinished-case recovery copy and a p
 
 **Recover one case.** Open Saved work & connection ([chapter 14](PROGRAM-MANUAL.html#chapter-14)) → Backups and recovery → Recovery on this device → Recover an unfinished case. Select the intended recovery copy and check the case and capture time. Compare the current shared record. Preserve any differing local work before explicitly replacing it. Resume the recovered draft and confirm device saving; resolve retained pending requests through their original confirmation actions.
 
+The video shows Create recovery copy on this device, then Recover an unfinished case: selecting the copy marks its row and shows what it holds, and Restore selected case returns the draft to Workspace without issuing anything.
+
+*Shown in the program manual: Create a recovery copy of unfinished work, then recover a case from it.*
+
 **Restore a workspace.** Preserve the current profile first. Use an empty workspace and the same approved program release or a verified compatible version. Choose Restore workspace backup, select the intended file and review its identity. Do not use restore to merge two independently edited active workspaces. Recheck shared state and PDF filing after recovery before issuing.
 
 **Change PCs or browser profiles.** A private draft does not automatically follow the Windows account. Export it through the workspace/recovery procedure and confirm it opens in the intended profile. A different local URL or profile may have different browser storage. Keep the source profile until the restored work is verified.

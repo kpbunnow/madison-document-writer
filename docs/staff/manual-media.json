@@ -10,8 +10,8 @@
       "alt": "Workspace screen. The Open cases by inspector card shows Taylor Example selected and three synthetic cases with case numbers, addresses, descriptions and due dates.",
       "image": {
         "file": "manual-media/workspace-open-cases.png",
-        "bytes": 49553,
-        "sha256": "5446cb46658aa5ba0e922cb1a79481737da8531f34058d68f5c20eacda8e1522"
+        "bytes": 52049,
+        "sha256": "a8f204515e155f1d27a36ddc6ce5ea6dfd8008ff8aa54d40246883487f94906a"
       }
     },
     {
@@ -22,8 +22,8 @@
       "alt": "Import window titled Inspections for CB2026-900-00101, showing one Initial Inspection with status Official Notice and the buttons Start Official Notice, Clear import, Save draft and return to Workspace, and Exit.",
       "image": {
         "file": "manual-media/import-window.png",
-        "bytes": 77574,
-        "sha256": "cdc0a66a7cbaeddc93e8adc46f6ea939925d6361026bb55bb8811d1b43030eec"
+        "bytes": 80868,
+        "sha256": "ee20632ca47913d862821a2e7dadf07f045547a68b6e5b2a2064c2e362ac3543"
       }
     },
     {
@@ -34,8 +34,8 @@
       "alt": "Official Notice editor with the header CB2026-900-00101, Official Notice, Draft, not issued; buttons Save draft and return to Workspace and Issue; a task bar with Recipients, Violation Items, Review and Fix next issue; and the notice page below.",
       "image": {
         "file": "manual-media/notice-editor.png",
-        "bytes": 55313,
-        "sha256": "c34f4b9414308efb05971cf6bb7de5af9e4068450ccc9c4175ce9af0644b301c"
+        "bytes": 58102,
+        "sha256": "6ddcdb79225d2e50b2c06e15fb5e539b4d97d8a4f10426f42bfb87fe69a5b3dc"
       }
     },
     {
@@ -46,8 +46,8 @@
       "alt": "Select for this notice dialog with a search for smoke alarm, Violation Categories on the left, a selected Smoke alarms entry with Add again and Favorite buttons, and Done adding at the bottom.",
       "image": {
         "file": "manual-media/language-picker.png",
-        "bytes": 61850,
-        "sha256": "5d0c5dc45f663f6e46522b3d8c5a9777750b7f759331bb65596cbad54659b4d2"
+        "bytes": 65082,
+        "sha256": "a4c533fdb84244162777ad04ff95fbf715c5630554457bad4d674c0140d887d4"
       }
     },
     {
@@ -58,8 +58,8 @@
       "alt": "Violation items table with item 1, Handrails, whose fill-in bubble is selected, and item 2, Smoke alarms, with an empty bubble.",
       "image": {
         "file": "manual-media/fill-in-bubble.png",
-        "bytes": 59662,
-        "sha256": "9dd861b1cdefaee7a4e73469e406bde39a11e27672d4cf1831d22612c1aaabed"
+        "bytes": 64978,
+        "sha256": "e051e129a68f08b72af40f1b0f5780ffcd2173a089d805bf592ecf763fb72782"
       }
     },
     {
@@ -70,8 +70,8 @@
       "alt": "Assign due dates panel showing 2 of 2 items selected, a date entered and the buttons Select all, Clear selection, Apply date to selected items and Sort by due date.",
       "image": {
         "file": "manual-media/assign-due-dates.png",
-        "bytes": 36472,
-        "sha256": "1e8719753c38d2979505d061d172069ff8b4aaff46b94740d4eda088859c8915"
+        "bytes": 38543,
+        "sha256": "e2719a1bddd0792556794ef2412e82a88ff61439a3853f1dccecd5f3d50176ef"
       }
     },
     {
@@ -82,8 +82,8 @@
       "alt": "Review dialog reading No concerns. This document is ready to issue, with the count of checks passed.",
       "image": {
         "file": "manual-media/review-dialog.png",
-        "bytes": 78344,
-        "sha256": "d0f0394f3a09e42b1edf901a508800447daa8d2d1b3ee5f79dde8c9104f51e22"
+        "bytes": 81517,
+        "sha256": "c6ba60d0678c910474f8ab430bd5adf753151d54b346e1045d8114f88abb8133"
       }
     },
     {
@@ -94,8 +94,8 @@
       "alt": "Finalize this official notice dialog with Every check passed, the mailed date field, and Cancel, Save draft and return to Workspace and Issue document buttons.",
       "image": {
         "file": "manual-media/issue-dialog.png",
-        "bytes": 91195,
-        "sha256": "d50ae54fa0aedbfdf25055a950944461feefa7d09a9a8cd29cd2c19f2841f63d"
+        "bytes": 93361,
+        "sha256": "03893132e2d1e3fa08727de613c4912673612e818de2f4107911cd9be7377d9b"
       }
     },
     {
@@ -106,8 +106,8 @@
       "alt": "Workspace case table with 100 SAMPLE ST highlighted, an Official Notice link with its issue date, the next due date, inspector Taylor Example and a Reinspect button.",
       "image": {
         "file": "manual-media/workspace-issued.png",
-        "bytes": 46707,
-        "sha256": "f8535018e61de1ceedd15e7788a02a0508510e88d4adc004c5203afec4052f88"
+        "bytes": 49137,
+        "sha256": "55279f8cc2ba8a8562cac95738a123d57b1dfdafa6e4447935a0cd8893555b2f"
       }
     },
     {
@@ -118,8 +118,8 @@
       "alt": "Reinspection worksheet with the visit date, time and inspector, counts of corrected, outstanding and not yet resulted items, and Corrected, Progress made, No change and No access buttons for each item.",
       "image": {
         "file": "manual-media/reinspection-worksheet.png",
-        "bytes": 53809,
-        "sha256": "bf6d0fdb26c80a12cf9995af0a0e0b1ff8f3959d80dc2c321acd763a4e83cc0a"
+        "bytes": 56288,
+        "sha256": "09ac147feab5b651c5036748b48e08f2718251d6331455a3a9c655a9dd15c949"
       }
     },
     {
@@ -130,8 +130,8 @@
       "alt": "One item at a time view showing four steps, item 1 Handrails with its original due date and the outcome buttons.",
       "image": {
         "file": "manual-media/one-item-at-a-time.png",
-        "bytes": 53447,
-        "sha256": "d5071307021675d39a7b8481aafeb1abc1ab36c1e1c60880ef3e72672793aff8"
+        "bytes": 56219,
+        "sha256": "4cf5e1fd7011c66ec7e564c2012ca22efcbd15c0184879048063b3c52eac3186"
       }
     },
     {
@@ -142,8 +142,8 @@
       "alt": "Choose next action card with the options Give more time, Take enforcement action, Restrict occupancy and Confirm compliance, a document choice and a Create draft button.",
       "image": {
         "file": "manual-media/follow-up-chooser.png",
-        "bytes": 32218,
-        "sha256": "61b9686af32ad0601e7deeda7b948065b34f8c6f6a799d61cf73822a9974a92e"
+        "bytes": 34495,
+        "sha256": "4caff31b63d243ecf2389c14b01036fa17342d64dfef8f08c64102841bb2e5ed"
       }
     },
     {
@@ -154,8 +154,8 @@
       "alt": "Initial-inspection citations panel with a charge card for item 1, 27.05(2)(i) Handrails, showing its citation number, a deposit ready amount, the suggested court session, and the Edit charge and dates and Pricing details and authorization disclosures.",
       "image": {
         "file": "manual-media/citation-review.png",
-        "bytes": 23407,
-        "sha256": "ec6025430365567c9b7a53bce4b7e7bb7ce3d493dfb5ca820e2a2d5244a700f8"
+        "bytes": 25853,
+        "sha256": "83b89c66e226af189ea530f3dd2c549ea02b96c8ffd165cd7f86e41cf0dd2cfe"
       }
     },
     {
@@ -166,8 +166,8 @@
       "alt": "Tools and settings screen with cards for Reminders, Batch draft due dates, Saved work and connection, Open saved case, the Exit Document Writer button, program manual links, color theme, message history and keyboard shortcuts.",
       "image": {
         "file": "manual-media/tools-settings.png",
-        "bytes": 52795,
-        "sha256": "024b39a4ab1aabb5b25e25b0ec927cf6c412dd91d158c404f1d56d36bbc68971"
+        "bytes": 56331,
+        "sha256": "bd71198b229cd6fde1c00e5f78142d47d96097029311d6ae7e697ba4bb77ae87"
       }
     },
     {
@@ -178,8 +178,8 @@
       "alt": "Saved work and connection screen with sections This device, Shared cases and PDF filing, and disclosures for backups and connection checks.",
       "image": {
         "file": "manual-media/saved-work.png",
-        "bytes": 53355,
-        "sha256": "f9fc317c0bf49c4a6beb7d1bb6591967522a3278c0a0ee367d23fb7d97db52e9"
+        "bytes": 56806,
+        "sha256": "4ad8bd376eed63612a11cef164f08bb38a72ddad12bfaf84fc27a26d1893edbf"
       }
     },
     {
@@ -190,8 +190,8 @@
       "alt": "Exit Document Writer dialog explaining what happens on exit, with the Exit Document Writer button.",
       "image": {
         "file": "manual-media/exit-dialog.png",
-        "bytes": 62661,
-        "sha256": "133f87b0da56dbc6b31fcc73f64726511dd09b0dc68a2c99b5c870bd695ab427"
+        "bytes": 68432,
+        "sha256": "4075201056e71df4478a7a6d5e808788419e2259778ef2b6b81d1c6144542a09"
       }
     },
     {
@@ -202,8 +202,8 @@
       "alt": "Keyboard shortcuts dialog listing keys such as ?, Tab, Escape, Ctrl+S, 1 to 4 and U with their actions.",
       "image": {
         "file": "manual-media/keyboard-shortcuts.png",
-        "bytes": 52859,
-        "sha256": "2a825048b634741baf4ad3c896724a10c2b755a55351f1bc4732b079aa97be59"
+        "bytes": 55924,
+        "sha256": "5240a819d32aeff9f4522a159bab9f3dedea76f40d8a25d98d0397bc4613830a"
       }
     },
     {
@@ -214,8 +214,8 @@
       "alt": "Browse language screen with a search for handrail, status and checklist filters and matching entries.",
       "image": {
         "file": "manual-media/order-language.png",
-        "bytes": 58460,
-        "sha256": "302b99ddeba6fb3fea4789c2d08900eb85ff8d9808ae39cad021e96f6aa6507a"
+        "bytes": 61368,
+        "sha256": "205655ae2173bb7a13719bd5ef41f5251ccac7956ab906f90be8132f6fcb975a"
       }
     },
     {
@@ -226,8 +226,8 @@
       "alt": "Reports screen showing 1. Open cases by area, with the report list in the left rail, the As of date, quick ranges, area and inspector filters, and a table of open cases by area.",
       "image": {
         "file": "manual-media/reports.png",
-        "bytes": 51703,
-        "sha256": "0f15f56808c143bc34fa64eb36c5cbd5b675fe477b7b6519bc6a6fb54113dc03"
+        "bytes": 57112,
+        "sha256": "aa96a8b1c36b8c785271374c525e45c52270e4c112db22198e701d155b2fd4fc"
       }
     },
     {
@@ -238,8 +238,8 @@
       "alt": "Data and definitions report showing coverage counts and definitions.",
       "image": {
         "file": "manual-media/data-definitions.png",
-        "bytes": 43907,
-        "sha256": "d03c3b03cebfbd002fc6178db5d799e87841b10ec1c5f80281627ae060904fda"
+        "bytes": 45424,
+        "sha256": "f796a64cd8539aafec75478382081017efd5f7e38701aed4536e2bc09b2d37f4"
       }
     },
     {
@@ -250,8 +250,8 @@
       "alt": "Phone-width citation draft with a compact header and a single control area holding document tasks, current checks, save state, Save draft and Issue.",
       "image": {
         "file": "manual-media/mobile-editor.png",
-        "bytes": 27583,
-        "sha256": "e8d8d43dc80ac925700863c4bbb772f8f20dcbc5a1aac1a511d1fc70d82ff8eb"
+        "bytes": 30155,
+        "sha256": "3b13ecd74bc30bee9d02182eab18d229a2f5ed10783be3da045c624fa19acb5a"
       }
     },
     {
@@ -260,21 +260,21 @@
       "chapter": 4,
       "caption": "Find an open case, review its inspection and start the document.",
       "alt": "Screen recording of Workspace: choosing an inspector, showing open cases, selecting a case and confirming its inspection.",
-      "duration": 15.3,
+      "duration": 15.5,
       "video": {
         "file": "manual-media/clip-import-case.webm",
-        "bytes": 161745,
-        "sha256": "6f432b0af98218ca2fdd94707b65fddf186f1297145296080e40dbb906ebed78"
+        "bytes": 160128,
+        "sha256": "1529a6b4bafd1f75d373816329a932e0364828e23ae63fc403abc453387adf75"
       },
       "poster": {
         "file": "manual-media/clip-import-case.png",
-        "bytes": 82942,
-        "sha256": "3ba04c49e8e5c206a808587917c5e2a75a51f8a0cb48b206449b18393fe8a3be"
+        "bytes": 97670,
+        "sha256": "e0eec876e27403ced493b9173dd1e63df4fe2540667c3bb0993f76dc40d945d4"
       },
       "captions": {
         "file": "manual-media/clip-import-case.vtt",
         "bytes": 298,
-        "sha256": "fc8368db68de177a9e26cad4d683ab0518733caeada5b335cfb29bd3d1a982cf"
+        "sha256": "bb90017c8d43527bd5d4c88e55dd3360d7986c40c5be1043791ab7a08813fab8"
       }
     },
     {
@@ -283,21 +283,21 @@
       "chapter": 5,
       "caption": "Add order language and type the fill-in details.",
       "alt": "Screen recording of the language picker: searching, selecting two entries, choosing Done adding and typing into fill-in bubbles.",
-      "duration": 24.1,
+      "duration": 24.2,
       "video": {
         "file": "manual-media/clip-notice-language.webm",
-        "bytes": 391506,
-        "sha256": "0d2e0084a548f9fde0b562ef3fc6aba0606b73035c0fac5c9b4ca7229908b031"
+        "bytes": 381688,
+        "sha256": "ceefa727faaaa7ebd9be2ad7973b84b81bc1b1980e2242dd3eab753508323f1d"
       },
       "poster": {
         "file": "manual-media/clip-notice-language.png",
-        "bytes": 126244,
-        "sha256": "51f65bb975caed9450da1479b734c854d15bb9dee11fdc28ce9ae584c912a2bb"
+        "bytes": 141878,
+        "sha256": "29986ae324afde7000308eb8a7d77385d249094457f8c2c2b8c9f4cd431def44"
       },
       "captions": {
         "file": "manual-media/clip-notice-language.vtt",
         "bytes": 382,
-        "sha256": "f976e0e5cf60ec16a65aefa1cb54d81f911895bf2aed2430efb2119ae3c561a4"
+        "sha256": "dc71a56315b2d6683ae57818e1c9fa117f09033f0c8c15e6a73ea0cb041525b0"
       }
     },
     {
@@ -306,21 +306,21 @@
       "chapter": 12,
       "caption": "Assign a shared due date, review the checks and issue the notice.",
       "alt": "Screen recording of assigning one due date to both items, opening Review, choosing Issue and Issue document, and returning to Workspace.",
-      "duration": 22.3,
+      "duration": 22.6,
       "video": {
         "file": "manual-media/clip-due-dates-issue.webm",
-        "bytes": 213323,
-        "sha256": "37a7567c4d9a54aa86c5c2e7e592eb90750e803ecd2ecf3000e655c73ff18ce5"
+        "bytes": 227635,
+        "sha256": "760dbe93a5a9838abf105edf057c71b9bd37dc623534bc73760273b64f865fbc"
       },
       "poster": {
         "file": "manual-media/clip-due-dates-issue.png",
-        "bytes": 56992,
-        "sha256": "c4231c926f94c8817b513ad70066d8eaad1ca109fd9c32e21cc7c58ca89244a6"
+        "bytes": 76260,
+        "sha256": "ebac7371577764161995816794a634cb3b69a4cb152dadf6631d0a134acabc9e"
       },
       "captions": {
         "file": "manual-media/clip-due-dates-issue.vtt",
         "bytes": 394,
-        "sha256": "82a759bc767cf9f3b2363a331ff6a0ee6f2db4d8adfd45d8c1d54c01000f7bde"
+        "sha256": "956c4aedb24ed654c185a187522794015705993ea83bea31082b8ce0b1b183f6"
       }
     },
     {
@@ -329,21 +329,90 @@
       "chapter": 9,
       "caption": "Record a reinspection one item at a time and choose the follow-up.",
       "alt": "Screen recording of the reinspection worksheet: One item at a time, recording Corrected and Progress made with a new due date, and choosing a follow-up.",
-      "duration": 25,
+      "duration": 24.9,
       "video": {
         "file": "manual-media/clip-reinspection.webm",
-        "bytes": 348286,
-        "sha256": "7140f7b8a6f06334b8f229ed3b6292bc3235dc6e23b9a71a4d5fd4b7970a6681"
+        "bytes": 370778,
+        "sha256": "e79dd86783110c9d3a170ffae176bbda51977c8565379558003de5b42d0defd8"
       },
       "poster": {
         "file": "manual-media/clip-reinspection.png",
-        "bytes": 107594,
-        "sha256": "342a01323fdbf4f093d6c377416d2f6db0b427d5298d13745962236ced7600d9"
+        "bytes": 111940,
+        "sha256": "cfd640ccc1bd6e66b93b1d35700855fcc3d3fdddb10fd3ef915bdce5e0c964cb"
       },
       "captions": {
         "file": "manual-media/clip-reinspection.vtt",
         "bytes": 493,
-        "sha256": "40334d75ea18e765ca1736591d487446c90f8d20ca272a55b8614c823388b78d"
+        "sha256": "a41a5045324611fc5a3987b56b6a173f4e58e8b914e217f437efabb81299f1c8"
+      }
+    },
+    {
+      "id": "clip-citation",
+      "kind": "clip",
+      "chapter": 7,
+      "caption": "Cite an item, enter the registered agent, assign the due date and issue the citation.",
+      "alt": "Screen recording of an initial-inspection citation: selecting Cite, reviewing the priced charge card, entering a registered agent in Recipients, applying a due date and choosing Issue citation.",
+      "duration": 37.6,
+      "video": {
+        "file": "manual-media/clip-citation.webm",
+        "bytes": 556494,
+        "sha256": "3e68c25afd4ba194bea07601dc50de725680cabbc45a60c2f2413466110173ce"
+      },
+      "poster": {
+        "file": "manual-media/clip-citation.png",
+        "bytes": 139695,
+        "sha256": "3c84368257300fd7b3ba0001f42f639b9cdca76b737b963a8cd84b5ec7b12450"
+      },
+      "captions": {
+        "file": "manual-media/clip-citation.vtt",
+        "bytes": 667,
+        "sha256": "f00986536b3b041abd3ce184579803421eb8cbd7677f93ecfbb1f09d6bc773f4"
+      }
+    },
+    {
+      "id": "clip-correction",
+      "kind": "clip",
+      "chapter": 13,
+      "caption": "Correct an issued notice: give the reason, make the change, review it and issue the correction.",
+      "alt": "Screen recording of correcting an issued Official Notice: opening it from Workspace, choosing Correct document, typing the reason, changing the item text, reviewing the change and choosing Save and issue correction.",
+      "duration": 34.1,
+      "video": {
+        "file": "manual-media/clip-correction.webm",
+        "bytes": 438960,
+        "sha256": "5902b2cd75f995def67c4b85b13b54329f00002f2a41850d9b95d22c22d8680f"
+      },
+      "poster": {
+        "file": "manual-media/clip-correction.png",
+        "bytes": 124076,
+        "sha256": "3621d3eb0937ae8b405b45915a2ec6e0f9095a6ef331194909283119e69a0650"
+      },
+      "captions": {
+        "file": "manual-media/clip-correction.vtt",
+        "bytes": 605,
+        "sha256": "1d64f27d0f0a8cdf0e3984e516c674694438643fb7e9aba644dfd933c121782a"
+      }
+    },
+    {
+      "id": "clip-recovery",
+      "kind": "clip",
+      "chapter": 15,
+      "caption": "Create a recovery copy of unfinished work, then recover a case from it.",
+      "alt": "Screen recording of Saved work and connection: opening Backups and recovery, choosing Create recovery copy on this device, then Recover an unfinished case, selecting the copy and choosing Restore selected case.",
+      "duration": 28.8,
+      "video": {
+        "file": "manual-media/clip-recovery.webm",
+        "bytes": 490680,
+        "sha256": "174916fddffd04d3af1d9164b73ad1f1b5955051ee6cdaa74cf9255a02cc09d5"
+      },
+      "poster": {
+        "file": "manual-media/clip-recovery.png",
+        "bytes": 117228,
+        "sha256": "49146a262b63f8588a4bb9f891424d4a8d997b7ac6bb8e4a4437e25f77d57725"
+      },
+      "captions": {
+        "file": "manual-media/clip-recovery.vtt",
+        "bytes": 610,
+        "sha256": "9cf5e7fe2be15b6fd482c7f2484cf6362a270cfa1008d01d880b5eda8d43982d"
       }
     }
   ]
