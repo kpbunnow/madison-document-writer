@@ -58,6 +58,8 @@ with tempfile.TemporaryDirectory() as folder:
         snap["authoringVersion"] = 6
         c = snap["cits"]["charged_item"]
         c.update(
+            # Each synthetic case has its own citation number: a number in force on one shared case cannot be reused.
+            num="QA-PROP-CIT-" + str(n),
             depositMode="base",
             base=f"{row['base'] / 100:.2f}",
             cc=f"{row['court'] / 100:.2f}",
