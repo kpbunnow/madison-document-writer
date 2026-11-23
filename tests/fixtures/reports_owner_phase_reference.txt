@@ -117,19 +117,25 @@ export function createReportsScreens(services) {
       "".concat(opts.map((o) => `<option value="${services.esc(o[0])}" ${o[0] === val ? "selected" : ""}>${services.esc(o[1])}</option>`).join("")) +
       "</select></label>";
     return (
-      '<div class="filters">\n    ' +
+      // Owner-approved control consolidation (PR 545): report choice, dates and Refresh data form one group; the inspector
+      // follows Quick range; area type and areas move under More filters. Everything else in this frozen owner is unchanged.
+      screen`<div class="filters">
+    <div class="report-primary-controls"><details id="report-selector" class="report-selector"><summary>Report: ${services.reportById(ReportsState.S.screen)?.label || "Choose report"}</summary><div role="group" aria-label="Choose report">${raw(services.REPORTS.map((r) => screen`<button type="button" data-screen="${r.id}" ${raw(r.id === ReportsState.S.screen ? 'aria-current="page"' : "")}>${r.label}</button>`).join(""))}</div></details>` +
       `${dates}` +
-      '<div class="quickdates"><span>Quick range</span><button data-period="mon' +
+      '<button class="btn" data-act="reload">Refresh data</button></div><div class="quickdates"><span>Quick range</span><button data-period="mon' +
       'th">This month</button><button data-period="year">This year</button><but' +
-      'ton data-period="all">All dates</button></div>\n    <div class="f"><span>' +
+      'ton data-period="all">All dates</button></div>\n    ' +
+      "".concat(sel("f-inspector", "Inspector", F.inspector, [["", "All inspectors"]].concat(M.inspectors.map((n) => [n, n])))) +
+      '\n    <details id="report-more-filters" class="more' +
+      '-filters"><summary>More filters</summary><div class="advanced-filters">\n' +
+      '    <div class="f"><span>' +
       'Area</span><div class="seg" role="group" aria-label="Area type">\n      <' +
       'button data-areatype="district" aria-pressed="' +
       `${F.areaType === "district"}` +
       '">Alder district</button>\n      <button data-areatype="zip" aria-pressed' +
       '="' +
       `${F.areaType === "zip"}` +
-      '">ZIP code</button></div></div>\n    ' +
-      "".concat(sel("f-inspector", "Inspector", F.inspector, [["", "All inspectors"]].concat(M.inspectors.map((n) => [n, n])))) +
+      '">ZIP code</button></div></div>' +
       '\n    <div class="f"><span>Areas</span><details class="areas" ' +
       `${ReportsState.S.areasOpen ? "open" : ""}` +
       ' id="f-areas"><summary>' +
@@ -149,8 +155,7 @@ export function createReportsScreens(services) {
           )
           .join("") || '<div class="small">No areas yet</div>',
       ) +
-      '</div></details></div>\n    <details id="report-more-filters" class="more' +
-      '-filters"><summary>More filters</summary><div class="advanced-filters">\n' +
+      '</div></details></div>\n' +
       "    " +
       "".concat(
         F.areaType === "district"
