@@ -674,10 +674,16 @@ function renderReports(services) {
   if (ReportsState.S.phase === "ready" && ReportsState.S.view === "map" && services.reportById(ReportsState.S.screen)) services.drawMap();
 }
 
+// A batch that found nothing because the city parcel layer could not be reached (no parcels, none confirmed missing).
+const unreachableBatch = (lk, ids) => !lk.ok && !lk.partial && !(lk.missing || []).length && !ids.some((k) => (lk.parcels || {})[k]);
+
 // Batches of 500 parcels; a failed lookup leaves the rest unlocated. False when this load was superseded.
+// After two unreachable batches in a row the rest are not attempted for this load: during a City GIS outage every
+// batch otherwise waits on the layer in turn, which took minutes at 20,000 cases.
 async function lookUpReportParcels(services, get, need, refreshParcels, superseded) {
   ReportsState.S.msg = "Looking up " + services.plural(need.length, "parcel") + " on the city parcel layer…";
   services.render();
+  let unreachable = 0;
   try {
     for (let offset = 0; offset < need.length; offset += 500) {
       ReportsState.S.msg = "Looking up parcels " + (offset + 1) + "–" + Math.min(offset + 500, need.length) + " of " + need.length + "…";
@@ -689,6 +695,16 @@ async function lookUpReportParcels(services, get, need, refreshParcels, supersed
       });
       if (superseded()) return false;
       mergeParcelLookup(services, lk);
+      unreachable = unreachableBatch(lk, need.slice(offset, offset + 500)) ? unreachable + 1 : 0;
+      const remaining = need.length - offset - 500;
+      if (unreachable >= 2 && remaining > 0) {
+        ReportsState.S.parcelNote =
+          (lk.error || "The city parcel layer could not be reached") +
+          ". The remaining " +
+          services.plural(remaining, "parcel") +
+          " were not looked up and are shown as unlocated; refresh to try again.";
+        break;
+      }
     }
   } catch (e) {
     if (superseded()) return false;
