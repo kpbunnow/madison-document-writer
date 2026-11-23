@@ -70,6 +70,7 @@ from case_store import (
     case_number_key,
     case_file_key,
     citation_history,
+    history_refusal,
     held_lock_kinds,
 )
 
@@ -1406,8 +1407,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def _get_citation_history(self, route):
         try:
             return self._json(200, citation_history(case_dir()))
-        except ValueError, TypeError:
-            return self._json(400, {"ok": False, "error": "Shared citation history is incomplete. Resolve unreadable or duplicate case records."})
+        except (ValueError, TypeError, AttributeError, KeyError, RecursionError) as error:
+            # The refusal names the shared case file an administrator must review.
+            return self._json(400, {"ok": False, "error": history_refusal(error)})
         except OSError:
             return self._json(503, {"ok": False, "error": "Shared citation history unavailable"})
 

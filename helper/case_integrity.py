@@ -317,10 +317,13 @@ def intent_path(folder, number):
 
 
 def read_intent(path):
-    value = json.loads(Path(path).read_text(encoding="utf-8"))
+    try:
+        value = json.loads(Path(path).read_text(encoding="utf-8"))
+    except ValueError:
+        raise ValueError("Pending integrity transaction is damaged; contact an administrator") from None
     from case_store import safe_json_name, case_file_key, case_number_key
 
-    if value.get("format") != "madison-integrity-transaction" or not isinstance(value.get("recovery"), bool):
+    if not isinstance(value, dict) or value.get("format") != "madison-integrity-transaction" or not isinstance(value.get("recovery"), bool):
         raise ValueError("Pending integrity transaction is damaged; contact an administrator")
     safe_json_name(value["fileName"])
     number = case_number_key(value["record"]["case"]["number"])

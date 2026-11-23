@@ -15,7 +15,7 @@ from decimal import Decimal
 import hashlib
 import json
 import case_integrity
-from plain_files import UNSAFE_NAME_CHARS, plain_json_files, require_plain_file, read_plain_bytes
+from plain_files import LINKED_MESSAGE, UNSAFE_NAME_CHARS, is_plain_file, plain_json_files, require_plain_file, read_plain_bytes
 import citation_pricing
 import cash_validation
 import publication_validation
@@ -768,11 +768,21 @@ def remap(event, old_id, new_id):
 UNREADABLE_CASE = "This case file could not be read as a Madison case record. It has been left unchanged; ask an administrator to review it."
 
 
+def _refuse_non_finite(token):
+    raise ValueError("NaN and Infinity are not JSON")
+
+
+def case_json(raw):
+    """A stored case file's JSON, read from its bytes. A UTF-8 byte-order mark (left by an editor that re-saved the file)
+    is accepted wherever the file is read; NaN and Infinity are refused, because no browser can read them."""
+    return json.loads(raw, parse_constant=_refuse_non_finite)
+
+
 def read_case(folder, name):
     target = Path(folder) / safe_json_name(name)
     raw = read_plain_bytes(target)
     try:
-        value = json.loads(raw)
+        value = case_json(raw)
         if not isinstance(value, dict):
             raise ValueError("not a case record")
         integrity = case_integrity.verify_record(value, folder)
@@ -922,7 +932,10 @@ def _merge_case_events(*, current, output, incoming):
 
 
 def _merge_existing_case_save(*, previous, folder, incoming, number_key, base_revision, idempotency_event, target, output, base_case):
-    current = json.loads(previous)
+    try:
+        current = case_json(previous)
+    except ValueError, RecursionError:
+        raise ValueError(UNREADABLE_CASE) from None
     case_integrity.require_valid(current, folder)
     if current.get("schema", 1) > incoming.get("schema", 1):
         raise ValueError("A newer schema wrote this case; reopen it with the current writer before saving")
@@ -1006,7 +1019,13 @@ def _save_case(folder, name, incoming, base_revision="", base_case=None, idempot
             if already_committed is not None:
                 return already_committed
         historical_ids = {e["id"] for e in current.get("events", [])} if previous is not None else set()
-        cross_case = citation_history(folder, number_key)["history"] if _has_priced_citation(output, historical_ids) else []
+        try:
+            cross_case = citation_history(folder, number_key)["history"] if _has_priced_citation(output, historical_ids) else []
+        except OSError:
+            raise
+        except Exception as error:
+            # A damaged shared case blocks pricing; say which file, rather than suggesting this request was unreadable.
+            raise ValueError(history_refusal(error)) from None
         _refuse_reused_citation_numbers(output, historical_ids, cross_case)
         validate_history(output, historical_ids, cross_case, folder)
         restart = case_integrity.automatic_restart(folder, number) if output.get("schema", 1) >= 5 and previous is None else None
@@ -1165,21 +1184,52 @@ def citation_history(folder, exclude_number=""):
     if not root.is_dir():
         raise OSError("The shared case folder is unavailable")
     context = case_integrity.VerificationContext(root)
-    history, numbers = [], set()
-    for path in sorted(plain_json_files(root)):
+    history, numbers = [], {}
+    entries = sorted(root.glob("*.json"))
+    for path in entries:
         if path.name.startswith("_"):
             continue
-        value = json.loads(read_plain_bytes(path).decode("utf-8"))
-        validate_case(value, legacy=True)
-        case_integrity.require_valid(value, folder, context)
-        number = case_number_key(value["case"]["number"])
-        if number in numbers:
-            raise ValueError("Duplicate shared case prevents complete citation history review")
-        numbers.add(number)
+        number = None
+        try:
+            # A link in place of a case file would otherwise be left out of the history without a word.
+            if not is_plain_file(path):
+                raise ValueError(LINKED_MESSAGE)
+            value = case_json(read_plain_bytes(path))
+            validate_case(value, legacy=True)
+            case_integrity.require_valid(value, folder, context)
+            number = case_number_key(value["case"]["number"])
+            if number in numbers:
+                raise ValueError("Duplicate shared case prevents complete citation history review")
+        except Exception as error:
+            # The refusal is unchanged; the file it concerns is named for the person who has to review it.
+            error.case_file, error.same_number_as = path.name, numbers.get(number) if number is not None else None
+            raise
+        numbers[number] = path.name
         if number == exclude_number:
             continue
         _append_effective_citations(value, history)
     return {"ok": True, "history": history}
+
+
+def history_refusal(error):
+    """What a person is told when citation history is incomplete: the case file to review, and why."""
+    name = getattr(error, "case_file", "")
+    if not name:
+        return "Shared citation history is incomplete. Resolve unreadable or duplicate case records."
+    if getattr(error, "same_number_as", None):
+        why = "has the same case number as \u201c%s\u201d" % error.same_number_as
+    elif str(error) == LINKED_MESSAGE:
+        why = "is a link or not a regular file"
+    elif str(error).startswith(("This record was changed outside the program", "Integrity record removed")):
+        why = "did not verify (" + str(error).split(" \u2014 ")[0] + ")"
+    else:
+        why = "could not be read as a Madison case record"
+    return HISTORY_INCOMPLETE % (name, why)
+
+
+HISTORY_INCOMPLETE = (
+    "Shared citation history is incomplete: the case file \u201c%s\u201d %s. New citations cannot be priced until an administrator reviews it."
+)
 
 
 def _validate_correction_target(*, payload, documents, superseded, visits):
