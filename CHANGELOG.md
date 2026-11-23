@@ -1,5 +1,47 @@
 # Release changelog
 
+## 2026-11-23 R86 — Release package
+
+Release package assigned on the owner's request after R85 (helper 2026.11.23.87, build 87; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R86 upgrades R85. Every PC still needs Python 3.14.
+
+### Citations
+
+- Issuing a citation is refused when its citation number is already in use on another shared case. The message names that case, and nothing is written (PRs #557, #560).
+- Browser and helper read ordinances, tiers and money identically, including unusual spaces and non-ASCII digits. Schedule edges are pinned by tests (PRs #546, #555).
+
+### Corrections and recovery
+
+- A correction no longer records a false "Email recipients" change, so a correction with no real change cannot be issued (PR #548).
+- Recover unfinished work marks the chosen copy and keeps keyboard focus on it (PRs #549, #555).
+
+### Shared case folder
+
+- Damaged requests and damaged shared files are refused with clear messages instead of a generic error. When an unreadable, linked, duplicate or unverifiable case file blocks citation pricing, the message names the file to review (PRs #547, #556, #555, #560).
+- Saves and opens no longer read every shared case. At 10,000 cases, opening a case drops from about 0.5 s to 50 ms, and filing a cited case from about 13 s to under 0.2 s (PR #551).
+- When the City parcel layer is unreachable, Reports stops after two failed lookups instead of waiting on every batch (PRs #553, #555).
+
+### Screens and manual
+
+- Workspace, editor and Reports controls are consolidated and spaced consistently (PRs #541, #545).
+- In the Dark theme, these are now readable:
+  - the correction change table;
+  - the recovery rows;
+  - the correction draft label;
+  - links on the document paper;
+  - the map attribution.
+
+  (PRs #549, #559.)
+- The program manual is searchable and cross-linked, with Dark-theme screenshots and captioned videos, including new citation, correction and recovery videos (PRs #543, #544, #552).
+
+### Maintenance
+
+- Node 24.22.3, Playwright 1.65.1 with Chromium 159, hash-pinned pip 26.3, and weekly dependency advisory monitoring (PRs #538–#540, #542).
+- Browser tests no longer depend on timing or on the current year (PRs #550, #558).
+
+### Release verification
+
+- The full local gate and GitHub's Full gate passed on the exact release head. Native Windows, City printer and staff checks remain with S86-1 to S86-4.
+
 ## 2026-11-16 R85 — Release package
 
 Release package assigned on the owner's request after R84 (helper 2026.11.16.86, build 86; authoring 16, case schema 5, summary 6, backup 2 unchanged). No stored format changes, so no data migration is needed. R85 upgrades R84. Every PC still needs Python 3.14.

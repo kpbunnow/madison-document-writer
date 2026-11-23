@@ -328,6 +328,17 @@ The owner's tester ran fresh clones of main on synthetic data. None of this clos
 - **S65-1 and S65-2:** open cases by inspector (soonest deadline first, Continue case) and both Reinspection results (corrected items ruled through, due dates unchanged) passed on synthetic cases in the R66 round; the case-file-could-not-be-included note and the wording approval remain City and division checks.
 - **Owner decisions of 2026-11-01:** a correction cannot add new items; a case that exists only as an unissued draft is not listed in Open cases by inspector; a completely blank Violator row is dropped when Recipients is closed. See 03-DOMAIN-RULES.md.
 
+## R86 release acceptance — OPEN
+
+| ID | City/staff check | Required result |
+| --- | --- | --- |
+| S86-1 | Install R86 from the shared release folder over R85 on a PC that uses the shared case folder, restart Document Writer once (Exit Document Writer, then the desktop icon), then start a PC still on R85 against the same share | The helper starts and Writer opens; Tools & settings → Connection & setup shows Program/helper versions Match; the R85 PC is told to restart and cannot save to the share |
+| S86-2 | On the City share, issue an initial citation using a citation number already issued on another case, then with an unused number | The first is refused and names the other case; nothing is written; the second issues normally |
+| S86-3 | Correct an issued notice without changing it, then change its corrective action; in Tools & settings create a recovery copy, open Recover an unfinished case and choose a copy | The unchanged correction cannot be issued and Review correction lists only the real change; the chosen recovery copy is marked and keeps keyboard focus |
+| S86-4 | With staff, read the program manual (HTML and PDF) including its new videos, and use Writer and Reports in the Dark theme and with a screen reader | The manual's steps match the program; dark-theme text, the correction review and the Reports map are readable; screen-reader results are recorded |
+
+All R86 items remain OPEN, together with the R85, R84 and R83 items, SSRS-1 to SSRS-7 and the carried items. S85-1 is superseded by S86-1.
+
 ## R85 release acceptance — OPEN
 
 | ID | City/staff check | Required result |
