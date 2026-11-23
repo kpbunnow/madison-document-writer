@@ -1093,7 +1093,7 @@ async function axeThemes(page, screen) {
   await page.screenshot({ path: path.join(OUT, "citation-mobile.png"), fullPage: true });
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
   await page.setViewportSize({ width: 1440, height: 1050 });
-  await page.locator("#citation-review #btn-savework").click();
+  await page.locator(".editor-controls #btn-save").click();
   await page.reload();
   await page.waitForFunction((id) => !!doc(id), noticeDraftId);
   await page.getByRole("button", { name: "Continue document", exact: true }).click();

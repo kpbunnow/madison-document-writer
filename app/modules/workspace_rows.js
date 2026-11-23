@@ -6,10 +6,10 @@ import { fmtDate } from "./presentation_format.js";
 import { editorState as editor } from "./editor_state.js";
 import { workspaceDocumentPresentation } from "./workspace_documents.js";
 
-function workspaceCaseOptions(row, secondary, detailActions, draftHTML, context) {
+function workspaceCaseOptions(row, secondary, detailActions, context) {
   const { k, st, proof } = row;
   return html`<details class="queue-details case-options"><summary>Case options${secondary.length ? " · " + secondary.length + " other " + (secondary.length === 1 ? "task" : "tasks") : ""}</summary><div class="doclinks">
-    <p>${k.owner}</p>${raw(detailActions)}${raw(draftHTML)}
+    <p>${k.owner}</p>${raw(detailActions)}
     ${raw(!context.numberAllowed ? '<p class="save-error">Case number needs correction. Open the document and use its case details checks.</p>' : "")}
     <p>Record verification: ${proof.label}</p>${raw(proof.valid === false ? html`<p>${proof.eventId || ""} · ${proof.lastGoodCommitTime || "Last good commit unavailable"}</p><button class="btn btn-sm" data-sync-safety>Review record problem</button>` : "")}
     <button data-exportcase="${k.id}">Download case record</button><button data-timeline="${k.id}">Case timeline</button>
@@ -20,7 +20,7 @@ function workspaceCaseOptions(row, secondary, detailActions, draftHTML, context)
 function workspaceDueHTML({ st }) {
   return st.due && !st.closed
     ? html`<span class="${st.late ? "pill late" : st.soon ? "case-date-soon" : "case-due-date"}">${fmtDate(st.due)}</span>${raw(st.late ? '<div class="muted">Past due</div>' : st.soon ? html`<div class="muted">${st.days === 0 ? "Due today" : st.days === 1 ? "Due tomorrow" : "Due in " + st.days + " days"}</div>` : "")}`
-    : '<span class="muted">—</span>';
+    : html`<span class="muted">${st.closed ? "No outstanding deadline" : "No date assigned"}</span>`;
 }
 
 function renderWorkspaceRow(row, documents, context) {
@@ -36,8 +36,8 @@ function renderWorkspaceRow(row, documents, context) {
       ${raw(badges.length ? html`<div class="case-badges">${raw(badges.map((label) => html`<span class="pill">${label}</span>`).join(""))}</div>` : "")}
       ${raw(row.resolution || row.continuing || st.restrictions.length ? html`<p class="case-message">${row.reason}</p>` : "")}
       ${raw(st.visit ? html`<p class="case-message">${st.visit.draft ? "Reinspection draft" : "Recorded visit"} · ${String(context.corrected)} corrected, ${String(context.unchecked)} still to result</p>` : "")}
-      ${raw(workspaceCaseOptions(row, secondary, detailActions, presentation.drafts, context))}</td>
-    <td data-label="Issued documents">${raw(presentation.issued)}</td>
+      ${raw(workspaceCaseOptions(row, secondary, detailActions, context))}</td>
+    <td data-label="Issued documents">${raw(presentation.issued)}${raw(presentation.drafts)}</td>
     <td data-label="Next due">${raw(workspaceDueHTML({ st }))}</td><td data-label="Inspector">${context.inspector.name}</td>
     <td data-label="Action"><div class="case-next"><button class="btn btn-primary queue-primary" ${raw(row.action)}>${row.label}</button></div></td></tr>`;
 }

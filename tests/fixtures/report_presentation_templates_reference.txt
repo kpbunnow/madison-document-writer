@@ -45,9 +45,10 @@ export function reportNavigation(R) {
     "</details>"
   );
 }
+// Owner-approved control consolidation (PR 545): Refresh data moved beside the report dates; the actions are otherwise unchanged.
 export function reportActions(R) {
   return (
-    '<button class="btn" data-act="reload">Refresh data</button><details id="' +
+    '<details id="' +
     'report-exports" class="report-actions"><summary>Export and print</summar' +
     'y><div><button class="btn" data-report-csv>Current report — CSV</butto' +
     'n><button class="btn" data-report-print>Print report</button><button cla' +

@@ -216,6 +216,7 @@ const assert = require("node:assert/strict"),
       activeFilters: () => !!x.F.inspector,
       A11Y: { notify: effect("notify", () => {}) },
       REPORTS: [{ id: "sample", n: 1, label: "Sample", run: effect("report", () => res) }],
+      reportById: (id) => services.REPORTS.find((r) => r.id === id),
       DEFINITIONS: [["Case opened", "Opening date"]],
     };
     const state = api.ReportsState;

@@ -139,29 +139,27 @@ function edCheckChip(services, d, readiness = edReadiness(services, d)) {
   return required.length ? "" : html`<span class="cchip good" id="chk-chip" data-editor-readiness>${edReadinessText(required, advice)}</span>`;
 }
 
-function edReadinessActionsHTML(readiness, mobile = false) {
+function edReadinessActionsHTML(readiness) {
   return readiness.required.length
-    ? html`<button type="button" class="btn btn-sm" data-fix-next ${raw(mobile ? "data-mobile-next" : "data-readiness-first")}>Fix next issue (${readiness.required.length} left)</button>`
+    ? html`<button type="button" class="btn btn-sm" data-fix-next data-readiness-first>Fix next issue (${readiness.required.length} left)</button>`
     : "";
 }
 
-// The narrow-screen bar repeats the same next-issue action, Review and the existing primary action.
-function edMobileBarActionsHTML(services, d, readiness = edReadiness(services, d)) {
-  const primary = edPrimary(services, d, readiness);
-  return (
-    edReadinessActionsHTML(readiness, true) +
-    html`<button type="button" class="btn btn-sm" data-mobile-review>Review</button>` +
-    html`<button type="button" class="btn btn-primary btn-sm" data-mobile-primary ${primary.attrs === "disabled" ? "disabled" : ""}>${primary.label}</button>`
+// One control area at every width; actions retain their original IDs, handlers and authorization checks.
+function editorTaskState(readiness, task) {
+  const needsAttention = readiness.required.some((c) =>
+    c.targets?.some(({ selector }) =>
+      task === "recipients"
+        ? ["#btn-cc", '[data-case="ownerBlock"]'].includes(selector)
+        : selector === "#btn-add-top" || selector.startsWith('[data-id="') || selector.startsWith('[data-review-cit="'),
+    ),
   );
+  return needsAttention ? "check" : "ready";
 }
 
-function edMobileBarKey(services, d, readiness) {
-  const primary = edPrimary(services, d, readiness);
-  return edReadinessKey(readiness) + "|" + readiness.required.length + "|" + primary.label + "|" + primary.attrs;
-}
-
-function edMobileBarHTML(services, d, readiness) {
-  return html`<div class="editor-mobile-bar no-print" role="region" aria-label="Document task actions"><span class="editor-mobile-save" data-document-device-save>${localSaveText(services.record.app_savedworkContext())}</span><div class="editor-mobile-actions" data-bar-key="${edMobileBarKey(services, d, readiness)}">${raw(edMobileBarActionsHTML(services, d, readiness))}</div></div>`;
+function editorTaskIndicator(readiness, task) {
+  const state = editorTaskState(readiness, task);
+  return html`<span class="editor-task-indicator" data-task-status="${task}" data-task-state="${state}" aria-hidden="true">${state === "check" ? "!" : "✓"}</span>`;
 }
 
 function edReadinessKey(readiness) {
@@ -246,16 +244,6 @@ function edEnhance() {
   }
 }
 
-// Replace only on change, so a focused bar button keeps its focus.
-function edSyncMobileBar(services, d, readiness) {
-  const bar = document.querySelector(".editor-mobile-actions"),
-    barKey = edMobileBarKey(services, d, readiness);
-  if (bar && bar.dataset.barKey !== barKey) {
-    bar.innerHTML = edMobileBarActionsHTML(services, d, readiness);
-    bar.dataset.barKey = barKey;
-  }
-}
-
 function edSync(services) {
   const d = doc(editor.state.docId);
   if (!d || !document.querySelector(".document-workspace")) return;
@@ -273,7 +261,15 @@ function edSync(services) {
   if (messages) messages.innerHTML = edCheckMessagesHTML(readiness);
   const button = document.getElementById("btn-final");
   if (button) button.innerHTML = edPrimary(services, d, readiness).label;
-  edSyncMobileBar(services, d, readiness);
+  for (const indicator of document.querySelectorAll("[data-task-status]")) {
+    const task = indicator.dataset.taskStatus,
+      state = editorTaskState(readiness, task);
+    indicator.dataset.taskState = state;
+    indicator.textContent = state === "check" ? "!" : "✓";
+    indicator
+      .closest("button")
+      .setAttribute("aria-description", state === "check" ? "Required checks need attention" : "No required checks linked to this task");
+  }
   const review = document.getElementById("btn-review");
   if (review) review.textContent = "Review";
   edEnhance();
@@ -286,7 +282,7 @@ function edSection(id, title, body, hidden = false) {
     : "";
 }
 
-function edWorkspaceHTML(services, { d, inspection, work, record, editable, locked, ready }) {
+function edWorkspaceHTML(services, { d, inspection, work, record, editable, locked, ready, actions }) {
   return (
     html`<div class="document-workspace" data-editor-doc="${d.id}">` +
     html`${raw(services.record.publicationPanel(d))}${raw(services.record.filingPanel(d))}${raw(services.record.citationRecoveryPanel(d))}` +
@@ -294,18 +290,22 @@ function edWorkspaceHTML(services, { d, inspection, work, record, editable, lock
       ? html`<div class="banner warn no-print"><div><strong>This is a replaced version.</strong> <button class="lnk" data-open="${d.superseded.replacedBy}">Open the corrected document</button></div></div>`
       : "") +
     // One task bar: the document tasks and the readiness line share a row (owner direction 2026-11-11).
-    html`<div class="editor-toolbar no-print"><nav class="editor-sections no-print" aria-label="Document tasks">` +
+    html`<div class="editor-toolbar editor-controls no-print" role="region" aria-label="Document task actions"><nav class="editor-sections no-print" aria-label="Document tasks">` +
     // Recipients opens the copies and email dialog itself rather than moving to a section.
-    (editable ? html`<button id="btn-cc" aria-haspopup="dialog">Recipients</button>` : "") +
+    (editable
+      ? html`<button id="btn-cc" aria-label="Recipients" aria-haspopup="dialog">Recipients ${raw(editorTaskIndicator(ready, "recipients"))}</button>`
+      : "") +
     // R59: Violation Items opens the violation picker (only where violations may be added); Review opens the
     // Review dialog. Neither scrolls the page.
-    (services.edit.structEditable(d) ? html`<button id="btn-add-top" aria-haspopup="dialog">Violation Items</button>` : "") +
+    (services.edit.structEditable(d)
+      ? html`<button id="btn-add-top" aria-label="Violation Items" aria-haspopup="dialog">Violation Items ${raw(editorTaskIndicator(ready, "items"))}</button>`
+      : "") +
     html`<button id="btn-review" data-editor-review aria-haspopup="dialog">Review</button></nav>` +
     (!locked ? html`<div class="editor-readiness no-print">${raw(edReadinessLineHTML(services, d, ready))}</div>` : "") +
-    "</div>" +
+    html`<div class="editor-control-actions">${raw(actions)}</div><span class="editor-control-save" data-document-device-save>${localSaveText(services.record.app_savedworkContext())}</span></div>` +
     html`${raw(edSection("editor-inspection", "Inspection", inspection))}${raw(edSection("editor-items", "Violation items", work, true))}${raw(record)}` +
     (!locked ? html`<div hidden data-editor-check-messages>${raw(edCheckMessagesHTML(ready))}</div>` : "") +
-    html`${raw(edMobileBarHTML(services, d, ready))}</div>`
+    "</div>"
   );
 }
 
@@ -336,8 +336,8 @@ function edScreenWrite(services) {
   return services.ui.shell(
     k.address,
     `${k.number} · ${tyLabel} · ${editorStatusText({ d, locked, services })}`,
-    actions,
-    edWorkspaceHTML(services, { d, inspection, work, record, editable, locked, ready }),
+    "",
+    edWorkspaceHTML(services, { d, inspection, work, record, editable, locked, ready, actions }),
   );
 }
 

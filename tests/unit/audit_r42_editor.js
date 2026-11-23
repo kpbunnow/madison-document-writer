@@ -35,14 +35,14 @@ const test = async () => {
   d.items = [{ id: "r42-item", no: "1", title: "Wall repair", text: "Repair ( ) on the wall.", sections: ["27.05(2)(c)"], due: "", cite: false }];
   render();
   const app = document.getElementById("app");
-  assert.equal(app.querySelectorAll(".topbar-actions .btn-primary").length, 1);
+  assert.equal(app.querySelectorAll(".editor-controls .btn-primary").length, 1);
   assert.ok(document.querySelector("#btn-save"));
   // R59: Recipients, Violation Items and Review each open a dialog; no task button scrolls to a section.
   assert.equal(app.querySelectorAll("[data-editor-section]").length, 0);
-  assert.equal(app.querySelector(".editor-sections #btn-add-top").textContent, "Violation Items");
+  assert.equal(app.querySelector(".editor-sections #btn-add-top").getAttribute("aria-label"), "Violation Items");
   assert.equal(app.querySelector(".editor-sections #btn-review").textContent, "Review");
   const recipients = app.querySelector(".editor-sections #btn-cc");
-  assert.equal(recipients.textContent, "Recipients");
+  assert.equal(recipients.getAttribute("aria-label"), "Recipients");
   assert.equal(app.querySelectorAll("#btn-cc").length, 1);
   assert.ok(!/Copies &amp; email|Copies & email|Inspection &amp; recipients/.test(app.innerHTML));
   recipients.click();

@@ -62,6 +62,16 @@ module.exports = async function (browser, hostPage, OUT, axeScreen, axeThemes) {
     assert.equal(await page.locator("#report-menu").evaluate((el) => el.open), false);
     assert.equal(await page.locator("#report-more-filters").evaluate((el) => el.open), false);
     assert.equal(await page.locator("[data-act=clearFilters]").count(), 1);
+    assert.equal(await page.locator('.report-primary-controls [data-act="reload"]').count(), 1);
+    assert.equal(await page.locator('[data-act="reload"]').count(), 1, "one data refresh control");
+    assert.equal(await page.locator('#report-more-filters [data-areatype="district"]').count(), 1, "area controls are grouped with advanced scope");
+    await page.locator("#report-selector > summary").click();
+    await themes("screen-report-selector");
+    await page.locator('#report-selector [data-screen="citations"]').click();
+    assert.equal(await page.evaluate(() => ReportsState.S.screen), "citations");
+    assert.equal(await page.evaluate(() => document.activeElement === document.querySelector("h1")), true);
+    await page.locator("#report-selector > summary").click();
+    await page.locator('#report-selector [data-screen="openCases"]').click();
     await themes("r48-common-reports");
     await page.screenshot({ path: path.join(OUT, "r48-common-reports.png"), fullPage: true });
     await page.locator("#report-menu>summary").focus();

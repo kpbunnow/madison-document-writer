@@ -594,11 +594,12 @@ function reportsScreenFiltersBar(services, dateMode) {
       <label class="f"><span>To</span><input type="date" id="f-to" value="${raw(services.esc(F.to))}"></label>`;
   const sel = (id, label, val, opts) => reportFilterSelect(services, id, label, val, opts);
   return screen`<div class="filters">
-    ${raw(dates)}<div class="quickdates"><span>Quick range</span><button data-period="month">This month</button><button data-period="year">This year</button><button data-period="all">All dates</button></div>
+    <div class="report-primary-controls"><details id="report-selector" class="report-selector"><summary>Report: ${services.reportById(ReportsState.S.screen)?.label || "Choose report"}</summary><div role="group" aria-label="Choose report">${raw(services.REPORTS.map((r) => screen`<button type="button" data-screen="${r.id}" ${raw(r.id === ReportsState.S.screen ? 'aria-current="page"' : "")}>${r.label}</button>`).join(""))}</div></details>${raw(dates)}<button class="btn" data-act="reload">Refresh data</button></div><div class="quickdates"><span>Quick range</span><button data-period="month">This month</button><button data-period="year">This year</button><button data-period="all">All dates</button></div>
+    ${raw(sel("f-inspector", "Inspector", F.inspector, [["", "All inspectors"]].concat(M.inspectors.map((n) => [n, n]))))}
+    <details id="report-more-filters" class="more-filters"><summary>More filters</summary><div class="advanced-filters">
     <div class="f"><span>Area</span><div class="seg" role="group" aria-label="Area type">
       <button data-areatype="district" aria-pressed="${String(F.areaType === "district")}">Alder district</button>
       <button data-areatype="zip" aria-pressed="${String(F.areaType === "zip")}">ZIP code</button></div></div>
-    ${raw(sel("f-inspector", "Inspector", F.inspector, [["", "All inspectors"]].concat(M.inspectors.map((n) => [n, n]))))}
     <div class="f"><span>Areas</span><details class="areas" ${raw(ReportsState.S.areasOpen ? "open" : "")} id="f-areas"><summary>${raw(F.areas.length ? services.esc(F.areas.map((a) => services.facts.areaLabel(a)).join(", ")) : "All areas")}</summary>
       <div class="pop">${raw(
         allAreas
@@ -608,7 +609,6 @@ function reportsScreenFiltersBar(services, dateMode) {
           )
           .join("") || '<div class="small">No areas yet</div>',
       )}</div></details></div>
-    <details id="report-more-filters" class="more-filters"><summary>More filters</summary><div class="advanced-filters">
     ${raw(reportAdvancedFilters(services, F, M, sel))}
     </div></details>
     ${raw(appliedFilters(services.reports_reportpresentationContext(), dateMode))}

@@ -217,7 +217,7 @@ const test = async () => {
   /* ---------- ITEM 4: Violation Items opens the picker without scrolling and reflects the record ---------- */
   const nav = document.querySelector(".editor-sections");
   assert.deepEqual(
-    [...nav.querySelectorAll("button")].map((b) => b.textContent),
+    [...nav.querySelectorAll("button")].map((b) => b.getAttribute("aria-label") || b.textContent),
     ["Recipients", "Violation Items", "Review"],
   );
   assert.equal(nav.querySelectorAll("[data-editor-section]").length, 0, "no task button scrolls to a section");
@@ -279,7 +279,7 @@ const test = async () => {
 
   /* ---------- ITEM 5: one Review dialog ---------- */
   assert.equal(document.querySelectorAll("#editor-review,#checkbox-panel,#btn-checks,.passed-checks").length, 0, "no second review panel");
-  assert.equal(document.querySelectorAll("[data-mobile-review],#btn-review").length, 2, "desktop and narrow-screen Review remain");
+  assert.equal(document.querySelectorAll("[data-mobile-review],#btn-review").length, 1, "one Review control serves every width");
   assert.equal(document.querySelectorAll("[data-open-checklist]").length, 0, "the duplicate checklist control is retired");
   let ready = editorReadiness(d);
   assert.ok(ready.required.length > 0);
@@ -308,7 +308,9 @@ const test = async () => {
   assert.equal(WriterState.state.modal, null, "the check link closes Review");
   assert.equal(document.activeElement.dataset.field, "text", "and focuses the field");
   // Desktop and narrow-screen Review open the same complete dialog.
-  for (const selector of ["#btn-review", ".editor-mobile-bar [data-mobile-review]"]) {
+  for (const width of [1366, 390]) {
+    window.innerWidth = width;
+    const selector = "#btn-review";
     document.querySelector(selector).click();
     assert.ok(document.querySelector("#overlay [data-review-dialog]"), selector);
     WriterState.state.modal = null;
@@ -358,7 +360,7 @@ const test = async () => {
   render();
 
   /* ---------- ITEM 6: Issue ---------- */
-  assert.equal(document.querySelector(".topbar .editor-primary").textContent, "Issue");
+  assert.equal(document.querySelector(".editor-controls .editor-primary").textContent, "Issue");
   assert.equal(document.querySelector("[data-editor-preview]"), null, "no draft Print preview");
   assert.ok(!document.getElementById("app").textContent.includes("Print preview"));
   // Issue enforces validation even when Review was never opened, and a cleared message never clears the blocker.
@@ -416,7 +418,7 @@ const test = async () => {
   await tick();
   assert.equal(WriterState.state.screen, "write", "an unconfirmed save stays on the document");
   assert.ok(doc(d.id).pendingAmendment, "the exact request is retained");
-  assert.equal(document.querySelector(".topbar .editor-primary").textContent, "Confirm save");
+  assert.equal(document.querySelector(".editor-controls .editor-primary").textContent, "Confirm save");
   assert.equal(pdfs, 0);
   // Confirm save completes the same event once and returns to Workspace.
   const pendingId = doc(d.id).pendingAmendment.id;

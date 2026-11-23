@@ -229,6 +229,62 @@ a {
   top: 0;
   z-index: 500;
 }
+.report-primary-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px 14px;
+  width: 100%;
+}
+.report-selector {
+  position: relative;
+  flex: 1 1 18rem;
+  min-width: 0;
+}
+.report-selector > summary {
+  padding: 10px 12px;
+  min-height: 44px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+.report-selector > div {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  min-width: min(260px, 100%);
+  max-height: 55vh;
+  overflow: auto;
+  z-index: 510;
+  padding: 8px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--surface);
+  box-shadow: 0 4px 12px #0002;
+}
+.report-selector button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+.report-selector button:hover,
+.report-selector button[aria-current="page"] {
+  background: var(--civic-tint);
+  color: var(--civic);
+}
+
 .f {
   display: flex;
   flex-direction: column;

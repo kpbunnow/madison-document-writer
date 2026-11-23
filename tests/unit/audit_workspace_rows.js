@@ -19,6 +19,12 @@ const assert = require("node:assert/strict"),
   };
   Object.assign(api.WriterState, { state: {}, DOCS: [d], CASES: [k] });
   const render = () => renderer.render(row, [d]);
+  // Draft access is visible beside issued links, without opening Case options.
+  const { JSDOM } = require("jsdom");
+  const draft = { ...d, id: "draft", draft: true, created: "2026-11-15" };
+  const visibleDraft = new JSDOM("<table>" + renderer.render(row, [d, draft]) + "</table>").window.document;
+  assert.ok(visibleDraft.querySelector('td[data-label="Issued documents"] [data-open="draft"]'));
+  assert.equal(visibleDraft.querySelector('.case-options [data-open="draft"]'), null);
   const initial = render();
   assert.equal(render(), initial);
   k.address = "200 NEW <ST>";
