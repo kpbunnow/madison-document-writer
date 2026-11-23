@@ -95,3 +95,25 @@ The browser's own processing was under 2 s at 5,000 cases. After two unreachable
 looking up parcels for that load and says how many were not looked up (PR #553). Parcels already cached are
 unaffected. With the City layer reachable, the first lookup is limited by the City service and later loads use the
 cache; that timing could not be measured here.
+
+## Long session
+
+One helper process ran 40 minutes against a copy of the 10,000-case folder, after the fix.
+- **Each cycle:** created a case, updated it with its filing, wrote its summary and opened another case.
+- **Every 100 cycles:** read the Reports index.
+
+The run had 2,400 cycles and 24 index reads, with no errors. Each cycle adds a case, so the folder grew to 12,400.
+
+| Minute | Cycles | Cycle median | Cycle p95 | Index read | Helper memory (RSS) |
+| --- | --- | --- | --- | --- | --- |
+| 1.5 | 100 | 550 ms | 668 ms | 29.0 s (first) | 192 MB |
+| 9.3 | 600 | 723 ms | 904 ms | 22.5 s | 327 MB |
+| 20.5 | 1,300 | 695 ms | 845 ms | 22.3 s | 387 MB |
+| 30.7 | 1,900 | 724 ms | 891 ms | 23.5 s | 416 MB |
+| 39.8 | 2,400 | 827 ms | 1,012 ms | 24.5 s | 429 MB |
+
+- **Latency:** cycle and index times rise with the 24% growth of the folder. Each new-case save still lists the folder and
+  rewrites the migration registry. There is no sign of drift beyond that.
+- **Memory:** helper memory rises quickly at first, then slowly, about 3 MB per 100 cycles in the last 15 minutes. That
+  fits the high-water mark of building a 30–40 MB Reports index in memory, not a clear leak. A multi-hour run on a City
+  PC would confirm whether it levels off.
