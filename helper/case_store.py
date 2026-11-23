@@ -14,6 +14,7 @@ import datetime
 from decimal import Decimal
 import hashlib
 import json
+from json_numbers import finite_json
 import case_integrity
 from plain_files import LINKED_MESSAGE, UNSAFE_NAME_CHARS, is_plain_file, plain_json_files, require_plain_file, read_plain_bytes
 import citation_pricing
@@ -768,14 +769,10 @@ def remap(event, old_id, new_id):
 UNREADABLE_CASE = "This case file could not be read as a Madison case record. It has been left unchanged; ask an administrator to review it."
 
 
-def _refuse_non_finite(token):
-    raise ValueError("NaN and Infinity are not JSON")
-
-
 def case_json(raw):
     """A stored case file's JSON, read from its bytes. A UTF-8 byte-order mark (left by an editor that re-saved the file)
-    is accepted wherever the file is read; NaN and Infinity are refused, because no browser can read them."""
-    return json.loads(raw, parse_constant=_refuse_non_finite)
+    is accepted wherever the file is read; nonfinite tokens and overflowing numbers are refused before browser transport."""
+    return finite_json(raw, "Case file numbers must be finite")
 
 
 def read_case(folder, name):
@@ -1134,6 +1131,15 @@ def legacy_scheduled_citation_base(ordinance, tier):
     return cash_validation.legacy_scheduled_base(policy, ordinance, tier)
 
 
+def _reserved_citation_numbers(snap):
+    citations = snap.get("cits") or {}
+    items = snap.get("items")
+    if isinstance(items, list):
+        citations = {i.get("id"): citations.get(i.get("id")) for i in items}
+    # Existing items (including withdrawn/deselected ones) retain their reservations. Only orphaned fields are ignored.
+    return [c.get("num") for c in citations.values() if isinstance(c, dict) and c.get("num")]
+
+
 def _refuse_reused_citation_numbers(record, historical_ids, cross_case_history):
     """A new citation's number may not already be in force on another shared case.
 
@@ -1142,9 +1148,8 @@ def _refuse_reused_citation_numbers(record, historical_ids, cross_case_history):
     issuing the same number at once cannot both succeed."""
     used = {}
     for entry in cross_case_history:
-        for citation in (entry["document"].get("cits") or {}).values():
-            if isinstance(citation, dict) and citation.get("num"):
-                used.setdefault(citation["num"], (entry.get("case") or {}).get("number", ""))
+        for number in _reserved_citation_numbers(entry["document"]):
+            used.setdefault(number, (entry.get("case") or {}).get("number", ""))
     for event in record.get("events", []):
         if event.get("id") in historical_ids or not str(event.get("type", "")).endswith(".issued"):
             continue

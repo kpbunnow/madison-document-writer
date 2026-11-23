@@ -485,6 +485,7 @@
     "helper/integrity_admin.py",
     "helper/integrity_verification.py",
     "helper/issuance_validation.py",
+    "helper/json_numbers.py",
     "helper/launch.py",
     "helper/operations_helper.py",
     "helper/parcel_history.py",
