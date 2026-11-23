@@ -15,17 +15,21 @@ function scenario() {
         included: pick([[], ["drafts", "visits"]]),
         bundle: pick([{ cases: [{ id: "k1", number: "BLD2026-1" }] }, { cases: [] }, {}, undefined]),
       };
+  const list = Array.from({ length: random(4) }, () => ({
+    number: pick(["BLD2026-1", "", undefined, "A&B"]),
+    at: pick(["t1", "", undefined]),
+    name: "file.json",
+    case: pick(["k1", "k2"]),
+    included: pick([undefined, [], ["drafts"]]),
+    error: pick([undefined, "bad <file>"]),
+    workspace: pick(["abcdef0123456789", "short"]),
+  }));
+  // Sometimes the selected backup is one of the listed copies, so its row is marked.
+  if (selected && list.length && chance(2)) Object.assign(selected, { workspace: list[0].workspace, case: list[0].case, at: list[0].at });
   return {
     error: pick(["", "", "Read failed <now>"]),
     loading: chance(5),
-    list: Array.from({ length: random(4) }, () => ({
-      number: pick(["BLD2026-1", "", undefined, "A&B"]),
-      at: pick(["t1", "", undefined]),
-      name: "file.json",
-      included: pick([undefined, [], ["drafts"]]),
-      error: pick([undefined, "bad <file>"]),
-      workspace: pick(["abcdef0123456789", "short"]),
-    })),
+    list,
     selected,
     shared: pick([
       undefined,
@@ -75,11 +79,13 @@ function run(api, sc) {
     compile(fs.readFileSync("tests/fixtures/recovery_ui_reference.txt", "utf8")),
   ]);
   const seen = new Set();
+  let marked = 0;
   for (let n = 0; n < 6000; n++) {
     const sc = scenario();
     const [before, after] = [run(legacy, sc), run(current, sc)];
     assert.equal(after, before, `recovery dialog scenario ${n} differs from the retained module:\n${JSON.stringify(sc)}`);
     const html = JSON.parse(after).value || "";
+    if (html.includes('aria-pressed="true"')) marked++;
     for (const f of [
       "Reading backups",
       "No backups found.",
@@ -124,6 +130,7 @@ function run(api, sc) {
     "data-recovery-export",
   ])
     assert.ok(seen.has(f), "scenarios reach: " + f);
+  assert.ok(marked > 0, "some scenarios mark the selected copy");
   console.log("PASS recovery dialog matches the retained module over 6000 scenarios");
 })().catch((error) => {
   console.error(error);

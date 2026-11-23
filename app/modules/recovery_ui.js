@@ -8,7 +8,10 @@ import { html, raw } from "./screen_html.js";
 
 // Recovery presentation and working controls; workflow/storage authority stays supplied.
 /* Recovery dialog sections. Each builds its markup from the recovery state it is given. */
-function backupList(list) {
+// The selected copy is marked on its row, not only in the details below, so it cannot be mistaken for another.
+const selectedRow = (x, b) => !!b && x.workspace === b.workspace && x.case === b.case && x.at === b.at;
+
+function backupList(list, selected) {
   return (
     '<div class="folderlist">' +
     "".concat(
@@ -17,6 +20,8 @@ function backupList(list) {
           (x, i) =>
             '<button data-recovery-row="' +
             `${i}` +
+            '" aria-pressed="' +
+            `${selectedRow(x, selected)}` +
             '" ' +
             `${x.error ? "disabled" : ""}` +
             ">" +
@@ -151,7 +156,7 @@ export function createRecoveryUI(services) {
     const b = recovery.RECOVERY.selected,
       k = b?.bundle?.cases?.[0],
       local = k && workspace.CASES.find((c) => c.id === k.id || c.number === k.number);
-    return html`<div class="modal"><div class="modal-box" role="dialog" aria-modal="true" aria-label="Recover unfinished work">\n    <div class="modal-h"><h2>Recover unfinished work</h2></div><div class="modal-b">\n      <p>Backups are separate from issued case files. Select one case. Nothing is issued during recovery.</p>\n      <label>Import an exported individual recovery JSON <input id="recovery-import" type="file" accept=".json,application/json"></label>\n      ${raw("".concat(recovery.RECOVERY.error ? `<div class="banner alert" role="alert">${esc(recovery.RECOVERY.error)}</div>` : ""))}\n      ${raw("".concat(recovery.RECOVERY.loading ? "Reading backups…" : backupList(recovery.RECOVERY.list)))}\n      ${raw("".concat(b ? selectedBackup(services, b, local) : ""))}\n      </div><div class="modal-f">${raw("".concat(b ? recoveryActions(k) : ""))}<button class="btn" data-sync-safety>Saved work &amp; connection</button><button class="btn" data-close="modal">Close</button></div></div></div>`;
+    return html`<div class="modal"><div class="modal-box" role="dialog" aria-modal="true" aria-label="Recover unfinished work">\n    <div class="modal-h"><h2>Recover unfinished work</h2></div><div class="modal-b">\n      <p>Backups are separate from issued case files. Select one case. Nothing is issued during recovery.</p>\n      <label>Import an exported individual recovery JSON <input id="recovery-import" type="file" accept=".json,application/json"></label>\n      ${raw("".concat(recovery.RECOVERY.error ? `<div class="banner alert" role="alert">${esc(recovery.RECOVERY.error)}</div>` : ""))}\n      ${raw("".concat(recovery.RECOVERY.loading ? "Reading backups…" : backupList(recovery.RECOVERY.list, recovery.RECOVERY.selected)))}\n      ${raw("".concat(b ? selectedBackup(services, b, local) : ""))}\n      </div><div class="modal-f">${raw("".concat(b ? recoveryActions(k) : ""))}<button class="btn" data-sync-safety>Saved work &amp; connection</button><button class="btn" data-close="modal">Close</button></div></div></div>`;
   }
   return { restoreWorkControls, saveAndContinue, restoreWorkspaceFile, renderRecoveryStatus, recoveryStatusHTML, recoveryModal };
 }

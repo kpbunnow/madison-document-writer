@@ -156,10 +156,14 @@ export function createRecoveryEvents(services) {
         return;
       }
       if (t.dataset.recoveryRow !== undefined) {
-        services.recovery.selectRecovery(recovery.RECOVERY.list[+t.dataset.recoveryRow]).catch((err) => {
-          recovery.RECOVERY.error = err.message;
-          services.ui.render();
-        });
+        services.recovery
+          .selectRecovery(recovery.RECOVERY.list[+t.dataset.recoveryRow])
+          // The dialog is redrawn; keep keyboard focus on the copy that was chosen.
+          .then(() => document.querySelector('[data-recovery-row][aria-pressed="true"]')?.focus())
+          .catch((err) => {
+            recovery.RECOVERY.error = err.message;
+            services.ui.render();
+          });
         return;
       }
       if (t.hasAttribute("data-recovery-restore")) {

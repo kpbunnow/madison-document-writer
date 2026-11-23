@@ -2164,6 +2164,11 @@ tr.dragging td {
   border-color: var(--civic);
   background: var(--civic-tint);
 }
+.folderlist button[aria-pressed="true"] {
+  border-color: var(--civic);
+  box-shadow: inset 4px 0 0 var(--civic);
+  font-weight: 600;
+}
 .sendrow {
   display: flex;
   gap: 10px;
