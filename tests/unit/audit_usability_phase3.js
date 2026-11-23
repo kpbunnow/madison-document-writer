@@ -302,9 +302,12 @@ if (process.argv[2] === "reports") {
       document.querySelector(".editor-readiness [data-readiness-first]").hasAttribute("data-fix-next"),
       "same current-policy navigator as the desktop control",
     );
+    assert.equal(document.querySelectorAll(".editor-controls [data-fix-next]").length, 1, "one shared current-policy navigator");
     assert.equal(text(bar.querySelector("#btn-review")), "Review");
     const barPrimary = bar.querySelector(".editor-primary");
     assert.equal(text(barPrimary), text(document.querySelector(".editor-controls .editor-primary")));
+    assert.equal(barPrimary.id, "btn-final", "the shared action retains the original issuance handler");
+    assert.equal(text(barPrimary), "Issue");
     assert.equal(
       bar.querySelectorAll(".editor-primary,#btn-final,[data-readiness-first],[data-editor-section],[data-editor-review]").length,
       3,
@@ -339,6 +342,7 @@ if (process.argv[2] === "reports") {
     assert.equal(itemsControl.querySelector("[data-task-status]").dataset.taskState, "ready");
     assert.equal(!!document.querySelector(".editor-controls [data-readiness-first]"), ready.required.length > 0);
     assert.equal(text(document.querySelector(".editor-primary")), text(document.querySelector(".editor-controls .editor-primary")));
+    assert.equal(document.querySelectorAll("#btn-final").length, 1, "readiness refresh retains one issuance control");
 
     // ITEM 13. Reinspection: two named modes, a step indicator from walk state, tips collapsed.
     WriterState.DOCS.length = 0;

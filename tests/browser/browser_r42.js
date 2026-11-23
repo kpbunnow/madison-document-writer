@@ -315,7 +315,7 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     });
     await page.evaluate(() => scrollTo(0, 0));
     await page.setViewportSize({ width: 1366, height: 768 });
-    assert.equal(await bar.isVisible(), false, "the task bar is narrow-screen only");
+    assert.equal(await bar.isVisible(), true, "the same task controls remain available on desktop");
     await axeThemes(page, "r42-document");
     // The desktop control continues to the next unresolved field after the mobile control.
     await page
@@ -401,7 +401,7 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
       passed: true,
       layouts: results,
       checks: [
-        "one primary header action",
+        "one responsive primary action",
         "save remains visible",
         "three nonsequential task links",
         "invalid draft and actionable keyboard checks",
