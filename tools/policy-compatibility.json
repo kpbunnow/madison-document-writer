@@ -1,13 +1,13 @@
 {
   "version": 1,
   "identity": {
-    "release": "2026-11-16 R85",
-    "helperVersion": "2026.11.16.86",
+    "release": "2026-11-23 R86",
+    "helperVersion": "2026.11.23.87",
     "authoringVersion": 16,
     "caseSchema": 5,
     "summaryVersion": 6,
     "backupVersion": 2,
-    "helperBuild": 86
+    "helperBuild": 87
   },
   "scope": "Reviewed policy mirrors. Exact lexical tool excludes tests/oracles/vendor/generated and cannot measure semantic or cross-language clones.",
   "rules": [

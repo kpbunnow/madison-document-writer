@@ -2,11 +2,11 @@
 
 Madison Building Inspection Document Writer
 
-Release 2026-11-16 R85 · Helper 2026.11.16.86 · 16 November 2026
+Release 2026-11-23 R86 · Helper 2026.11.23.87 · 23 November 2026
 
 This manual explains how inspectors prepare documents, preserve case history, recover unfinished work and use Reports. It also gives administrators the installation and maintenance procedures needed to support the program. Follow the division's actual authority, court instructions and records policy when using these features.
 
-R85 is a release candidate for City acceptance. Its security checks require the same ordinary document, history and recovery procedures described below. Automated verification does not replace the outstanding City Windows and network tests, staff and assistive technology acceptance, or legal and seasonal policy decisions listed in the carried-forward City acceptance record. New mandatory-appearance citations remain blocked until approved defendant instructions are supplied and integrated. Historical frozen reprints remain available. No live deployment is included in this release.
+R86 is a release candidate for City acceptance. Its security checks require the same ordinary document, history and recovery procedures described below. Automated verification does not replace the outstanding City Windows and network tests, staff and assistive technology acceptance, or legal and seasonal policy decisions listed in the carried-forward City acceptance record. New mandatory-appearance citations remain blocked until approved defendant instructions are supplied and integrated. Historical frozen reprints remain available. No live deployment is included in this release.
 
 **How to use this manual.** Start with [Find a task](#find-a-task) or the contents. In the HTML manual, Search this manual finds passages that contain your words or related program terms and highlights the matching words. Search manual and Contents stay available at the top as you read; Clear search clears the results and returns to the search field; the browser's own Find (Ctrl+F) also works. Chapters 1 to 18 follow a working day, from opening the program to reports; chapters 19 to 22 cover administration, accessibility, troubleshooting and practice. Screenshots show the program in the Dark color theme with synthetic cases and a synthetic inspector, Taylor Example; your cases, names and dates will differ, and the Light, Use device setting and High contrast themes show the same controls in other colors (see [chapter 18](#chapter-18)). Short videos with captions show the main workflows step by step; the Word and PDF manuals show a still from each video and list its steps.
 
