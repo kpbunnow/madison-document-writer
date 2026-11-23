@@ -16,15 +16,24 @@ def policy():
     return json.loads(resource("citation_policy.json").read_text(encoding="utf-8"))
 
 
+# The same explicit whitespace set as citation_policy.js: Python's and JavaScript's \\s differ (U+0085, U+FEFF and the
+# separators U+001C to U+001F), so neither runtime's class is used for ordinance text.
+WHITESPACE = "[\t\n\x0b\x0c\r \x1c-\x1f\x85\xa0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+"
+
+
+# JavaScript's parseInt skips only its own white space and line terminators before the number.
+PARSE_INT_SPACE = "[\t\n\x0b\x0c\r \xa0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]"
+
+
 def canonical_ordinance(value):
     p = policy()
-    text = re.sub(p["prefix"], "", str(value or "").strip(), flags=re.I)
-    text = re.sub(r"\s+", "", text)
+    text = re.sub(WHITESPACE, "", str(value or ""))
+    text = re.sub(p["prefix"], "", text, flags=re.I | re.ASCII)
     text = re.sub("^sps", "SPS", text, flags=re.I)
     text = re.sub(r"\(([^)]+)\)", lambda m: "(" + m[1].lower() + ")", text)
-    if re.search(r"\)\d+$", text):
+    if re.search(r"\)[0-9]+$", text):
         text += "."
-    return text if re.fullmatch(p["grammar"], text) else ""
+    return text if re.fullmatch(p["grammar"], text, flags=re.ASCII) else ""
 
 
 def item_key(item):
@@ -98,8 +107,9 @@ def ready(entry):
 
 
 def ordinal(tier):
-    match = re.match(r"\d+", str(tier or ""))
-    return max(1, int(match[0])) if match else 1
+    """The browser's tierOrdinal: parseInt of the text (leading whitespace and a sign allowed), at least 1."""
+    match = re.match(PARSE_INT_SPACE + "*([+-]?[0-9]+)", str(tier))
+    return max(1, int(match[1])) if match else 1
 
 
 def tier_label(n):
@@ -189,8 +199,8 @@ def respondent_key(case):
     if parsed.get("accepted") and parsed.get("acceptedLines") == case.get("ownerAddr"):
         return parsed.get("ownerKey", "")
     lines = [str(x).strip() for x in case.get("ownerAddr", []) if str(x).strip()]
-    zipcode = re.search(r"(\d{5})(?:-\d{4})?\s*$", lines[-1] if lines else "")
-    street = next((x for x in reversed(lines[:-1]) if re.match(r"^(\d|P\.?\s*O\.?\s*BOX\b|POBOX\b)", x, re.I)), None)
+    zipcode = re.search(r"([0-9]{5})(?:-[0-9]{4})?\s*$", lines[-1] if lines else "")
+    street = next((x for x in reversed(lines[:-1]) if re.match(r"^([0-9]|P\.?\s*O\.?\s*BOX\b|POBOX\b)", x, re.I)), None)
     if not zipcode or not street:
         return ""
     street = re.sub(r"\bP\.?\s*O\.?\s*BOX\b|\bPOBOX\b", "PO BOX", street.upper())
@@ -420,7 +430,7 @@ def _scheduled_pricing_tier(*, cit, counted):
     if cit.get("tierOverride") not in (None, "") and len(source) < 10:
         raise ValueError("Approved tier override requires a recorded source")
     if len(source) >= 10:
-        if not re.fullmatch(r"[1-9]\d*", str(cit.get("tierOverride", ""))):
+        if not re.fullmatch(r"[1-9][0-9]*", str(cit.get("tierOverride", ""))):
             raise ValueError("An approved offense tier must be a positive whole number")
         expected_tier = int(cit["tierOverride"])
     return expected_tier
@@ -474,7 +484,7 @@ def validate_pricing(snap, history, original=None):
 
 def cents(value):
     text = str(value)
-    if isinstance(value, bool) or not re.fullmatch(r"(?:0|[1-9]\d*)(?:\.\d{1,2})?", text):
+    if isinstance(value, bool) or not re.fullmatch(r"(?:0|[1-9][0-9]*)(?:\.[0-9]{1,2})?", text):
         return None
     whole, _, fraction = text.partition(".")
     result = int(whole) * 100 + int(fraction.ljust(2, "0") or "0")

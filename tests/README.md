@@ -24,7 +24,10 @@ covers, or a new suite under its feature.
 | `audit_policy_inventory.py` | Live rule owners, full-gate parity suite references and separately reviewed release/format identities; stale references fail |
 | `audit_duplication_measurement.py` | Exact lexical token/literal semantics, real hash collisions, overlap/threshold guards and explicit scan exclusions |
 | `audit_profile_support.js` | Shared production profiler input guards, source-change refusal and all real HTTP routes |
-| `audit_policy_mirrors.py` | Actual JS/Python parcel, mailing, calendar, deadline, historical pricing, recovery envelope and mandatory-appearance outcomes |
+| `audit_policy_mirrors.py` | Actual JS/Python parcel, mailing, calendar, deadline, historical pricing, recovery envelope and mandatory-appearance outcomes; identical ordinance, tier, money and window text parsing; schedule band, measurement, rounding, window, site and respondent boundaries; due-conflict detail and stable due sorting |
+| `audit_pricing_boundaries.py` | Helper pricing at the exact schedule boundaries (building tune-up area and days, recycling, tonnage and parking bands, tree rows), repeat-offense window edges, tier-override source length, money limit, parcel-less site matching and respondent keys |
+| `audit_due_date_rules_helper.py` | Helper outstanding-deadline rules: only outstanding items count toward three dates, the mailed date must be a real date after inspection, and seven-day spacing applies only to notices, extensions and non-snow citations |
+| `audit_non_finite_json.py` | Requests refuse NaN/Infinity, no case file is written with them, and helper money values use ASCII digits |
 | `audit_mutation_outcome.js` | Mutation evidence refuses non-normal exits and syntax-invalid owner bundles without masking runtime failures |
 | `audit_phase3_async_guards.js` | Helper-settlement cancellation interleavings for Reports loads and import lookup/confirmation, including current-request success |
 | `audit_calculation_phases.py` | Historical pricing, interrupted dependencies, prior offense boundaries and JavaScript projection value semantics |

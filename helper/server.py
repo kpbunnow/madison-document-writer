@@ -92,6 +92,16 @@ STATIC_ROUTES = {
 FAVICON = "document-writer.ico"
 
 
+def _non_finite(token):
+    raise ValueError("Request numbers must be finite")
+
+
+def request_json(raw):
+    """A request body as JSON. NaN and Infinity are not JSON and the browser never sends them; refusing them keeps
+    such values out of validation, pricing and every case file."""
+    return json.loads(raw, parse_constant=_non_finite)
+
+
 def start_session(folder=None):
     global SESSION_BOOTSTRAP
     SESSION_BOOTSTRAP = helper_session.prepare(SESSION_TOKEN, folder)
@@ -880,7 +890,7 @@ def backup_read(data):
         raise ValueError("Invalid draft backup request")
     folder = backup_location(data["workspace"], data["case"])
     name = data["name"]
-    if not isinstance(name, str) or not re.fullmatch(r"\d{8}T\d{12}Z-[a-f0-9]{12}\.json", name):
+    if not isinstance(name, str) or not re.fullmatch(r"[0-9]{8}T[0-9]{12}Z-[a-f0-9]{12}\.json", name):
         raise ValueError("Invalid draft backup name")
     raw = (folder / name).read_bytes()
     if hashlib.sha256(raw).hexdigest()[:12] != name[-17:-5]:
@@ -911,9 +921,9 @@ def _validated_catalog_review_request(data):
     ):
         raise ValueError("Invalid catalog review request")
     key, status = data["key"], data["status"]
-    if not isinstance(key, str) or not re.fullmatch(r'\["[A-Za-z0-9_]+","[A-Za-z0-9_]+",\d+\]', key) or status not in ("approved", "retired"):
+    if not isinstance(key, str) or not re.fullmatch(r'\["[A-Za-z0-9_]+","[A-Za-z0-9_]+",[0-9]+\]', key) or status not in ("approved", "retired"):
         raise ValueError("Invalid catalog identity or status")
-    if data["replaces"] and (not re.fullmatch(r'\["[A-Za-z0-9_]+","[A-Za-z0-9_]+",\d+\]', data["replaces"]) or data["replaces"] == key):
+    if data["replaces"] and (not re.fullmatch(r'\["[A-Za-z0-9_]+","[A-Za-z0-9_]+",[0-9]+\]', data["replaces"]) or data["replaces"] == key):
         raise ValueError("Invalid replacement relationship")
     manifest = json.loads((resource("catalog_manifest.json")).read_text(encoding="utf-8"))
     if (
@@ -1281,7 +1291,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             size = int(self.headers.get("Content-Length", "0"))
             if not 0 < size <= 65536:
                 raise ValueError("Invalid request size")
-            data = json.loads(self.rfile.read(size))
+            data = request_json(self.rfile.read(size))
             if not isinstance(data, dict):
                 raise ValueError("Expected JSON object")
             result = (
@@ -1325,7 +1335,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             size = int(self.headers.get("Content-Length", "0"))
             if not 0 < size <= 256:
                 raise ValueError("Invalid shutdown request")
-            data = json.loads(self.rfile.read(size))
+            data = request_json(self.rfile.read(size))
             if not isinstance(data, dict) or set(data) - {"force"} or type(data.get("force", False)) is not bool:
                 raise ValueError("Invalid shutdown request")
         except ValueError, TypeError:
@@ -1501,7 +1511,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def _post_session_bootstrap(self, route):
         try:
             size = int(self.headers.get("Content-Length", "0"))
-            if not 0 < size <= 16 or json.loads(self.rfile.read(size)) != {}:
+            if not 0 < size <= 16 or request_json(self.rfile.read(size)) != {}:
                 raise ValueError("Invalid bootstrap request")
         except ValueError, TypeError:
             return self._json(400, {"ok": False, "error": "Invalid bootstrap request"})
@@ -1512,7 +1522,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             size = int(self.headers.get("Content-Length", "0"))
             if not 0 < size <= 4096:
                 raise ValueError("Invalid request size")
-            data = json.loads(self.rfile.read(size))
+            data = request_json(self.rfile.read(size))
             if not isinstance(data, dict):
                 raise ValueError("Expected JSON object")
             if route == "/locks/release":
@@ -1538,7 +1548,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             size = int(self.headers.get("Content-Length", "0"))
             if not 0 < size <= 32768:
                 raise ValueError("Invalid request size")
-            data = json.loads(self.rfile.read(size))
+            data = request_json(self.rfile.read(size))
             if route == "/outbox/read":
                 _, raw = workflow_helper.outbox_read(sys.modules[__name__], data)
                 self.send_response(200)
@@ -1563,7 +1573,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             n = int(self.headers.get("Content-Length", "0"))
             if not 0 < n <= 12000:
                 raise ValueError("Invalid address request size")
-            data = json.loads(self.rfile.read(n).decode("utf-8"))
+            data = request_json(self.rfile.read(n).decode("utf-8"))
             if not isinstance(data, dict) or set(data) != {"raw"}:
                 raise ValueError("Expected only a raw mailing address")
             return self._json(200, {"ok": True, **address_parser.parse_address(data["raw"])})
@@ -1575,7 +1585,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             n = int(self.headers.get("Content-Length", "0"))
             if not 0 < n <= 2048:
                 return self._json(413, {"ok": False, "error": "Invalid lookup request size"})
-            data = json.loads(self.rfile.read(n).decode("utf-8"))
+            data = request_json(self.rfile.read(n).decode("utf-8"))
             if not isinstance(data, dict) or set(data) != {"caseNumber"}:
                 raise ValueError("Expected only a caseNumber")
             return self._json(200, lookup_case(share_root(), data["caseNumber"]))
@@ -1592,7 +1602,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             n = int(self.headers.get("Content-Length", "0"))
             if not 0 < n <= 2048:
                 return self._json(413, {"ok": False, "error": "Invalid request size"})
-            data = json.loads(self.rfile.read(n).decode("utf-8"))
+            data = request_json(self.rfile.read(n).decode("utf-8"))
             if route in ("/inspector-cases/list", "/inspector-cases/names"):
                 if data not in ({}, {"refresh": True}):
                     raise ValueError("Expected an empty request or refresh")
@@ -1614,7 +1624,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             n = int(self.headers.get("Content-Length", "0"))
             if not 0 < n <= MAX_BODY:
                 return self._json(413, {"ok": False, "error": "Invalid request size"})
-            data = json.loads(self.rfile.read(n).decode("utf-8"))
+            data = request_json(self.rfile.read(n).decode("utf-8"))
             if not isinstance(data, dict):
                 raise ValueError("Expected a JSON object")
             return self._json(200, SHARED_ROUTES.get(route, _shared_sync_outbox)(data))
@@ -1628,7 +1638,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             n = int(self.headers.get("Content-Length") or 0)
             if not 0 < n <= 4096:
                 raise ValueError("Invalid artifact request size")
-            data = json.loads(self.rfile.read(n).decode("utf-8"))
+            data = request_json(self.rfile.read(n).decode("utf-8"))
             if not isinstance(data, dict) or set(data) != {"filename", "sha256", "docId"}:
                 raise ValueError("Invalid artifact request")
             path, raw = verified_artifact(data["filename"], data["sha256"], data["docId"])
@@ -1657,7 +1667,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             if n <= 0 or n > 1024 * 1024:
                 return self._json(413, {"ok": False, "error": "that request is not a parcel list"})
             try:
-                data = json.loads(self.rfile.read(n).decode("utf-8"))
+                data = request_json(self.rfile.read(n).decode("utf-8"))
             except ValueError:
                 data = None
             if not isinstance(data, dict):
@@ -1699,7 +1709,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         n = int(raw)
         if n <= 0 or n > MAX_BODY:
             return None, self._json(413, {"ok": False, "error": "that document is too large to accept"})
-        data = json.loads(self.rfile.read(n).decode("utf-8"))
+        data = request_json(self.rfile.read(n).decode("utf-8"))
         if not isinstance(data, dict):
             raise ValueError("Expected a JSON object")
         return data, None
