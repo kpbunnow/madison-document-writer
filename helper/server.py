@@ -714,7 +714,8 @@ def artifact_status(items):
         # Apply the same name, identity and checksum constraints as read.
         name, sha, docid = item["filename"], item["sha256"], item["docId"]
         if (
-            not isinstance(sha, str)
+            not isinstance(name, str)
+            or not isinstance(sha, str)
             or not re.fullmatch(r"[0-9a-f]{64}", sha)
             or not isinstance(docid, str)
             or not re.fullmatch(r"[A-Za-z0-9_-]{2,100}", docid)

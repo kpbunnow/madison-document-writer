@@ -710,6 +710,34 @@ def validate_case(record, legacy=False):
     seen = set()
     for event in record["events"]:
         _require_valid_event(event, seen)
+        if not legacy:
+            _require_snapshot_shape(event)
+
+
+SNAPSHOT_SHAPE_ERROR = "A document in this case has a damaged structure; reopen the case and try again"
+
+
+def _require_snapshot_shape(event):
+    """Refuse incoming document snapshots whose parts are not the shapes every validator reads.
+
+    The browser always writes these parts as objects and lists. A request with another shape would otherwise fail
+    deep inside a validator with a generic "could not confirm" error instead of a clear refusal. Stored records are
+    read with legacy=True and are not refused here."""
+    payload = event.get("payload", {})
+    if "reinspection" in payload and not isinstance(payload["reinspection"], dict):
+        raise ValueError(SNAPSHOT_SHAPE_ERROR)
+    snapshot = payload.get("snapshot", {})
+    items, cits, frozen = snapshot.get("items"), snapshot.get("cits"), snapshot.get("frozen")
+    if items is not None and (not isinstance(items, list) or any(not isinstance(i, dict) for i in items)):
+        raise ValueError(SNAPSHOT_SHAPE_ERROR)
+    if cits is not None and (not isinstance(cits, dict) or any(not isinstance(c, dict) for c in cits.values())):
+        raise ValueError(SNAPSHOT_SHAPE_ERROR)
+    if frozen is not None and (
+        not isinstance(frozen, dict)
+        or ("case" in frozen and not isinstance(frozen["case"], dict))
+        or (frozen.get("inspector") is not None and not isinstance(frozen["inspector"], dict))
+    ):
+        raise ValueError(SNAPSHOT_SHAPE_ERROR)
 
 
 def _require_valid_event(event, seen):
@@ -990,13 +1018,21 @@ def _save_case(folder, name, incoming, base_revision="", base_case=None, idempot
         return {"ok": True, "file": output, "revision": digest(raw), "name": target.name}
 
 
+MISSING_CASE_FILE = "This case's saved file is no longer in the shared case folder. Reopen the case, then try again."
+
+
 @logged("summary-save")
 def save_summary(folder, name, revision, summary):
     folder = Path(folder)
     if not isinstance(summary, dict) or summary.get("format") != "madison-case-summary":
         raise ValueError("Expected a case summary")
-    number = case_number_key(summary.get("case", {}).get("number", ""))
+    if not isinstance(summary.get("case"), dict):
+        raise ValueError("Expected a case summary")
+    number = case_number_key(summary["case"].get("number", ""))
     with file_lock(folder, "case:" + number.casefold()):
+        if folder.is_dir() and not (folder / safe_json_name(name)).exists():
+            # The folder is connected, so "check the connection" would mislead: the case file itself has gone.
+            raise OSError(MISSING_CASE_FILE)
         current = read_case(folder, name)
         if current["revision"] != revision:
             return {"ok": False, "retry": True, "error": "The case changed before its summary was written"}
