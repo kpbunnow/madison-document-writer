@@ -46,6 +46,12 @@ The panel shows the number of court copies for the packet being prepared: three 
 **PO Box recipients.** A Copy or Violator can use a mailing address such as PO BOX 123 instead of a numbered street. Name, city, state and ZIP are still required. Done validates and standardizes the address; a standardized-address preview is optional. Registered-agent street validation is unchanged.
 
 
+**Registered agent.** When the owner reads as a company (for example an LLC or INC), a citation cannot be issued until Recipients has the company's registered agent: its name, street and city, state and ZIP. Recipients links to the Wisconsin DFI search to look the agent up. The agent is printed on the citation.
+
+The video shows an initial-inspection citation from start to issue: Cite on the item, the priced charge card, the registered agent, the due date and Issue citation.
+
+*Shown in the program manual: Cite an item, enter the registered agent, assign the due date and issue the citation.*
+
 1. Select one actual charged ordinance for each item. An item with several listed sections shows a Charged ordinance select with exactly those sections and nothing chosen; choose the section actually charged (saved drafts show the select unchosen and cannot be issued until a section is chosen). The deposit fields then fill from the configured schedule for the pricing date; changing the choice clears the previous charge's values and prices the new one. If no single schedule entry applies, a blocking concern explains it rather than guessing an amount. Charging a section that is not listed on the item is a different charge and needs an approved source. Multiple offenses under one ordinance require the appropriate offense selection.
 2. Verify the description, citation number, officer or department identifier, issue date, violation date and time, court date and session. Court suggestions are not reservations; use the division's current court and numbering instructions.
 3. Complete any required measurements in that charge card. Conditional or unmapped entries require review; the program must not borrow an unrelated amount.

@@ -8,7 +8,7 @@ This manual explains how inspectors prepare documents, preserve case history, re
 
 R85 is a release candidate for City acceptance. Its security checks require the same ordinary document, history and recovery procedures described below. Automated verification does not replace the outstanding City Windows and network tests, staff and assistive technology acceptance, or legal and seasonal policy decisions listed in the carried-forward City acceptance record. New mandatory-appearance citations remain blocked until approved defendant instructions are supplied and integrated. Historical frozen reprints remain available. No live deployment is included in this release.
 
-**How to use this manual.** Start with [Find a task](#find-a-task) or the contents. In the HTML manual, Search this manual finds passages that contain your words or related program terms and highlights the matching words. Search manual and Contents stay available at the top as you read; Clear search clears the results and returns to the search field; the browser's own Find (Ctrl+F) also works. Chapters 1 to 18 follow a working day, from opening the program to reports; chapters 19 to 22 cover administration, accessibility, troubleshooting and practice. Screenshots show the program with synthetic cases and a synthetic inspector, Taylor Example; your cases, names and dates will differ. Short videos with captions show the main workflows step by step; the Word and PDF manuals show a still from each video and list its steps.
+**How to use this manual.** Start with [Find a task](#find-a-task) or the contents. In the HTML manual, Search this manual finds passages that contain your words or related program terms and highlights the matching words. Search manual and Contents stay available at the top as you read; Clear search clears the results and returns to the search field; the browser's own Find (Ctrl+F) also works. Chapters 1 to 18 follow a working day, from opening the program to reports; chapters 19 to 22 cover administration, accessibility, troubleshooting and practice. Screenshots show the program in the Dark color theme with synthetic cases and a synthetic inspector, Taylor Example; your cases, names and dates will differ, and the Light, Use device setting and High contrast themes show the same controls in other colors (see [chapter 18](#chapter-18)). Short videos with captions show the main workflows step by step; the Word and PDF manuals show a still from each video and list its steps.
 
 ## Find a task
 
@@ -242,6 +242,12 @@ The panel shows the number of court copies for the packet being prepared: three 
 **PO Box recipients.** A Copy or Violator can use a mailing address such as PO BOX 123 instead of a numbered street. Name, city, state and ZIP are still required. Done validates and standardizes the address; a standardized-address preview is optional. Registered-agent street validation is unchanged.
 
 
+**Registered agent.** When the owner reads as a company (for example an LLC or INC), a citation cannot be issued until Recipients has the company's registered agent: its name, street and city, state and ZIP. Recipients links to the Wisconsin DFI search to look the agent up. The agent is printed on the citation.
+
+The video shows an initial-inspection citation from start to issue: Cite on the item, the priced charge card, the registered agent, the due date and Issue citation.
+
+<!-- media:clip-citation -->
+
 1. Select one actual charged ordinance for each item. An item with several listed sections shows a Charged ordinance select with exactly those sections and nothing chosen; choose the section actually charged (saved drafts show the select unchosen and cannot be issued until a section is chosen). The deposit fields then fill from the configured schedule for the pricing date; changing the choice clears the previous charge's values and prices the new one. If no single schedule entry applies, a blocking concern explains it rather than guessing an amount. Charging a section that is not listed on the item is a different charge and needs an approved source. Multiple offenses under one ordinance require the appropriate offense selection.
 2. Verify the description, citation number, officer or department identifier, issue date, violation date and time, court date and session. Court suggestions are not reservations; use the division's current court and numbering instructions.
 3. Complete any required measurements in that charge card. Conditional or unmapped entries require review; the program must not borrow an unrelated amount.
@@ -418,6 +424,10 @@ Choose the action that reflects what actually happened. Edit an unissued draft d
 4. Review and issue the linked revision. Until its shared save is confirmed, the earlier issued version remains effective in the program.
 5. Confirm the correction's original PDF and complete outside amendment, mailing and recording steps under the actual procedure.
 
+The video shows a correction of an issued Official Notice: the reason, a changed corrective action, Review correction and Save & issue correction.
+
+<!-- media:clip-correction -->
+
 **Withdraw an item.** Within correction, select withdrawal for an item entered in error and record a specific reason. Its original number remains. It is excluded from compliance credit. Do not delete it or label it corrected to remove it from the count.
 
 **When Correct and Withdraw are missing.** Open Document actions on the issued document. If Correct document and Withdraw are not offered, the same place states why (for example, an unfinished worksheet or document draft must be finished or discarded first, or a later document depends on this one). Resolve what it names and the buttons return.
@@ -472,6 +482,10 @@ Workspace backup, a case-record export, an unfinished-case recovery copy and a p
 | Program update rollback | Installed program files; not an automatic reversal of issued records or device data |
 
 **Recover one case.** Open Saved work & connection ([chapter 14](#chapter-14)) → Backups and recovery → Recovery on this device → Recover an unfinished case. Select the intended recovery copy and check the case and capture time. Compare the current shared record. Preserve any differing local work before explicitly replacing it. Resume the recovered draft and confirm device saving; resolve retained pending requests through their original confirmation actions.
+
+The video shows Create recovery copy on this device, then Recover an unfinished case: selecting the copy marks its row and shows what it holds, and Restore selected case returns the draft to Workspace without issuing anything.
+
+<!-- media:clip-recovery -->
 
 **Restore a workspace.** Preserve the current profile first. Use an empty workspace and the same approved program release or a verified compatible version. Choose Restore workspace backup, select the intended file and review its identity. Do not use restore to merge two independently edited active workspaces. Recheck shared state and PDF filing after recovery before issuing.
 

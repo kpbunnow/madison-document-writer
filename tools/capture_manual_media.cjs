@@ -21,6 +21,7 @@ const ROOT = path.resolve(__dirname, ".."),
   STAFF = path.join(ROOT, "docs/staff"),
   MEDIA = path.join(STAFF, "manual-media"),
   MANIFEST = path.join(STAFF, "manual-media.json");
+const THEME = process.env.MANUAL_THEME === "light" ? "light" : "dark";
 const VIEW = { width: 1280, height: 800 },
   CLIP = { width: 1280, height: 800 },
   delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -145,7 +146,8 @@ async function openWriter(browser, helper, options = {}) {
     viewport: options.viewport || VIEW,
     deviceScaleFactor: 1,
     timezoneId: "America/Chicago",
-    colorScheme: "light",
+    // The manual shows the Dark color theme; set MANUAL_THEME=light to capture the light theme instead.
+    colorScheme: THEME,
     reducedMotion: "reduce",
     ...(options.video ? { recordVideo: { dir: options.video, size: CLIP } } : {}),
   });
@@ -534,12 +536,42 @@ const CLIPS = [
     caption: "Record a reinspection one item at a time and choose the follow-up.",
     alt: "Screen recording of the reinspection worksheet: One item at a time, recording Corrected and Progress made with a new due date, and choosing a follow-up.",
   },
+  {
+    id: "clip-citation",
+    chapter: 7,
+    session: "citation",
+    from: "Select Cite",
+    to: null,
+    caption: "Cite an item, enter the registered agent, assign the due date and issue the citation.",
+    alt: "Screen recording of an initial-inspection citation: selecting Cite, reviewing the priced charge card, entering a registered agent in Recipients, applying a due date and choosing Issue citation.",
+  },
+  {
+    id: "clip-correction",
+    chapter: 13,
+    session: "correction",
+    from: "Open the issued document",
+    to: null,
+    caption: "Correct an issued notice: give the reason, make the change, review it and issue the correction.",
+    alt: "Screen recording of correcting an issued Official Notice: opening it from Workspace, choosing Correct document, typing the reason, changing the item text, reviewing the change and choosing Save and issue correction.",
+  },
+  {
+    id: "clip-recovery",
+    chapter: 15,
+    session: "recovery",
+    from: "Open Tools & settings",
+    to: null,
+    caption: "Create a recovery copy of unfinished work, then recover a case from it.",
+    alt: "Screen recording of Saved work and connection: opening Backups and recovery, choosing Create recovery copy on this device, then Recover an unfinished case, selecting the copy and choosing Restore selected case.",
+  },
 ];
 
 const LOOKUPS = {
   "CB2026-900-00102": [caseRow("CB2026-900-00102", "202 EXAMPLE AVE", { InspectionStatus: "Citation", InspectionTime: "10:15:00" })],
   "CB2026-900-00103": [caseRow("CB2026-900-00103", "35 DEMO CT")],
   "CB2026-900-00104": [caseRow("CB2026-900-00104", "48 TRIAL LN")],
+  "CB2026-900-00105": [caseRow("CB2026-900-00105", "57 EXAMPLE AVE", { InspectionStatus: "Citation", InspectionTime: "10:45:00" })],
+  "CB2026-900-00106": [caseRow("CB2026-900-00106", "61 SAMPLE ST")],
+  "CB2026-900-00107": [caseRow("CB2026-900-00107", "74 DEMO CT")],
 };
 
 // Tools such as Saved work & connection and Exit open in the shared utility dialog; Close returns to the page.
@@ -733,6 +765,112 @@ const SESSIONS = {
     await flows.chooseFollowUp(s, "Give more time");
     await s.pause(1500);
   },
+  async citation(s) {
+    const page = s.page;
+    await flows.workspace(s);
+    await flows.lookUp(s, "CB2026-900-00105");
+    await flows.confirmImport(s);
+    await flows.addLanguage(s, [["handrail", "Handrails"]]);
+    await flows.doneAdding(s);
+    await flows.fillBubble(s, "the front porch steps");
+    await s.quiet();
+    s.caption("Select Cite on the item. Citation review opens with the charge priced from the schedule.");
+    await s.click(page.locator("[data-notecite]").first(), 600);
+    await page.locator("#citation-review").waitFor();
+    await page.locator("#citation-review").scrollIntoViewIfNeeded();
+    await s.pause(2600);
+    s.caption("The owner is a company, so the citation needs a registered agent. Open Recipients and enter the agent.");
+    await s.click(page.locator(".editor-sections #btn-cc"), 900);
+    await page.locator('[data-agent="name"]').scrollIntoViewIfNeeded();
+    for (const [field, text] of [
+      ["name", "SAMPLE REGISTERED AGENT INC"],
+      ["addr", "10 EXAMPLE PLAZA"],
+      ["city", "MADISON WI 53703"],
+    ]) {
+      await s.click(page.locator('[data-agent="' + field + '"]'), 200);
+      await s.type(text, 300);
+    }
+    s.caption("Choose Done to return to the citation.");
+    await s.click(page.locator("[data-close=modal]").last(), 900);
+    await flows.assignDueDates(s);
+    s.caption("Choose Issue. Every check has passed; confirm the mailed date and choose Issue citation.");
+    await s.click(page.locator(".editor-controls .editor-primary"));
+    await page.locator("#fin-go").waitFor();
+    await s.pause(1800);
+    await flows.confirmIssue(s);
+  },
+  async correction(s) {
+    // Setup: an issued notice to correct. The clip starts when it is opened from Workspace.
+    const page = s.page;
+    await flows.workspace(s);
+    await flows.lookUp(s, "CB2026-900-00106");
+    await flows.confirmImport(s);
+    await flows.addLanguage(s, [["handrail", "Handrails"]]);
+    await flows.doneAdding(s);
+    await flows.fillBubble(s, "the rear entry stairs");
+    await flows.assignDueDates(s);
+    await flows.issue(s);
+    await flows.confirmIssue(s);
+    await s.quiet();
+    s.caption("Open the issued document from its Workspace row.");
+    await s.click(page.locator('tr[data-issued-highlight] td[data-label="Issued documents"] [data-open]').first(), 1200);
+    await page.waitForFunction(() => WriterState.state.screen === "write");
+    s.caption("Open Document actions and choose Correct document.");
+    await s.click(page.locator(".editor-more summary"), 700);
+    await s.click(page.locator("#btn-correct"), 1200);
+    await page.locator("#correction-reason").waitFor();
+    await s.quiet();
+    s.caption("Explain what was wrong and why the correction is needed.");
+    await s.click(page.locator("#correction-reason"), 200);
+    await s.type("The inspection recorded the front stairs; the rear entry stairs were noted in error.", 900);
+    s.caption("Make the correction in the document. Here the item's corrective action is changed.");
+    const text = page.locator('[data-field="text"]').first();
+    await text.scrollIntoViewIfNeeded();
+    await s.click(text, 300);
+    await page.keyboard.press("ControlOrMeta+a");
+    await s.type("Repair the handrail on the front entry stairs.", 1200);
+    s.caption("Choose Issue. Review correction lists each change; confirm that you reviewed it.");
+    await s.click(page.locator("#btn-final").first(), 1600);
+    await s.click(page.locator("#correction-reviewed"), 900);
+    s.caption("Choose Save & issue correction. The earlier version stays in the case history.");
+    await s.click(page.locator("#fin-go"), 300);
+    await page.waitForFunction(() => !WriterState.state.publicationBusy && !WriterState.state.modal, null, { timeout: 30000 });
+    await s.pause(2600);
+  },
+  async recovery(s) {
+    // Setup: unfinished work to protect. The clip starts in Tools & settings.
+    const page = s.page;
+    await flows.workspace(s);
+    await flows.lookUp(s, "CB2026-900-00107");
+    await flows.confirmImport(s);
+    await flows.addLanguage(s, [["handrail", "Handrails"]]);
+    await flows.doneAdding(s);
+    await flows.fillBubble(s, "the side porch steps");
+    await button(page, "Save draft & return to Workspace").first().click();
+    await page.waitForFunction(() => WriterState.state.screen === "cases");
+    await s.quiet();
+    s.caption("Open Tools & settings, then Saved work & connection.");
+    await s.click(page.locator('.writer-navigation [data-nav="tools"]').first(), 900);
+    await s.click(page.locator(".tool-action[data-sync-safety]").first(), 1200);
+    await page.locator("[data-saved-work-panel]").waitFor();
+    s.caption("Expand Backups and recovery.");
+    const recovery = page.locator("[data-saved-detail=recovery]");
+    await s.click(recovery.locator("> summary"), 900);
+    s.caption("Create recovery copy on this device keeps a copy of the unfinished case on this computer.");
+    await s.click(page.locator("[data-safety-backup]"), 1500);
+    if (!(await recovery.evaluate((el) => el.open))) await s.click(recovery.locator("> summary"), 600);
+    s.caption("Choose Recover an unfinished case to see the recovery copies.");
+    await s.click(page.locator("#btn-recovery"), 1500);
+    await page.locator("[data-recovery-row]").first().waitFor();
+    s.caption("Select a copy. The details show the case, when it was saved and what it holds.");
+    await s.click(page.locator("[data-recovery-row]").first(), 1500);
+    await page.locator("[data-recovery-restore]").waitFor();
+    await s.pause(1800);
+    s.caption("Choose Restore selected case. The unfinished draft returns to Workspace; nothing is issued.");
+    await s.click(page.locator("[data-recovery-restore]"), 300);
+    await page.waitForFunction(() => WriterState.state.screen === "cases" && !WriterState.state.modal, null, { timeout: 30000 });
+    await s.pause(2600);
+  },
 };
 
 const sha256 = (file) => crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
@@ -848,7 +986,7 @@ async function main() {
   console.log("Captured " + entries.length + " manual media items into " + path.relative(ROOT, MEDIA));
 }
 
-module.exports = { STILLS, CLIPS };
+module.exports = { STILLS, CLIPS, startHelper, openWriter, flows, Session, caseRow };
 
 if (require.main === module)
   main().catch((error) => {
