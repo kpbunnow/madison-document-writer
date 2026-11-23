@@ -9,6 +9,9 @@ module.exports = async function (browser, hostPage, OUT, axeScreen, axeThemes) {
     timings = [];
   let count = 600;
   page.on("pageerror", (e) => errors.push(e.message));
+  // Reports open on the current year to date, so the synthetic cases are opened on January 1 of the current City year:
+  // the suite must pass on any date, including New Year's Day.
+  const year = new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" }).slice(0, 4);
   const summary = (n, old = false) => ({
     format: "madison-case-summary",
     summaryVersion: old ? 5 : 6,
@@ -17,8 +20,8 @@ module.exports = async function (browser, hostPage, OUT, axeScreen, axeThemes) {
       address: n + " SYNTHETIC ST",
       parcel: "",
       zip: n % 2 ? "53703" : "53704",
-      opened: "2026-01-02",
-      noticeIssued: "2026-01-03",
+      opened: year + "-01-01",
+      noticeIssued: year + "-01-01",
       status: "Notice",
       inspector: "Inspector " + (n % 8),
       owner: "SYNTHETIC OWNER",
