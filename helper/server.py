@@ -32,7 +32,7 @@ from runtime_paths import UPDATE_BLOCKED, deployed_build, no_window, resource as
 
 import http.server, socketserver, json, os, stat, sys, subprocess, tempfile, shutil, threading, time
 from pathlib import Path
-import math
+from json_numbers import finite_json
 
 sys.path.insert(0, str(Path(__file__).parent / "vendor/site"))
 import address_parser
@@ -94,25 +94,10 @@ STATIC_ROUTES = {
 FAVICON = "document-writer.ico"
 
 
-def _non_finite(token):
-    raise ValueError("Request numbers must be finite")
-
-
-def _finite_number(text, kind=float):
-    value = kind(text)
-    try:
-        finite = math.isfinite(value)
-    except OverflowError:
-        finite = False
-    if not finite:
-        _non_finite(text)
-    return value
-
-
 def request_json(raw):
     """A request body as JSON. NaN and Infinity are not JSON and the browser never sends them; refusing them keeps
     such values out of validation, pricing and every case file."""
-    return json.loads(raw, parse_constant=_non_finite, parse_float=_finite_number, parse_int=lambda text: _finite_number(text, int))
+    return finite_json(raw, "Request numbers must be finite")
 
 
 def start_session(folder=None):

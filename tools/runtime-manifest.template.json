@@ -19,6 +19,7 @@
     "ssrs_reports.py",
     "ssrs_fetch.ps1",
     "case_store.py",
+    "json_numbers.py",
     "publication_validation.py",
     "cash_validation.py",
     "issuance_validation.py",
@@ -157,6 +158,7 @@
     "parcel_history.py": "helper/parcel_history.py",
     "projection_values.py": "helper/projection_values.py",
     "publication_validation.py": "helper/publication_validation.py",
-    "citation_disposition.py": "helper/citation_disposition.py"
+    "citation_disposition.py": "helper/citation_disposition.py",
+    "json_numbers.py": "helper/json_numbers.py"
   }
 }
