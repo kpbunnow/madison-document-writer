@@ -127,7 +127,7 @@ module.exports = async function (browser, page, out, axeScreen, work, base) {
   }
   const reports = await browser.newPage();
   await reports.goto(base + "/madison-reports.html");
-  await reports.waitForFunction(() => typeof ReportsState.S !== "undefined" && ReportsState.S.phase === "ready");
+  await reports.waitForFunction(() => typeof ReportsState !== "undefined" && ReportsState.S.phase === "ready");
   await reports.getByRole("button", { name: "Deposit schedule", exact: true }).click();
   assert.match(await reports.locator("body").innerText(), /Base deposits below exclude assessments.*calculated/s);
   assert.equal(await reports.locator(".rep tbody tr").count(), 40, "Schedule rendering is bounded without changing the full policy");

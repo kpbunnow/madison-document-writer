@@ -165,7 +165,7 @@ module.exports = async function (browser, page, context, OUT, axeScreen, axeThem
       },
     };
     await reports.goto(base + "/madison-reports.html");
-    await reports.waitForFunction(() => ReportsState.S.phase === "ready");
+    await reports.waitForFunction(() => typeof ReportsState !== "undefined" && ReportsState.S.phase === "ready");
     for (const size of [
       { width: 1366, height: 900 },
       { width: 760, height: 900 },

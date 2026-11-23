@@ -153,7 +153,9 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
       await idbSet("drafts", b);
     }, bundle);
     await restored.reload();
-    await restored.waitForFunction(() => WriterState.WRITER_READY === true && WriterState.REINSP.some((r) => r.caseId === "r46-synthetic"));
+    await restored.waitForFunction(
+      () => typeof WriterState !== "undefined" && WriterState.WRITER_READY === true && WriterState.REINSP.some((r) => r.caseId === "r46-synthetic"),
+    );
     await restored.evaluate(() => startReinspection("r46-synthetic"));
     assert.equal(
       await restored.locator('[data-rinote="r46-item-3"]').inputValue(),

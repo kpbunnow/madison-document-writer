@@ -52,7 +52,7 @@ async function largeWorkspace(page, context) {
     return JSON.stringify(await idbGet("drafts", true));
   });
   await page.reload();
-  await page.waitForFunction(() => WriterState.WRITER_READY === true);
+  await page.waitForFunction(() => typeof WriterState !== "undefined" && WriterState.WRITER_READY === true);
   const actual = await page.evaluate(async () => ({
     cases: WriterState.CASES.length,
     documents: WriterState.DOCS.length,
@@ -149,7 +149,7 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
     await context.unroute("**/catalog/reviews");
     // A no-click reload is the normal control and preserves the same private draft.
     await page.reload();
-    await page.waitForFunction(() => WriterState.WRITER_READY === true);
+    await page.waitForFunction(() => typeof WriterState !== "undefined" && WriterState.WRITER_READY === true);
     assert.deepEqual(await retained(), expected);
     // A read failure must be visible and must not be mistaken for an empty database.
     await page.evaluate(() => sessionStorage.setItem("qa-storage-failure", "1"));

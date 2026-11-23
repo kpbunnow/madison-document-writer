@@ -192,7 +192,7 @@ module.exports = async function (browser, page, context, out, axeScreen) {
   await page.locator("#btn-save").click();
   await page.waitForFunction(() => WriterState.state.screen === "cases" && WriterState.LOCAL_SAVE.ok && !WriterState.LOCAL_SAVE.saving);
   await page.reload();
-  await page.waitForFunction((id) => !!doc(id) && doc(id).draft, draftId);
+  await page.waitForFunction((id) => typeof WriterState !== "undefined" && !!doc(id) && doc(id).draft, draftId);
   assert.equal(await page.locator("#case-search,#case-inspector").count(), 0);
   await page
     .locator('[data-open="' + draftId + '"].btn')
