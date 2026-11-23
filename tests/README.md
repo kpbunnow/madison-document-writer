@@ -150,6 +150,7 @@ covers, or a new suite under its feature.
 | `audit_test_seams.js` | Read-only per-file seam/hook inventory; reject new application-bundle evaluation and lower migrated baselines |
 | `audit_safety_pending.js` | Independent pending-action seam: document focus, synchronous live amendment holder dispatch and absent holder |
 | `audit_report_loading.js` | Independent authenticated loading: 500/1 parcel chunks, partial lookup and superseded-response protection |
+| `audit_report_parcel_outage.js` | A City parcel-layer outage stops the Reports parcel batches after two unreachable batches, with a note; answered and partial batches are all still attempted |
 | `audit_language_focus.js` | Independent focus/caret/field/disclosure restoration across every supported catalog control |
 | `audit_repaint_keepers.js` | Real Chromium independent screen-owner seam: live contenteditable and recipient input/caret, native contact edits, validation/model/lock boundaries, action focus, and route changes before/after markup |
 | `audit_benchmark_comparison.js`, `audit_benchmark_comparison.py` | Paired before/after statistics and A/A control; immutable raw evidence, matched fixture/results/environment, rejection of missing work/proofs or altered fixtures, actual five-case read/proof metrics and serial/pooled execution classification |

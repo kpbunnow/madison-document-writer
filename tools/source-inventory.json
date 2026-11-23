@@ -1168,6 +1168,7 @@
     "tests/unit/audit_report_model_rules.js",
     "tests/unit/audit_report_navigation.js",
     "tests/unit/audit_report_owner_phases.js",
+    "tests/unit/audit_report_parcel_outage.js",
     "tests/unit/audit_report_presentation_templates.js",
     "tests/unit/audit_report_projection.py",
     "tests/unit/audit_report_return.js",
