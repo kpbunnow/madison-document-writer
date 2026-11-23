@@ -35,7 +35,6 @@
     "app/modules/storage_status.js:createStorageStatus#1:max-lines-per-function": 87,
     "app/modules/utility_events.js:createUtilityEvents#1:max-lines-per-function": 84,
     "app/modules/writer_handoff.js:createWriterHandoff#1:max-lines-per-function": 91,
-    "helper/case_integrity.py:__init__:C901": 12,
     "helper/case_store.py:file_lock:C901": 13,
     "helper/launch.py:main:C901": 17
   }
