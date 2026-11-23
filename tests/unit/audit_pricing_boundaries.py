@@ -18,6 +18,11 @@ def entry(ordinance, entry_id=None):
 
 
 class PricingBoundaries(unittest.TestCase):
+    def test_sps_prefix_uses_ascii_case_folding_like_the_browser(self):
+        for value, expected in [("sps321.12", "SPS321.12"), ("SPS321.12", "SPS321.12"), ("ſPS321.12", "")]:
+            with self.subTest(value=value):
+                self.assertEqual(P.canonical_ordinance(value), expected)
+
     def test_building_tune_up_rows_and_365_days(self):
         large, small = entry("29.40(4)(b)", "mgo-row-497-29.40(4)(b)"), entry("29.40(4)(b)", "mgo-row-498-29.40(4)(b)")
         # "$3,000, 1st 180 days / $10,000, 365 days" (100,000 sq ft or more); "$2,000 … / $8,000, 365 days" (less).

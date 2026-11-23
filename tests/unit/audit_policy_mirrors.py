@@ -151,7 +151,16 @@ class PolicyMirrors(unittest.TestCase):
         spaces = ["", " ", "\t", "\n", "\u00a0", "\u2003", "\u3000", "\ufeff", "\u0085", "\x1c", "\x1f", "\u200b", "\u2028"]
         prefixes = ["", "MGO ", "M.G.O.", "Sec. ", "Section", "\u00a7 ", "MGO MGO "]
         ordinances = sorted({e["ordinance"] for e in pricing.policy()["entries"]})
-        texts = ["27.05(2)(c)", "27.05\u0085(2)(c)", "\ufeff27.05(2)(c)", "SPS 321.125", "\u0662\u0667.05(2)(c)", "２７.05(2)(c)"]
+        texts = [
+            "27.05(2)(c)",
+            "27.05\u0085(2)(c)",
+            "\ufeff27.05(2)(c)",
+            "SPS 321.125",
+            "sps321.12",
+            "ſPS321.12",
+            "\u0662\u0667.05(2)(c)",
+            "２７.05(2)(c)",
+        ]
         for _ in range(1500):
             o = rng.choice(ordinances)
             if rng.random() < 0.3:
