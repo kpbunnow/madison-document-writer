@@ -332,7 +332,8 @@ module.exports = async function (browser, page, out, axeScreen, work, base) {
       .run(ReportsState.S.M, ReportsState.S.F)
       .points.map((x) => x.caseType),
     overrides: reportById("overriddenDeposits").run(ReportsState.S.M, ReportsState.S.F).rows.length,
-    citationCount: reportById("citations").run(ReportsState.S.M, { ...ReportsState.S.F, ord: "10.28" }).total[1].n,
+    // The January 2026 example is outside the default year-to-date period after 2026; count from before it.
+    citationCount: reportById("citations").run(ReportsState.S.M, { ...ReportsState.S.F, from: "2026-01-01", ord: "10.28" }).total[1].n,
     closed: reportById("allCases").run(ReportsState.S.M, ReportsState.S.F).total[3].n,
     snowCases: ReportsState.S.M.counted
       .filter((x) => x.caseType === "snow-10.28")
