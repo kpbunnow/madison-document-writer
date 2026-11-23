@@ -8,8 +8,10 @@ Both still happen in those cases, and the verdicts are unchanged."""
 
 import hashlib
 import json
+from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from pathlib import Path
 import tempfile
+from threading import Event
 import unittest
 from unittest.mock import patch
 
@@ -74,6 +76,69 @@ class SummaryReads:
 
 
 class HelperScaleReads(unittest.TestCase):
+    def test_parallel_checks_wait_for_complete_downgrade_evidence(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            index = shared_folder(root, 2)
+            registry = root / "_integrity/migrated.json"
+            registry.write_text(json.dumps({"format": "madison-migration-registry", "entries": []}))
+            records = []
+            for n in range(2):
+                value = json.loads((root / ("TEST - QA-SC-" + str(n) + ".json")).read_text())
+                value.pop("integrity")
+                value["schema"] = 4
+                records.append(value)
+            reading, release, checking = Event(), Event(), Event()
+            reads = []
+
+            def reader(path):
+                reads.append(path)
+                reading.set()
+                if not release.wait(5):
+                    raise OSError("synthetic evidence read was not released")
+                return json.loads(path.read_text(encoding="utf-8"))
+
+            context = integrity.VerificationContext(root, summary_reader=reader)
+
+            def second_check():
+                checking.set()
+                return integrity.verify_record(records[1], root, context=context)
+
+            with ThreadPoolExecutor(max_workers=2) as pool:
+                first = pool.submit(integrity.verify_record, records[0], root, context=context)
+                try:
+                    self.assertTrue(reading.wait(2))
+                    second = pool.submit(second_check)
+                    self.assertTrue(checking.wait(2))
+                    with self.assertRaises(TimeoutError, msg="a parallel check must not accept incomplete evidence"):
+                        second.result(timeout=0.3)
+                finally:
+                    release.set()
+                self.assertFalse(first.result()["valid"])
+                self.assertFalse(second.result()["valid"])
+            self.assertEqual(len(reads), len(list(index.glob("*.json"))), "one complete summary inventory per context")
+
+    def test_interrupted_inventory_cannot_make_the_next_check_accept_a_downgrade(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            shared_folder(root, 1)
+            (root / "_integrity/migrated.json").write_text(json.dumps({"format": "madison-migration-registry", "entries": []}))
+            stripped = json.loads((root / "TEST - QA-SC-0.json").read_text())
+            stripped.pop("integrity")
+            stripped["schema"] = 4
+            calls = []
+
+            def reader(path):
+                calls.append(path)
+                if len(calls) == 1:
+                    raise OSError("synthetic interrupted evidence read")
+                return json.loads(path.read_text(encoding="utf-8"))
+
+            context = integrity.VerificationContext(root, summary_reader=reader)
+            self.assertFalse(integrity.verify_record(stripped, root, context=context)["valid"])
+            self.assertFalse(integrity.verify_record(stripped, root, context=context)["valid"])
+            self.assertEqual(len(calls), 2, "the interrupted inventory must be retried")
+
     def test_opening_and_verifying_a_registered_case_reads_no_summaries(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)

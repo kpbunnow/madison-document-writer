@@ -29,7 +29,7 @@ def canonical_ordinance(value):
     p = policy()
     text = re.sub(WHITESPACE, "", str(value or ""))
     text = re.sub(p["prefix"], "", text, flags=re.I | re.ASCII)
-    text = re.sub("^sps", "SPS", text, flags=re.I)
+    text = re.sub("^sps", "SPS", text, flags=re.I | re.ASCII)
     text = re.sub(r"\(([^)]+)\)", lambda m: "(" + m[1].lower() + ")", text)
     if re.search(r"\)[0-9]+$", text):
         text += "."

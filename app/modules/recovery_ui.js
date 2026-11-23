@@ -9,7 +9,7 @@ import { html, raw } from "./screen_html.js";
 // Recovery presentation and working controls; workflow/storage authority stays supplied.
 /* Recovery dialog sections. Each builds its markup from the recovery state it is given. */
 // The selected copy is marked on its row, not only in the details below, so it cannot be mistaken for another.
-const selectedRow = (x, b) => !!b && x.workspace === b.workspace && x.case === b.case && x.at === b.at;
+const selectedRow = (x, b) => !!b && x === recovery.RECOVERY.selectedRow;
 
 function backupList(list, selected) {
   return (

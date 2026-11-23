@@ -702,13 +702,16 @@ async function lookUpReportParcels(services, get, need, refreshParcels, supersed
           (lk.error || "The city parcel layer could not be reached") +
           ". The remaining " +
           services.plural(remaining, "parcel") +
-          " were not looked up and are shown as unlocated; refresh to try again.";
+          (refreshParcels
+            ? " were not refreshed; cached locations are retained where available, and other cases are shown as unlocated. Refresh to try again."
+            : " were not looked up and are shown as unlocated; refresh to try again.");
         break;
       }
     }
   } catch (e) {
     if (superseded()) return false;
-    ReportsState.S.parcelNote = "The parcel lookup failed (" + (e.message || e) + "). Cases not yet looked up are shown as unlocated.";
+    ReportsState.S.parcelNote =
+      "The parcel lookup failed (" + (e.message || e) + "). Cached locations are retained where available; other cases are shown as unlocated.";
   }
   return true;
 }

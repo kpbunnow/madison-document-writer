@@ -151,26 +151,35 @@ function applyRecoveredCase(staged, pending) {
   workspace.seq = staged.seq;
 }
 
+async function scopedListRecovery(services) {
+  const token = ++recovery.RECOVERY_SELECT_SEQ;
+  recovery.RECOVERY.loading = true;
+  recovery.RECOVERY.selected = null;
+  recovery.RECOVERY.selectedRow = null;
+  recovery.RECOVERY.shared = null;
+  editor.state.modal = "recovery";
+  services.render();
+  try {
+    const result = await services.helperJSON("/draft-backups/list");
+    if (editor.state.modal !== "recovery" || recovery.RECOVERY_SELECT_SEQ !== token) return;
+    recovery.RECOVERY.list = result.backups;
+    recovery.RECOVERY.error = "";
+  } catch (e) {
+    if (editor.state.modal !== "recovery" || recovery.RECOVERY_SELECT_SEQ !== token) return;
+    recovery.RECOVERY.error = e.message;
+    recovery.RECOVERY.list = [];
+  }
+  recovery.RECOVERY.loading = false;
+  services.render();
+}
+
 // Individual-case recovery coordination; UI, helper/shared comparison and device storage stay supplied.
 export function createCaseRecovery(services) {
-  async function listRecovery() {
-    recovery.RECOVERY.loading = true;
-    editor.state.modal = "recovery";
-    services.render();
-    try {
-      recovery.RECOVERY.list = (await services.helperJSON("/draft-backups/list")).backups;
-      recovery.RECOVERY.error = "";
-    } catch (e) {
-      recovery.RECOVERY.error = e.message;
-      recovery.RECOVERY.list = [];
-    }
-    recovery.RECOVERY.loading = false;
-    services.render();
-  }
-
   async function selectRecovery(row) {
     const token = ++recovery.RECOVERY_SELECT_SEQ;
+    recovery.RECOVERY.loading = false;
     recovery.RECOVERY.selected = null;
+    recovery.RECOVERY.selectedRow = null;
     recovery.RECOVERY.shared = null;
     services.render();
     const result = row.imported
@@ -182,6 +191,7 @@ export function createCaseRecovery(services) {
     const shared = await recoverySharedState(backup);
     if (editor.state.modal !== "recovery" || recovery.RECOVERY_SELECT_SEQ !== token) return;
     recovery.RECOVERY.selected = backup;
+    recovery.RECOVERY.selectedRow = row;
     recovery.RECOVERY.shared = shared;
     services.render();
   }
@@ -315,7 +325,7 @@ export function createCaseRecovery(services) {
     }
   }
   return {
-    listRecovery,
+    listRecovery: () => scopedListRecovery(services),
     selectRecovery,
     validateRecovery,
     restoreRecovery,
