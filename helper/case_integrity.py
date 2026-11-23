@@ -196,7 +196,7 @@ class VerificationContext:
         self.by_number = {}
         for entry in self.value["entries"]:
             self.by_number.setdefault(entry["caseNumber"].casefold(), []).append(entry)
-        self.anchors, self.known = {}, {e["caseNumber"].casefold() for e in self.value["entries"]}
+        self.anchors, self._known = {}, {e["caseNumber"].casefold() for e in self.value["entries"]}
         self.complete_day = ""
         self._read_receipts(external or protected_folder(folder))
         for path in (self.folder / "_integrity").glob("*.json"):
@@ -207,26 +207,37 @@ class VerificationContext:
                 continue
             digest = json.loads(path.read_text(encoding="utf-8"))
             for entry in digest.get("entries", []):
-                self.known.update(n.casefold() for n in entry.get("heads", {}))
-
-        def read_summary(path):
-            try:
-                return json.loads(path.read_text(encoding="utf-8"))
-            except OSError, ValueError:
-                return None
-
+                self._known.update(n.casefold() for n in entry.get("heads", {}))
         self.summary_paths = list((self.folder / "Reporting Index").glob("*.json"))
-        for summary in ordered_reads(sorted(self.summary_paths), summary_reader or read_summary, summary_workers):
-            if not isinstance(summary, dict):
-                continue
-            meta = summary.get("integrity")
-            case = summary.get("case")
-            if isinstance(meta, dict) and meta.get("headHash") and isinstance(case, dict) and isinstance(case.get("number"), str):
-                self.known.add(case["number"].casefold())
+        self._summary_reader, self._summary_workers, self._summaries_read = summary_reader, summary_workers, False
         self.pending = {}
         for path in (self.folder / "_integrity" / "transactions").glob("*.json"):
             intent = read_intent(path)
             self.pending[intent["record"]["case"]["number"].casefold()] = intent
+
+    @property
+    def known(self):
+        """Every case number with modern-integrity evidence: registry, protected digests and current summaries.
+
+        Only a record with no retained registry entry needs it (the downgrade check), so the summaries of the whole
+        folder are read the first time it is asked for, once per context, instead of on every save and open."""
+        if not self._summaries_read:
+            self._summaries_read = True
+
+            def read_summary(path):
+                try:
+                    return json.loads(path.read_text(encoding="utf-8"))
+                except OSError, ValueError:
+                    return None
+
+            for summary in ordered_reads(sorted(self.summary_paths), self._summary_reader or read_summary, self._summary_workers):
+                if not isinstance(summary, dict):
+                    continue
+                meta = summary.get("integrity")
+                case = summary.get("case")
+                if isinstance(meta, dict) and meta.get("headHash") and isinstance(case, dict) and isinstance(case.get("number"), str):
+                    self._known.add(case["number"].casefold())
+        return self._known
 
     def _read_receipts(self, external):
         """Protected receipts, newest first. The newest complete digest carries every earlier anchor and known number
@@ -250,7 +261,7 @@ class VerificationContext:
             for entry in reversed(digest["entries"]):
                 self._read_digest_entry(entry)
             if digest.get("complete") is True:
-                self.known.update(n.casefold() for n in digest.get("known", []))
+                self._known.update(n.casefold() for n in digest.get("known", []))
                 self.complete_day = digest["day"]
                 return
 
@@ -261,7 +272,7 @@ class VerificationContext:
                 raise ValueError("Anchored migration registry changed")
         for number, head in entry["heads"].items():
             self.anchors.setdefault(number.casefold(), head)
-            self.known.add(number.casefold())
+            self._known.add(number.casefold())
 
     def retained(self, record):
         number = record["case"]["number"].casefold()

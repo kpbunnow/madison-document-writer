@@ -833,10 +833,16 @@ def validate_catalog_publication(current, incoming, catalog_file, manifest_file)
             _validate_catalog_selection(item=item, manifest=manifest, latest=latest, replacements=replacements)
 
 
-def _has_priced_citation(record):
-    """Whether any event issues a priced citation. Wrong-shaped records answer no here; validation refuses them next."""
+def _has_priced_citation(record, historical_ids=frozenset()):
+    """Whether an event not already in the saved record issues a priced citation.
+
+    Only those events are priced against cross-case history (validate_history checks pricing only outside
+    historical_ids), so a later reinspection, note or filing save of a cited case does not read every shared case.
+    Wrong-shaped records answer no here; validation refuses them next."""
     events = record.get("events") if isinstance(record, dict) else None
     for event in events if isinstance(events, list) else []:
+        if isinstance(event, dict) and event.get("id") in historical_ids:
+            continue
         payload = event.get("payload") if isinstance(event, dict) else None
         snapshot = payload.get("snapshot") if isinstance(payload, dict) else None
         if not isinstance(snapshot, dict):
@@ -999,8 +1005,9 @@ def _save_case(folder, name, incoming, base_revision="", base_case=None, idempot
             )
             if already_committed is not None:
                 return already_committed
-        cross_case = citation_history(folder, number_key)["history"] if _has_priced_citation(output) else []
-        validate_history(output, {e["id"] for e in current.get("events", [])} if previous is not None else set(), cross_case, folder)
+        historical_ids = {e["id"] for e in current.get("events", [])} if previous is not None else set()
+        cross_case = citation_history(folder, number_key)["history"] if _has_priced_citation(output, historical_ids) else []
+        validate_history(output, historical_ids, cross_case, folder)
         restart = case_integrity.automatic_restart(folder, number) if output.get("schema", 1) >= 5 and previous is None else None
         if output.get("schema", 1) >= 5:
             output = case_integrity.commit_record(current if previous is not None else None, output, restart=restart)
