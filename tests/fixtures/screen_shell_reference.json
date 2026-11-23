@@ -26,12 +26,12 @@
   },
   "files": {
     "madison-document-writer.html": {
-      "beforeNormalizedShellSha256": "b62372fe0713563b6360e3626d94b43c7ccd5aa54577f816ac78ee631526e480",
-      "normalizedShellSha256": "c4595ded294d943fa80c43d27ce4dbf1ad3d653736aed0e6bcd8c1feb940ead2"
+      "beforeNormalizedShellSha256": "c4595ded294d943fa80c43d27ce4dbf1ad3d653736aed0e6bcd8c1feb940ead2",
+      "normalizedShellSha256": "374feac8f00d153eae830bd04f8dce6db6a9fb16d4f3093ff246b5c33ff7e884"
     },
     "madison-reports.html": {
-      "beforeNormalizedShellSha256": "f26b2e832a858beb9419a1a65e68957f01d4446ca3e97ea63a681e944389c845",
-      "normalizedShellSha256": "b429116ba515fa7b78f56c965f9cc7f7fd632cf18c52fe3ef1d3fa85464a20d7"
+      "beforeNormalizedShellSha256": "b429116ba515fa7b78f56c965f9cc7f7fd632cf18c52fe3ef1d3fa85464a20d7",
+      "normalizedShellSha256": "2c7452b0d9926ebc49c89f5f6b693c9b7a02f7db9a5065a05195239fe54d587a"
     }
   },
   "reviews": [
@@ -319,6 +319,22 @@
         }
       },
       "evidence": "docs/developer/SCREEN-VISUAL-REVIEW.md (Recovery selection and dark-theme contrast, 2026-11-23)"
+    },
+    {
+      "date": "2026-11-23",
+      "sourceCommit": "c0918a3c2e567db5a12467ade65fb0c6851633a9",
+      "scope": "Shared stylesheet: dark-theme contrast for the correction eyebrow, links on the document paper and the map attribution link. Screen-only, append-only stylesheet block. Approved print unchanged.",
+      "files": {
+        "madison-document-writer.html": {
+          "before": "c4595ded294d943fa80c43d27ce4dbf1ad3d653736aed0e6bcd8c1feb940ead2",
+          "after": "374feac8f00d153eae830bd04f8dce6db6a9fb16d4f3093ff246b5c33ff7e884"
+        },
+        "madison-reports.html": {
+          "before": "b429116ba515fa7b78f56c965f9cc7f7fd632cf18c52fe3ef1d3fa85464a20d7",
+          "after": "2c7452b0d9926ebc49c89f5f6b693c9b7a02f7db9a5065a05195239fe54d587a"
+        }
+      },
+      "evidence": "docs/developer/SCREEN-VISUAL-REVIEW.md (Dark-theme contrast sweep, 2026-11-23)"
     }
   ]
 }

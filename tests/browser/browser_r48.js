@@ -128,6 +128,8 @@ module.exports = async function (browser, hostPage, OUT, axeScreen, axeThemes) {
     assert.equal(await page.evaluate(() => ReportsState.S.tableSort.dir), -1);
     await axeScreen(page, "r48-saved-view");
     await page.locator("[data-view=map]").click();
+    // The map and its attribution control in every theme.
+    await themes("r48-map-view");
     await page.locator(".map-table-alternative>summary").click();
     assert.equal(await page.locator(".map-table-alternative .rep").count(), 1);
     await axeScreen(page, "r48-map-table-alternative");

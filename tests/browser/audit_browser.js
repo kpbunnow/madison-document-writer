@@ -598,6 +598,8 @@ async function axeThemes(page, screen) {
   );
   await page.locator('[data-field="text"]').first().fill("Repair the west exterior wall.");
   await page.locator('[data-case="ownerBlock"]').fill("CORRECTED TEST PROPERTY OWNER\n101 EXAMPLE LANE\nMADISON WI 53703");
+  // The correction draft (its eyebrow and the Withdraw item links on the paper) in every theme.
+  await axeThemes(page, "correction-draft");
   assert.equal(
     await page.evaluate(() => kase(WriterState.CASES[0].id).owner),
     "TEST PROPERTY OWNER",

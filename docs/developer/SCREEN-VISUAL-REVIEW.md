@@ -184,3 +184,41 @@ The before and after builds were compared on the 263 synthetic DOM states captur
 
 Approved print style, print goldens and wording are unchanged. The current shell and CSS references record this
 explained change. This is technical visual review, not staff or native Windows acceptance.
+
+## Dark-theme contrast sweep — 2026-11-23
+
+A sweep drove the production Writer and Reports through 46 states with synthetic data and ran the suite's axe rules
+(WCAG 2.2 AA tags) at each one: 552 scans. The states covered:
+- every dialog;
+- the citation charge card;
+- the correction draft and its review;
+- recovery with a chosen copy;
+- Tools, Saved work and Message history;
+- every Reports screen and the map.
+
+Each state was scanned in the Light, Dark, High contrast and Use device setting (dark OS) themes, at three sizes:
+desktop 1280×800, 200% zoom (a 640×400 CSS viewport) and phone 390×844.
+
+None of the 552 scans found horizontal overflow. In both dark themes, at every size, three elements failed contrast:
+- **Correction draft eyebrow:** "Correction draft · Revision 1" was `#216c7e` on `#192f43` (2.29:1).
+- **Withdraw item link:** it sits on the white document paper but took the dark theme's light link colour, `#a4d5ff`
+  on white (1.55:1).
+- **Reports map attribution link:** `#a4d5ff` on `#f8f8f8` (1.46:1).
+
+An append-only, screen-only block in `ui-refresh.css` gives these three elements existing colours, in the Dark and
+system-dark themes only:
+- the eyebrow uses the dark civic colour;
+- the paper link and the attribution link use the paper's `#174f82`.
+
+The vendored Leaflet stylesheet and approved print are unchanged. After the change, the same sweep found no
+violations in any state, theme or size. The browser suite now also scans the correction draft
+(`correction-draft-*`) and the Reports map view (`r48-map-view*`) in every theme.
+
+The before and after builds were compared on the 263 synthetic DOM states captured by the browser audit, in normal and
+forced colors (526 comparisons):
+- **Styles and geometry:** all 526 are identical. No captured state shows these dark-theme elements.
+- **Pixels:** 70 comparisons have raw PNG differences with identical styles and geometry, in line with the recorded
+  native rasterization noise.
+
+The current shell and CSS references record this explained change. This is technical review, not staff, screen-reader
+or native Windows acceptance.
