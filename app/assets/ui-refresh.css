@@ -2882,6 +2882,46 @@
   }
 }
 
+/* Recovery and correction review (2026-11-23): the chosen recovery copy is marked on its row, and in the dark themes
+   the recovery rows and the correction change table no longer keep light backgrounds behind light text. */
+@media screen {
+  .folderlist button[aria-pressed="true"] {
+    border-color: var(--civic);
+    box-shadow: inset 4px 0 0 var(--civic);
+    font-weight: 600;
+  }
+  [data-theme="dark"] .folderlist button,
+  [data-theme="dark"] .change-table caption,
+  [data-theme="dark"] .change-table thead th {
+    background: #1b344b;
+    color: #edf6ff;
+  }
+  [data-theme="dark"] .change-table,
+  [data-theme="dark"] .change-table th,
+  [data-theme="dark"] .change-table td {
+    border-color: #526b82;
+  }
+  [data-theme="dark"] .folderlist button:hover {
+    background: var(--civic-tint);
+  }
+  @media (prefers-color-scheme: dark) {
+    [data-theme="system"] .folderlist button,
+    [data-theme="system"] .change-table caption,
+    [data-theme="system"] .change-table thead th {
+      background: #1b344b;
+      color: #edf6ff;
+    }
+    [data-theme="system"] .change-table,
+    [data-theme="system"] .change-table th,
+    [data-theme="system"] .change-table td {
+      border-color: #526b82;
+    }
+    [data-theme="system"] .folderlist button:hover {
+      background: var(--civic-tint);
+    }
+  }
+}
+
 /* Short viewports at high zoom keep the working document reachable. */
 @media screen and (max-height: 600px) {
   .editor-controls {

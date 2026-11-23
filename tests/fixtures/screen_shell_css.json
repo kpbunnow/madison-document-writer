@@ -72,10 +72,10 @@
     },
     "ui-refresh.css": {
       "beforeSha256": "e0144fc15123ce89544458f0084c070a2eba18948cae9c687c28e8f68d859c7a",
-      "afterSha256": "46f33ad3e3dee479f810b02b073298b386f39f667522e9455113da3738935b93",
+      "afterSha256": "595c2e2996236dbf805b5a92524b09c7a5fbd526f52d8d4600511628185fb7de",
       "beforeBytes": 48561,
-      "afterBytes": 60225,
-      "retainedRulesSha256": "7d0bf39c4213c5dc8fc79169673fdb9cbcbcf5f207ece0d9d411bd58ea375017"
+      "afterBytes": 62431,
+      "retainedRulesSha256": "1b052c2cea0cc87582923b7eabd3f8aff77504aa8b5621dc37842bfc86d43524"
     }
   },
   "selectorChanges": [
@@ -963,6 +963,20 @@
         }
       },
       "evidence": "docs/developer/SCREEN-CONTROLS.md"
+    },
+    {
+      "date": "2026-11-23",
+      "sourceCommit": "77716870064562d760f98241e665f1ed9d4e4d6b",
+      "scope": "Recovery selection and dark-theme contrast: .folderlist button[aria-pressed=true] marks the chosen recovery copy; in the Dark and system-dark themes .folderlist buttons and .change-table caption/header cells use the dark input surface (#1b344b, #edf6ff) with the dark rule border instead of light backgrounds behind light text. Append-only screen block; preserves all 61,114 earlier stylesheet bytes. Approved print unchanged.",
+      "rules": {
+        "ui-refresh.css": {
+          "beforeSha256": "46f33ad3e3dee479f810b02b073298b386f39f667522e9455113da3738935b93",
+          "afterSha256": "595c2e2996236dbf805b5a92524b09c7a5fbd526f52d8d4600511628185fb7de",
+          "unchangedRulesSha256": "7d0bf39c4213c5dc8fc79169673fdb9cbcbcf5f207ece0d9d411bd58ea375017",
+          "unchangedPrefixBytes": 61114
+        }
+      },
+      "evidence": "docs/developer/SCREEN-VISUAL-REVIEW.md (Recovery selection and dark-theme contrast, 2026-11-23)"
     }
   ]
 }

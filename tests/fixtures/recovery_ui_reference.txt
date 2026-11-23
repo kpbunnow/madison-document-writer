@@ -110,6 +110,14 @@ export function createRecoveryUI(services) {
                     (x, i) =>
                       '<button data-recovery-row="' +
                       `${i}` +
+                      // Intentional change (selected copy marked on its row): aria-pressed, as in recovery_ui.js.
+                      '" aria-pressed="' +
+                      `${
+                        !!recovery.RECOVERY.selected &&
+                        x.workspace === recovery.RECOVERY.selected.workspace &&
+                        x.case === recovery.RECOVERY.selected.case &&
+                        x.at === recovery.RECOVERY.selected.at
+                      }` +
                       '" ' +
                       `${x.error ? "disabled" : ""}` +
                       ">" +

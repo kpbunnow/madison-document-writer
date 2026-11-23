@@ -153,3 +153,34 @@ The before and after builds were compared on the 309 synthetic DOM states captur
 - **Reflow:** every other difference is the resulting 11–16 px shift or growth of content and containers below those elements. In three forced-colors captures, a control's hover border also changes, because the replay's fixed mouse point now rests on a different control.
 
 The production browser audit, including axe checks, themes and responsive layouts, is run on the polished build. The current shell and CSS references record this explained change. This is technical visual review, not staff or native Windows acceptance.
+
+## Recovery selection and dark-theme contrast — 2026-11-23
+
+Recapturing the program manual in the Dark color theme showed two screens with light backgrounds behind light text, and
+a related recovery problem:
+- **Review correction:** the change table's caption and header row ("Changes from the issued version", "Field",
+  "Previously issued", "Correction draft") kept their light backgrounds, so the light theme text was close to
+  invisible.
+- **Recover unfinished work:** the recovery rows kept a white background. The hovered row turned dark blue with dim
+  text.
+- **Selection:** choosing a copy left no mark on its row, and keyboard focus moved to the file input. The pointer's hover
+  highlight then sat on a different row from the one the details described.
+
+The fix is an append-only, screen-only block in `ui-refresh.css`. It adds no new colours; it reuses the dark theme's
+existing input surface (`#1b344b`, `#edf6ff`) and rule border (`#526b82`):
+- `.folderlist button[aria-pressed="true"]` marks the chosen copy with the civic border, an inner left bar and bold
+  text. The row also carries `aria-pressed="true"`, and focus returns to it.
+- In the Dark theme and the system-dark theme, `.folderlist` buttons and the `.change-table` caption and header cells
+  use the input surface, and the table borders use the dark rule colour.
+
+The before and after builds were compared on the 263 synthetic DOM states captured by the browser audit, in Chromium
+159, in normal and forced colors (526 comparisons):
+- **Styles and geometry:** all 526 are identical. None of the captured states shows a dark-theme recovery dialog, a
+  dark-theme correction change table or a selected recovery row, so the new rules change nothing that was captured.
+- **Pixels:** 68 comparisons have raw PNG differences with identical styles and geometry. That is in line with the
+  same-CSS control noise recorded above (55 and 56); a new same-CSS control was not run.
+- **The changed screens themselves:** they are shown by the Dark-theme manual media recaptured after this change
+  (Review correction in `clip-correction`, the recovery dialog in `clip-recovery`).
+
+Approved print style, print goldens and wording are unchanged. The current shell and CSS references record this
+explained change. This is technical visual review, not staff or native Windows acceptance.
