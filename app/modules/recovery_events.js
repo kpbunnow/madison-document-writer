@@ -78,6 +78,17 @@ const WORKING_ACTIONS = [
   [(b) => b.id === "btn-exportprevious", exportPreviousDraft],
 ];
 
+// The dialog is redrawn after a copy is chosen; keep keyboard focus on that copy's row.
+function chooseRecoveryRow(services, row) {
+  return services.recovery
+    .selectRecovery(row)
+    .then(() => document.querySelector('[data-recovery-row][aria-pressed="true"]')?.focus())
+    .catch((err) => {
+      recovery.RECOVERY.error = err.message;
+      services.ui.render();
+    });
+}
+
 export function createRecoveryEvents(services) {
   function registerWorkingInput(target = document) {
     return registerEventOnce(
@@ -156,14 +167,7 @@ export function createRecoveryEvents(services) {
         return;
       }
       if (t.dataset.recoveryRow !== undefined) {
-        services.recovery
-          .selectRecovery(recovery.RECOVERY.list[+t.dataset.recoveryRow])
-          // The dialog is redrawn; keep keyboard focus on the copy that was chosen.
-          .then(() => document.querySelector('[data-recovery-row][aria-pressed="true"]')?.focus())
-          .catch((err) => {
-            recovery.RECOVERY.error = err.message;
-            services.ui.render();
-          });
+        chooseRecoveryRow(services, recovery.RECOVERY.list[+t.dataset.recoveryRow]);
         return;
       }
       if (t.hasAttribute("data-recovery-restore")) {

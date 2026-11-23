@@ -56,7 +56,7 @@ module.exports = async function (browser, hostPage, OUT, axeScreen, axeThemes) {
   };
   try {
     await page.goto(new URL("/madison-reports.html", hostPage.url()).href);
-    await page.waitForFunction(() => typeof ReportsState.S !== "undefined" && ReportsState.S.phase === "ready");
+    await page.waitForFunction(() => typeof ReportsState !== "undefined" && ReportsState.S.phase === "ready");
     assert.equal(await page.evaluate(() => ReportsState.S.M.counted.length), 600);
     assert.equal(await page.evaluate(() => ReportsState.S.M.byNo["QA-R48-OLD"]), undefined);
     assert.equal(await page.locator("#report-menu").evaluate((el) => el.open), false);

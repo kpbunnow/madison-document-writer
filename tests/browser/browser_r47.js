@@ -178,7 +178,7 @@ module.exports = async function (browser, hostPage, OUT, axeScreen, axeThemes) {
     await touch.waitForFunction(() => typeof WriterState.state !== "undefined" && IDB_OK);
     await touch.evaluate(async (b) => idbSet("drafts", b), bundle);
     await touch.reload();
-    await touch.waitForFunction(() => WriterState.DOCS.some((d) => d.caseId === "r47-case"));
+    await touch.waitForFunction(() => typeof WriterState !== "undefined" && WriterState.DOCS.some((d) => d.caseId === "r47-case"));
     await touch.evaluate(() => {
       WriterState.state.docId = WriterState.DOCS.find((d) => d.caseId === "r47-case").id;
       WriterState.state.screen = "write";

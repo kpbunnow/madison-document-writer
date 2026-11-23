@@ -26,12 +26,12 @@
   },
   "files": {
     "madison-document-writer.html": {
-      "beforeNormalizedShellSha256": "75936c3b560d33cd483fa2fef86e539eda58866dd4e26dc01209af5a8d9d3bdd",
-      "normalizedShellSha256": "b62372fe0713563b6360e3626d94b43c7ccd5aa54577f816ac78ee631526e480"
+      "beforeNormalizedShellSha256": "b62372fe0713563b6360e3626d94b43c7ccd5aa54577f816ac78ee631526e480",
+      "normalizedShellSha256": "c4595ded294d943fa80c43d27ce4dbf1ad3d653736aed0e6bcd8c1feb940ead2"
     },
     "madison-reports.html": {
-      "beforeNormalizedShellSha256": "d9ffcd8b50f0f829597d33016a25f2ce9ba82b9f8e08a04c9d49091f4a593114",
-      "normalizedShellSha256": "f26b2e832a858beb9419a1a65e68957f01d4446ca3e97ea63a681e944389c845"
+      "beforeNormalizedShellSha256": "f26b2e832a858beb9419a1a65e68957f01d4446ca3e97ea63a681e944389c845",
+      "normalizedShellSha256": "b429116ba515fa7b78f56c965f9cc7f7fd632cf18c52fe3ef1d3fa85464a20d7"
     }
   },
   "reviews": [
@@ -303,6 +303,22 @@
         }
       },
       "evidence": "docs/developer/SCREEN-CONTROLS.md"
+    },
+    {
+      "date": "2026-11-23",
+      "sourceCommit": "77716870064562d760f98241e665f1ed9d4e4d6b",
+      "scope": "Shared stylesheet: marked recovery selection and dark-theme contrast for recovery rows and the correction change table (Writer screens; Reports has no matching elements). Screen-only, append-only stylesheet block. Approved print unchanged.",
+      "files": {
+        "madison-document-writer.html": {
+          "before": "b62372fe0713563b6360e3626d94b43c7ccd5aa54577f816ac78ee631526e480",
+          "after": "c4595ded294d943fa80c43d27ce4dbf1ad3d653736aed0e6bcd8c1feb940ead2"
+        },
+        "madison-reports.html": {
+          "before": "f26b2e832a858beb9419a1a65e68957f01d4446ca3e97ea63a681e944389c845",
+          "after": "b429116ba515fa7b78f56c965f9cc7f7fd632cf18c52fe3ef1d3fa85464a20d7"
+        }
+      },
+      "evidence": "docs/developer/SCREEN-VISUAL-REVIEW.md (Recovery selection and dark-theme contrast, 2026-11-23)"
     }
   ]
 }

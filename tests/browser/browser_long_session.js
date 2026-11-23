@@ -165,7 +165,7 @@ module.exports = async function (browser, hostPage, OUT, axeScreen) {
       if (!(await saveDrafts())) throw Error("Final device save failed");
     });
     await page.reload();
-    await page.waitForFunction(() => WriterState.WRITER_READY === true);
+    await page.waitForFunction(() => typeof WriterState !== "undefined" && WriterState.WRITER_READY === true);
     assert.equal(await page.evaluate(() => WriterState.DOCS.length), 2);
     const texts = await page.evaluate(() => WriterState.DOCS.map((d) => d.items[0].text).sort());
     assert.deepEqual(texts, ["Synthetic session edit " + (cycles - 2), "Synthetic session edit " + (cycles - 1)].sort());
