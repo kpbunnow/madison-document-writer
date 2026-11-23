@@ -1131,12 +1131,12 @@ def legacy_scheduled_citation_base(ordinance, tier):
     return cash_validation.legacy_scheduled_base(policy, ordinance, tier)
 
 
-def _issued_citation_numbers(snap):
+def _reserved_citation_numbers(snap):
     citations = snap.get("cits") or {}
     items = snap.get("items")
     if isinstance(items, list):
-        citations = {i.get("id"): citations.get(i.get("id")) for i in items if i.get("cite") and not i.get("withdrawn")}
-    # Older evidence without item-selection facts remains conservative; selected snapshots reserve only issued charges.
+        citations = {i.get("id"): citations.get(i.get("id")) for i in items}
+    # Existing items (including withdrawn/deselected ones) retain their reservations. Only orphaned fields are ignored.
     return [c.get("num") for c in citations.values() if isinstance(c, dict) and c.get("num")]
 
 
@@ -1148,7 +1148,7 @@ def _refuse_reused_citation_numbers(record, historical_ids, cross_case_history):
     issuing the same number at once cannot both succeed."""
     used = {}
     for entry in cross_case_history:
-        for number in _issued_citation_numbers(entry["document"]):
+        for number in _reserved_citation_numbers(entry["document"]):
             used.setdefault(number, (entry.get("case") or {}).get("number", ""))
     for event in record.get("events", []):
         if event.get("id") in historical_ids or not str(event.get("type", "")).endswith(".issued"):

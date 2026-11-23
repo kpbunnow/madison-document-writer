@@ -53,16 +53,13 @@ class CitationNumberUniqueness(unittest.TestCase):
             again = case_store.save_case(root, first["name"], first["file"], first["revision"], first["file"]["case"])
             self.assertTrue(again["ok"])
 
-    def test_only_issued_items_in_other_cases_reserve_numbers(self):
-        for cite, withdrawn, refused in [(True, False, True), (False, False, False), (True, True, False)]:
+    def test_existing_item_numbers_remain_reserved_even_when_deselected_or_withdrawn(self):
+        for cite, withdrawn in [(True, False), (False, False), (True, True), (False, True)]:
             with self.subTest(cite=cite, withdrawn=withdrawn):
                 record = cited("QA-NUM-5", "B2000000005", "FIFTH OWNER LLC")
                 document = {"items": [{"id": "x", "cite": cite, "withdrawn": withdrawn}], "cits": {"x": {"num": "B2000000005"}}}
                 history = [{"case": {"number": "QA-OTHER"}, "document": document}]
-                if refused:
-                    with self.assertRaisesRegex(ValueError, "already in use on case QA-OTHER"):
-                        case_store._refuse_reused_citation_numbers(record, set(), history)
-                else:
+                with self.assertRaisesRegex(ValueError, "already in use on case QA-OTHER"):
                     case_store._refuse_reused_citation_numbers(record, set(), history)
 
     def test_only_selected_outstanding_items_count(self):
