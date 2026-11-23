@@ -9,6 +9,7 @@ from plain_files import plain_json_files, read_plain_bytes
 from reporting_reads import ordered_reads
 import integrity_verification as verification
 import sys
+import threading
 
 sys.path.insert(0, str(Path(__file__).with_name("vendor") / "python"))
 import rfc8785
@@ -210,6 +211,7 @@ class VerificationContext:
                 self._known.update(n.casefold() for n in entry.get("heads", {}))
         self.summary_paths = list((self.folder / "Reporting Index").glob("*.json"))
         self._summary_reader, self._summary_workers, self._summaries_read = summary_reader, summary_workers, False
+        self._known_lock = threading.Lock()
         self.pending = {}
         for path in (self.folder / "_integrity" / "transactions").glob("*.json"):
             intent = read_intent(path)
@@ -221,23 +223,28 @@ class VerificationContext:
 
         Only a record with no retained registry entry needs it (the downgrade check), so the summaries of the whole
         folder are read the first time it is asked for, once per context, instead of on every save and open."""
-        if not self._summaries_read:
-            self._summaries_read = True
+        # Open-case readers can share this context across worker threads. Never publish a partial inventory or
+        # remember an interrupted read as complete: either can make another check miss retained downgrade evidence.
+        with self._known_lock:
+            if not self._summaries_read:
+                known = set(self._known)
 
-            def read_summary(path):
-                try:
-                    return json.loads(path.read_text(encoding="utf-8"))
-                except OSError, ValueError:
-                    return None
+                def read_summary(path):
+                    try:
+                        return json.loads(path.read_text(encoding="utf-8"))
+                    except OSError, ValueError:
+                        return None
 
-            for summary in ordered_reads(sorted(self.summary_paths), self._summary_reader or read_summary, self._summary_workers):
-                if not isinstance(summary, dict):
-                    continue
-                meta = summary.get("integrity")
-                case = summary.get("case")
-                if isinstance(meta, dict) and meta.get("headHash") and isinstance(case, dict) and isinstance(case.get("number"), str):
-                    self._known.add(case["number"].casefold())
-        return self._known
+                for summary in ordered_reads(sorted(self.summary_paths), self._summary_reader or read_summary, self._summary_workers):
+                    if not isinstance(summary, dict):
+                        continue
+                    meta = summary.get("integrity")
+                    case = summary.get("case")
+                    if isinstance(meta, dict) and meta.get("headHash") and isinstance(case, dict) and isinstance(case.get("number"), str):
+                        known.add(case["number"].casefold())
+                self._known = known
+                self._summaries_read = True
+            return self._known
 
     def _read_receipts(self, external):
         """Protected receipts, newest first. The newest complete digest carries every earlier anchor and known number
