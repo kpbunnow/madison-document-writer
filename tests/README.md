@@ -593,3 +593,8 @@ Full Writer frame/modal/worksheet copy retirement preserves all seeded scenarios
 `browser_recovery_selection.js` uses the real authenticated helper and production Writer: equal-timestamp backup copies, imported source selection, one pressed row, focus after redraw, no restoration merely on selection, numeric-overflow refusal before write, and all screen themes/axe checks. `audit_recovery_selection.js` also guards superseded list/selection reads and imports during loading; the recovery markup suite retains all 6,000 comparison scenarios with a scoped in-memory selection-predicate adaptation and independent file-identity regressions.
 
 `audit_report_parcel_outage.js` also checks retained cached locations inside and beyond the attempted batches during a refresh outage, accurate feedback, and request-failure fallback while retaining all cases.
+
+| Suite | Coverage |
+| --- | --- |
+| `audit_recovery_selection.js` | Maintained recovery owner: source-row identity, reopening, superseded list/selection reads, import while loading, closed-dialog reads and stale error refusal. Historical owner assertions remain independently unchanged. |
+| `browser_recovery_selection.js` | Production Writer and real authenticated helper: equal-timestamp copies, imported selection, focus, one pressed row, no restoration on selection, numeric overflow refusal before backup writes, themes and axe. |
