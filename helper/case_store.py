@@ -1026,6 +1026,7 @@ def _save_case(folder, name, incoming, base_revision="", base_case=None, idempot
         except Exception as error:
             # A damaged shared case blocks pricing; say which file, rather than suggesting this request was unreadable.
             raise ValueError(history_refusal(error)) from None
+        _refuse_reused_citation_numbers(output, historical_ids, cross_case)
         validate_history(output, historical_ids, cross_case, folder)
         restart = case_integrity.automatic_restart(folder, number) if output.get("schema", 1) >= 5 and previous is None else None
         if output.get("schema", 1) >= 5:
@@ -1131,6 +1132,29 @@ def validate_issuance_groups(record):
 def legacy_scheduled_citation_base(ordinance, tier):
     policy = json.loads(resource("citation_policy.json").read_text(encoding="utf-8"))
     return cash_validation.legacy_scheduled_base(policy, ordinance, tier)
+
+
+def _refuse_reused_citation_numbers(record, historical_ids, cross_case_history):
+    """A new citation's number may not already be in force on another shared case.
+
+    Distinct numbers within one case are checked with the case's own history; this covers the rest of the share. The
+    cross-case history is read (under the citation-pricing lock) whenever a save adds a priced citation, so two PCs
+    issuing the same number at once cannot both succeed."""
+    used = {}
+    for entry in cross_case_history:
+        for citation in (entry["document"].get("cits") or {}).values():
+            if isinstance(citation, dict) and citation.get("num"):
+                used.setdefault(citation["num"], (entry.get("case") or {}).get("number", ""))
+    for event in record.get("events", []):
+        if event.get("id") in historical_ids or not str(event.get("type", "")).endswith(".issued"):
+            continue
+        snap = (event.get("payload") or {}).get("snapshot") or {}
+        if snap.get("type") != "citation":
+            continue
+        for item in snap.get("items", []):
+            number = (snap.get("cits", {}).get(item.get("id")) or {}).get("num") if item.get("cite") and not item.get("withdrawn") else None
+            if number in used:
+                raise ValueError("Citation number %s is already in use on case %s. Enter the next unused citation number." % (number, used[number]))
 
 
 def _append_effective_citations(value, history):

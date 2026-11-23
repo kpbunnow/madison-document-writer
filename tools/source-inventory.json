@@ -883,6 +883,7 @@
     "tests/unit/audit_citation_disposition.js",
     "tests/unit/audit_citation_edit_rules.js",
     "tests/unit/audit_citation_history_rules.py",
+    "tests/unit/audit_citation_number_uniqueness.py",
     "tests/unit/audit_citation_only_closure.py",
     "tests/unit/audit_citation_pricing_rules.py",
     "tests/unit/audit_citation_prior_history.js",
