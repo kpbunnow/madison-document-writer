@@ -500,7 +500,7 @@ async function axeThemes(page, screen) {
   await page.locator("#btn-save").click();
   await page.waitForFunction(() => WriterState.state.screen === "cases");
   await page.reload();
-  await page.waitForFunction(() => WriterState.CASES.length > 0);
+  await page.waitForFunction(() => typeof WriterState !== "undefined" && WriterState.CASES.length > 0);
   await page.getByRole("button", { name: "Continue document", exact: true }).click();
   await page.waitForFunction(() => WriterState.state.screen === "write" && !!doc(WriterState.state.docId));
   assert.equal(
@@ -852,7 +852,7 @@ async function axeThemes(page, screen) {
   await context.route("**/reporting/areas", (route) => route.fulfill({ json: { ok: true, districts: features, zips: null, notes: [] } }));
   const reports = await context.newPage();
   await reports.goto(base + "/madison-reports.html");
-  await reports.waitForFunction(() => ReportsState.S.phase === "ready");
+  await reports.waitForFunction(() => typeof ReportsState !== "undefined" && ReportsState.S.phase === "ready");
   assert.equal(await reports.locator(".rail-logo").evaluate((img) => img.complete && img.naturalWidth > 0), true, "Report logo must load");
   await axeScreen(reports, "reports");
   await axeThemes(reports, "reports");
@@ -970,13 +970,15 @@ async function axeThemes(page, screen) {
   const restoreContext = await browser.newContext({ timezoneId: "America/Chicago" }),
     restorePage = await restoreContext.newPage();
   await restorePage.goto(base + "/");
-  await restorePage.waitForFunction(() => typeof WriterState.CASEDIR !== "undefined" && WriterState.CASEDIR && WriterState.WRITER_READY === true);
+  await restorePage.waitForFunction(() => typeof WriterState !== "undefined" && WriterState.CASEDIR && WriterState.WRITER_READY === true);
   const backup = JSON.parse(fs.readFileSync(backupPath, "utf8"));
   await restorePage.evaluate((value) => restoreWorkspaceBackup(value), backup);
   assert.equal(await restorePage.evaluate(() => WriterState.DOCS.filter((d) => d.draft && d.pendingAmendment).length), 1);
   assert.equal(await restorePage.evaluate(() => WriterState.DOCS.filter((d) => !d.draft && d.type === "extension").length), 0);
   await restorePage.reload();
-  await restorePage.waitForFunction(() => WriterState.WRITER_READY === true && WriterState.DOCS.some((d) => d.draft && d.pendingAmendment));
+  await restorePage.waitForFunction(
+    () => typeof WriterState !== "undefined" && WriterState.WRITER_READY === true && WriterState.DOCS.some((d) => d.draft && d.pendingAmendment),
+  );
   await restoreContext.close();
   await page.bringToFront();
   await page.locator('.writer-navigation [data-nav="cases"]').click();
@@ -1026,7 +1028,7 @@ async function axeThemes(page, screen) {
   await axeScreen(page, "case-completed");
   await page.screenshot({ path: path.join(OUT, "case-completed.png"), fullPage: true });
   await page.reload();
-  await page.waitForFunction(() => WriterState.CASES.length === 1 && caseState(WriterState.CASES[0]).closed);
+  await page.waitForFunction(() => typeof WriterState !== "undefined" && WriterState.CASES.length === 1 && caseState(WriterState.CASES[0]).closed);
   // R4: resolve a missing deposit through the actual UI, save/resume, issue and correct it.
   await page.locator('.writer-navigation [data-nav="cases"]').click();
   await page.waitForFunction(() => WriterState.state.screen === "cases");
@@ -1095,7 +1097,7 @@ async function axeThemes(page, screen) {
   await page.setViewportSize({ width: 1440, height: 1050 });
   await page.locator(".editor-controls #btn-save").click();
   await page.reload();
-  await page.waitForFunction((id) => !!doc(id), noticeDraftId);
+  await page.waitForFunction((id) => typeof WriterState !== "undefined" && !!doc(id), noticeDraftId);
   await page.getByRole("button", { name: "Continue document", exact: true }).click();
   await page.waitForFunction(() => WriterState.state.screen === "write" && !!doc(WriterState.state.docId));
   assert.equal(await page.getByLabel("Approved total for item 1", { exact: true }).inputValue(), "245.67");
@@ -1465,6 +1467,8 @@ async function axeThemes(page, screen) {
   await page.locator("#lookup-number").fill(sqlNumber);
   await findInspections(page);
   await page.waitForFunction(() => !!WriterState.state.acc && !WriterState.LOOKUP_BUSY);
+  // The lookup clears its busy flag before saving drafts and rendering; wait for the rendered result as at 'duplicate-inspection'.
+  await page.locator("[data-continuation-only]").waitFor();
   assert.equal(await page.locator("[data-continuation-only]").count(), 1, "used inspections offer one continuation action");
   assert.equal(await page.locator("#acc-go").count(), 0, "no disabled import step is presented when nothing can be imported");
   lookupRows = [{ ...lookupRows[0], InspectionDate: "2026-09-20T00:00:00", InspectionTime: "11:15:00" }];

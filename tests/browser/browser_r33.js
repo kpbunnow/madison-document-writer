@@ -320,7 +320,7 @@ module.exports = async function (browser, page, out, axeScreen, work, base) {
   results.push({ name: "r33-seasonal-content-freezing", passed: true, issuedSha256: hash(issued.html), newDraft: fresh.id });
   const reports = await page.context().newPage();
   await reports.goto(base + "/madison-reports.html");
-  await reports.waitForFunction(() => typeof ReportsState.S !== "undefined" && ReportsState.S.phase === "ready");
+  await reports.waitForFunction(() => typeof ReportsState !== "undefined" && ReportsState.S.phase === "ready");
   await reports.locator("#report-menu").evaluate((el) => (el.open = true));
   await reports.locator(".rail [data-screen=overriddenDeposits]").click();
   await axeScreen(reports, "r33-overridden-deposits");
