@@ -41,8 +41,12 @@ const assert = require("node:assert/strict"),
   assert.equal(reference.split(oldTierControl).length, 2);
   const oldCopyHint = "Each completed charge produces four matching court copies.";
   assert.equal(reference.split(oldCopyHint).length, 2);
+  const oldSave = ` <button class="btn btn-sm" id="btn-savework' +
+      '">Save draft &amp; return to Workspace</button>`;
+  assert.equal(reference.split(oldSave).length, 2, "one duplicate save in the retained review panel");
   const reviewedReference = reference
     .replace(oldTierControl, "offenseLevelSelect(i, c)")
+    .replace(oldSave, "")
     .replace(oldCopyHint, 'Each completed charge produces " + citationCopiesFor(d).length + " court copies.');
   const [current, old] = await Promise.all([load(source), load(source.slice(0, fn.start) + reviewedReference + source.slice(fn.end))]);
   function run(api, x) {

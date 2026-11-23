@@ -27,11 +27,11 @@
   "files": {
     "madison-document-writer.html": {
       "beforeNormalizedShellSha256": "75936c3b560d33cd483fa2fef86e539eda58866dd4e26dc01209af5a8d9d3bdd",
-      "normalizedShellSha256": "8bc08185e0928299c5b437b3226c570cf6d664654b97e7a82615f1cae22f8042"
+      "normalizedShellSha256": "b62372fe0713563b6360e3626d94b43c7ccd5aa54577f816ac78ee631526e480"
     },
     "madison-reports.html": {
       "beforeNormalizedShellSha256": "d9ffcd8b50f0f829597d33016a25f2ce9ba82b9f8e08a04c9d49091f4a593114",
-      "normalizedShellSha256": "b7c54e0651dd22a2d594ba69a8c6f83b384af861196bc330b2a2f988ace19e3d"
+      "normalizedShellSha256": "f26b2e832a858beb9419a1a65e68957f01d4446ca3e97ea63a681e944389c845"
     }
   },
   "reviews": [
@@ -287,6 +287,22 @@
         }
       },
       "evidence": "Owner request 2026-11-22 (graphic user interface polish); see SCREEN-VISUAL-REVIEW.md."
+    },
+    {
+      "date": "2026-11-22",
+      "sourceCommit": "bc4eed19635ccdbdb72b89d56b2993c179c40b16",
+      "scope": "Owner-approved responsive controls, screen presentation only; frozen print unchanged",
+      "files": {
+        "madison-document-writer.html": {
+          "before": "8bc08185e0928299c5b437b3226c570cf6d664654b97e7a82615f1cae22f8042",
+          "after": "b62372fe0713563b6360e3626d94b43c7ccd5aa54577f816ac78ee631526e480"
+        },
+        "madison-reports.html": {
+          "before": "b7c54e0651dd22a2d594ba69a8c6f83b384af861196bc330b2a2f988ace19e3d",
+          "after": "f26b2e832a858beb9419a1a65e68957f01d4446ca3e97ea63a681e944389c845"
+        }
+      },
+      "evidence": "docs/developer/SCREEN-CONTROLS.md"
     }
   ]
 }

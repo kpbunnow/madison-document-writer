@@ -275,7 +275,7 @@ if (process.argv[2] === "reports") {
     const d = doc(WriterState.state.docId);
     d.items = [{ id: "u3-a", no: "1", title: "Wall repair", text: "Repair ( ) on the wall.", sections: ["27.05(2)(c)"], due: "", cite: false }];
     render();
-    assert.equal(text(document.querySelector(".editor-sections #btn-add-top")), "Violation Items");
+    assert.equal(document.querySelector(".editor-sections #btn-add-top").getAttribute("aria-label"), "Violation Items");
     WriterState.state.picker = true;
     render();
     const picker = document.querySelector(".picker-box");
@@ -284,7 +284,7 @@ if (process.argv[2] === "reports") {
     assert.ok(document.getElementById("pk-q"), "the picker keeps the shared language search");
     WriterState.state.picker = false;
     render();
-    const bars = document.querySelectorAll(".document-workspace > .editor-mobile-bar");
+    const bars = document.querySelectorAll(".document-workspace > .editor-controls");
     assert.equal(bars.length, 1, "one task bar");
     let bar = bars[0];
     assert.ok(bar.classList.contains("no-print"));
@@ -293,34 +293,39 @@ if (process.argv[2] === "reports") {
     assert.equal(bar.querySelector("[data-document-device-save]").textContent, localSaveText(app_savedworkContext()));
     let ready = editorReadiness(d);
     assert.ok(ready.required.length > 0);
-    const next = bar.querySelector("[data-mobile-next]");
+    let itemsControl = document.getElementById("btn-add-top");
+    assert.equal(itemsControl.querySelector("[data-task-status]").dataset.taskState, "check");
+    const next = bar.querySelector("[data-readiness-first]");
     assert.equal(text(next), "Fix next issue (" + ready.required.length + " left)");
     assert.equal(
       next.hasAttribute("data-fix-next"),
       document.querySelector(".editor-readiness [data-readiness-first]").hasAttribute("data-fix-next"),
       "same current-policy navigator as the desktop control",
     );
-    assert.equal(text(bar.querySelector("[data-mobile-review]")), "Review");
-    const barPrimary = bar.querySelector("[data-mobile-primary]");
-    assert.equal(text(barPrimary), text(document.querySelector(".topbar .editor-primary")));
+    assert.equal(document.querySelectorAll(".editor-controls [data-fix-next]").length, 1, "one shared current-policy navigator");
+    assert.equal(text(bar.querySelector("#btn-review")), "Review");
+    const barPrimary = bar.querySelector(".editor-primary");
+    assert.equal(text(barPrimary), text(document.querySelector(".editor-controls .editor-primary")));
+    assert.equal(barPrimary.id, "btn-final", "the shared action retains the original issuance handler");
+    assert.equal(text(barPrimary), "Issue");
     assert.equal(
       bar.querySelectorAll(".editor-primary,#btn-final,[data-readiness-first],[data-editor-section],[data-editor-review]").length,
-      0,
-      "no duplicate ids or toolbar hooks",
+      3,
+      "one real primary, next-issue and review control; no proxy controls",
     );
     let clicked = 0;
-    document.querySelector(".topbar .editor-primary").addEventListener("click", (e) => {
+    document.querySelector(".editor-controls .editor-primary").addEventListener("click", (e) => {
       clicked++;
       e.stopImmediatePropagation();
     });
     barPrimary.click();
-    assert.equal(clicked, 1, "the bar's primary action runs the toolbar's own button");
-    bar.querySelector("[data-mobile-review]").click();
+    assert.equal(clicked, 1, "the control area invokes the real primary action once");
+    bar.querySelector("#btn-review").click();
     assert.equal(WriterState.state.modal, "review", "the bar's Review opens the Review dialog");
     assert.ok(document.querySelector("#overlay [data-review-dialog]").contains(document.activeElement));
     WriterState.state.modal = null;
     render();
-    bar = document.querySelector(".document-workspace > .editor-mobile-bar");
+    bar = document.querySelector(".document-workspace > .editor-controls");
     // Save state is mirrored, including an unsaved state.
     WriterState.LOCAL_SAVE.ok = false;
     updateSaveStatus();
@@ -330,10 +335,14 @@ if (process.argv[2] === "reports") {
     // The bar follows readiness without a full render.
     d.items[0].text = "Repair the wall.";
     d.items[0].due = addDays(recordDay(today), 21);
+    itemsControl = document.getElementById("btn-add-top");
     editorSync();
     ready = editorReadiness(d);
-    assert.equal(!!document.querySelector(".editor-mobile-bar [data-mobile-next]"), ready.required.length > 0);
-    assert.equal(text(document.querySelector("[data-mobile-primary]")), text(document.querySelector(".topbar .editor-primary")));
+    assert.equal(document.getElementById("btn-add-top"), itemsControl, "readiness updates preserve the real control");
+    assert.equal(itemsControl.querySelector("[data-task-status]").dataset.taskState, "ready");
+    assert.equal(!!document.querySelector(".editor-controls [data-readiness-first]"), ready.required.length > 0);
+    assert.equal(text(document.querySelector(".editor-primary")), text(document.querySelector(".editor-controls .editor-primary")));
+    assert.equal(document.querySelectorAll("#btn-final").length, 1, "readiness refresh retains one issuance control");
 
     // ITEM 13. Reinspection: two named modes, a step indicator from walk state, tips collapsed.
     WriterState.DOCS.length = 0;

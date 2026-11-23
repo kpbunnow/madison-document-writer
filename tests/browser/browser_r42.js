@@ -66,7 +66,7 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     ]) {
       await page.setViewportSize(size);
       await page.evaluate(() => scrollTo(0, 0));
-      assert.equal(await page.locator(".topbar-actions .btn-primary").count(), 1);
+      assert.equal(await page.locator(".editor-controls .btn-primary").count(), 1);
       assert.equal(await page.locator("#btn-save").isVisible(), true);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
       await axeScreen(page, "r42-notice-" + size.width);
@@ -169,28 +169,23 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     results.push({ removeAndDueDate: overlap });
     await page.setViewportSize({ width: 390, height: 844 });
     await page.evaluate(() => scrollTo(0, 0));
-    // Phase 3: at 390x844 one fixed task bar carries Fix next issue, Review and the primary action.
-    const bar = page.locator(".editor-mobile-bar");
+    // Phase 3: at 390x844 one responsive task area carries Fix next issue, Review and the primary action.
+    const bar = page.locator(".editor-controls");
     assert.equal(await bar.isVisible(), true);
-    assert.deepEqual(await bar.locator("button").allInnerTexts(), [
-      await page.locator(".editor-readiness [data-fix-next]").innerText(),
-      "Review",
-      await page.locator(".editor-primary").innerText(),
-    ]);
+    for (const selector of ["#btn-cc", "#btn-add-top", "#btn-review", "#btn-save", ".editor-primary", "[data-fix-next]"])
+      assert.equal(await bar.locator(selector).count(), 1, "one real control: " + selector);
+    assert.equal(await page.locator(".topbar button,.editor-mobile-bar,[data-mobile-primary]").count(), 0, "no repeated header/proxy actions");
     assert.match(await bar.locator("[data-document-device-save]").innerText(), /device/i);
-    const barBox = await bar.boundingBox();
-    assert.equal(Math.round(barBox.y + barBox.height), 844);
-    assert.equal(await page.locator(".editor-mobile-bar").count(), 1);
-    // The workspace's bottom padding keeps its last content clear of the bar when scrolled to the end.
     await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
     const clear = await page.evaluate(() => {
-      const bar = document.querySelector(".editor-mobile-bar").getBoundingClientRect(),
+      const bar = document.querySelector(".editor-controls").getBoundingClientRect(),
         sections = document.querySelectorAll(".document-workspace > .editor-section"),
         last = sections[sections.length - 1].getBoundingClientRect();
-      return { lastBottom: last.bottom, barTop: bar.top };
+      return { lastBottom: last.bottom, barTop: bar.top, barBottom: bar.bottom };
     });
-    assert.ok(clear.lastBottom <= clear.barTop, JSON.stringify(clear));
-    // Fix next issue focuses the field; the bar hides while a field is focused (virtual keyboard) and returns after.
+    assert.ok(clear.barTop >= 0 && clear.barBottom < 844, JSON.stringify(clear));
+    assert.ok(clear.lastBottom <= 844, "last content is reachable without a fixed bottom overlay: " + JSON.stringify(clear));
+    // Fix next issue focuses the field; sticky positioning stops while editing so fields and the virtual keyboard stay clear.
     await bar.getByRole("button", { name: /^Fix next issue \(/ }).click();
     assert.equal(
       await page.evaluate(() => {
@@ -200,7 +195,7 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
       }),
       true,
     );
-    assert.equal(await bar.isVisible(), false);
+    assert.equal(await bar.evaluate((el) => getComputedStyle(el).position), "static", "editing removes sticky obstruction");
     await page.evaluate(() => document.activeElement.blur());
     assert.equal(await bar.isVisible(), true);
     await bar.getByRole("button", { name: "Review", exact: true }).click();
@@ -209,7 +204,7 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     assert.equal(await page.evaluate(() => document.querySelector("[data-review-dialog]").contains(document.activeElement)), true);
     await page.keyboard.press("Escape");
     await page.waitForFunction(() => !document.querySelector("[data-review-dialog]"));
-    assert.equal(await page.evaluate(() => document.activeElement.hasAttribute("data-mobile-review")), true);
+    assert.equal(await page.evaluate(() => document.activeElement.id === "btn-review"), true);
     await page.evaluate(() => scrollTo(0, 0));
     // #25: 320px reflow (WCAG 1.4.10). The editable row's date-selection box, due date and remove button wrap inside
     // the item card, header fields stay inside the sheet and the More menu stays on screen; nothing widens the page
@@ -255,9 +250,10 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
       assert.ok(m.remove.width >= 40 && m.remove.height >= 40, size.width + "px: remove button keeps its 40px target");
       assert.ok(m.due.height >= 40 && m.due.width >= 9 * m.due.font - 0.5, size.width + "px: due date stays full height and readable");
       assert.ok(m.remove.right <= m.width && m.pick.left >= 0, size.width + "px: selection and removal stay visible");
-      assert.equal(await bar.isVisible(), true, size.width + "px: one fixed task bar");
+      assert.equal(await bar.isVisible(), true, size.width + "px: one responsive task area");
+      await bar.evaluate((el) => el.scrollIntoView({ block: "start" }));
       const barBox = await bar.boundingBox();
-      assert.equal(Math.round(barBox.y + barBox.height), size.height, size.width + "px: task bar sits on the bottom edge");
+      assert.ok(barBox.y >= 0 && barBox.y <= 1, size.width + "px: task controls remain at the top when scrolling");
       assert.ok(barBox.x >= 0 && barBox.x + barBox.width <= size.width, size.width + "px: task bar inside the viewport");
       for (const button of await bar.locator("button").all()) {
         const target = await button.boundingBox();
@@ -271,6 +267,9 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
         assert.ok(reflowSizes[320][key][dimension] >= reflowSizes[390][key][dimension] - 0.5, "320px " + key + " " + dimension + " not reduced");
     assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).overflowX), "visible", "overflow is not hidden");
     await axeScreen(page, "r42-notice-320");
+    await page.setViewportSize({ width: 320, height: 300 });
+    assert.equal(await bar.evaluate((el) => getComputedStyle(el).position), "static", "short/high-zoom viewport keeps content reachable");
+    await page.setViewportSize({ width: 320, height: 700 });
     // The issued copy's More menu (Document actions) opens inside the 320px screen.
     await page.evaluate(() => {
       const d = doc(WriterState.state.docId);
@@ -289,6 +288,11 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
         return { left: r.left, right: r.right, height: r.height };
       }),
     }));
+    assert.equal(
+      await page.locator(".editor-more > div").evaluate((el) => el.offsetParent.classList.contains("editor-control-actions")),
+      true,
+      "mobile document actions stay anchored to their controls even without sticky positioning",
+    );
     assert.ok(menu.items.length, "issued copy offers document actions");
     assert.ok(menu.scrollWidth <= menu.width, "open More menu adds no horizontal overflow " + menu.scrollWidth);
     assert.ok(
@@ -311,7 +315,7 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
     });
     await page.evaluate(() => scrollTo(0, 0));
     await page.setViewportSize({ width: 1366, height: 768 });
-    assert.equal(await bar.isVisible(), false, "the task bar is narrow-screen only");
+    assert.equal(await bar.isVisible(), true, "the same task controls remain available on desktop");
     await axeThemes(page, "r42-document");
     // The desktop control continues to the next unresolved field after the mobile control.
     await page
@@ -397,7 +401,7 @@ module.exports = async function (browser, page, OUT, axeScreen, axeThemes) {
       passed: true,
       layouts: results,
       checks: [
-        "one primary header action",
+        "one responsive primary action",
         "save remains visible",
         "three nonsequential task links",
         "invalid draft and actionable keyboard checks",

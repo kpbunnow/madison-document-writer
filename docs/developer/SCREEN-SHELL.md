@@ -46,3 +46,10 @@ The owner approved replacing the Workspace document controls/side panel with a d
 The owner improvement plan explicitly authorizes normal edits and consolidation in the existing screen stylesheets. Edit the owning rule in place rather than adding another override solely to preserve an old prefix. Keep the complete current-shell and semantic hashes as reviewed bookkeeping: record the changed selectors/declarations, explain intentional visual differences and review captured before/after screens. Update these current references only for that explained change; do not normalize away styles, loosen image/computed-style checks or alter print/legal/history goldens to obtain a pass. Historical append-only notes above describe earlier deliveries, not a restriction on new authorized screen work.
 
 The first such cleanup removes six unused Workspace families and17 dead screen rules (1,775 bytes), preserving all remaining selectors, groups, declarations and order. Source AST reconstruction, dynamic-name review and306 full-browser captures find no consumers. Active task/recovery/document classes remain. SCREEN-CSS-MAINTENANCE.md records the exact visual evidence and its limits. Approved print CSS stays frozen and keeps its independent tests.
+
+## Responsive task controls, November 22, 2026
+
+The owner approved the Workspace, editor and Reports GUI improvements described in
+[SCREEN-CONTROLS.md](SCREEN-CONTROLS.md). The current references record the single responsive editor control area,
+visible Workspace drafts, and grouped Reports controls. This is an intentional screen layout change; strict CSS
+replay differences remain visible for review. Issued-document print references are unchanged.

@@ -355,17 +355,11 @@ function editorRegisterPlainPaste(services, target = document) {
 
 function editorRegisterReviewCommands(services, target = document) {
   return registerEventOnce(target, "editor.registerReviewCommands", "click", (e) => {
-    const button = e.target.closest("[data-editor-review],[data-editor-command],[data-open-checklist],[data-mobile-review],[data-mobile-primary]");
+    const button = e.target.closest("[data-editor-review],[data-editor-command],[data-open-checklist]");
     if (!button) return;
     e.preventDefault();
     services.actions.captureWork();
-    if (button.hasAttribute("data-mobile-primary")) {
-      // The narrow-screen bar repeats the toolbar's primary action; the toolbar button keeps its own handler and checks.
-      const primary = document.querySelector(".topbar .editor-primary");
-      if (primary && !primary.disabled) primary.click();
-      return;
-    }
-    if (button.matches("[data-editor-review],[data-open-checklist],[data-mobile-review]")) {
+    if (button.matches("[data-editor-review],[data-open-checklist]")) {
       // R59: one Review dialog; it lists the current checks() each time it opens and returns focus on close.
       if (!doc(editor.state.docId)) return;
       editor.state.picker = false;

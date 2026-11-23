@@ -58,10 +58,10 @@
     },
     "reports.css": {
       "beforeSha256": "fb46f14e014ee8aa8928676c72280faf6022eb0d79132e51dd1a00d5323953d4",
-      "afterSha256": "37f8fab30c138f4e77f46d7969575d677979cdc37bb28038a8c02d60059205e7",
+      "afterSha256": "2afc42e63fc8dff07f7a2e3e90ab4a5d58fa6491541f3257a90d6f2aff9afc1e",
       "beforeBytes": 14848,
       "afterBytes": 14767,
-      "retainedRulesSha256": "d8b84a0cb1e94e8d65e7a54b72209b2753c2dd4cb31a719ff1252e368a3a0b26"
+      "retainedRulesSha256": "2452acf8a955056348746cb81b4966d9814aaf8c5ae59bf1e5f82b0579ada1f0"
     },
     "accessibility.css": {
       "beforeSha256": "d38a2229869d35537291cf7eb940bebaa279eb17348842c405375f888be9f69d",
@@ -72,10 +72,10 @@
     },
     "ui-refresh.css": {
       "beforeSha256": "e0144fc15123ce89544458f0084c070a2eba18948cae9c687c28e8f68d859c7a",
-      "afterSha256": "77a9fbc84723a7b4689979918a5944d4d68b89da34ab387c1372bfc0e25aa6e6",
+      "afterSha256": "46f33ad3e3dee479f810b02b073298b386f39f667522e9455113da3738935b93",
       "beforeBytes": 48561,
       "afterBytes": 60225,
-      "retainedRulesSha256": "557e34c3bf0b772b74c0fa38f5d5cb0b470d0fc3e81e12719881b5ceb53d81dc"
+      "retainedRulesSha256": "7d0bf39c4213c5dc8fc79169673fdb9cbcbcf5f207ece0d9d411bd58ea375017"
     }
   },
   "selectorChanges": [
@@ -947,6 +947,22 @@
         }
       },
       "evidence": "Owner request 2026-11-13; inline blank entry replaces the corrective-action dialog."
+    },
+    {
+      "date": "2026-11-22",
+      "sourceCommit": "bc4eed19635ccdbdb72b89d56b2993c179c40b16",
+      "scope": "Owner-approved responsive editor controls, visible Workspace drafts and grouped Reports controls; screen only; print unchanged",
+      "rules": {
+        "ui-refresh.css": {
+          "beforeSha256": "77a9fbc84723a7b4689979918a5944d4d68b89da34ab387c1372bfc0e25aa6e6",
+          "afterSha256": "46f33ad3e3dee479f810b02b073298b386f39f667522e9455113da3738935b93"
+        },
+        "reports.css": {
+          "beforeSha256": "37f8fab30c138f4e77f46d7969575d677979cdc37bb28038a8c02d60059205e7",
+          "afterSha256": "2afc42e63fc8dff07f7a2e3e90ab4a5d58fa6491541f3257a90d6f2aff9afc1e"
+        }
+      },
+      "evidence": "docs/developer/SCREEN-CONTROLS.md"
     }
   ]
 }

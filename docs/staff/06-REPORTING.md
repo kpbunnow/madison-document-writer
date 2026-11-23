@@ -24,7 +24,7 @@ Open Reports from Writer (Open Reports ↗ in the rail opens it in a new tab). T
 | Referrals for prosecution | Referrals issued in the period, with owner facts as referred |
 | Document actions | Effective issued actions in the period; includes scoped actions before a notice |
 
-Use From/To for period reports and As of for historical open-state reports. Date shortcuts set the corresponding range. Open More filters for additional scope such as status, owner, violation type or ordinance. Applied-filter chips reveal active scope even when its control is collapsed. Reset filters returns to the current year, current district boundaries and unfiltered optional fields, and clears sorting.
+Choose a report beside the dates, or use the report navigation. Refresh data is beside these controls; filter changes update the displayed report automatically. Use From/To for period reports and As of for historical open-state reports. Date shortcuts set the corresponding range. Open More filters for area, district boundaries and additional scope such as status, owner, violation type or ordinance. Export and print and Saved views remain beside the report title. Applied-filter chips reveal active scope even when its control is collapsed. Reset filters returns to the current year, current district boundaries and unfiltered optional fields, and clears sorting.
 
 Click a sortable column heading to set its order. The active screen, CSV, matching workbook report sheet and print use the same stable row order. Other named workbook sheets retain their own definitions; do not assume every sheet uses a citation issue date merely because the active report does.
 
