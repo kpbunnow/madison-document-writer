@@ -151,7 +151,7 @@ function applyRecoveredCase(staged, pending) {
   workspace.seq = staged.seq;
 }
 
-async function listRecovery(services) {
+async function scopedListRecovery(services) {
   const token = ++recovery.RECOVERY_SELECT_SEQ;
   recovery.RECOVERY.loading = true;
   recovery.RECOVERY.selected = null;
@@ -325,7 +325,7 @@ export function createCaseRecovery(services) {
     }
   }
   return {
-    listRecovery: () => listRecovery(services),
+    listRecovery: () => scopedListRecovery(services),
     selectRecovery,
     validateRecovery,
     restoreRecovery,
