@@ -149,8 +149,11 @@ module.exports = async function (browser, page) {
   assert.equal(result.usable + result.reviewed.length, 242, "every selectable entry was either exercised or has a recorded retirement");
   assert.ok(result.reviewed.length <= 3, "only entries another suite retired or replaced are skipped: " + result.reviewed);
   assert.ok(result.usable >= 239, "the usable bundled language was exercised");
+  // The Chapter 22 Weights and Measures entries are new drafts: every one stays blocked until division review.
+  const weights = result.blocked.filter((key) => key.startsWith("ENF_WEIGHTS_MEASURES/"));
+  assert.equal(weights.length, 23, "every Weights and Measures draft is blocked");
   // Owner decision 2026-10-31 approved the bundled drafts. These seven have no determinable section, so they stay blocked.
-  assert.deepEqual(result.blocked, [
+  assert.deepEqual(result.blocked.filter((key) => !weights.includes(key)), [
     "ENF_HSE/SMOKEDETECT/20",
     "ENF_ZONE/OCCUPANCY/10",
     "ENF_ORDER_CATALOG/ALARMS_AND_FIRE_SAFETY/68",
