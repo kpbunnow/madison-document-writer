@@ -26,7 +26,8 @@ const test = async () => {
   const originalSchedule = scheduleDraftSave;
   scheduleDraftSave = () => {};
   WriterState.CATALOG_VERIFIED = true;
-  const all = allItems();
+  // The retained library; the Chapter 22 Weights and Measures checklist is tested in audit_weights_measures.js.
+  const all = allItems().filter((i) => i.cl !== "Weights and Measures");
   assert.equal(all.length, 250);
   // Owner decision 2026-10-31: the bundled draft entries with a section are approved for selection. The seven without
   // a determinable section stay draft and unselectable.

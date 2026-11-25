@@ -31,19 +31,24 @@ function languageAdminScreen(R, items, query, filter) {
    Categories with title-case group names (owner direction 2026-11-11). It is listed first; the picker's group list
    shows only its categories, while a search still reaches the earlier checklists' language. */
 const CONSOLIDATED = "ENF_ORDER_CATALOG";
+/* Weights and Measures (MGO Chapter 22) is a current checklist of its own, browsed after Violation Categories rather
+   than listed as an earlier checklist. */
+const CURRENT = [CONSOLIDATED, "ENF_WEIGHTS_MEASURES"];
 const CATEGORIES = "Violation Categories";
 const MINOR_WORDS = new Set(["a", "an", "and", "as", "at", "by", "for", "in", "of", "on", "or", "the", "to"]);
 const titleCase = (name) =>
   String(name).replace(/[A-Za-z][\w']*/g, (word, at) => (at && MINOR_WORDS.has(word.toLowerCase()) ? word : word[0].toUpperCase() + word.slice(1)));
+const current = (R, ci) => CURRENT.includes(R.LIBRARY[ci].code);
 const checklistName = (R, ci) => (R.LIBRARY[ci].code === CONSOLIDATED ? CATEGORIES : R.LIBRARY[ci].name);
-const groupName = (R, ci, gi) => (R.LIBRARY[ci].code === CONSOLIDATED ? titleCase : String)(R.LIBRARY[ci].groups[gi].name);
+const groupName = (R, ci, gi) => (current(R, ci) ? titleCase : String)(R.LIBRARY[ci].groups[gi].name);
 const checklistOrder = (R) => {
   const all = R.LIBRARY.map((_, ci) => ci);
-  return all.filter((ci) => R.LIBRARY[ci].code === CONSOLIDATED).concat(all.filter((ci) => R.LIBRARY[ci].code !== CONSOLIDATED));
+  return CURRENT.flatMap((code) => all.filter((ci) => R.LIBRARY[ci].code === code)).concat(all.filter((ci) => !current(R, ci)));
 };
-const earlier = (R, ci) => R.LIBRARY[ci].code !== CONSOLIDATED;
-// The checklists the picker browses: Violation Categories, or every checklist if a library has no consolidated catalog.
-const pickerChecklists = (R) => (R.LIBRARY.some((c) => c.code === CONSOLIDATED) ? checklistOrder(R).slice(0, 1) : checklistOrder(R));
+const earlier = (R, ci) => !current(R, ci);
+// The checklists the picker browses: the current ones, or every checklist if a library has no consolidated catalog.
+const pickerChecklists = (R) =>
+  R.LIBRARY.some((c) => c.code === CONSOLIDATED) ? checklistOrder(R).filter((ci) => current(R, ci)) : checklistOrder(R);
 // Groups in the order given: by first appearance when ranked (a search), otherwise by checklist order and group.
 function groupedResults(R, items, ranked) {
   const groups = new Map();
@@ -69,7 +74,7 @@ function sectionTags(R, sections) {
 function consolidatedEquivalents(R, all) {
   const key = (i) => (R.effectiveCatalog(i).s || []).map(canonicalSection).sort().join("|");
   const found = new Map();
-  for (const i of all) if (!earlier(R, i.ci) && key(i) && !found.has(key(i))) found.set(key(i), i);
+  for (const i of all) if (R.LIBRARY[i.ci].code === CONSOLIDATED && key(i) && !found.has(key(i))) found.set(key(i), i);
   return (i) => (earlier(R, i.ci) ? found.get(key(i)) || null : null);
 }
 function alsoNote(R, equivalent) {
@@ -109,7 +114,7 @@ function languageBrowseScreen(R, found, query, filter) {
     "Browse language",
     "Order language · find language for the condition you observed",
     '<button class="btn" data-language-mode="admin">Review catalog</button>',
-    screen`<div class="language-browser" data-language-context="browse"><p>Search across every checklist by ordinary terms, ordinance or wording. Violation Categories are listed first; the earlier checklists follow. Approved and standard language is shown by default. Standard sources and proposed or retired entries are available through the status filter.</p>${raw(catalogState(R))}
+    screen`<div class="language-browser" data-language-context="browse"><p>Search across every checklist by ordinary terms, ordinance or wording. Violation Categories and Weights and Measures are listed first; the earlier checklists follow. Approved and standard language is shown by default. Standard sources and proposed or retired entries are available through the status filter.</p>${raw(catalogState(R))}
  <div class="language-controls"><label class="f"><span>Search all order language</span><input type="search" id="lib-filter" value="${raw(R.esc(query))}" placeholder="For example: garbage, handrail, 27.05"></label><label class="f"><span>Language status</span><select id="lib-status">${raw(languageFilterOptions(R, filter))}</select></label><label class="f"><span>Browse checklist</span><select id="lib-checklist"><option value="-1" ${String(R.state.libCl < 0 ? "selected" : "")}>All checklists</option>${raw(
    checklistOrder(R)
      .map(

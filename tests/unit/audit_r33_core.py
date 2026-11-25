@@ -34,7 +34,9 @@ class R33Core(unittest.TestCase):
             lib = json.loads((root / "app/assets/library.js").read_text().split("=", 1)[1].rsplit(";", 1)[0])
             return {json.dumps([c["code"], g["code"], i["o"]], separators=(",", ":")): i for c in lib for g in c["groups"] for i in g["items"]}
 
-        current = items(ROOT)
+        # The retained library keeps its R32 identity exactly; the Chapter 22 Weights and Measures checklist is new and
+        # is tested in audit_weights_measures.py.
+        current = {k: v for k, v in items(ROOT).items() if not k.startswith('["ENF_WEIGHTS_MEASURES",')}
         old = json.loads((ROOT / "tests/fixtures/reference/r32-library-identity.json").read_text())
         self.assertEqual(set(current), set(old))
         for key, sections in [
