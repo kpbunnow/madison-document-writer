@@ -1,6 +1,7 @@
 /* Order-language picker and Browse language layout (owner directions 2026-11-10 and 2026-11-11), from the screen module
    with the real bundled library: the consolidated catalog is shown as Violation Categories with title-case groups; the
-   picker's group list holds only those categories, while a search still reaches the earlier checklists; the picker has no
+   picker's group list holds only those categories and the Weights and Measures checklist (MGO Chapter 22), while a
+   search still reaches the earlier checklists; the picker has no
    Keep adding or Save draft controls; results sit under headings; each entry leads with its ordinance; status badges
    appear only on Review catalog; an ordinance search folds its related sections. */
 const assert = require("node:assert/strict");
@@ -36,12 +37,15 @@ const { compile } = require("../fixtures/equivalence_harness.cjs");
   };
   const parse = (markup) => new JSDOM("<!doctype html><body>" + markup + "</body>").window.document;
   const consolidated = LIBRARY.findIndex((c) => c.code === "ENF_ORDER_CATALOG");
+  // Weights and Measures (MGO Chapter 22) is the second current checklist, browsed after Violation Categories.
+  const weights = LIBRARY.findIndex((c) => c.code === "ENF_WEIGHTS_MEASURES");
+  const browsedGroups = LIBRARY[consolidated].groups.length + LIBRARY[weights].groups.length;
 
   let page = parse(api.languagePicker(R));
   const tree = [...page.querySelectorAll(".picker-tree .tree-cl, .picker-tree .tree-earlier")].map((e) => e.textContent.trim());
-  assert.deepEqual(tree, ["Violation Categories"], "the group list shows only the Violation Categories");
+  assert.deepEqual(tree, ["Violation Categories", "Weights and Measures"], "the group list shows only the current checklists");
   const categories = [...page.querySelectorAll(".picker-tree .tree-g[data-grp] > span:first-child")].map((e) => e.textContent);
-  assert.equal(categories.length, LIBRARY[consolidated].groups.length);
+  assert.equal(categories.length, browsedGroups);
   assert.ok(categories.includes("Interior Surfaces") && categories.includes("Doors and Security"), "category names are in title case");
   assert.ok(categories.every((name) => name.split(" ").every((w) => /^[A-Z]/.test(w) || ["and", "or", "of"].includes(w))));
   assert.match(page.querySelector(".picker-tree [data-language-all]").textContent, /^All violation categories/);
@@ -49,8 +53,8 @@ const { compile } = require("../fixtures/equivalence_harness.cjs");
   assert.equal(page.querySelector(".picker #btn-savework"), null, "no Save draft button in the picker");
   assert.ok(page.querySelector(".picker-footer [data-close='picker']"), "Done adding remains");
   const headings = [...page.querySelectorAll(".picker-list .language-group-h")];
-  assert.equal(headings.length, LIBRARY[consolidated].groups.length, "browsing lists the categories only");
-  assert.ok(headings.every((h) => /Violation Categories/.test(h.textContent) && !/earlier checklist/.test(h.textContent)));
+  assert.equal(headings.length, browsedGroups, "browsing lists the current checklists' categories only");
+  assert.ok(headings.every((h) => /Violation Categories|Weights and Measures/.test(h.textContent) && !/earlier checklist/.test(h.textContent)));
   assert.match(page.querySelector(".pane-h").textContent, /All violation categories/);
   assert.equal(page.querySelectorAll(".picker-list .tag.ok, .picker-list .tag.warn").length, 0, "no status badges in the picker");
   assert.ok(page.querySelector(".language-pick-row .language-entry-head .cite-sec"), "each entry leads with its ordinance");
@@ -88,7 +92,7 @@ const { compile } = require("../fixtures/equivalence_harness.cjs");
   page = parse(api.languageScreen(R));
   assert.ok(page.querySelectorAll(".language-admin .tag").length > 0, "Review catalog keeps the status badges");
   console.log(
-    "PASS order-language layout: Violation Categories only in the group list (title case), no Keep adding or Save draft, searches reach earlier checklists, ordinance tags, folded related sections, badges only on Review catalog",
+    "PASS order-language layout: Violation Categories and Weights and Measures only in the group list (title case), no Keep adding or Save draft, searches reach earlier checklists, ordinance tags, folded related sections, badges only on Review catalog",
   );
 })().catch((error) => {
   console.error(error);

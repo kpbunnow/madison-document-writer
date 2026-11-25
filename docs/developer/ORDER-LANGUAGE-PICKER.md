@@ -60,3 +60,23 @@ and Favorites in the browser profile; the picker lists them above the categories
 shown, and each card has a Favorite star. A new item follows the previous item's location heading (not its due date). After a
 fill-in detail is saved, focus moves to the next bubble. `audit_language_shortcuts.js` asserts all of this; the picker
 reference was regenerated for the new markup.
+
+## Weights and Measures checklist (2026-11-25)
+
+Owner request 2026-11-25: write Weights and Measures documents under MGO Chapter 22. The supplied chapter export is
+retained as `policy/sources/r30-CHAPTER_22___CONSUMER_PROTECTION_AND_WEIGHTS_AND_MEASURES.txt`, with page headers and
+footers removed and wrapped lines joined, so `library_ordinances.py` confirms every cited 22.x section against it.
+
+`ENF_WEIGHTS_MEASURES` ("Weights and Measures") is a separate checklist appended after the consolidated catalog. It
+holds 23 entries (`WM01`–`WM23`) in eight groups. `language_discovery.js` treats it as a current checklist: it is
+browsed after Violation Categories, with title-case group names, and is never labelled as an earlier checklist. Every
+entry is new, unreviewed wording, so each is `p: "draft"`, and the catalog manifest marks it `draft: true`. The picker
+cannot select it, and the helper refuses to issue it, until a division review is recorded in Review catalog. No owner
+approval is implied. Chapter 22 pricing is unchanged: the deposit schedule's 22.21(2) row is still unverified, and the
+entries cite the subdivisions 22.21(2)(a)–(f), which have no reviewed pricing mapping.
+
+The retained library is byte-identical. Tests that count it or pin its identity (`audit_r21.js`, `audit_authoring.js`,
+`audit_r33_core.py`, `audit_catalog_publication_rules.py`) now exclude the new checklist and keep their exact counts.
+`audit_language_grouping.js` now expects both current checklists in the group list. The new checklist is asserted by
+`audit_weights_measures.py` (source, sections, drafts, manifest, publication refusal until review) and
+`audit_weights_measures.js` (picker and Browse language).

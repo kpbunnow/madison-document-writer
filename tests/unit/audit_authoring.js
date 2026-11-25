@@ -29,7 +29,8 @@ const test = async function () {
     console.log("PASS " + name);
   };
   WriterState.CATALOG_VERIFIED = true;
-  const restored = allItems(),
+  // The retained library; the Chapter 22 Weights and Measures checklist is tested in audit_weights_measures.js.
+  const restored = allItems().filter((i) => i.cl !== "Weights and Measures"),
     catalog = restored.filter((i) => i.catalogId);
   ok("Full order library restores all 109 consolidated entries", catalog.length === 109 && restored.length === 250);
   // Owner decision 2026-10-31: entries with a section are approved for selection; the five without one stay draft.
@@ -40,7 +41,7 @@ const test = async function () {
       catalog.filter((i) => i.p !== "draft").every((i) => i.s.length && i.approval) &&
       catalog.every((i) => i.a),
   );
-  const entries = LIBRARY.flatMap((c) => c.groups.flatMap((g) => g.items.map((i) => ({ c, g, i }))));
+  const entries = LIBRARY.filter((c) => c.code !== "ENF_WEIGHTS_MEASURES").flatMap((c) => c.groups.flatMap((g) => g.items.map((i) => ({ c, g, i }))));
   ok(
     "Legacy order library identities remain unchanged",
     entries.filter((x) => !x.i.catalogId).length === 141 &&
