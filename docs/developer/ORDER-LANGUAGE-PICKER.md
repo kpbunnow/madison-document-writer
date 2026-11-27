@@ -80,3 +80,18 @@ The retained library is byte-identical. Tests that count it or pin its identity 
 `audit_language_grouping.js` now expects both current checklists in the group list. The new checklist is asserted by
 `audit_weights_measures.py` (source, sections, drafts, manifest, publication refusal until review) and
 `audit_weights_measures.js` (picker and Browse language).
+
+### Owner approval and pricing (2026-11-27)
+
+The owner approved all 23 Weights and Measures entries for selection on 2026-11-27 and approved the charge basis: every
+Weights and Measures charge is priced under the MGO 1.08(3)(a) deposit schedule row 22.21(2) ($200 first, $500 second or
+subsequent).
+
+- **Library:** entries are `p: "export"`, `status: "Approved for selection"`, `provenance: "owner-approved"` with an
+  `approval` note, the same fields the 2026-10-31 owner decision used. The manifest marks them `draft: false`. The
+  retained library bytes before the checklist are unchanged.
+- **Pricing:** `policy/metadata.json` `itemMappings` holds one `calculated` mapping per entry and cited section
+  (30 in all) to `scheduleOrdinance: "22.21(2)"`. The cited section stays the charged ordinance printed on the MC-2000,
+  as for the other mapped charges. A Chapter 22 section typed without a library entry is not mapped.
+- **Tests:** `audit_weights_measures.py` asserts the approval fields, the manifest and the pricing of every cited
+  section; `browser_order_language.js` exercises the 23 entries and keeps the retained library's 242 count exact.

@@ -1520,146 +1520,146 @@
       "ordinances": []
     },
     "[\"ENF_WEIGHTS_MEASURES\",\"LICENSING\",1]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "22.20(1)",
         "22.21(2)(e)"
       ]
     },
     "[\"ENF_WEIGHTS_MEASURES\",\"LICENSING\",2]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "22.20(1)"
       ]
     },
     "[\"ENF_WEIGHTS_MEASURES\",\"LICENSING\",3]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "22.20(2)",
         "22.06(1)"
       ]
     },
     "[\"ENF_WEIGHTS_MEASURES\",\"LICENSING\",4]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "22.20(5)"
       ]
     },
     "[\"ENF_WEIGHTS_MEASURES\",\"DEVICE_ACCURACY\",5]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "22.09",
         "22.21(2)(b)"
       ]
     },
     "[\"ENF_WEIGHTS_MEASURES\",\"DEVICE_ACCURACY\",6]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "22.05(2)",
         "22.21(2)(d)"
       ]
     },
     "[\"ENF_WEIGHTS_MEASURES\",\"DEVICE_ACCURACY\",7]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "22.21(2)(e)"
       ]
     },
     "[\"ENF_WEIGHTS_MEASURES\",\"DEVICE_ACCURACY\",8]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "22.21(2)(f)"
       ]
     },
     "[\"ENF_WEIGHTS_MEASURES\",\"SEALS_AND_REPAIRS\",9]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "22.06(2)"
       ]
     },
     "[\"ENF_WEIGHTS_MEASURES\",\"SEALS_AND_REPAIRS\",10]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "22.06(2)"
       ]
     },
     "[\"ENF_WEIGHTS_MEASURES\",\"SALE_AND_QUANTITY\",11]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "22.07"
       ]
     },
     "[\"ENF_WEIGHTS_MEASURES\",\"SALE_AND_QUANTITY\",12]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "22.08"
       ]
     },
     "[\"ENF_WEIGHTS_MEASURES\",\"SALE_AND_QUANTITY\",13]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "22.08",
         "22.21(2)(b)"
       ]
     },
     "[\"ENF_WEIGHTS_MEASURES\",\"PRICING\",14]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "22.11",
         "22.21(2)(c)"
       ]
     },
     "[\"ENF_WEIGHTS_MEASURES\",\"PRICING\",15]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "22.11"
       ]
     },
     "[\"ENF_WEIGHTS_MEASURES\",\"FUEL_DISPENSERS\",16]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "22.06(4)"
       ]
     },
     "[\"ENF_WEIGHTS_MEASURES\",\"TEMPORARY_VENDORS\",17]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "22.06(3)"
       ]
     },
     "[\"ENF_WEIGHTS_MEASURES\",\"ORDERS_AND_LICENSE_ACTIONS\",18]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "22.05(3)"
       ]
     },
     "[\"ENF_WEIGHTS_MEASURES\",\"ORDERS_AND_LICENSE_ACTIONS\",19]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "22.05(3)"
       ]
     },
     "[\"ENF_WEIGHTS_MEASURES\",\"ORDERS_AND_LICENSE_ACTIONS\",20]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "22.05(3)"
       ]
     },
     "[\"ENF_WEIGHTS_MEASURES\",\"ORDERS_AND_LICENSE_ACTIONS\",21]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "22.05(2)",
         "22.21(2)(a)"
       ]
     },
     "[\"ENF_WEIGHTS_MEASURES\",\"ORDERS_AND_LICENSE_ACTIONS\",22]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "22.20(6)"
       ]
     },
     "[\"ENF_WEIGHTS_MEASURES\",\"ORDERS_AND_LICENSE_ACTIONS\",23]": {
-      "draft": true,
+      "draft": false,
       "ordinances": [
         "22.20(7)"
       ]

@@ -51,7 +51,8 @@ module.exports = async function (browser, page) {
     WriterState.state.q = "";
     render();
     const failures = [];
-    let usable = 0;
+    let usable = 0,
+      weightsUsable = 0;
     const blocked = [],
       reviewed = [];
     scan: for (const [ci, c] of LIBRARY.entries())
@@ -70,6 +71,7 @@ module.exports = async function (browser, page) {
             continue;
           }
           usable++;
+          if (c.code === "ENF_WEIGHTS_MEASURES") weightsUsable++;
           const before = items().length,
             label = c.code + "/" + g.code + "/" + it.o + " " + it.t;
           await click(ci + ":" + gi + ":" + it.o, () => items().length === before + 1 && lastMessage().startsWith("Added: " + it.t));
@@ -142,16 +144,22 @@ module.exports = async function (browser, page) {
     WriterState.state.q = "";
     render();
     repeated.cleared = !document.querySelector(".picker-list mark[data-search-match]");
-    return { defaultScope, erosionListed, usable, blocked, reviewed, failures, dotted, picked, undone, after, repeated };
+    return { defaultScope, erosionListed, usable, weightsUsable, blocked, reviewed, failures, dotted, picked, undone, after, repeated };
   });
   assert.equal(result.defaultScope, "usable", "the picker opens on Approved and standard");
   assert.ok(result.erosionListed > 0, "erosion language is listed at the default scope");
-  assert.equal(result.usable + result.reviewed.length, 242, "every selectable entry was either exercised or has a recorded retirement");
+  // The retained library's 242 selectable entries, plus the 23 Weights and Measures entries approved for selection by the
+  // owner on 2026-11-27, are each exercised or have a recorded retirement.
+  assert.equal(result.weightsUsable, 23, "every approved Weights and Measures entry is exercised");
+  assert.equal(
+    result.usable - result.weightsUsable + result.reviewed.length,
+    242,
+    "every selectable entry was either exercised or has a recorded retirement",
+  );
   assert.ok(result.reviewed.length <= 3, "only entries another suite retired or replaced are skipped: " + result.reviewed);
   assert.ok(result.usable >= 239, "the usable bundled language was exercised");
-  // The Chapter 22 Weights and Measures entries are new drafts: every one stays blocked until division review.
   const weights = result.blocked.filter((key) => key.startsWith("ENF_WEIGHTS_MEASURES/"));
-  assert.equal(weights.length, 23, "every Weights and Measures draft is blocked");
+  assert.deepEqual(weights, [], "no Weights and Measures entry is blocked");
   // Owner decision 2026-10-31 approved the bundled drafts. These seven have no determinable section, so they stay blocked.
   assert.deepEqual(
     result.blocked.filter((key) => !weights.includes(key)),

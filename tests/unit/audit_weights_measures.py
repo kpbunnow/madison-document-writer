@@ -1,8 +1,9 @@
 """Weights and Measures order language (MGO Chapter 22), checked against the real bundled library and manifest.
 
 The Chapter 22 text is supplied as a retained source; every Weights and Measures entry cites sections that exist in it;
-the entries are drafts that a notice cannot issue until division review is recorded; a recorded review makes them
-issuable; and the retained library is unchanged."""
+the owner approved all 23 entries for selection on 2026-11-27, so a notice issues them without a catalog review; every
+charge they cite is priced under the 22.21(2) deposit schedule row ($200 first, $500 second or subsequent); and the
+retained library is unchanged."""
 
 import json
 from pathlib import Path
@@ -11,6 +12,7 @@ import tempfile
 import unittest
 
 import case_store
+import citation_pricing
 import library_ordinances
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -53,7 +55,7 @@ class WeightsAndMeasures(unittest.TestCase):
             self.assertEqual(verdicts[section]["verdict"], "confirmed", section)
             self.assertEqual(verdicts[section]["source"], SOURCE.name)
 
-    def test_entries_are_division_review_drafts_with_fill_ins(self):
+    def test_entries_are_owner_approved_with_fill_ins(self):
         found = entries()
         self.assertEqual(len(found), 23)
         self.assertEqual([c["name"] for c in library()][-1], "Weights and Measures")
@@ -61,31 +63,44 @@ class WeightsAndMeasures(unittest.TestCase):
         for key, item in found:
             with self.subTest(key=key):
                 self.assertRegex(item["catalogId"], r"^WM\d{2}$")
-                self.assertEqual((item["p"], item["provenance"]), ("draft", "draft"))
-                self.assertNotIn("approval", item)
+                self.assertEqual((item["p"], item["provenance"], item["status"]), ("export", "owner-approved", "Approved for selection"))
+                self.assertIn("owner's direction on 2026-11-27", item["approval"])
                 self.assertIn("( )", item["a"])
                 self.assertTrue(item["s"] and all(s.startswith("22.") for s in item["s"]))
                 self.assertEqual(set(item["citationManualSections"]), set(item["s"]))
-                self.assertIn("division review is required before selection", item["guidance"])
+                self.assertNotIn("division review", item["guidance"])
 
-    def test_manifest_marks_every_entry_draft(self):
+    def test_manifest_marks_every_entry_selectable(self):
         manifest = json.loads((ROOT / "app/assets/catalog_manifest.json").read_text(encoding="utf-8"))["items"]
         for key, item in entries():
-            self.assertEqual(manifest[key], {"draft": True, "ordinances": item["s"]})
+            self.assertEqual(manifest[key], {"draft": False, "ordinances": item["s"]})
 
-    def test_notice_is_refused_until_division_review_then_issues(self):
+    def test_notice_issues_without_review_and_a_recorded_review_still_governs(self):
         manifest_file = ROOT / "app/assets/catalog_manifest.json"
         with tempfile.TemporaryDirectory() as folder:
             reviews = Path(folder) / "reviews.json"
             for key, _ in entries():
-                with self.subTest(key=key), self.assertRaisesRegex(ValueError, "needs division review"):
+                with self.subTest(key=key):
                     case_store.validate_catalog_publication(None, notice(key), reviews, manifest_file)
             key = entries()[4][0]
             review = {"key": key, "status": "approved", "id": "review-wm", "version": 1}
             reviews.write_text(json.dumps({"format": "madison-catalog-review", "events": [review]}), encoding="utf-8")
             case_store.validate_catalog_publication(None, notice(key, catalogReviewId="review-wm", catalogVersion=1), reviews, manifest_file)
-            with self.assertRaisesRegex(ValueError, "needs division review"):
-                case_store.validate_catalog_publication(None, notice(entries()[5][0]), reviews, manifest_file)
+            with self.assertRaisesRegex(ValueError, "Catalog version changed"):
+                case_store.validate_catalog_publication(None, notice(key), reviews, manifest_file)
+
+    def test_every_charge_is_priced_under_22_21_2(self):
+        policy = citation_pricing.policy()
+        for key, item in entries():
+            mapped = {m["chargedOrdinance"]: m for m in policy["itemMappings"][key]}
+            self.assertEqual(set(mapped), set(item["s"]), key)
+            for section in item["s"]:
+                with self.subTest(key=key, section=section):
+                    self.assertEqual((mapped[section]["scheduleOrdinance"], mapped[section]["status"]), ("22.21(2)", "calculated"))
+                    entry = citation_pricing.resolve(section, key, at="2026-11-27")
+                    self.assertTrue(citation_pricing.ready(entry))
+                    self.assertEqual(entry["ordinance"], "22.21(2)")
+                    self.assertEqual([citation_pricing.base_cents(entry, n) for n in (1, 2, 3)], [20000, 50000, 50000])
 
     def test_retained_library_is_unchanged(self):
         retained = [c for c in library() if c["code"] != CODE]

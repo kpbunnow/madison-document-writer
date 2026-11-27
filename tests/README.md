@@ -72,8 +72,8 @@ covers, or a new suite under its feature.
 | `audit_language_shortcuts.js` | Picker Recently used and Favorites lists (storage failures, caps, list display) and new items that follow the previous item's location heading, never its due date |
 | `audit_result_operation_reads.js` | Bounded per-render picker selection and Reports column reads; duplicates/first copy, edited/cache/policy state and replacement report scales |
 | `audit_language_grouping.js` | Picker and Browse language layout in the Writer bundle: checklist/group headings with Consolidated first and earlier checklists labelled, ordinance tags, folded related sections, status badges only on Review catalog |
-| `audit_weights_measures.js` | Weights and Measures (MGO Chapter 22) in the picker and Browse language: listed after Violation Categories in title case, found by terms and 22.x sections, draft entries unselectable until division review |
-| `audit_weights_measures.py` | Weights and Measures source and catalog: the retained Chapter 22 text, every cited section confirmed, all 23 entries draft in the library and manifest, notices refused until a division review is recorded, retained library unchanged |
+| `audit_weights_measures.js` | Weights and Measures (MGO Chapter 22) in the picker and Browse language: listed after Violation Categories in title case, found by terms and 22.x sections, approved entries selectable under the default status |
+| `audit_weights_measures.py` | Weights and Measures source and catalog: the retained Chapter 22 text, every cited section confirmed, all 23 entries owner-approved in the library and manifest, notices issue without a review while a recorded review still governs, every cited section priced under 22.21(2) at $200/$500, retained library unchanged |
 | `audit_saved_work_focus_rules.js` | 364 retained asynchronous DOM cases plus existing saved-work and preflight regressions |
 | `audit_snow_prepare_rules.js` | 1,824 retained preparations plus existing listener, snow and SQL import regressions |
 | `audit_check_focus_rules.js` | 700 retained DOM/state/timer comparisons plus existing worksheet and outcome checks |
