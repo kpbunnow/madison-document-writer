@@ -1,8 +1,11 @@
 """Bounded read-only I/O. Inputs and yielded results stay in source order."""
 
 from concurrent.futures import ThreadPoolExecutor
-import json
 import threading
+
+from json_numbers import finite_json
+
+NONFINITE = "Summary numbers must be finite"
 
 MAX_READERS = 4
 BATCH_SIZE = 16
@@ -16,6 +19,8 @@ class SummaryInputs:
     At most 16 MiB of raw input and 4,096 entries are retained, plus parsed values. Other inputs use ordinary reads.
     The caller supplies its existing reader: secure open-case reads must never consume an ordinary-path read.
     Context parsing retains strict UTF-8 semantics; consumption retains json.loads(bytes), including BOM handling.
+    NaN, Infinity and overflowing numbers are refused like any unreadable summary: the summaries reach the browser,
+    which cannot parse them, so one such file would otherwise stop every report from loading.
     """
 
     def __init__(self, reader, max_bytes=SUMMARY_INPUT_BYTES, max_files=SUMMARY_INPUT_FILES):
@@ -30,11 +35,11 @@ class SummaryInputs:
             # A secure read may refuse a link that the old evidence-only scan could read. Keep that downgrade
             # evidence, but never cache it for the secure consumer: its own read must still refuse the entry.
             try:
-                return json.loads(path.read_text(encoding="utf-8"))
+                return finite_json(path.read_text(encoding="utf-8"), NONFINITE)
             except OSError, ValueError:
                 return None
         try:
-            value, parsed = json.loads(raw.decode("utf-8")), True
+            value, parsed = finite_json(raw.decode("utf-8"), NONFINITE), True
         except ValueError:
             value, parsed = None, False
         with self.lock:
@@ -51,7 +56,7 @@ class SummaryInputs:
         raw, parsed, value = kept if kept is not None else (self.reader(path), False, None)
         if max_bytes is not None and len(raw) > max_bytes:
             raise ValueError("too large")
-        return raw, value if parsed else json.loads(raw)
+        return raw, value if parsed else finite_json(raw, NONFINITE)
 
 
 def ordered_reads(paths, reader, workers=1):

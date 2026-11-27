@@ -8,6 +8,12 @@ and history operations are explicit call-time inputs, never cached authorities.
 from citation_disposition import citation_only_item, citation_only_closed, validate_carried_citation_only
 
 
+def _number_keys(numbers, fold):
+    """New citations compare numbers without regard to letter case (B1 and b1 are one printed citation); history replay
+    keeps the exact comparison its records were issued under."""
+    return [str(n).upper() if fold and n else n for n in numbers]
+
+
 def _validate_publication_identity(
     *, event, record, check_date_window, calendar_date, mailing_max_day, mailing_message, special_types, supplemental_types
 ):
@@ -49,7 +55,7 @@ def _validate_publication_identity(
     return (payload, snap, kind, items)
 
 
-def _validate_snow_publication(*, snow_rules, snap, documents, superseded, voided, event):
+def _validate_snow_publication(*, snow_rules, snap, documents, superseded, voided, event, fold=False):
     snow_rules.validate_snapshot(snap, require_letter=True)
     for previous, _ in documents.values():
         if (
@@ -62,10 +68,9 @@ def _validate_snow_publication(*, snow_rules, snap, documents, superseded, voide
     if snap.get("authoringVersion", 0) >= 10 and event["type"] != "correction.issued":
         if snap.get("frozen", {}).get("snowCoverFormat") != 10:
             raise ValueError("A new snow citation must use the current cover format")
-    numbers = [c.get("num") for c in snap.get("cits", {}).values()]
-    if event["type"] != "correction.issued" and any(
-        (n in {c.get("num") for d, _ in documents.values() for c in d.get("cits", {}).values()} for n in numbers)
-    ):
+    numbers = _number_keys([c.get("num") for c in snap.get("cits", {}).values()], fold)
+    previous = set(_number_keys([c.get("num") for d, _ in documents.values() for c in d.get("cits", {}).values()], fold))
+    if event["type"] != "correction.issued" and any((n in previous for n in numbers)):
         raise ValueError("A new snow citation needs a distinct citation number")
     return
 
@@ -127,11 +132,11 @@ def _validate_followup_outcomes(*, kind, items, source):
             raise ValueError("A Reinspection Notice keeps every due date as assigned")
 
 
-def _validate_new_citation_numbers(*, items, documents, snap):
+def _validate_new_citation_numbers(*, items, documents, snap, fold=False):
     if any((i.get("cite") and (i.get("done") or i.get("withdrawn")) for i in items)):
         raise ValueError("Only outstanding items may be selected for a new citation")
-    numbers = [snap.get("cits", {}).get(i["id"], {}).get("num") for i in items if i.get("cite") and (not i.get("withdrawn"))]
-    previous_numbers = {c.get("num") for d, _ in documents.values() for c in d.get("cits", {}).values()}
+    numbers = _number_keys([snap.get("cits", {}).get(i["id"], {}).get("num") for i in items if i.get("cite") and (not i.get("withdrawn"))], fold)
+    previous_numbers = set(_number_keys([c.get("num") for d, _ in documents.values() for c in d.get("cits", {}).values()], fold))
     if not numbers or any((not n for n in numbers)) or len(numbers) != len(set(numbers)) or set(numbers) & previous_numbers:
         raise ValueError("A new citation must use distinct citation numbers; corrections retain existing numbers")
 
@@ -166,7 +171,9 @@ def validate_publication(
     import snow_rules
 
     if snap.get("authoringVersion", 0) >= 9 and (snow_rules.is_snow(snap) or record["case"].get("caseType") == "snow-10.28"):
-        _validate_snow_publication(snow_rules=snow_rules, snap=snap, documents=documents, superseded=superseded, voided=voided, event=event)
+        _validate_snow_publication(
+            snow_rules=snow_rules, snap=snap, documents=documents, superseded=superseded, voided=voided, event=event, fold=check_date_window
+        )
         return
     if kind in ("notice", "extension", "citation") and any(
         (
@@ -197,4 +204,4 @@ def validate_publication(
         raise ValueError("This follow-up needs a recorded inspection")
     _validate_followup_outcomes(kind=kind, items=items, source=source)
     if kind == "citation":
-        _validate_new_citation_numbers(items=items, documents=documents, snap=snap)
+        _validate_new_citation_numbers(items=items, documents=documents, snap=snap, fold=check_date_window)

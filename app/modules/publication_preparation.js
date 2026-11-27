@@ -1,7 +1,7 @@
 import { citationOnlyClosureRequested, citationOnlyFollowup } from "./citation_disposition.js";
 import { inspAt } from "./inspection_facts.js";
 import { mailingDateMessage, mailingMaxDay, recordDay } from "../assets/shared.js";
-import { stableJSON, clone } from "./record_values.js";
+import { stableJSON, clone, citationNumberKey } from "./record_values.js";
 import { ISSUE_EVENT, REFERRED_ONLY } from "./document_types.js";
 import { doc, reinsp, originalNotice, recordHead, recordNow, isReferredCase, docsFor, docInsp } from "./writer_queries.js";
 import { isEffective, specialType, activeRestrictions } from "./document_rules.js";
@@ -62,8 +62,10 @@ function citationFaults(services, d) {
       .map((i) => ((d.cits || {})[i.id] || {}).num)
       .filter(Boolean);
   if (
-    new Set(numbers).size !== numbers.length ||
-    docsFor(d.caseId).some((x) => !x.draft && Object.values(x.cits || {}).some((c) => numbers.includes(c.num)))
+    new Set(numbers.map(citationNumberKey)).size !== numbers.length ||
+    docsFor(d.caseId).some(
+      (x) => !x.draft && Object.values(x.cits || {}).some((c) => !!c.num && numbers.some((n) => citationNumberKey(n) === citationNumberKey(c.num))),
+    )
   )
     faults.push("Each new citation needs a unique citation number. Corrections retain their existing number.");
   d.items

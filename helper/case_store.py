@@ -1131,6 +1131,12 @@ def legacy_scheduled_citation_base(ordinance, tier):
     return cash_validation.legacy_scheduled_base(policy, ordinance, tier)
 
 
+def citation_number_key(number):
+    """A citation number as it is compared: letter case is ignored, so B2000000001 and b2000000001 are one printed
+    citation. Stored numbers are never rewritten; already-issued records keep the exact comparison they were saved with."""
+    return str(number).upper()
+
+
 def _reserved_citation_numbers(snap):
     citations = snap.get("cits") or {}
     items = snap.get("items")
@@ -1149,7 +1155,7 @@ def _refuse_reused_citation_numbers(record, historical_ids, cross_case_history):
     used = {}
     for entry in cross_case_history:
         for number in _reserved_citation_numbers(entry["document"]):
-            used.setdefault(number, (entry.get("case") or {}).get("number", ""))
+            used.setdefault(citation_number_key(number), (entry.get("case") or {}).get("number", ""))
     for event in record.get("events", []):
         if event.get("id") in historical_ids or not str(event.get("type", "")).endswith(".issued"):
             continue
@@ -1158,8 +1164,11 @@ def _refuse_reused_citation_numbers(record, historical_ids, cross_case_history):
             continue
         for item in snap.get("items", []):
             number = (snap.get("cits", {}).get(item.get("id")) or {}).get("num") if item.get("cite") and not item.get("withdrawn") else None
-            if number in used:
-                raise ValueError("Citation number %s is already in use on case %s. Enter the next unused citation number." % (number, used[number]))
+            if number and citation_number_key(number) in used:
+                raise ValueError(
+                    "Citation number %s is already in use on case %s. Enter the next unused citation number."
+                    % (number, used[citation_number_key(number)])
+                )
 
 
 def _append_effective_citations(value, history):
@@ -2077,5 +2086,6 @@ def validate_authoring(snap, at=None, check_date_window=True, original=None):
             _validate_mandatory_citation(c=c, item=item, issued=issued)
             continue
         _validate_cash_citation(amount=amount, c=c, mode=mode, check_date_window=check_date_window, snap=snap, issued=issued, item=item)
-    if len(numbers) != len(set(numbers)) or (not numbers and any((not i.get("withdrawn") for i in items))):
+    distinct = {citation_number_key(n) for n in numbers} if check_date_window else set(numbers)
+    if len(numbers) != len(distinct) or (not numbers and any((not i.get("withdrawn") for i in items))):
         raise ValueError("Select citations with distinct citation numbers")

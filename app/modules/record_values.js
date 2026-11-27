@@ -27,3 +27,8 @@ export function stableJSON(value) {
     return v;
   });
 }
+
+/* A citation number as new citations compare it: letter case is ignored, so B2000000001 and b2000000001 are one printed
+   citation. Stored numbers are never rewritten. Mirrored by case_store.py citation_number_key. */
+/** @param {unknown} number @returns {string} */
+export const citationNumberKey = (number) => String(number ?? "").toUpperCase();
