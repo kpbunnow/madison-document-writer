@@ -225,6 +225,7 @@ covers, or a new suite under its feature.
 | `audit_r50_disclosure.js`, `audit_r50_editor_repaint.js`, `audit_r32_continuity.js` | Disclosure, focus and active edits survive repaints, including correction fields through a held shared-save completion |
 | `audit_recipient_flow.js` | Recipient form input, address validation and standardized output |
 | `audit_r31_address.js`, `audit_r31_address.py`, `audit_r32_fallback.py` | Address parser corpus, ambiguity and parser-absent fallback |
+| `audit_address_continuation.js` | Address preview/acceptance stays bound to the current editable contact; latest replies and superseded token cleanup. |
 | `audit_valid.js` | Document blockers and mailing-date limits |
 | `audit_feature_editor_screens.js` | Feature suite: Workspace import entry and current destination, inline fill-in entry and focus after the detail is written, case-number edits in page furniture |
 | `audit_feature_language_catalog.js` | Feature suite: dotted 27.05(2)(g)2 references normalize to one catalog entry, price and classification |
