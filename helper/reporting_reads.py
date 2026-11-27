@@ -26,16 +26,16 @@ class SummaryInputs:
     def read_context(self, path):
         try:
             raw = self.reader(path)
-        except OSError, ValueError:
+        except OSError, ValueError, RecursionError:
             # A secure read may refuse a link that the old evidence-only scan could read. Keep that downgrade
             # evidence, but never cache it for the secure consumer: its own read must still refuse the entry.
             try:
                 return json.loads(path.read_text(encoding="utf-8"))
-            except OSError, ValueError:
+            except OSError, ValueError, RecursionError:
                 return None
         try:
             value, parsed = json.loads(raw.decode("utf-8")), True
-        except ValueError:
+        except ValueError, RecursionError:
             value, parsed = None, False
         with self.lock:
             if path not in self.values and len(self.values) < self.max_files and self.bytes + len(raw) <= self.max_bytes:

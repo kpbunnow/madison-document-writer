@@ -44,6 +44,51 @@ class SharedFolderDamage(unittest.TestCase):
         self.assertTrue(case_store.read_case(self.root, self.name)["integrity"]["valid"])
         self.assertTrue(case_store.citation_history(self.root)["ok"])
 
+    def test_byte_order_mark_still_allows_valid_daily_anchoring(self):
+        external = self.root / "protected-anchor-test"
+        external.mkdir()
+        self.path.write_bytes(b"\xef\xbb\xbf" + self.path.read_bytes())
+        before = self.path.read_bytes()
+        result = case_integrity.anchor_daily(self.root, external)
+        self.assertTrue(result["anchored"])
+        record = case_store.case_json(before)
+        self.assertTrue(case_integrity.verify_record(record, self.root, external=external)["anchored"])
+        self.assertEqual(self.path.read_bytes(), before)
+
+    def test_registry_reconstruction_reads_valid_bom_case_without_rewriting_it(self):
+        originals = case_integrity.registry(self.root)["entries"]
+        self.path.write_bytes(b"\xef\xbb\xbf" + self.path.read_bytes())
+        before = self.path.read_bytes()
+        (self.root / "_integrity/migrated.json").unlink()
+        case_integrity.reconstruct_registry(self.root)
+        rebuilt = case_integrity.registry(self.root)["entries"]
+        self.assertEqual({e["caseNumber"]: e["genesisHash"] for e in rebuilt}, {e["caseNumber"]: e["genesisHash"] for e in originals})
+        self.assertEqual(self.path.read_bytes(), before)
+
+    def test_bom_does_not_let_a_tampered_case_be_anchored(self):
+        external = self.root / "protected-anchor-test"
+        external.mkdir()
+        record = case_store.case_json(self.path.read_bytes())
+        record["case"]["owner"] = "CHANGED OUTSIDE THE PROGRAM"
+        self.path.write_bytes(b"\xef\xbb\xbf" + json.dumps(record).encode("utf-8"))
+        before = self.path.read_bytes()
+        with self.assertRaises(ValueError):
+            case_integrity.anchor_daily(self.root, external)
+        self.assertEqual(list(external.glob("*.sha256")), [])
+        self.assertEqual(self.path.read_bytes(), before)
+
+    def test_startup_reconstruction_skips_unreadable_nonrecord_and_deep_case_files(self):
+        original_registry = (self.root / "_integrity/migrated.json").read_bytes()
+        for raw in [b"[1]", b"null", b"42", b"true", b"[" * 200000 + b"0" + b"]" * 200000]:
+            with self.subTest(prefix=raw[:20]):
+                self.path.write_bytes(raw)
+                unknown = self.root / "ODD - QA-UNKNOWN.json"
+                unknown.write_bytes(raw)
+                case_integrity.reconstruct_registry(self.root)
+                self.assertEqual(unknown.read_bytes(), raw)
+                self.assertEqual(self.path.read_bytes(), raw)
+                self.assertEqual((self.root / "_integrity/migrated.json").read_bytes(), original_registry)
+
     def test_non_finite_case_file_is_refused_on_open_and_named_in_history(self):
         text = self.path.read_text()
         self.path.write_text(text.replace('"QA-SC-2"', '"QA-SC-2","extra":NaN', 1))
