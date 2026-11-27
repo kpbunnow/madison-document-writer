@@ -21,6 +21,7 @@ import {
   defendantKey,
   tierLabel,
   tierOrdinal,
+  refreshDraftPricing,
 } from "./citation_policy.js";
 const retainedDepositFields = [
   "amount",
@@ -226,7 +227,7 @@ function editCitationOrdinance(services, d, id, c, value, phase) {
 function rejectCitationFieldEdit(services, d, c, field, value) {
   if (["tierOverride", "tierOverrideSource"].includes(field) && !String(value || "").trim()) {
     delete c[field];
-    services.citationPricing.refresh(d);
+    refreshDraftPricing(services.citationPricing, d);
     return true;
   }
   if (field === "amount" && !(cents(value) > 0)) {
@@ -390,7 +391,8 @@ function afterCitationFieldEdit(services, { d, id, c, field, value }) {
   if (field === "amount") delete c.depositEditInvalid;
   if (field === "issued") delete c.issuedAutomatic;
   if (field === "desc") c.descEdited = true;
-  if (["violDate", "issued", "scheduleEntryId", "tierOverride", "tierOverrideSource"].includes(field)) services.citationPricing.refresh(d);
+  if (["violDate", "issued", "scheduleEntryId", "tierOverride", "tierOverrideSource"].includes(field))
+    refreshDraftPricing(services.citationPricing, d);
   if (field === "depositMode") editCitationDepositMode(services, d, id, c, value);
   updateCitationFees(services, c, field);
   confirmEditedDepositBasis(services, d, c, field);
@@ -610,7 +612,7 @@ function editOffenseLevel(services, d, c, value) {
     delete c.tierOverride;
     delete c.tierOverrideSource;
   }
-  services.citationPricing.refresh(d);
+  refreshDraftPricing(services.citationPricing, d);
   if (d.correction) d.correction.reviewed = false;
 }
 
@@ -743,7 +745,7 @@ export function createCitationWorkflow(services) {
   }
 
   function authoringChecks(d) {
-    services.citationPricing.refresh(d);
+    refreshDraftPricing(services.citationPricing, d);
     const out = [],
       collect = checkCollector(out);
     dueDateChecks(services, d, out, collect.check);
@@ -753,11 +755,11 @@ export function createCitationWorkflow(services) {
   }
 
   function citationReview(d) {
-    services.citationPricing.refresh(d);
+    refreshDraftPricing(services.citationPricing, d);
     services.citationPricing.ensureShared(d);
     if (services.initialCitations.enabled(d)) d = services.initialCitations.preview(d);
     if (d.type !== "citation" || services.isLocked(d)) return "";
-    services.citationPricing.refresh(d);
+    refreshDraftPricing(services.citationPricing, d);
     const cards = d.items
       .filter((i) => i.cite && !i.withdrawn)
       .map((i) => chargeCard(services, d, i))

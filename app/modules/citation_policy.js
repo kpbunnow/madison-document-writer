@@ -295,11 +295,23 @@ export function resolveCitationAmount({ ordinance, libraryItem = "", tier = 1, d
   };
 }
 
+/* The refusal for an incomplete or unreadable pricing date. Writer editing, readiness and review keep an incomplete
+   draft editable and show its readiness fault instead (refreshDraftPricing); every other refusal still propagates. */
+export const INCOMPLETE_PRICING_DATE = "Enter a valid pricing date.";
+export function refreshDraftPricing(pricing, d) {
+  try {
+    pricing.refresh(d);
+  } catch (error) {
+    if (error?.message !== INCOMPLETE_PRICING_DATE) throw error;
+  }
+}
+
 const datedPolicyCache = new Map();
 export function policyAt(date) {
   if (datedPolicyCache.has(date)) return datedPolicyCache.get(date);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date)) || new Date(date + "T00:00:00Z").toISOString().slice(0, 10) !== date)
-    throw new Error("Enter a valid pricing date.");
+  // A month or day out of range (2026-13-01) makes an invalid Date; it is refused like any other unreadable date.
+  const day = /^\d{4}-\d{2}-\d{2}$/.test(String(date)) ? new Date(date + "T00:00:00Z") : null;
+  if (!day || Number.isNaN(day.getTime()) || day.toISOString().slice(0, 10) !== date) throw new Error(INCOMPLETE_PRICING_DATE);
   const pick = (rows) => {
     const v = rows.find((v) => (!v.from || v.from <= date) && (!v.to || date <= v.to));
     if (!v) throw new Error("No reviewed policy for this date.");

@@ -71,13 +71,20 @@ function refreshPricingSiteMatch(d, c, f, respondent) {
   } else delete c.siteMatch;
 }
 
+// The lookup is read, and its arguments evaluated, in the original order; an incomplete pricing date resolves nothing.
 function draftPricingEntry(services, key, d, i, c) {
-  const date = services.citationPricingDate(c, d);
-  return validISO(date) ? services.lookupForf([c.ord], key(i), c.scheduleEntryId, date) : null;
+  const lookup = services.lookupForf,
+    ordinances = [c.ord],
+    libraryKey = key(i),
+    entryId = c.scheduleEntryId,
+    date = services.citationPricingDate(c, d);
+  return validISO(date) ? lookup.call(services, ordinances, libraryKey, entryId, date) : null;
 }
 
 function refreshDraftPricingHistory(services, key, priorOffenses, d, i, c, respondent, staged) {
-  const f = draftPricingEntry(services, key, d, i, c),
+  // An unreadable pricing date still refuses the refresh here ("Enter a valid pricing date."); Writer callers that must
+  // keep an incomplete draft editable handle that refusal (citation_workflow.js refreshDraftPricing).
+  const f = services.lookupForf([c.ord], key(i), c.scheduleEntryId, services.citationPricingDate(c, d)),
     date = c.violDate || services.inspAt(d).date;
   const history = priorOffenses({
     ordinanceEntry: f,
