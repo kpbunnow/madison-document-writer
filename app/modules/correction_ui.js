@@ -84,50 +84,101 @@ function correctionPanelHTML(services, d, parts) {
   return html`<section class="card correction-panel no-print"><div class="card-b"><div class="revision-eyebrow">Correction draft · revision ${raw(((correctionSource(d) || {}).revision || {}).number + 1 || 1)}</div><h2>Fix the record without losing its history</h2><p>The prior version remains on record while you work. Item numbers, inspection history and unchanged deadlines carry forward. Changed conditions belong in a new reinspection.</p>${raw(correctionSource(d)?.void ? RESTORE_HINT : "")}\n    ${raw("".concat(correctionNotices(locked)))}\n    ${raw("".concat(editor.state.amendmentError ? `<div class="banner alert" role="alert">${esc(editor.state.amendmentError)}</div>` : ""))}\n    <label class="f"><span>What was wrong, and why is this correction needed?</span><textarea id="correction-reason" rows="2" maxlength="1000" ${raw(locked ? "disabled" : "")}>${c.reason}</textarea></label>\n    <p class="hint">Changed case details are saved for future documents and current reports. The original issued copy remains unchanged. Case number stays fixed.</p>\n    ${raw("".concat(externalReferenceField(d, c, locked)))}\n    ${raw(propertyDetails(services, c, locked))}\n    ${raw(locked ? "" : parts.visitEditor(d))}\n    <details><summary>Compare with the issued version</summary>${raw(parts.diff(d))}</details>\n    ${raw(correctionActions(d, c, locked))}\n  </div></section>`;
 }
 
+// How a recorded value reads in correction review; money fields read as dollars, assessment parts from integer cents.
+function correctionChangeText(v) {
+  return v == null
+    ? "—"
+    : typeof v === "boolean"
+      ? v
+        ? "Yes"
+        : "No"
+      : Array.isArray(v)
+        ? v.map(correctionChangeText).join("; ")
+        : typeof v === "object"
+          ? Object.entries(v)
+              .map(([k, x]) => k + ": " + correctionChangeText(x))
+              .join("; ")
+          : String(v) || "—";
+}
+
+function correctionReviewValueText(path, value) {
+  const match = /^citation\..+\.(base|amount|cc|assessments|overrideBasis)$/.exec(path);
+  if (!match) return correctionChangeText(value);
+  const currency = (v, integerCents = false) => {
+    const n = integerCents ? (Number.isSafeInteger(v) && v >= 0 ? v : null) : cents(v);
+    return n === null ? "—" : "$" + (n / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+  if (!["assessments", "overrideBasis"].includes(match[1])) return currency(value);
+  if (!value || typeof value !== "object" || Array.isArray(value)) return "—";
+  const labels =
+    match[1] === "overrideBasis"
+      ? { baseCents: "Base", courtCents: "Court costs", totalCents: "Total" }
+      : {
+          base: "Base",
+          penalty: "Penalty assessment",
+          jail: "Jail assessment",
+          crimeLab: "Crime lab",
+          court: "Court costs",
+          total: "Total",
+        };
+  return (
+    Object.entries(value)
+      .map(([key, v]) => (labels[key] || key) + ": " + (Object.hasOwn(labels, key) ? currency(v, true) : correctionChangeText(v)))
+      .join("; ") || "—"
+  );
+}
+
+// The recorded-visit editor inside the correction panel: outcome and compliance date per carried item.
+function correctionVisitEditorHTML(services, d) {
+  const src = correctionSource(d),
+    r = src && reinsp(src.fromReinspId);
+  if (!r) return "";
+  const allowed = DOC_TYPES.filter((t) => t.ready && services.correctionTypeAllowed(src, t.id));
+  return html`<details class="correction-visit"><summary>Correct the recorded visit or follow-up type</summary><p class="hint">Use this only to correct a recording error from the same visit. It amends that visit in the audit trail without counting another inspection. New observations require a new reinspection.</p>\n    ${raw(
+    "".concat(
+      allowed.length > 1
+        ? html`<label class="f"><span>Correct document type</span><select id="correction-type">${raw("".concat(allowed.map((t) => `<option value="${esc(t.id)}" ${t.id === d.type ? "selected" : ""}>${esc(t.label)}</option>`).join("")))}</select></label>`
+        : "",
+    ),
+  )}\n    ${raw(
+    "".concat(
+      d.items
+        .map((it) => {
+          const res = r.results[it.srcItemId];
+          if (!res || res.carried || it.withdrawn) return "";
+          return (
+            '<div class="grid g2"><label class="f"><span>Item ' +
+            `${esc(it.no)}` +
+            ' · recorded outcome</span><select data-correction-outcome="' +
+            `${esc(it.id)}` +
+            '">' +
+            "".concat(
+              OUTCOMES.map(
+                (o) =>
+                  '<option value="' +
+                  `${esc(o.id)}` +
+                  '" ' +
+                  `${((d.correction.outcomes || {})[it.id] || res.oc) === o.id ? "selected" : ""}` +
+                  ">" +
+                  `${esc(o.label)}` +
+                  "</option>",
+              ).join(""),
+            ) +
+            "</select></label>" +
+            "".concat(
+              it.done
+                ? html`<label class="f"><span>Compliance date</span><input type="date" data-field="doneOn" data-id="${it.id}" value="${it.doneOn}" max="${raw(recordDay(services.today))}"></label>`
+                : "",
+            ) +
+            "</div>"
+          );
+        })
+        .join(""),
+    ),
+  )}</details>`;
+}
+
 export function createCorrectionUI(services) {
-  function changeText(v) {
-    return v == null
-      ? "—"
-      : typeof v === "boolean"
-        ? v
-          ? "Yes"
-          : "No"
-        : Array.isArray(v)
-          ? v.map(changeText).join("; ")
-          : typeof v === "object"
-            ? Object.entries(v)
-                .map(([k, x]) => k + ": " + changeText(x))
-                .join("; ")
-            : String(v) || "—";
-  }
-
-  function correctionValueText(path, value) {
-    const match = /^citation\..+\.(base|amount|cc|assessments|overrideBasis)$/.exec(path);
-    if (!match) return changeText(value);
-    const currency = (v, integerCents = false) => {
-      const n = integerCents ? (Number.isSafeInteger(v) && v >= 0 ? v : null) : cents(v);
-      return n === null ? "—" : "$" + (n / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    };
-    if (!["assessments", "overrideBasis"].includes(match[1])) return currency(value);
-    if (!value || typeof value !== "object" || Array.isArray(value)) return "—";
-    const labels =
-      match[1] === "overrideBasis"
-        ? { baseCents: "Base", courtCents: "Court costs", totalCents: "Total" }
-        : {
-            base: "Base",
-            penalty: "Penalty assessment",
-            jail: "Jail assessment",
-            crimeLab: "Crime lab",
-            court: "Court costs",
-            total: "Total",
-          };
-    return (
-      Object.entries(value)
-        .map(([key, v]) => (labels[key] || key) + ": " + (Object.hasOwn(labels, key) ? currency(v, true) : changeText(v)))
-        .join("; ") || "—"
-    );
-  }
-
   function correctionDiffHTML(d) {
     const changes = services.correctionChanges(d);
     return html`<div class="change-table"><table><caption>Changes from the issued version</caption><thead><tr><th>Field</th><th>Previously issued</th><th>Correction draft</th></tr></thead><tbody>${raw(
@@ -138,9 +189,9 @@ export function createCorrectionUI(services) {
               "<tr><th>" +
               `${esc(c.label)}` +
               "</th><td>" +
-              `${esc(correctionValueText(c.path, c.before))}` +
+              `${esc(correctionReviewValueText(c.path, c.before))}` +
               "</td><td>" +
-              `${esc(correctionValueText(c.path, c.after))}` +
+              `${esc(correctionReviewValueText(c.path, c.after))}` +
               "</td></tr>",
           )
           .join("") || '<tr><td colspan="3">No changes yet.</td></tr>',
@@ -150,7 +201,7 @@ export function createCorrectionUI(services) {
 
   function correctionPanel(d) {
     if (!d.correction) return "";
-    return correctionPanelHTML(services, d, { visitEditor: correctionVisitEditor, diff: correctionDiffHTML });
+    return correctionPanelHTML(services, d, { visitEditor: (x) => correctionVisitEditorHTML(services, x), diff: correctionDiffHTML });
   }
 
   function recordActionModal() {
@@ -161,53 +212,5 @@ export function createCorrectionUI(services) {
     return recordActionShell(d, mode, held);
   }
 
-  function correctionVisitEditor(d) {
-    const src = correctionSource(d),
-      r = src && reinsp(src.fromReinspId);
-    if (!r) return "";
-    const allowed = DOC_TYPES.filter((t) => t.ready && services.correctionTypeAllowed(src, t.id));
-    return html`<details class="correction-visit"><summary>Correct the recorded visit or follow-up type</summary><p class="hint">Use this only to correct a recording error from the same visit. It amends that visit in the audit trail without counting another inspection. New observations require a new reinspection.</p>\n    ${raw(
-      "".concat(
-        allowed.length > 1
-          ? html`<label class="f"><span>Correct document type</span><select id="correction-type">${raw("".concat(allowed.map((t) => `<option value="${esc(t.id)}" ${t.id === d.type ? "selected" : ""}>${esc(t.label)}</option>`).join("")))}</select></label>`
-          : "",
-      ),
-    )}\n    ${raw(
-      "".concat(
-        d.items
-          .map((it) => {
-            const res = r.results[it.srcItemId];
-            if (!res || res.carried || it.withdrawn) return "";
-            return (
-              '<div class="grid g2"><label class="f"><span>Item ' +
-              `${esc(it.no)}` +
-              ' · recorded outcome</span><select data-correction-outcome="' +
-              `${esc(it.id)}` +
-              '">' +
-              "".concat(
-                OUTCOMES.map(
-                  (o) =>
-                    '<option value="' +
-                    `${esc(o.id)}` +
-                    '" ' +
-                    `${((d.correction.outcomes || {})[it.id] || res.oc) === o.id ? "selected" : ""}` +
-                    ">" +
-                    `${esc(o.label)}` +
-                    "</option>",
-                ).join(""),
-              ) +
-              "</select></label>" +
-              "".concat(
-                it.done
-                  ? html`<label class="f"><span>Compliance date</span><input type="date" data-field="doneOn" data-id="${it.id}" value="${it.doneOn}" max="${raw(recordDay(services.today))}"></label>`
-                  : "",
-              ) +
-              "</div>"
-            );
-          })
-          .join(""),
-      ),
-    )}</details>`;
-  }
-  return { correctionDiffHTML, correctionPanel, recordActionModal, ...(__TEST_BUILD__ ? { correctionValueText } : {}) };
+  return { correctionDiffHTML, correctionPanel, recordActionModal, ...(__TEST_BUILD__ ? { correctionValueText: correctionReviewValueText } : {}) };
 }
