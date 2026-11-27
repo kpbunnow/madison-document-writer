@@ -2578,6 +2578,382 @@
         "printedDescription": "Unauthorized work that cannot be approved",
         "printedReference": "29.07(1)"
       }
+    ],
+    "[\"ENF_WEIGHTS_MEASURES\",\"LICENSING\",1]": [
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"LICENSING\",1]",
+        "chargedOrdinance": "22.20(1)",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Device license required"
+      },
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"LICENSING\",1]",
+        "chargedOrdinance": "22.21(2)(e)",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Device license required"
+      }
+    ],
+    "[\"ENF_WEIGHTS_MEASURES\",\"LICENSING\",2]": [
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"LICENSING\",2]",
+        "chargedOrdinance": "22.20(1)",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Renew expired license"
+      }
+    ],
+    "[\"ENF_WEIGHTS_MEASURES\",\"LICENSING\",3]": [
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"LICENSING\",3]",
+        "chargedOrdinance": "22.20(2)",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Device added without application"
+      },
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"LICENSING\",3]",
+        "chargedOrdinance": "22.06(1)",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Device added without application"
+      }
+    ],
+    "[\"ENF_WEIGHTS_MEASURES\",\"LICENSING\",4]": [
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"LICENSING\",4]",
+        "chargedOrdinance": "22.20(5)",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Post the license"
+      }
+    ],
+    "[\"ENF_WEIGHTS_MEASURES\",\"DEVICE_ACCURACY\",5]": [
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"DEVICE_ACCURACY\",5]",
+        "chargedOrdinance": "22.09",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Incorrect weighing or measuring device"
+      },
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"DEVICE_ACCURACY\",5]",
+        "chargedOrdinance": "22.21(2)(b)",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Incorrect weighing or measuring device"
+      }
+    ],
+    "[\"ENF_WEIGHTS_MEASURES\",\"DEVICE_ACCURACY\",6]": [
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"DEVICE_ACCURACY\",6]",
+        "chargedOrdinance": "22.05(2)",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Rejected device in use"
+      },
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"DEVICE_ACCURACY\",6]",
+        "chargedOrdinance": "22.21(2)(d)",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Rejected device in use"
+      }
+    ],
+    "[\"ENF_WEIGHTS_MEASURES\",\"DEVICE_ACCURACY\",7]": [
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"DEVICE_ACCURACY\",7]",
+        "chargedOrdinance": "22.21(2)(e)",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Device not approved and sealed"
+      }
+    ],
+    "[\"ENF_WEIGHTS_MEASURES\",\"DEVICE_ACCURACY\",8]": [
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"DEVICE_ACCURACY\",8]",
+        "chargedOrdinance": "22.21(2)(f)",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Inaccurate equipment installed or sold"
+      }
+    ],
+    "[\"ENF_WEIGHTS_MEASURES\",\"SEALS_AND_REPAIRS\",9]": [
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"SEALS_AND_REPAIRS\",9]",
+        "chargedOrdinance": "22.06(2)",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Security seal missing"
+      }
+    ],
+    "[\"ENF_WEIGHTS_MEASURES\",\"SEALS_AND_REPAIRS\",10]": [
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"SEALS_AND_REPAIRS\",10]",
+        "chargedOrdinance": "22.06(2)",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Repair or seal removal not reported"
+      }
+    ],
+    "[\"ENF_WEIGHTS_MEASURES\",\"SALE_AND_QUANTITY\",11]": [
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"SALE_AND_QUANTITY\",11]",
+        "chargedOrdinance": "22.07",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Method of sale"
+      }
+    ],
+    "[\"ENF_WEIGHTS_MEASURES\",\"SALE_AND_QUANTITY\",12]": [
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"SALE_AND_QUANTITY\",12]",
+        "chargedOrdinance": "22.08",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Quantity not declared"
+      }
+    ],
+    "[\"ENF_WEIGHTS_MEASURES\",\"SALE_AND_QUANTITY\",13]": [
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"SALE_AND_QUANTITY\",13]",
+        "chargedOrdinance": "22.08",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Short-weight packages"
+      },
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"SALE_AND_QUANTITY\",13]",
+        "chargedOrdinance": "22.21(2)(b)",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Short-weight packages"
+      }
+    ],
+    "[\"ENF_WEIGHTS_MEASURES\",\"PRICING\",14]": [
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"PRICING\",14]",
+        "chargedOrdinance": "22.11",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Price misrepresented or overcharged"
+      },
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"PRICING\",14]",
+        "chargedOrdinance": "22.21(2)(c)",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Price misrepresented or overcharged"
+      }
+    ],
+    "[\"ENF_WEIGHTS_MEASURES\",\"PRICING\",15]": [
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"PRICING\",15]",
+        "chargedOrdinance": "22.11",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Fraction of a cent not displayed"
+      }
+    ],
+    "[\"ENF_WEIGHTS_MEASURES\",\"FUEL_DISPENSERS\",16]": [
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"FUEL_DISPENSERS\",16]",
+        "chargedOrdinance": "22.06(4)",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Pump locks not unique"
+      }
+    ],
+    "[\"ENF_WEIGHTS_MEASURES\",\"TEMPORARY_VENDORS\",17]": [
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"TEMPORARY_VENDORS\",17]",
+        "chargedOrdinance": "22.06(3)",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Temporary vendor not approved"
+      }
+    ],
+    "[\"ENF_WEIGHTS_MEASURES\",\"ORDERS_AND_LICENSE_ACTIONS\",18]": [
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"ORDERS_AND_LICENSE_ACTIONS\",18]",
+        "chargedOrdinance": "22.05(3)",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Stop-use order"
+      }
+    ],
+    "[\"ENF_WEIGHTS_MEASURES\",\"ORDERS_AND_LICENSE_ACTIONS\",19]": [
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"ORDERS_AND_LICENSE_ACTIONS\",19]",
+        "chargedOrdinance": "22.05(3)",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Stop-sale order"
+      }
+    ],
+    "[\"ENF_WEIGHTS_MEASURES\",\"ORDERS_AND_LICENSE_ACTIONS\",20]": [
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"ORDERS_AND_LICENSE_ACTIONS\",20]",
+        "chargedOrdinance": "22.05(3)",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Disposal order"
+      }
+    ],
+    "[\"ENF_WEIGHTS_MEASURES\",\"ORDERS_AND_LICENSE_ACTIONS\",21]": [
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"ORDERS_AND_LICENSE_ACTIONS\",21]",
+        "chargedOrdinance": "22.05(2)",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Access for inspection"
+      },
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"ORDERS_AND_LICENSE_ACTIONS\",21]",
+        "chargedOrdinance": "22.21(2)(a)",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Access for inspection"
+      }
+    ],
+    "[\"ENF_WEIGHTS_MEASURES\",\"ORDERS_AND_LICENSE_ACTIONS\",22]": [
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"ORDERS_AND_LICENSE_ACTIONS\",22]",
+        "chargedOrdinance": "22.20(6)",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "Operations discontinued under suspension"
+      }
+    ],
+    "[\"ENF_WEIGHTS_MEASURES\",\"ORDERS_AND_LICENSE_ACTIONS\",23]": [
+      {
+        "libraryKey": "[\"ENF_WEIGHTS_MEASURES\",\"ORDERS_AND_LICENSE_ACTIONS\",23]",
+        "chargedOrdinance": "22.20(7)",
+        "scheduleOrdinance": "22.21(2)",
+        "status": "calculated",
+        "reviewer": "Owner direction",
+        "date": "2026-11-27",
+        "source": "MGO 1.08(3)(a) deposit schedule row 22.21(2), Rev. 28, Update 3; supplied chapter export 2026-09-14",
+        "rationale": "Owner direction 2026-11-27: every Weights and Measures charge is priced under 22.21(2), $200 for a first offense and $500 for a second or subsequent offense.",
+        "printedDescription": "License subject to revocation"
+      }
     ]
   },
   "chargeMappings": {

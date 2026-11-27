@@ -1,7 +1,7 @@
 /* Weights and Measures (MGO Chapter 22) in the order-language picker and Browse language, from the screen module with
    the real bundled library: it is listed after Violation Categories with title-case groups and is not marked as an
-   earlier checklist; ordinary terms and Chapter 22 sections find its entries; its draft entries are hidden by the
-   default "usable" status and, when shown, cannot be selected until division review is recorded. */
+   earlier checklist; ordinary terms and Chapter 22 sections find its entries; the owner approved its entries for selection
+   on 2026-11-27, so the default "usable" status lists them and they can be selected. */
 const assert = require("node:assert/strict");
 const { JSDOM } = require("jsdom");
 const { compile } = require("../fixtures/equivalence_harness.cjs");
@@ -72,24 +72,24 @@ const { compile } = require("../fixtures/equivalence_harness.cjs");
     const heading = row.closest(".language-pick-group").querySelector(".language-group-h").textContent;
     assert.match(heading, /Weights and Measures/);
     assert.doesNotMatch(heading, /earlier checklist/);
-    assert.ok(row.querySelector("button.gitem").disabled, "a draft entry cannot be selected");
-    assert.match(row.textContent, /Not available for a new selection until division review is recorded/);
+    assert.ok(!row.querySelector("button.gitem").disabled, "an approved entry can be selected");
+    assert.doesNotMatch(row.textContent, /Not available for a new selection/);
   }
 
   R.state.q = "";
   R.state.pickerStatus = "usable";
   page = parse(api.languagePicker(R));
-  assert.equal(page.querySelectorAll('.picker-tree .tree-g[data-grp^="' + weights + ':"]').length, 0, "drafts are hidden by the usable status");
+  assert.equal(page.querySelectorAll('.picker-tree .tree-g[data-grp^="' + weights + ':"]').length, 8, "the usable status lists every category");
   R.state.pickerStatus = "review";
   page = parse(api.languagePicker(R));
-  assert.equal(page.querySelectorAll('.picker-tree .tree-g[data-grp^="' + weights + ':"]').length, 8, "drafts are listed for review");
+  assert.equal(page.querySelectorAll('.picker-tree .tree-g[data-grp^="' + weights + ':"]').length, 0, "nothing is left for review");
 
   R.state.picker = false;
   R.state.languageMode = "browse";
   page = parse(api.languageScreen(R));
   assert.equal(page.querySelector("#lib-checklist option:nth-child(3)").textContent, "Weights and Measures");
   console.log(
-    "PASS Weights and Measures: listed after Violation Categories in title case, found by terms and Chapter 22 sections, drafts unselectable until division review",
+    "PASS Weights and Measures: listed after Violation Categories in title case, found by terms and Chapter 22 sections, approved entries selectable",
   );
 })().catch((error) => {
   console.error(error);
