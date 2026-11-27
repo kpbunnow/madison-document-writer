@@ -11,6 +11,7 @@ import {
   CITATION_POLICY,
   canonicalOrdinance,
   cents,
+  refreshDraftPricing,
   resolveCitationAmount,
   defendantKey,
   sameSite,
@@ -83,7 +84,7 @@ function draftPricingEntry(services, key, d, i, c) {
 
 function refreshDraftPricingHistory(services, key, priorOffenses, d, i, c, respondent, staged) {
   // An unreadable pricing date still refuses the refresh here ("Enter a valid pricing date."); Writer callers that must
-  // keep an incomplete draft editable handle that refusal (citation_workflow.js refreshDraftPricing).
+  // keep an incomplete draft editable handle that refusal (citation_policy.js refreshDraftPricing).
   const f = services.lookupForf([c.ord], key(i), c.scheduleEntryId, services.citationPricingDate(c, d)),
     date = c.violDate || services.inspAt(d).date;
   const history = priorOffenses({
@@ -199,6 +200,9 @@ function appendPriorCitations(services, key, record, query, out, seen) {
   }
 }
 
+// Loading shared history only re-prices the draft: an issue date still being typed stays a readiness fault, not a failed load.
+const refreshForSharedHistory = (refresh, d) => refreshDraftPricing({ refresh }, d);
+
 export function initCitationPricing(services) {
   let shared = [],
     busy = null,
@@ -284,9 +288,9 @@ export function initCitationPricing(services) {
   }
   async function loadShared(d, force = false) {
     if (!d || d.pendingAmendment || !startup.HELPER?.ok || !workspace.CASEDIR?.helper) return true;
-    refresh(d);
+    refreshForSharedHistory(refresh, d);
     if (!force && Date.now() - loadedAt < 15000) {
-      refresh(d);
+      refreshForSharedHistory(refresh, d);
       return true;
     }
     if (!busy)
@@ -307,7 +311,7 @@ export function initCitationPricing(services) {
     const before = signature(d),
       ok = await busy;
     if (ok) {
-      refresh(d);
+      refreshForSharedHistory(refresh, d);
       if (before !== signature(d)) services.toast("Citation history changed. Review the updated offense tiers and deposits before issuance.");
     }
     return ok;
