@@ -957,6 +957,7 @@
     "tests/unit/audit_feature_worksheet_dates.js",
     "tests/unit/audit_filename_policy.py",
     "tests/unit/audit_final.js",
+    "tests/unit/audit_final_dialog_review.js",
     "tests/unit/audit_folder_connections.js",
     "tests/unit/audit_followup_draft_rules.js",
     "tests/unit/audit_func.js",
