@@ -2,7 +2,7 @@
 import { checkTarget, citSelector } from "./presentation_format.js";
 
 import { docInsp, docsFor } from "./writer_queries.js";
-import { clone, citationNumberKey } from "./record_values.js";
+import { clone, citationNumbersTaken } from "./record_values.js";
 import { courtTime } from "./document_types.js";
 import { canonicalOrdinance } from "./citation_policy.js";
 /* Initial-visit notices and citations share one review and one atomic save. */
@@ -75,12 +75,7 @@ export function initInitialCitations(services) {
       .filter((i) => i.cite && !i.withdrawn)
       .map((i) => p.cits[i.id]?.num)
       .filter(Boolean);
-    if (
-      new Set(numbers.map(citationNumberKey)).size !== numbers.length ||
-      docsFor(d.caseId).some(
-        (x) => !x.draft && Object.values(x.cits || {}).some((c) => !!c.num && numbers.some((n) => citationNumberKey(n) === citationNumberKey(c.num))),
-      )
-    )
+    if (citationNumbersTaken(docsFor(d.caseId), numbers))
       out.push({
         ok: false,
         t: "Each selected initial citation needs a distinct, unused citation number.",

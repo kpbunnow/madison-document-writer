@@ -32,3 +32,13 @@ export function stableJSON(value) {
    citation. Stored numbers are never rewritten. Mirrored by case_store.py citation_number_key. */
 /** @param {unknown} number @returns {string} */
 export const citationNumberKey = (number) => String(number ?? "").toUpperCase();
+
+/* Whether a number is repeated among these new numbers, or is already on an issued document among docs. */
+/** @param {Array<{draft?: boolean, cits?: Record<string, {num?: string}>}>} docs @param {string[]} numbers */
+export function citationNumbersTaken(docs, numbers) {
+  const keys = numbers.map(citationNumberKey);
+  return (
+    new Set(keys).size !== keys.length ||
+    docs.some((x) => !x.draft && Object.values(x.cits || {}).some((c) => !!c.num && keys.includes(citationNumberKey(c.num))))
+  );
+}

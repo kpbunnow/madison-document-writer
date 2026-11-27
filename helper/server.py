@@ -32,7 +32,7 @@ from runtime_paths import UPDATE_BLOCKED, deployed_build, no_window, resource as
 
 import http.server, socketserver, json, os, stat, sys, subprocess, tempfile, shutil, threading, time
 from pathlib import Path
-from json_numbers import finite_json
+from json_numbers import finite_json, finite_values
 
 sys.path.insert(0, str(Path(__file__).parent / "vendor/site"))
 import address_parser
@@ -284,6 +284,10 @@ def _index_verified_summary(p, summary, raw, read_error, *, files, seen, duplica
             out["mismatched"].append("%s (%s; differs in %s)" % (p.name, casefile.name, ", ".join(fields)))
             mismatched.add(casefile.name)
             return None
+    elif not finite_values(summary):
+        # An earlier-format summary reaches Reports unprojected; NaN or Infinity in it would make the whole index
+        # unreadable to the browser, so it is refused and named like any unreadable summary.
+        raise ValueError("Summary numbers must be finite")
     summary["integrity"] = status
     return number, summary
 
