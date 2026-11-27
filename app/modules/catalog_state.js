@@ -39,3 +39,48 @@ export const catalogState = Object.freeze({
     WriterState.CATALOG_VERIFIED = value;
   },
 });
+
+// Cached reviews are optional last-known facts, never a substitute for the helper's publication check.
+const cachedReview = (e) =>
+  e &&
+  typeof e === "object" &&
+  !Array.isArray(e) &&
+  ["id", "key", "at", "reviewer", "wording", "source"].every((k) => typeof e[k] === "string") &&
+  ["id", "key", "at", "reviewer", "source"].every((k) => e[k].trim()) &&
+  Number.isInteger(e.version) &&
+  e.version > 0 &&
+  ["approved", "retired"].includes(e.status) &&
+  Array.isArray(e.ordinances) &&
+  e.ordinances.every((x) => typeof x === "string") &&
+  (e.replaces === undefined || typeof e.replaces === "string") &&
+  (e.status !== "approved" || (e.wording.trim() && e.ordinances.length));
+
+export function catalogDeviceState(read) {
+  const state = { CATALOG_EVENTS: [], CATALOG_AT: "", CATALOG_VERIFIED: false, CATALOG_FROM_CACHE: false, CATALOG_FORMS: {}, CATALOG_ERROR: "" };
+  const errors = [];
+  try {
+    const cache = JSON.parse(read("madison-catalog-events-v1") || "null");
+    if (cache !== null) {
+      if (!cache || !Array.isArray(cache.events) || !cache.events.every(cachedReview) || (cache.at !== undefined && typeof cache.at !== "string"))
+        throw Error("Invalid cached review history");
+      state.CATALOG_EVENTS = cache.events;
+      state.CATALOG_AT = cache.at || "";
+      state.CATALOG_VERIFIED = true;
+      state.CATALOG_FROM_CACHE = true;
+    }
+  } catch {
+    errors.push("Saved catalog reviews could not be read; refresh review status before selecting language.");
+  }
+  // A failed history read must not hide independent unsubmitted review forms.
+  try {
+    const forms = JSON.parse(read("madison-catalog-forms-v1") || "{}");
+    if (!forms || typeof forms !== "object" || Array.isArray(forms)) throw Error("Invalid saved review forms");
+    state.CATALOG_FORMS = forms;
+    if (Object.values(forms).some((f) => !f || typeof f !== "object" || Array.isArray(f)))
+      errors.push("Some saved review forms are unreadable. Their original browser data was retained.");
+  } catch {
+    errors.push("Saved review forms could not be read. Their original browser data was left unchanged.");
+  }
+  state.CATALOG_ERROR = errors.join(" ");
+  return state;
+}

@@ -905,14 +905,38 @@ def catalog_path():
     return share_root() / "Catalog Review" / "reviews.json"
 
 
+def _catalog_event_shape(event):
+    """The retained review fields consumed by the Writer; retirement may keep empty wording/ordinances."""
+    return (
+        isinstance(event, dict)
+        and all(isinstance(event.get(k), str) for k in ("id", "key", "at", "reviewer", "wording", "source"))
+        and all(event[k].strip() for k in ("id", "key", "at", "reviewer", "source"))
+        and type(event.get("version")) is int
+        and event["version"] > 0
+        and event.get("status") in ("approved", "retired")
+        and isinstance(event.get("ordinances"), list)
+        and all(isinstance(x, str) for x in event["ordinances"])
+        and ("replaces" not in event or isinstance(event["replaces"], str))
+        and (event["status"] != "approved" or bool(event["wording"].strip() and event["ordinances"]))
+    )
+
+
 def catalog_events():
     path = catalog_path()
     if share_root() != HERE and not share_root().is_dir():
         raise OSError("Shared catalog storage is unavailable")
     if not path.exists():
         return []
-    value = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(value, dict) or value.get("format") != "madison-catalog-review" or not isinstance(value.get("events"), list):
+    try:
+        value = finite_json(path.read_text(encoding="utf-8"), "Catalog review numbers must be finite")
+    except ValueError, RecursionError:
+        raise ValueError("Catalog review record is unreadable") from None
+    if (
+        not isinstance(value, dict)
+        or value.get("format") != "madison-catalog-review"
+        or not isinstance(value.get("events"), list)
+        or not all(_catalog_event_shape(e) for e in value["events"])
+    ):
         raise ValueError("Catalog review record is unreadable")
     return value["events"]
 

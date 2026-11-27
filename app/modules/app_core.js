@@ -116,6 +116,7 @@ import { createEditorScreens } from "./editor_screens.js";
 
 import { DEPOSITS } from "./data/deposits.js";
 import { WriterState } from "./state.js";
+import { catalogDeviceState } from "./catalog_state.js";
 // Approved wording lives in app/assets/approved_language.json (acceptance item L5).
 
 import { createLanguageActions } from "./language_actions.js";
@@ -2162,18 +2163,10 @@ WriterState.CATALOG_FROM_CACHE = false;
 WriterState.CATALOG_AT = "";
 WriterState.CATALOG_FORMS = {};
 
-try {
-  const cache = JSON.parse(localStorage.getItem("madison-catalog-events-v1") || "null");
-  if (cache && Array.isArray(cache.events)) {
-    WriterState.CATALOG_EVENTS = cache.events;
-    WriterState.CATALOG_AT = cache.at;
-    WriterState.CATALOG_VERIFIED = true;
-    WriterState.CATALOG_FROM_CACHE = true;
-  }
-  WriterState.CATALOG_FORMS = JSON.parse(localStorage.getItem("madison-catalog-forms-v1") || "{}") || {};
-} catch {
-  /* Cached review metadata is optional; fresh helper review verification still governs issuance. */
-}
+Object.assign(
+  WriterState,
+  catalogDeviceState((key) => localStorage.getItem(key)),
+);
 
 catalogEvents.registerGuidanceToggle();
 catalogEvents.registerReviewInput();
