@@ -452,6 +452,7 @@ covers, or a new suite under its feature.
 | `audit_report_open_violations.js` | Open violations by area counts only cases whose notice was issued by the as-of date; a snow case (no notice) is no longer counted as an open violation forever |
 | `audit_report_citation_closed.js` | An item closed by its initial citation, and a snow case item, are not counted as open in the workbook's per-case Open violations; the property card shows "Closed by citation" |
 | `audit_final_dialog_review.js` | Finalize dialog: a correction's email selection is saved against the correction's own recipients, not the live case's; the advisory banner counts its notes |
+| `audit_open_case_inspector_busy.js` | Open cases by inspector: the inspector menu is disabled while that inspector's list loads, and available before, after and after a failed load |
 | `audit_document_sources.js` | Independent notification/undo/placeholder and approved-source owners; stale edit guards, text/event/focus order, source precedence/cloning, approved blocks and historical signer/court defaults |
 | `audit_citation_charges.js` | Independent court scheduling/numbering and charge/deposit editing; holiday/day/clock/collision behavior, currency, basis clearing and retained correction metadata |
 | `audit_document_delivery.js` | Independent printing/delivery owners; frame/packet guards, archived original and email identity/reuse, snapshot-bound filing, receipts/outbox, fallback and counter failures; 200 refused viewer opens each release their allocated blob |
