@@ -606,3 +606,5 @@ Full Writer frame/modal/worksheet copy retirement preserves all seeded scenarios
 | --- | --- |
 | `audit_recovery_selection.js` | Maintained recovery owner: source-row identity, reopening, superseded list/selection reads, import while loading, closed-dialog reads and stale error refusal. Historical owner assertions remain independently unchanged. |
 | `browser_recovery_selection.js` | Production Writer and real authenticated helper: equal-timestamp copies, imported selection, focus, one pressed row, no restoration on selection, numeric overflow refusal before backup writes, themes and axe. |
+
+The full-program review extends `audit_reporting_inputs.py` with deep-summary isolation, original-byte retention and secure context refusal checks, and `audit_shared_folder_damage.py` with valid BOM anchoring/reconstruction, tampered-BOM refusal and nonrecord/deep-case startup survival. Existing scenarios remain.

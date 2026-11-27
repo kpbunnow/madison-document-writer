@@ -19,7 +19,6 @@ Grouped by area. Release-by-release history is in CHANGELOG.md and docs/history/
 
 - A case number the registry retains whose file is missing restarts its history automatically on the next save (owner decision 2026-11-03; see 03-DOMAIN-RULES). Never skip integrity/history/publication checks, regenerate genesis, overwrite protected anchors or publish a migration registry ahead of a recoverable case write.
 - Write anchor receipts only with `create_only_write` (create new, write once, no temporary file). The protected anchor folder may let the account add files but not rename, replace or delete them, so `atomic_write` (temporary file, then rename) fails there and leaves an unremovable temporary file. A receipt that cannot be parsed fails verification closed with a message that IT must remove it.
-- Write anchor receipts only with `create_only_write` (create new, write once, no temporary file). The protected anchor folder may let the account add files but not rename, replace or delete them, so `atomic_write` (temporary file, then rename) fails there and leaves an unremovable temporary file. A receipt that cannot be parsed fails verification closed with a message that IT must remove it.
 - Never infer orphaned-lock ownership from age. Recovery requires the inspected token, verified stopped ownership, named administrator and reason.
 - Never claim a pending browser write is saved, treat unknown outbox/health as zero, silently overwrite a conflict or replace current typed work with a delayed response.
 - summarizeRecord() in case_projection.js (called by the case_summary_adapter.js summarize adapter) and helper/case_projection.py are one projection in two languages. Change them together, with the mirrored tables; audit_case_projection compares them over generated and captured real cases. Never accept a cached summary field the projection of the verified case does not reproduce, and never repair a summary by editing the case. Compare summary values as canonical JSON (case_projection.same_json, RFC 8785), never with Python ==, which treats false as 0 and true as 1 where Reports does not.
@@ -46,7 +45,7 @@ The live import reads two SSRS reports by fixed path, parameter and column names
 
 ## Encoding
 
-- Name UTF-8 for every helper and tool text read or write and every text subprocess. The Windows default code page is not UTF-8; audit_utf8_io refuses implicit encodings. Keep strict decoding: never accept BOM, UTF-16 or replacement characters in case or integrity data.
+- Name UTF-8 for every helper and tool text read or write and every text subprocess. The Windows default code page is not UTF-8; audit_utf8_io refuses implicit encodings. Preserve each reader's encoding contract. Stored case bytes use `case_store.case_json`, including its existing byte-order-mark support; integrity metadata and downgrade-context reads retain strict UTF-8. Never introduce replacement decoding or an independent case decoder that disagrees with ordinary reads.
 - Policy scripts follow the same explicit UTF-8 rule as helper/ and tools/; audit_utf8_io scans all three.
 
 ## Testing

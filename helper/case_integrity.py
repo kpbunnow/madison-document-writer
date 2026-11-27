@@ -403,15 +403,22 @@ def publish_record(folder, target, record, previous=None, recovery=False):
 
 def reconstruct_registry(folder):
     """Only intact schema-5 files can bootstrap the upgrade registry."""
+    from case_store import case_json
+
     root = Path(folder)
     if not root.is_dir():
         return
     for path in sorted(plain_json_files(root)):
         try:
-            record = json.loads(read_plain_bytes(path).decode("utf-8"))
-            if record.get("format") == "madison-case-file" and record.get("schema") == 5 and verify_record(record)["valid"]:
+            record = case_json(read_plain_bytes(path))
+            if (
+                isinstance(record, dict)
+                and record.get("format") == "madison-case-file"
+                and record.get("schema") == 5
+                and verify_record(record)["valid"]
+            ):
                 register_migration(root, record, path.name, reconstructed=True)
-        except OSError, ValueError, KeyError, TypeError:
+        except OSError, ValueError, KeyError, TypeError, RecursionError:
             continue  # reads expose failures; never repair corrupt files
 
 
@@ -509,7 +516,7 @@ def anchor_daily(folder, external=None):
     if not external:
         return {"anchored": False, "reason": "IT-controlled anchor folder is not configured or available"}
     external = Path(external)
-    from case_store import file_lock, atomic_write, create_only_write
+    from case_store import file_lock, atomic_write, create_only_write, case_json
 
     with file_lock(folder, "integrity-anchor"):
         context = VerificationContext(folder, external)
@@ -517,7 +524,7 @@ def anchor_daily(folder, external=None):
             raise ValueError("Administrator must complete pending recovery before anchoring")
         heads = {}
         for path in sorted(plain_json_files(folder)):
-            record = json.loads(read_plain_bytes(path).decode("utf-8"))
+            record = case_json(read_plain_bytes(path))
             if record.get("format") != "madison-case-file":
                 continue
             status = require_valid(record, folder, context)
