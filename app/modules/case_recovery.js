@@ -198,6 +198,105 @@ async function scopedListRecovery(services) {
 }
 
 // Individual-case recovery coordination; UI, helper/shared comparison and device storage stay supplied.
+// The shared record's state for a backup, compared with the backed-up history.
+async function caseRecoverySharedState(services, backup) {
+  const k = backup.bundle.cases[0];
+  if (!k) return "Import recovery has no shared case record.";
+  try {
+    const opened = await services.helperJSON("/cases/resolve?number=" + encodeURIComponent(k.number));
+    const sf = opened.file,
+      fault = caseFileFault(sf);
+    if (fault) return { kind: "invalid", detail: "Shared record unreadable: " + fault };
+    return services.compareSharedCase(k, backup.bundle.events[k.id] || [], sf, backup.bundle.checkpoints?.[k.id], true);
+  } catch (e) {
+    return {
+      kind: e.name === "NotFoundError" ? "missing" : e.definitive ? "invalid" : "unavailable",
+      detail:
+        e.name === "NotFoundError" ? "No shared case record exists yet." : "Shared record unavailable; publication will recheck it. " + e.message,
+    };
+  }
+}
+
+// A backup is restorable only when its shape, history, related work and references are consistent.
+function validateCaseRecovery(services, b, row) {
+  requireRecoveryShape(b, row);
+  const k = b.bundle.cases[0],
+    cid = k?.id;
+  if (k) {
+    if (
+      k.number !== b.number ||
+      caseFileFault({ format: "madison-case-file", schema: SCHEMA, case: k, inspectors: [], events: b.bundle.events[cid] || [] })
+    )
+      throw new Error("Invalid backed-up case history");
+  }
+  requireRelatedRecoveryWork(b, k, cid);
+  requireRecoveryReferences(services, b, k, cid);
+  return true;
+}
+
+// Commit the recovered drafts and pending saves together, rolling back browser storage if the second write fails.
+async function persistCaseRecovery(services, staged, pending) {
+  if (services.IDB_OK) {
+    try {
+      const db = await services.idb();
+      return await new Promise((resolve) => {
+        const tx = db.transaction("kv", "readwrite"),
+          store = tx.objectStore("kv");
+        store.put(pending, "pending");
+        store.put(staged, "drafts");
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => resolve(false);
+        tx.onabort = () => resolve(false);
+      });
+    } catch {
+      return false;
+    }
+  }
+  // The synthetic harness has no IndexedDB and exercises failure/rollback with services.idbSet.
+  const oldPending = await services.idbGet("pending"),
+    oldDrafts = await services.idbGet("drafts");
+  if (!(await services.idbSet("pending", pending))) return false;
+  if (await services.idbSet("drafts", staged)) return true;
+  if (!(await services.idbSet("pending", oldPending || [])) || !(await services.idbSet("drafts", oldDrafts || services.draftBundle())))
+    throw new Error("Browser storage rollback failed. Keep this tab open and export the workspace.");
+  return false;
+}
+
+// Different local work is first saved as a recovery copy, then replaced only after confirmation. False stops the restore.
+async function confirmRecoveryReplacement(services, b, k, local, selection) {
+  const same = recoveryWorkMatches(b, k);
+  if (!same) {
+    const copy = services.recoverySnapshot(k.id, services.recoveryCaseKey(k.id));
+    copy.preReplacement = true;
+    await services.helperJSON("/draft-backups/write", { workspace: services.RECOVERY_WORKSPACE, case: copy.case, backup: copy });
+    if (recoverySelectionChanged(selection, b)) return false;
+    if (
+      !services.confirm(
+        "Local work differs (" +
+          (local || "existing case") +
+          "). A recovery copy was saved first. Replace this case with the selected backup from " +
+          b.at +
+          "?",
+      )
+    )
+      return false;
+  }
+  return true;
+}
+
+// An import recovery restores only the import's own working fields onto an empty import form.
+async function restoreImportRecovery(services, b) {
+  if (services.hasSetupWork()) throw new Error("Import recovery needs an empty import form.");
+  // Only the import's own fields come back; other cases' record forms and walkthrough progress stay as they are.
+  const staged = { ...services.draftBundle(), work: importOnlyWork(editor.WORK, b.bundle.work) };
+  if (!(await services.idbSet("drafts", staged))) throw new Error("Browser storage could not save the imported work.");
+  editor.WORK = staged.work;
+  editor.state.acc = editor.WORK.acc || null;
+  editor.state.modal = null;
+  editor.state.screen = "import";
+  services.render();
+}
+
 export function createCaseRecovery(services) {
   async function selectRecovery(row) {
     const token = ++recovery.RECOVERY_SELECT_SEQ;
@@ -211,74 +310,13 @@ export function createCaseRecovery(services) {
       : await services.helperJSON("/draft-backups/read", { workspace: row.workspace, case: row.case, name: row.name });
     if (editor.state.modal !== "recovery" || recovery.RECOVERY_SELECT_SEQ !== token) return;
     const backup = result.backup;
-    validateRecovery(backup, row);
-    const shared = await recoverySharedState(backup);
+    validateCaseRecovery(services, backup, row);
+    const shared = await caseRecoverySharedState(services, backup);
     if (editor.state.modal !== "recovery" || recovery.RECOVERY_SELECT_SEQ !== token) return;
     recovery.RECOVERY.selected = backup;
     recovery.RECOVERY.selectedRow = row;
     recovery.RECOVERY.shared = shared;
     services.render();
-  }
-
-  async function recoverySharedState(backup) {
-    const k = backup.bundle.cases[0];
-    if (!k) return "Import recovery has no shared case record.";
-    try {
-      const opened = await services.helperJSON("/cases/resolve?number=" + encodeURIComponent(k.number));
-      const sf = opened.file,
-        fault = caseFileFault(sf);
-      if (fault) return { kind: "invalid", detail: "Shared record unreadable: " + fault };
-      return services.compareSharedCase(k, backup.bundle.events[k.id] || [], sf, backup.bundle.checkpoints?.[k.id], true);
-    } catch (e) {
-      return {
-        kind: e.name === "NotFoundError" ? "missing" : e.definitive ? "invalid" : "unavailable",
-        detail:
-          e.name === "NotFoundError" ? "No shared case record exists yet." : "Shared record unavailable; publication will recheck it. " + e.message,
-      };
-    }
-  }
-
-  function validateRecovery(b, row) {
-    requireRecoveryShape(b, row);
-    const k = b.bundle.cases[0],
-      cid = k?.id;
-    if (k) {
-      if (
-        k.number !== b.number ||
-        caseFileFault({ format: "madison-case-file", schema: SCHEMA, case: k, inspectors: [], events: b.bundle.events[cid] || [] })
-      )
-        throw new Error("Invalid backed-up case history");
-    }
-    requireRelatedRecoveryWork(b, k, cid);
-    requireRecoveryReferences(services, b, k, cid);
-    return true;
-  }
-
-  async function persistRecoveryState(staged, pending) {
-    if (services.IDB_OK) {
-      try {
-        const db = await services.idb();
-        return await new Promise((resolve) => {
-          const tx = db.transaction("kv", "readwrite"),
-            store = tx.objectStore("kv");
-          store.put(pending, "pending");
-          store.put(staged, "drafts");
-          tx.oncomplete = () => resolve(true);
-          tx.onerror = () => resolve(false);
-          tx.onabort = () => resolve(false);
-        });
-      } catch {
-        return false;
-      }
-    }
-    // The synthetic harness has no IndexedDB and exercises failure/rollback with services.idbSet.
-    const oldPending = await services.idbGet("pending"),
-      oldDrafts = await services.idbGet("drafts");
-    if (!(await services.idbSet("pending", pending))) return false;
-    if (await services.idbSet("drafts", staged)) return true;
-    if (!(await services.idbSet("pending", oldPending || [])) || !(await services.idbSet("drafts", oldDrafts || services.draftBundle())))
-      throw new Error("Browser storage rollback failed. Keep this tab open and export the workspace.");
-    return false;
   }
 
   async function restoreRecovery() {
@@ -291,50 +329,22 @@ export function createCaseRecovery(services) {
       return;
     }
     try {
-      validateRecovery(b, row);
-      const currentShared = await recoverySharedState(b);
+      validateCaseRecovery(services, b, row);
+      const currentShared = await caseRecoverySharedState(services, b);
       if (recoverySelectionChanged(selection, b)) return;
       recovery.RECOVERY.shared = currentShared;
       if (recoverySharedConflict(currentShared))
         throw new Error("Review the changed shared record before restoring this draft. Export the backup first.");
       const k = b.bundle.cases[0];
-      if (!k) {
-        if (services.hasSetupWork()) throw new Error("Import recovery needs an empty import form.");
-        // Only the import's own fields come back; other cases' record forms and walkthrough progress stay as they are.
-        const staged = { ...services.draftBundle(), work: importOnlyWork(editor.WORK, b.bundle.work) };
-        if (!(await services.idbSet("drafts", staged))) throw new Error("Browser storage could not save the imported work.");
-        editor.WORK = staged.work;
-        editor.state.acc = editor.WORK.acc || null;
-        editor.state.modal = null;
-        editor.state.screen = "import";
-        services.render();
-        return;
-      }
+      // Awaited inside the try, so a refusal still reaches the catch below.
+      if (!k) return await restoreImportRecovery(services, b);
       const current = workspace.CASES.find((c) => c.id === k.id || c.number === k.number);
       requireCompatibleLocalHistory(b, k, current);
       const local = current && services.caseUnsaved(current);
-      if (current) {
-        const same = recoveryWorkMatches(b, k);
-        if (!same) {
-          const copy = services.recoverySnapshot(k.id, services.recoveryCaseKey(k.id));
-          copy.preReplacement = true;
-          await services.helperJSON("/draft-backups/write", { workspace: services.RECOVERY_WORKSPACE, case: copy.case, backup: copy });
-          if (recoverySelectionChanged(selection, b)) return;
-          if (
-            !services.confirm(
-              "Local work differs (" +
-                (local || "existing case") +
-                "). A recovery copy was saved first. Replace this case with the selected backup from " +
-                b.at +
-                "?",
-            )
-          )
-            return;
-        }
-      }
+      if (current && !(await confirmRecoveryReplacement(services, b, k, local, selection))) return;
       const staged = stageRecoveredCase(services, b, k);
       const pending = workspace.PENDING.filter((p) => p.cid !== k.id).concat(clone(b.pending));
-      if (!(await persistRecoveryState(staged, pending)))
+      if (!(await persistCaseRecovery(services, staged, pending)))
         throw new Error("Browser storage could not commit the recovery; previous work was retained.");
       await applyConfirmedRecovery(services, staged, pending, b);
       services.clearWalk();
@@ -351,8 +361,13 @@ export function createCaseRecovery(services) {
   return {
     listRecovery: () => scopedListRecovery(services),
     selectRecovery,
-    validateRecovery,
+    validateRecovery: (b, row) => validateCaseRecovery(services, b, row),
     restoreRecovery,
-    ...(__TEST_BUILD__ ? { recoverySharedState, persistRecoveryState } : {}),
+    ...(__TEST_BUILD__
+      ? {
+          recoverySharedState: (backup) => caseRecoverySharedState(services, backup),
+          persistRecoveryState: (staged, pending) => persistCaseRecovery(services, staged, pending),
+        }
+      : {}),
   };
 }
