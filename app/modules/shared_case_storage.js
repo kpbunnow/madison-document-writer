@@ -16,32 +16,37 @@ function recordFolderWriteFailure(name, err) {
   return { ok: false, why: why };
 }
 
+// The case folder as served by the local helper: reads go through /cases/open and /cases/list at each call.
+function helperCaseFolder(services) {
+  return {
+    name: services.CASEDIR_EXPECT,
+    kind: "directory",
+    helper: true,
+    queryPermission: async () => "granted",
+    requestPermission: async () => "granted",
+    async getFileHandle(name) {
+      return {
+        kind: "file",
+        name,
+        async getFile() {
+          const result = await services.helperJSON("/cases/open?name=" + encodeURIComponent(name));
+          if (result.file.schema >= 5) await services.recordIntegrity.verify(result.file, result.integrity);
+          services.COMMITTED.set(summaryName(result.file.case), result);
+          const body = JSON.stringify(result.file);
+          return { size: body.length, lastModified: Date.now(), text: async () => body };
+        },
+      };
+    },
+    async *entries() {
+      const result = await services.helperJSON("/cases/list");
+      for (const f of result.files) yield [f.name, { kind: "file", getFile: async () => ({ size: f.size, lastModified: f.mod }) }];
+    },
+  };
+}
+
 export function createSharedCaseStorage(services) {
   function helperFolder() {
-    return {
-      name: services.CASEDIR_EXPECT,
-      kind: "directory",
-      helper: true,
-      queryPermission: async () => "granted",
-      requestPermission: async () => "granted",
-      async getFileHandle(name) {
-        return {
-          kind: "file",
-          name,
-          async getFile() {
-            const result = await services.helperJSON("/cases/open?name=" + encodeURIComponent(name));
-            if (result.file.schema >= 5) await services.recordIntegrity.verify(result.file, result.integrity);
-            services.COMMITTED.set(summaryName(result.file.case), result);
-            const body = JSON.stringify(result.file);
-            return { size: body.length, lastModified: Date.now(), text: async () => body };
-          },
-        };
-      },
-      async *entries() {
-        const result = await services.helperJSON("/cases/list");
-        for (const f of result.files) yield [f.name, { kind: "file", getFile: async () => ({ size: f.size, lastModified: f.mod }) }];
-      },
-    };
+    return helperCaseFolder(services);
   }
 
   async function writeToFolder(name, body) {

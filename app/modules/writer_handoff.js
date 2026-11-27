@@ -16,6 +16,42 @@ function renderMarked(services, id) {
   if (shown) services.focusIssuedCase(id);
 }
 
+// The helper's answer, checked to be the current file of this case and loaded into the workspace.
+function loadResolvedCase(services, opened, number, request) {
+  if (request !== startup.HANDOFF_SEQ) throw new Error("A newer case request replaced this one");
+  const file = opened.file;
+  if (caseNumberKey(file.case?.number) !== caseNumberKey(number) || caseFileFault(file))
+    throw new Error("The current shared file is invalid or belongs to a different case");
+  if (!services.loadCaseFile(JSON.stringify(file))) throw new Error("The shared case could not be loaded");
+  return file;
+}
+
+// Reports asks this Writer tab to open a case over the handoff channel; only the tab that owns the workspace answers.
+function listenForReportHandoff(services, openReportedCase) {
+  if ("BroadcastChannel" in window) {
+    const channel = new BroadcastChannel(services.HANDOFF_CHANNEL);
+    startup.WRITER_CHANNEL = channel;
+    channel.onmessage = async (e) => {
+      if (!startup.WRITER_ACCESS || startup.WRITER_CHANNEL !== channel) return;
+      const m = e.data;
+      if (m?.kind === "return-ack") {
+        startup.RETURN_ACK = m.request;
+        return;
+      }
+      if (m?.kind !== "open" || !m.request) return;
+      channel.postMessage({ kind: "accepted", request: m.request });
+      try {
+        const detail = await openReportedCase(m);
+        if (startup.WRITER_ACCESS && startup.WRITER_CHANNEL === channel)
+          channel.postMessage({ kind: "result", request: m.request, ok: true, detail });
+      } catch (err) {
+        if (startup.WRITER_ACCESS && startup.WRITER_CHANNEL === channel)
+          channel.postMessage({ kind: "result", request: m.request, ok: false, error: err.message });
+      }
+    };
+  }
+}
+
 export function createWriterHandoff(services) {
   function markWriterReady() {
     startup.WRITER_READY = true;
@@ -61,11 +97,7 @@ export function createWriterHandoff(services) {
       if (error.name === "NotFoundError") throw new Error("No shared case exists for " + number + ".");
       throw error;
     }
-    if (request !== startup.HANDOFF_SEQ) throw new Error("A newer case request replaced this one");
-    const file = opened.file;
-    if (caseNumberKey(file.case?.number) !== caseNumberKey(number) || caseFileFault(file))
-      throw new Error("The current shared file is invalid or belongs to a different case");
-    if (!services.loadCaseFile(JSON.stringify(file))) throw new Error("The shared case could not be loaded");
+    const file = loadResolvedCase(services, opened, number, request);
     startup.REPORT_RETURN = true;
     editor.state.metric = "";
 
@@ -81,28 +113,7 @@ export function createWriterHandoff(services) {
   }
 
   function initWriterHandoff() {
-    if ("BroadcastChannel" in window) {
-      const channel = new BroadcastChannel(services.HANDOFF_CHANNEL);
-      startup.WRITER_CHANNEL = channel;
-      channel.onmessage = async (e) => {
-        if (!startup.WRITER_ACCESS || startup.WRITER_CHANNEL !== channel) return;
-        const m = e.data;
-        if (m?.kind === "return-ack") {
-          startup.RETURN_ACK = m.request;
-          return;
-        }
-        if (m?.kind !== "open" || !m.request) return;
-        channel.postMessage({ kind: "accepted", request: m.request });
-        try {
-          const detail = await writerOpenReportedCase(m);
-          if (startup.WRITER_ACCESS && startup.WRITER_CHANNEL === channel)
-            channel.postMessage({ kind: "result", request: m.request, ok: true, detail });
-        } catch (err) {
-          if (startup.WRITER_ACCESS && startup.WRITER_CHANNEL === channel)
-            channel.postMessage({ kind: "result", request: m.request, ok: false, error: err.message });
-        }
-      };
-    }
+    listenForReportHandoff(services, writerOpenReportedCase);
     const number = new URLSearchParams(globalThis.location?.search || "").get("case");
     if (number)
       writerOpenReportedCase({ number }).catch((e) => {

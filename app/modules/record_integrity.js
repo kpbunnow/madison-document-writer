@@ -157,6 +157,30 @@ export async function verifyIntegrity(record) {
     return integrityFailure(walk.last, "integrity metadata", "complete verifiable chain", error.message);
   }
 }
+// The case's integrity banner: a pending migration, a verified migration's legacy note, or the read-only failure.
+function integrityBannerHTML(R, s) {
+  if (s.valid && s.pendingTransaction)
+    return '<div class="banner info" role="status">The saved migration needs completion. Retry saving; if it continues, ask an administrator to review the pending transaction.</div>';
+  if (s.valid)
+    return s.legacyHistoryAsFound
+      ? '<div class="banner info" role="status">Integrity is verified from migration on ' +
+          R.esc(s.migrationDate) +
+          ". Earlier history was hashed as found; this does not prove it was unchanged before migration.</div>"
+      : "";
+  return (
+    '<div class="banner alert" role="alert"><strong>' +
+    R.esc(s.label) +
+    "</strong><p>Read-only · " +
+    R.esc(s.eventId) +
+    " · expected " +
+    R.esc(s.expected) +
+    " · actual " +
+    R.esc(s.actual) +
+    " · last good commit " +
+    R.esc(s.lastGoodCommitTime || "Unavailable") +
+    ". No automatic repair.</p></div>"
+  );
+}
 export function initRecordIntegrity(R) {
   const store = R.store || R;
   const proofs = new Map(),
@@ -192,27 +216,7 @@ export function initRecordIntegrity(R) {
   function banner() {
     const k = R.kase(R.doc(store.state.docId)?.caseId || store.state.caseId),
       s = status(k);
-    if (s.valid && s.pendingTransaction)
-      return '<div class="banner info" role="status">The saved migration needs completion. Retry saving; if it continues, ask an administrator to review the pending transaction.</div>';
-    if (s.valid)
-      return s.legacyHistoryAsFound
-        ? '<div class="banner info" role="status">Integrity is verified from migration on ' +
-            R.esc(s.migrationDate) +
-            ". Earlier history was hashed as found; this does not prove it was unchanged before migration.</div>"
-        : "";
-    return (
-      '<div class="banner alert" role="alert"><strong>' +
-      R.esc(s.label) +
-      "</strong><p>Read-only · " +
-      R.esc(s.eventId) +
-      " · expected " +
-      R.esc(s.expected) +
-      " · actual " +
-      R.esc(s.actual) +
-      " · last good commit " +
-      R.esc(s.lastGoodCommitTime || "Unavailable") +
-      ". No automatic repair.</p></div>"
-    );
+    return integrityBannerHTML(R, s);
   }
   async function restore(values) {
     for (const f of values || []) await verify(f);

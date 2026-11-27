@@ -6,30 +6,52 @@ import { esc, fmtDate } from "./presentation_format.js";
 import { BUILD } from "./data/build_identity.js";
 import { html } from "./screen_html.js";
 
+// Rows and the rebuild banner read workspace and editor state only, at each call.
+function lastWriteStatus() {
+  return workspace.LASTWRITE
+    ? (workspace.LASTWRITE.ok ? "OK — " : "FAILED — ") +
+        workspace.LASTWRITE.name +
+        (workspace.LASTWRITE.why ? " (" + workspace.LASTWRITE.why + ")" : "") +
+        (workspace.LASTWRITE.bytes ? " · " + workspace.LASTWRITE.bytes + " bytes" : "") +
+        " · " +
+        fmtDate(String(workspace.LASTWRITE.at).slice(0, 10))
+    : "nothing written yet this session";
+}
+
+function reportingIndexStatus() {
+  return workspace.LASTINDEX
+    ? (workspace.LASTINDEX.ok ? "OK — " : "FAILED — ") +
+        SUMMARY_DIR +
+        "\\" +
+        workspace.LASTINDEX.name +
+        (workspace.LASTINDEX.why ? " (" + workspace.LASTINDEX.why + ")" : "") +
+        " · " +
+        fmtDate(String(workspace.LASTINDEX.at).slice(0, 10))
+    : "no summary written yet this session";
+}
+
+function storageReindexReport() {
+  const r = editor.state.reindex;
+  if (!r) return "";
+  if (r.running)
+    return html`<div class="banner info" style="margin-top:14px"><div>Rebuilding the reporting index &mdash; ${r.done} of ${r.total} case files read.</div></div>`;
+  const bad = r.refused.concat(r.failed);
+  return (
+    '<div class="banner ' +
+    `${bad.length ? "warn" : "ok"}` +
+    '" style="margin-top:14px"><div><strong>Reporting index rebuilt: ' +
+    `${esc(r.written)}` +
+    " of " +
+    `${esc(r.total)}` +
+    " case file" +
+    `${r.total === 1 ? "" : "s"}` +
+    " summarized.</strong>\n    " +
+    `${bad.length ? `<ul class="reidx">${bad.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}` +
+    "</div></div>"
+  );
+}
+
 export function createStorageStatus(services) {
-  function lastWriteStatus() {
-    return workspace.LASTWRITE
-      ? (workspace.LASTWRITE.ok ? "OK — " : "FAILED — ") +
-          workspace.LASTWRITE.name +
-          (workspace.LASTWRITE.why ? " (" + workspace.LASTWRITE.why + ")" : "") +
-          (workspace.LASTWRITE.bytes ? " · " + workspace.LASTWRITE.bytes + " bytes" : "") +
-          " · " +
-          fmtDate(String(workspace.LASTWRITE.at).slice(0, 10))
-      : "nothing written yet this session";
-  }
-
-  function reportingIndexStatus() {
-    return workspace.LASTINDEX
-      ? (workspace.LASTINDEX.ok ? "OK — " : "FAILED — ") +
-          SUMMARY_DIR +
-          "\\" +
-          workspace.LASTINDEX.name +
-          (workspace.LASTINDEX.why ? " (" + workspace.LASTINDEX.why + ")" : "") +
-          " · " +
-          fmtDate(String(workspace.LASTINDEX.at).slice(0, 10))
-      : "no summary written yet this session";
-  }
-
   function storageReport() {
     const rows = [
       ["This build", BUILD],
@@ -74,25 +96,5 @@ export function createStorageStatus(services) {
     return `<table class="diag"><tbody>${rows.map((r) => `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join("")}</tbody></table>`;
   }
 
-  function reindexReport() {
-    const r = editor.state.reindex;
-    if (!r) return "";
-    if (r.running)
-      return html`<div class="banner info" style="margin-top:14px"><div>Rebuilding the reporting index &mdash; ${r.done} of ${r.total} case files read.</div></div>`;
-    const bad = r.refused.concat(r.failed);
-    return (
-      '<div class="banner ' +
-      `${bad.length ? "warn" : "ok"}` +
-      '" style="margin-top:14px"><div><strong>Reporting index rebuilt: ' +
-      `${esc(r.written)}` +
-      " of " +
-      `${esc(r.total)}` +
-      " case file" +
-      `${r.total === 1 ? "" : "s"}` +
-      " summarized.</strong>\n    " +
-      `${bad.length ? `<ul class="reidx">${bad.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}` +
-      "</div></div>"
-    );
-  }
-  return { storageReport, reindexReport };
+  return { storageReport, reindexReport: storageReindexReport };
 }
