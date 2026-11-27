@@ -1053,7 +1053,8 @@ def save_summary(folder, name, revision, summary):
     if not isinstance(summary.get("case"), dict):
         raise ValueError("Expected a case summary")
     number = case_number_key(summary["case"].get("number", ""))
-    with file_lock(folder, "case:" + number.casefold()):
+    # The same lock name as the case save (and the administrator lock tools): case_number_key is already lowercase.
+    with file_lock(folder, "case:" + number):
         if folder.is_dir() and not (folder / safe_json_name(name)).exists():
             # The folder is connected, so "check the connection" would mislead: the case file itself has gone.
             raise OSError(MISSING_CASE_FILE)

@@ -49,11 +49,12 @@ function refreshDraftDepositRequests(services, key, d) {
   }
 }
 
-function refreshPricingWarning(c, f, date, history) {
+// The warning names the schedule's own warning period (90 days for every current schedule).
+export function refreshPricingWarning(c, f, date, history) {
   c.pricingWarning = history.some((x) => x.differentOwner)
     ? "Prior citation at this property was issued to a different owner"
     : f?.rule?.priorCitationWarningDays && history.some((x) => daysBetween(x.date, date) < f.rule.priorCitationWarningDays)
-      ? "A prior " + c.ord + " citation for this respondent is under 90 days old."
+      ? "A prior " + c.ord + " citation for this respondent is under " + f.rule.priorCitationWarningDays + " days old."
       : "";
 }
 
