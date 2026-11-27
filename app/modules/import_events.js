@@ -18,6 +18,49 @@ function submitLookup(services) {
   services.findDatabaseCase();
 }
 
+// Cancel the import: clear the lookup and its number, keeping every saved case.
+function importCancel(services) {
+  editor.state.acc = null;
+  editor.WORK.acc = null;
+  delete editor.WORK.entry["lookup-number"];
+  imports.LOOKUP_ERROR = "";
+  services.render();
+  services.saveDrafts();
+}
+
+// Choosing another Accela case: cancel a running lookup, select it, re-read the share and keep the focused control.
+function importSelectCase(services, t) {
+  const ix = +t.dataset.acccase;
+  if (editor.state.acc.cases[ix] && !imports.LOOKUP_BUSY) {
+    services.cancelCaseLookup();
+    const acc = editor.state.acc,
+      serial = imports.LOOKUP_SERIAL;
+    editor.state.acc.caseIx = ix;
+    editor.state.acc.sel = editor.state.acc.cases[ix].sel;
+    imports.ACC_SELECTION_SERIAL++;
+    editor.state.acc.manualDate = "";
+    editor.state.acc.manualTime = "";
+    services.accelaFromShare().then(() => {
+      if (serial !== imports.LOOKUP_SERIAL || editor.state.screen !== "import" || editor.state.acc !== acc) return;
+      const active = document.activeElement,
+        id = active?.id,
+        sel = active?.dataset.accsel,
+        cix = active?.dataset.acccase;
+      services.scheduleDraftSave();
+      services.renderKeep();
+      const focus = id
+        ? document.getElementById(id)
+        : sel !== undefined
+          ? document.querySelector('[data-accsel="' + Number(sel) + '"]')
+          : cix !== undefined
+            ? document.querySelector('[data-acccase="' + Number(cix) + '"]')
+            : null;
+      focus?.focus({ preventScroll: true });
+    });
+  }
+  return;
+}
+
 export function createImportEvents(services) {
   function registerLookupSubmit(target = document) {
     return registerEventOnce(target, "import.registerLookupSubmit", "submit", (e) => {
@@ -62,14 +105,7 @@ export function createImportEvents(services) {
     );
   }
 
-  const cancelImport = () => {
-    editor.state.acc = null;
-    editor.WORK.acc = null;
-    delete editor.WORK.entry["lookup-number"];
-    imports.LOOKUP_ERROR = "";
-    services.render();
-    services.saveDrafts();
-  };
+  const cancelImport = () => importCancel(services);
 
   const acceptImport = () => {
     const plan = services.accelaPlan(editor.state.acc),
@@ -79,37 +115,7 @@ export function createImportEvents(services) {
     return;
   };
 
-  const selectCase = (t) => {
-    const ix = +t.dataset.acccase;
-    if (editor.state.acc.cases[ix] && !imports.LOOKUP_BUSY) {
-      services.cancelCaseLookup();
-      const acc = editor.state.acc,
-        serial = imports.LOOKUP_SERIAL;
-      editor.state.acc.caseIx = ix;
-      editor.state.acc.sel = editor.state.acc.cases[ix].sel;
-      imports.ACC_SELECTION_SERIAL++;
-      editor.state.acc.manualDate = "";
-      editor.state.acc.manualTime = "";
-      services.accelaFromShare().then(() => {
-        if (serial !== imports.LOOKUP_SERIAL || editor.state.screen !== "import" || editor.state.acc !== acc) return;
-        const active = document.activeElement,
-          id = active?.id,
-          sel = active?.dataset.accsel,
-          cix = active?.dataset.acccase;
-        services.scheduleDraftSave();
-        services.renderKeep();
-        const focus = id
-          ? document.getElementById(id)
-          : sel !== undefined
-            ? document.querySelector('[data-accsel="' + Number(sel) + '"]')
-            : cix !== undefined
-              ? document.querySelector('[data-acccase="' + Number(cix) + '"]')
-              : null;
-        focus?.focus({ preventScroll: true });
-      });
-    }
-    return;
-  };
+  const selectCase = (t) => importSelectCase(services, t);
 
   const selectInspection = (t) => {
     const selected = +t.dataset.accsel;

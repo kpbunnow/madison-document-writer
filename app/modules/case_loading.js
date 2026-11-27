@@ -23,6 +23,56 @@ function loadedCaseMessage(inc, st, added) {
   );
 }
 
+// The workspace as it was before a case file load, restored in full if the file does not replay.
+function caseLoadUndo() {
+  return {
+    events: clone(workspace.EVENTS),
+    cases: clone(workspace.CASES),
+    inspectors: INSPECTORS.length,
+    docs: workspace.DOCS.slice(),
+    reinsp: workspace.REINSP.slice(),
+  };
+}
+function restoreCaseLoadUndo(undo) {
+  workspace.EVENTS = undo.events;
+  workspace.CASES = undo.cases;
+  INSPECTORS.length = undo.inspectors;
+  workspace.DOCS = undo.docs;
+  workspace.REINSP = undo.reinsp;
+  project();
+}
+
+// The shared copy of an open case merged into the workspace before a save; a missing file is a first save.
+async function mergeSharedCaseBeforeSave(services, cid, name) {
+  if (!workspace.CASEDIR || workspace.NEEDGRANT) return 0;
+  const k = kase(cid);
+  if (!k.id) return 0;
+  let text = null;
+  try {
+    const fh = await workspace.CASEDIR.getFileHandle(name); // absent is the normal first save
+    text = await (await fh.getFile()).text();
+  } catch (err) {
+    if (err && (err.name === "NotFoundError" || err.message === "missing")) return 0;
+    throw new Error("The existing case file could not be read; it has not been overwritten");
+  }
+  let f;
+  try {
+    f = migrate(JSON.parse(text));
+  } catch {
+    throw new Error("The existing case file is unreadable; it has not been overwritten");
+  }
+  const fault = caseFileFault(f);
+  if (fault) throw new Error("The existing case file is invalid: " + fault);
+  if (String((f["case"] || {}).number || "") !== String(k.number || "")) throw new Error("The existing file belongs to another case");
+  if (f.schema >= 5) {
+    const status = await services.recordIntegrity.verify(f);
+    if (!status.valid) throw new Error("This record was changed outside the program. Open read-only.");
+  }
+  const added = mergeCaseEvents(k, f);
+  if (added) project();
+  return added;
+}
+
 // Verification/load/rollback orchestration; helper trust and UI actions stay supplied.
 export function createCaseLoading(services) {
   function loadCaseFile(text, isSaved = true) {
@@ -55,13 +105,7 @@ export function createCaseLoading(services) {
       return null;
     }
     // nothing is touched until the whole file has been accepted and replayed
-    const undo = {
-      events: clone(workspace.EVENTS),
-      cases: clone(workspace.CASES),
-      inspectors: INSPECTORS.length,
-      docs: workspace.DOCS.slice(),
-      reinsp: workspace.REINSP.slice(),
-    };
+    const undo = caseLoadUndo();
     let k = null,
       added = 0;
     try {
@@ -83,12 +127,7 @@ export function createCaseLoading(services) {
       project();
       if (workspace.DOCS.some((x) => !x || !Array.isArray(x.items))) throw new Error("a document did not replay");
     } catch (err) {
-      workspace.EVENTS = undo.events;
-      workspace.CASES = undo.cases;
-      INSPECTORS.length = undo.inspectors;
-      workspace.DOCS = undo.docs;
-      workspace.REINSP = undo.reinsp;
-      project();
+      restoreCaseLoadUndo(undo);
       services.render();
       services.toast("That case file was not loaded — " + ((err && err.message) || "it could not be replayed"));
       return null;
@@ -105,34 +144,5 @@ export function createCaseLoading(services) {
     return k;
   }
 
-  async function mergeSharedFile(cid, name) {
-    if (!workspace.CASEDIR || workspace.NEEDGRANT) return 0;
-    const k = kase(cid);
-    if (!k.id) return 0;
-    let text = null;
-    try {
-      const fh = await workspace.CASEDIR.getFileHandle(name); // absent is the normal first save
-      text = await (await fh.getFile()).text();
-    } catch (err) {
-      if (err && (err.name === "NotFoundError" || err.message === "missing")) return 0;
-      throw new Error("The existing case file could not be read; it has not been overwritten");
-    }
-    let f;
-    try {
-      f = migrate(JSON.parse(text));
-    } catch {
-      throw new Error("The existing case file is unreadable; it has not been overwritten");
-    }
-    const fault = caseFileFault(f);
-    if (fault) throw new Error("The existing case file is invalid: " + fault);
-    if (String((f["case"] || {}).number || "") !== String(k.number || "")) throw new Error("The existing file belongs to another case");
-    if (f.schema >= 5) {
-      const status = await services.recordIntegrity.verify(f);
-      if (!status.valid) throw new Error("This record was changed outside the program. Open read-only.");
-    }
-    const added = mergeCaseEvents(k, f);
-    if (added) project();
-    return added;
-  }
-  return { loadCaseFile, mergeSharedFile };
+  return { loadCaseFile, mergeSharedFile: (cid, name) => mergeSharedCaseBeforeSave(services, cid, name) };
 }
