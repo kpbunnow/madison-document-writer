@@ -74,13 +74,13 @@ function prepareInitialJobs(services, d, attempt) {
   return jobs;
 }
 
-function issuedDocuments(id, attempt, wanted) {
+function issuedDocuments(id, attempt, wanted, show) {
   const issued = [doc(id)].filter((x) => !deliveredByCitation(x));
   if (wanted) {
     const citation = doc(attempt.payload.snapshot.id);
     if (citation && citation.type === "citation") {
       issued.push(citation);
-      editor.state.docId = citation.id;
+      if (show) editor.state.docId = citation.id;
     }
   }
   return issued;
@@ -131,11 +131,8 @@ async function commitIssuance(services, d, attempt) {
 async function continueIssuance(services, d, attempt, run) {
   const { id } = run;
   delete editor.WORK.recordForms[id + ":final"];
-  editor.state.amendmentError = "";
-  editor.state.docId = id;
-  editor.state.screen = "write";
-  services.render();
-  run.issuedDocs = issuedDocuments(id, attempt, run.wanted);
+  const show = showConfirmedPublication(services, run);
+  run.issuedDocs = issuedDocuments(id, attempt, run.wanted, show);
   try {
     run.filed = await fileIssued(services, run.issuedDocs, run.preparedJobs, run.sendEmail);
     await services.saveDrafts();
@@ -148,6 +145,18 @@ async function continueIssuance(services, d, attempt, run) {
   }
 }
 
+function showConfirmedPublication(services, run) {
+  const { origin } = run,
+    show = editor.state.screen === origin.screen && editor.state.docId === origin.docId && !editor.state.modal;
+  if (show) {
+    editor.state.amendmentError = "";
+    editor.state.docId = run.id;
+    editor.state.screen = "write";
+  }
+  services.render();
+  return show;
+}
+
 async function publishOnce(services, d) {
   if (refusedOutright(services, d)) return false;
   if (!d.pendingAmendment) services.commitCitationEdits(d);
@@ -155,6 +164,7 @@ async function publishOnce(services, d) {
   if (await refusedByCitationHistory(services, d)) return false;
   if (refusedByBlockers(services, d)) return false;
   const run = {
+    origin: { screen: editor.state.screen, docId: editor.state.docId },
     cid: d.caseId,
     id: d.id,
     wanted: services.initialCitations.enabled(d),

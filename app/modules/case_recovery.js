@@ -6,10 +6,22 @@ import { SCHEMA } from "./document_types.js";
 import { stableJSON, clone } from "./record_values.js";
 import { doc, eventsFor } from "./writer_queries.js";
 import { project } from "./case_records.js";
+import { canonicalJSON } from "./record_integrity.js";
 
 /* The fields an import-only recovery owns: the case-number lookup entry and the retained import review. Everything else
    in the working context belongs to cases already in the workspace. */
 const IMPORT_FIELDS = ["acc", "entry"];
+function requireRecoveryIntegrity(records, k) {
+  if (records === undefined) return;
+  try {
+    if (!Array.isArray(records) || records.some((f) => !k || caseFileFault(f) || f.case.number !== k.number))
+      throw new Error("Unrelated or malformed retained evidence");
+    canonicalJSON(records);
+  } catch {
+    throw new Error("The backup has invalid or unrelated integrity records.");
+  }
+}
+
 function importOnlyWork(current, saved) {
   const work = clone(current || {});
   IMPORT_FIELDS.forEach((field) => {
@@ -42,6 +54,7 @@ function requireRecoveryShape(b, row) {
     badIds(b.bundle)
   )
     throw new Error("Invalid or unsupported recovery backup");
+  requireRecoveryIntegrity(b.bundle.integrityRecords, b.bundle.cases[0]);
 }
 
 function requireRelatedRecoveryWork(b, k, cid) {
@@ -116,8 +129,13 @@ function recoveryWorkMatches(b, k) {
 }
 
 function stageRecoveredCase(services, b, k) {
+  const current = services.draftBundle(),
+    records = b.bundle.integrityRecords || [];
   return {
-    ...services.draftBundle(),
+    ...current,
+    ...(records.length
+      ? { integrityRecords: (current.integrityRecords || []).filter((f) => f.case?.number !== k.number).concat(clone(records)) }
+      : {}),
     cases: workspace.CASES.filter((c) => c.id !== k.id).concat([clone(k)]),
     docs: workspace.DOCS.filter((d) => d.draft && d.caseId !== k.id).concat(clone(b.bundle.docs)),
     reinsp: workspace.REINSP.filter((r) => r.draft && r.caseId !== k.id).concat(clone(b.bundle.reinsp)),
@@ -149,6 +167,12 @@ function applyRecoveredCase(staged, pending) {
   workspace.PENDING = pending;
   editor.WORK = staged.work;
   workspace.seq = staged.seq;
+}
+
+async function applyConfirmedRecovery(services, staged, pending, b) {
+  // Invalid verdicts remain restorable as read-only evidence; no proof changes before durable acknowledgment.
+  if (b.bundle.integrityRecords?.length) await services.recordIntegrity.restore(b.bundle.integrityRecords);
+  applyRecoveredCase(staged, pending);
 }
 
 async function scopedListRecovery(services) {
@@ -312,7 +336,7 @@ export function createCaseRecovery(services) {
       const pending = workspace.PENDING.filter((p) => p.cid !== k.id).concat(clone(b.pending));
       if (!(await persistRecoveryState(staged, pending)))
         throw new Error("Browser storage could not commit the recovery; previous work was retained.");
-      applyRecoveredCase(staged, pending);
+      await applyConfirmedRecovery(services, staged, pending, b);
       services.clearWalk();
       project();
       editor.state.modal = null;

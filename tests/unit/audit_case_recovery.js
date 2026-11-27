@@ -24,6 +24,7 @@ walk(parse("case_recovery"), (n) => {
 assert.deepEqual(
   [...used].sort(),
   [
+    "recordIntegrity",
     "render",
     "helperJSON",
     "compareSharedCase",
@@ -112,6 +113,7 @@ const copy = (v) => JSON.parse(JSON.stringify(v)),
     seq: s.seq,
   });
   const api = createCaseRecovery({
+    recordIntegrity: { restore: async () => {} },
     render() {
       calls.push("render");
     },

@@ -1139,6 +1139,7 @@ const { recoveryIncluded } = automaticRecovery;
 const caseRecovery = createCaseRecovery(
   deferredServices(
     {
+      recordIntegrity: () => recordIntegrity,
       render: () => render,
       helperJSON: () => helperJSON,
       compareSharedCase: () => compareSharedCase,
@@ -1158,7 +1159,7 @@ const caseRecovery = createCaseRecovery(
       clearWalk: () => clearWalk,
       refreshArtifactLocations: () => refreshArtifactLocations,
     },
-    ["IDB_OK", "RECOVERY_WORKSPACE"],
+    ["recordIntegrity", "IDB_OK", "RECOVERY_WORKSPACE"],
   ),
 );
 export let { listRecovery, selectRecovery, validateRecovery, restoreRecovery } = caseRecovery;
