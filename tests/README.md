@@ -620,3 +620,7 @@ The full-program review extends `audit_reporting_inputs.py` with deep-summary is
 | Suite | Coverage |
 | --- | --- |
 | `audit_draft_pricing_dates.js` | Actual citation edit, pricing, review and deposit owners: malformed calendar dates retain text and previous amounts, manual edits/rendering do not throw, incomplete completion preserves its request, and correcting the date restores readiness. |
+
+| Suite | Coverage |
+| --- | --- |
+| `audit_admin_draft_continuation.js` | Real administration owner: unchanged draft authorization, refusal after issuance/confirmation/lock/replacement/edit, incomplete draft eligibility and preservation of a later utility dialog. |
