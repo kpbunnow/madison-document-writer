@@ -275,7 +275,8 @@ const scopedServices = {
     "./calendar.js",
     "./defendant_contact.js",
   ],
-  "court_scheduling.js": ["../assets/shared.js", "./calendar.js", "./document_types.js", "./workspace_state.js"],
+  // Citation reservation uses the same pure identity rule as publication; no service/UI dependency.
+  "court_scheduling.js": ["../assets/shared.js", "./calendar.js", "./document_types.js", "./workspace_state.js", "./record_values.js"],
   "citation_charges.js": ["./citation_policy.js", "./document_types.js", "./writer_queries.js", "./record_values.js", "./document_rules.js"],
   "document_printing.js": ["../assets/shared.js", "./document_types.js", "./document_rules.js", "./writer_queries.js", "./editor_state.js"],
   "document_delivery.js": [
@@ -348,6 +349,8 @@ const scopedServices = {
     "./workspace_state.js",
   ],
   "case_recovery.js": [
+    // Retained proof shape is checked with the canonical serializer, as for whole-workspace restore.
+    "./record_integrity.js",
     "./editor_state.js",
     "./recovery_state.js",
     "./case_file_rules.js",
