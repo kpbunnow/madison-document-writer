@@ -32,6 +32,8 @@ covers, or a new suite under its feature.
 | `audit_citation_number_case.js` | Writer publication checks refuse a new citation number that matches an issued one, or repeats on the same citation, in another letter case; the retained module accepted it |
 | `audit_code_review_helper.py` | Code review fixes: a NaN summary is refused and named while the Reports index stays readable; citation numbers compare without letter case for new citations only; a lock from a PC whose clock runs ahead is aged by its file time |
 | `audit_auxiliary_metadata.py` | Damaged parcel-cache JSON remains browser-readable over HTTP; valid historical parcels and original bytes stay intact; case-number inventory accepts supported encoding and names bad/link entries; malformed lock/catalog metadata cannot crash diagnostics; recent/live locks remain protected |
+| `audit_case_recovery_integrity.js` | Individual recovery persists/restores scoped proofs after durable acknowledgment, retains invalid read-only verdicts and unrelated proofs, refuses malformed evidence before writes, and supports older backups and local case-ID aliases |
+| `audit_startup_registry.py` | One operation-local startup registry inventory still verifies every case; missing-registry rebuild, latest/concurrent genesis conflicts, concurrent evidence retention, damaged metadata refusal, fresh tamper detection and malformed identity refusal |
 | `audit_shared_folder_damage.py` | Damaged shared case files are named, not skipped or crashing: byte-order marks read everywhere, NaN refused on open, deep nesting, links, duplicates and unverifiable files named in citation-history refusals, corrupt pending transactions reported as damaged |
 | `audit_helper_input_shapes.py` | Saves, summaries and artifact checks with wrongly typed nested parts are refused clearly, write nothing, and stored records stay readable |
 | `audit_non_finite_json.py` | Requests and stored-case reads refuse NaN/Infinity and numeric overflow; real HTTP open/resolve/history return parseable refusals and retain original bytes; case/recovery writers, BOMs, finite types/boundaries and ASCII money remain covered |
@@ -223,6 +225,7 @@ covers, or a new suite under its feature.
 | `audit_r50_disclosure.js`, `audit_r50_editor_repaint.js`, `audit_r32_continuity.js` | Disclosure, focus and active edits survive repaints, including correction fields through a held shared-save completion |
 | `audit_recipient_flow.js` | Recipient form input, address validation and standardized output |
 | `audit_r31_address.js`, `audit_r31_address.py`, `audit_r32_fallback.py` | Address parser corpus, ambiguity and parser-absent fallback |
+| `audit_address_continuation.js` | Address preview/acceptance stays bound to the current editable contact; latest replies and superseded token cleanup. |
 | `audit_valid.js` | Document blockers and mailing-date limits |
 | `audit_feature_editor_screens.js` | Feature suite: Workspace import entry and current destination, inline fill-in entry and focus after the detail is written, case-number edits in page furniture |
 | `audit_feature_language_catalog.js` | Feature suite: dotted 27.05(2)(g)2 references normalize to one catalog entry, price and classification |

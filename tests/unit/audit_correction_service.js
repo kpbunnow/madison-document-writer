@@ -94,7 +94,7 @@ const copy = (v) => JSON.parse(JSON.stringify(v));
   createCorrectionWorkflow(unavailable);
   assert.deepEqual(state, {});
   const actor = INSPECTORS.find((i) => i.name).id;
-  let today, addressFault, calls, serial, blocked, shared, concerns, commitOK, fileMode, history;
+  let today, addressFault, calls, serial, blocked, shared, concerns, commitOK, fileMode, history, waitForCommit;
   const preparation = createCorrectionPreparation({
     validateAndStandardizeAddresses: (k, llc) => {
       calls.push(["address", k, llc]);
@@ -142,6 +142,7 @@ const copy = (v) => JSON.parse(JSON.stringify(v));
     commitAmendment: async (cid, event, d) => {
       calls.push(["commit", event]);
       d.pendingAmendment = event;
+      if (waitForCommit) await waitForCommit;
       if (!commitOK) return false;
       state.DOCS = state.DOCS.filter((x) => x.id !== d.id);
       state.DOCS.unshift(copy(event.payload.snapshot));
@@ -173,6 +174,7 @@ const copy = (v) => JSON.parse(JSON.stringify(v));
     commitOK = true;
     fileMode = "ok";
     history = false;
+    waitForCommit = null;
     const k = {
       id: "case",
       number: "BLD2026-00001",
@@ -443,6 +445,29 @@ const copy = (v) => JSON.parse(JSON.stringify(v));
       assert.ok(calls.some((c) => c[0] === "toast" && /PDF/.test(c[1])));
     }
   }
+  reset();
+  d = open();
+  let resume;
+  waitForCommit = new Promise((resolve) => {
+    resume = resolve;
+  });
+  const correcting = workflow.issueCorrection(d);
+  await new Promise(setImmediate);
+  Object.assign(state.state, { screen: "tools", docId: "another_document", modal: "another_dialog" });
+  resume();
+  assert.equal(await correcting, true);
+  assert.equal(state.state.screen, "tools", "correction confirmation must preserve later navigation");
+  assert.equal(state.state.docId, "another_document");
+  assert.equal(state.state.modal, "another_dialog");
+  assert.equal(
+    calls.some((c) => c[0] === "file"),
+    true,
+    "the confirmed correction is still filed",
+  );
+  assert.equal(
+    calls.some((c) => c[0] === "scroll"),
+    false,
+  );
   console.log(
     JSON.stringify({
       passed: true,

@@ -122,6 +122,19 @@ const copy = (v) => JSON.parse(JSON.stringify(v));
   random = 0;
   assert.equal(calendar.citationNumber(), "B00012345700");
   assert.equal(clockCalls, 3);
+  // New citations compare numbers without regard to case; the automatic generator reserves the same identities.
+  const numbering = createCourtScheduling({ nowMillis: () => CITEPOCH + 123456000, random: () => 0.37 });
+  s.DOCS = [
+    { draft: true, cits: { a: { num: "b00012345637" } } },
+    { void: true, cits: { b: { num: "b00012345638" } } },
+    { cits: { c: { num: "B00012345639" } } },
+  ];
+  const reserved = copy(s.DOCS);
+  assert.equal(numbering.citationNumber(), "B00012345640");
+  assert.deepEqual(s.DOCS, reserved, "stored numbers retain their exact spelling");
+  s.DOCS = [{ cits: Object.fromEntries(Array.from({ length: 100 }, (_, n) => ["item" + n, { num: "b000123456" + String(n).padStart(2, "0") }])) }];
+  assert.equal(numbering.citationNumber(), "B00012345737", "a fully reserved second advances without reusing a lowercase number");
+  s.DOCS = [];
   assert.deepEqual(chargeChoices({ sections: [" 27.05(2)(c) ", "27.05(2)(c)", ""] }), [{ value: "27.05(2)(c)", label: "27.05(2)(c)" }]);
   assert.equal(choosesCharge({ sections: ["27.05(2)(c)", "27.05(2)(c)"] }), true);
   assert.equal(choosesCharge({ sections: ["27.05(2)(c)"] }), false);
