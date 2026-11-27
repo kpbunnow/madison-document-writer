@@ -1148,6 +1148,7 @@
     "tests/unit/audit_recipient_lines.js",
     "tests/unit/audit_recipient_validation_parity.js",
     "tests/unit/audit_recipient_workflow.js",
+    "tests/unit/audit_record_action_continuation.js",
     "tests/unit/audit_record_action_modal_rules.js",
     "tests/unit/audit_record_commit.js",
     "tests/unit/audit_record_commit_rules.js",

@@ -598,6 +598,7 @@ Full Writer frame/modal/worksheet copy retirement preserves all seeded scenarios
 | `audit_helper_route_refusals.py` | Real helper status/body/refusal contracts and retained local work under subordinate failures. |
 | `audit_reports_startup.js` | Actual Reports composition, preferences, authenticated load refusal/retry and superseded reads in synthetic DOM. |
 | `audit_correction_event_outcomes.js` | Actual correction pending/withdrawal/review guards and replaced asynchronous controls. |
+| `audit_record_action_continuation.js` | Confirmed/refused withdrawals, notes and follow-through preserve a newer dialog and its unsent text. |
 | `audit_packaging_orchestration.py` | Original maintained packager against isolated synthetic evidence: all four archives, no native claim, stale/fast/missing/unclean refusal and malformed publication baseline. |
 | `audit_diagnostic_orchestration.py` | Actual diagnostic CLI/source binding, toolchain fields, byte/tree drift, isolated production/test copies, failed process/timeouts and complete scope refusal. |
 | `audit_editor_gesture_recovery.js` | Actual pointer/keyboard/paste/picker handlers: one registration, normal/cancel/live-lock order and refusal of stale document or detached DOM row order. |
