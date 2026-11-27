@@ -8,6 +8,7 @@ import case_integrity
 import contextlib
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import socket
@@ -126,6 +127,10 @@ def lock_status(folder, number="", resource=""):
         created = float(meta.get("at", stat.st_mtime))
     except ValueError, TypeError, AttributeError:
         host, pid, created = "Unreadable lock metadata", 0, stat.st_mtime
+    # The lock's age is the older of the time its writer recorded and the file's own time. A PC whose clock runs ahead
+    # would otherwise make its abandoned lock look recent, and unreleasable, for as long as its clock is ahead.
+    if not math.isfinite(created) or created > stat.st_mtime:
+        created = stat.st_mtime
     local = host.casefold() in {socket.gethostname().casefold(), os.environ.get("COMPUTERNAME", "").casefold()}
     return {
         "ok": True,
