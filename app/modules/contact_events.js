@@ -62,6 +62,51 @@ function changeCopyOwnerFor(services, e) {
   services.render();
 }
 
+// Send the issued document to the recipients ticked in the send dialog (or none), closing the dialog first.
+function contactSendDocument(services, t) {
+  const dd = doc(editor.state.sendDoc) || doc(editor.state.docId);
+  const k = dd ? kase(dd.caseId) : null;
+  const list = k ? emailList(k).filter((e) => String(e.addr || "").trim()) : [];
+  const picked =
+    t.id === "btn-sendnone"
+      ? []
+      : list.filter((_, ix) => {
+          const box = document.querySelector('[data-sendto="' + ix + '"]');
+          return box && box.checked;
+        });
+  const job = editor.state.sendJob,
+    reuse = editor.state.sendReuse;
+  editor.state.modal = null;
+  editor.state.sendDoc = null;
+  editor.state.sendJob = null;
+  editor.state.sendReuse = undefined;
+  services.render();
+  if (dd) services.emailDocument(dd, picked.length ? picked : [{ addr: "", kind: "" }], reuse, job);
+  return;
+}
+
+// Closing Recipients checks and standardizes the addresses first; a problem keeps the dialog open on its field.
+function contactCloseModal(services) {
+  if (editor.state.modal === "cc") {
+    const d = doc(editor.state.docId),
+      k = d && docCase(d),
+      problem = k && services.validateAndStandardizeAddresses(k, d.type === "citation" && isLLC(k));
+    if (problem) {
+      editor.state.ccProblem = problem;
+      services.refreshOverlay();
+      const field = document.querySelector(problem.selector);
+      if (field) field.focus();
+      return;
+    }
+    editor.state.ccProblem = null;
+    workspace.DIRTY = true;
+    services.scheduleDraftSave();
+  }
+  editor.state.modal = null;
+  services.render();
+  return;
+}
+
 export function createContactEvents(services) {
   const openRecipients = () => {
     editor.state.ccProblem = null;
@@ -100,48 +145,9 @@ export function createContactEvents(services) {
     return;
   };
 
-  const sendDocument = (t) => {
-    const dd = doc(editor.state.sendDoc) || doc(editor.state.docId);
-    const k = dd ? kase(dd.caseId) : null;
-    const list = k ? emailList(k).filter((e) => String(e.addr || "").trim()) : [];
-    const picked =
-      t.id === "btn-sendnone"
-        ? []
-        : list.filter((_, ix) => {
-            const box = document.querySelector('[data-sendto="' + ix + '"]');
-            return box && box.checked;
-          });
-    const job = editor.state.sendJob,
-      reuse = editor.state.sendReuse;
-    editor.state.modal = null;
-    editor.state.sendDoc = null;
-    editor.state.sendJob = null;
-    editor.state.sendReuse = undefined;
-    services.render();
-    if (dd) services.emailDocument(dd, picked.length ? picked : [{ addr: "", kind: "" }], reuse, job);
-    return;
-  };
+  const sendDocument = (t) => contactSendDocument(services, t);
 
-  const closeModal = () => {
-    if (editor.state.modal === "cc") {
-      const d = doc(editor.state.docId),
-        k = d && docCase(d),
-        problem = k && services.validateAndStandardizeAddresses(k, d.type === "citation" && isLLC(k));
-      if (problem) {
-        editor.state.ccProblem = problem;
-        services.refreshOverlay();
-        const field = document.querySelector(problem.selector);
-        if (field) field.focus();
-        return;
-      }
-      editor.state.ccProblem = null;
-      workspace.DIRTY = true;
-      services.scheduleDraftSave();
-    }
-    editor.state.modal = null;
-    services.render();
-    return;
-  };
+  const closeModal = () => contactCloseModal(services);
 
   const editRecipient = (el) => {
     const dd = doc(editor.state.docId);

@@ -6,6 +6,63 @@ import { migrate } from "./case_migrations.js";
 import { kase } from "./writer_queries.js";
 import { nowISO } from "./calendar.js";
 
+// One case file of an index rebuild: read, check and summarize it, recording a refusal or failed write in `out`.
+// False when the file was refused before a summary write was attempted.
+async function reindexCaseFile(services, nm, out) {
+  let f;
+  try {
+    const fh = await workspace.CASEDIR.getFileHandle(nm);
+    f = migrate(JSON.parse(await (await fh.getFile()).text()));
+  } catch (err) {
+    out.refused.push(nm + " \u2014 " + ((err && err.message) || "not readable"));
+    return false;
+  }
+  const fault = caseFileFault(f);
+  if (fault) {
+    out.refused.push(nm + " \u2014 " + fault);
+    return false;
+  }
+  let body;
+  try {
+    body = JSON.stringify(services.summarize(f));
+  } catch (err) {
+    out.refused.push(nm + " \u2014 could not be summarized: " + ((err && err.message) || err));
+    return false;
+  }
+  const r = await services.writeIndexFile(summaryName(f["case"]), body);
+  if (r.ok) out.written++;
+  else out.failed.push(nm + " \u2014 " + r.why);
+  return true;
+}
+
+function reindexMessage(out) {
+  return (
+    "Reporting index rebuilt \u2014 " +
+    out.written +
+    " of " +
+    out.total +
+    " case file" +
+    (out.total === 1 ? "" : "s") +
+    (out.refused.length ? ", " + out.refused.length + " refused" : "") +
+    (out.failed.length ? ", " + out.failed.length + " not written" : "")
+  );
+}
+
+// Open a case file chosen from the linked folder, verifying a schema 5 record before it is loaded.
+async function openCaseFromFolder(services, name) {
+  if (!workspace.CASEDIR) return;
+  try {
+    const fh = await workspace.CASEDIR.getFileHandle(name);
+    const f = await fh.getFile();
+    const raw = await f.text(),
+      record = JSON.parse(raw);
+    if (record.schema >= 5) await services.recordIntegrity.verify(record);
+    services.loadCaseFile(raw);
+  } catch {
+    services.toast("Could not open " + name);
+  }
+}
+
 export function createCaseFolderWorkflow(services) {
   async function writeSummary(cid, saved) {
     const k = kase(cid);
@@ -41,31 +98,8 @@ export function createCaseFolderWorkflow(services) {
     editor.state.reindex = { running: true, done: 0, total: files.length };
     services.render();
     for (let n = 0; n < files.length; n++) {
-      const nm = files[n].name;
-      let f;
-      try {
-        const fh = await workspace.CASEDIR.getFileHandle(nm);
-        f = migrate(JSON.parse(await (await fh.getFile()).text()));
-      } catch (err) {
-        out.refused.push(nm + " \u2014 " + ((err && err.message) || "not readable"));
-        continue;
-      }
-      const fault = caseFileFault(f);
-      if (fault) {
-        out.refused.push(nm + " \u2014 " + fault);
-        continue;
-      }
-      let body;
-      try {
-        body = JSON.stringify(services.summarize(f));
-      } catch (err) {
-        out.refused.push(nm + " \u2014 could not be summarized: " + ((err && err.message) || err));
-        continue;
-      }
-      const r = await services.writeIndexFile(summaryName(f["case"]), body);
-      if (r.ok) out.written++;
-      else out.failed.push(nm + " \u2014 " + r.why);
-      editor.state.reindex.done = n + 1;
+      // A refused file is skipped without advancing the progress count, as before.
+      if (await reindexCaseFile(services, files[n].name, out)) editor.state.reindex.done = n + 1;
     }
     editor.state.reindex = out;
     workspace.LASTINDEX = {
@@ -75,16 +109,7 @@ export function createCaseFolderWorkflow(services) {
       at: out.at,
     };
     services.render();
-    services.toast(
-      "Reporting index rebuilt \u2014 " +
-        out.written +
-        " of " +
-        out.total +
-        " case file" +
-        (out.total === 1 ? "" : "s") +
-        (out.refused.length ? ", " + out.refused.length + " refused" : "") +
-        (out.failed.length ? ", " + out.failed.length + " not written" : ""),
-    );
+    services.toast(reindexMessage(out));
     return out;
   }
 
@@ -113,18 +138,5 @@ export function createCaseFolderWorkflow(services) {
     return out.sort((a, b) => b.mod - a.mod);
   }
 
-  async function openFromFolder(name) {
-    if (!workspace.CASEDIR) return;
-    try {
-      const fh = await workspace.CASEDIR.getFileHandle(name);
-      const f = await fh.getFile();
-      const raw = await f.text(),
-        record = JSON.parse(raw);
-      if (record.schema >= 5) await services.recordIntegrity.verify(record);
-      services.loadCaseFile(raw);
-    } catch {
-      services.toast("Could not open " + name);
-    }
-  }
-  return { writeSummary, rebuildIndex, listCaseFolder, openFromFolder };
+  return { writeSummary, rebuildIndex, listCaseFolder, openFromFolder: (name) => openCaseFromFolder(services, name) };
 }

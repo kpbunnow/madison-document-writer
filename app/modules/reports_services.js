@@ -748,6 +748,91 @@ function reportCaseOk(services, c, F, opt) {
   return true;
 }
 
+// The Reports model from its sorted cases: lookup by number, counted cases and the filter choices they offer.
+function reportModel(services, cases, versionStale, distField, zipField) {
+  const byNo = {};
+  cases.forEach((c) => {
+    byNo[c.number] = c;
+  });
+  const counted = cases.filter(reportCounted);
+  const types = {};
+  counted.forEach((c) =>
+    c.violations.forEach((v) => {
+      types[v.type] = v.typeLabel;
+    }),
+  );
+  const ords = services
+    .uniq(counted.flatMap((c) => c.violations.flatMap((v) => v.sections).concat(c.citations.map((x) => x.ordinance))).filter(Boolean))
+    .sort(ordSort);
+  return {
+    cases: cases,
+    byNo: byNo,
+    counted: counted,
+    versionStale: versionStale,
+    inspectors: services
+      .uniq(
+        counted
+          .flatMap((c) =>
+            [c.inspector].concat(
+              c.citations.map((x) => x.by),
+              c.referrals.map((x) => x.by),
+            ),
+          )
+          .filter(Boolean),
+      )
+      .sort(),
+    types: Object.keys(types)
+      .map((k) => ({ key: k, label: types[k] }))
+      .sort((a, b) => (a.label < b.label ? -1 : 1)),
+    ords: ords,
+    distField: distField,
+    zipField: zipField,
+  };
+}
+
+// The Reports owner's methods, in their original order; load, model, filter and render stay in the factory, where
+// their retained references are spliced.
+function reportsOwnerAPI(services, { loadAll, buildModel, caseOk, render }) {
+  return {
+    reportCellValue,
+    currentReportRows: (...args) => scopedCurrentReportRows(services, ...args),
+    exportReportCSV: (...args) => scopedExportReportCSV(services, ...args),
+    humanCorrectionValue,
+    reportHelper,
+    shareReportView: (...args) => scopedShareReportView(services, ...args),
+    showSharedViews: (...args) => scopedShowSharedViews(services, ...args),
+    printReport: (...args) => scopedPrintReport(services, ...args),
+    daysBetween: (...args) => scopedDaysBetween(services, ...args),
+    median,
+    normStreet: (...args) => scopedNormStreet(services, ...args),
+    ownerKey: (...args) => addressOwnerKey(services, ...args),
+    ringHas,
+    polyHas,
+    detectField,
+    relativeDates: (...args) => scopedRelativeDates(services, ...args),
+    saveReportView: (...args) => scopedSaveReportView(services, ...args),
+    reportOrdinance,
+    applyReportView: (...args) => scopedApplyReportView(services, ...args),
+    deleteReportView: (...args) => scopedDeleteReportView(services, ...args),
+    reportsChannel: (...args) => scopedReportsChannel(services, ...args),
+    openInWriter: (...args) => scopedOpenInWriter(services, ...args),
+    getJSON,
+    loadAll,
+    buildModel,
+    ordSort,
+    areaKey,
+    areaSort,
+    caseOk,
+    versionAt,
+    noticeAt,
+    statusAt,
+    violationAt,
+    violOpenAt: (...args) => scopedViolOpenAt(services, ...args),
+    groupBy,
+    render,
+  };
+}
+
 export function createReportsServices(services) {
   /* Reports owner: load/model/filter stay here (their retained references are spliced into this factory);
      the other operations are module functions that receive this owner's scoped services. */
@@ -808,86 +893,12 @@ export function createReportsServices(services) {
       versionStale = [];
     summaries.forEach((s) => appendReportSummary({ s, services, parcels, zipFC, zipField, cases, versionStale, ownerKey, polyHas, reportOrdinance }));
     cases.sort((a, b) => (a.opened === b.opened ? (a.number < b.number ? -1 : 1) : a.opened < b.opened ? 1 : -1));
-    const byNo = {};
-    cases.forEach((c) => {
-      byNo[c.number] = c;
-    });
-    const counted = cases.filter(reportCounted);
-    const types = {};
-    counted.forEach((c) =>
-      c.violations.forEach((v) => {
-        types[v.type] = v.typeLabel;
-      }),
-    );
-    const ords = services
-      .uniq(counted.flatMap((c) => c.violations.flatMap((v) => v.sections).concat(c.citations.map((x) => x.ordinance))).filter(Boolean))
-      .sort(ordSort);
-    return {
-      cases: cases,
-      byNo: byNo,
-      counted: counted,
-      versionStale: versionStale,
-      inspectors: services
-        .uniq(
-          counted
-            .flatMap((c) =>
-              [c.inspector].concat(
-                c.citations.map((x) => x.by),
-                c.referrals.map((x) => x.by),
-              ),
-            )
-            .filter(Boolean),
-        )
-        .sort(),
-      types: Object.keys(types)
-        .map((k) => ({ key: k, label: types[k] }))
-        .sort((a, b) => (a.label < b.label ? -1 : 1)),
-      ords: ords,
-      distField: distField,
-      zipField: zipField,
-    };
+    return reportModel(services, cases, versionStale, distField, zipField);
   }
 
   function caseOk(c, F, opt) {
     return reportCaseOk(services, c, F, opt);
   }
 
-  return {
-    reportCellValue,
-    currentReportRows: (...args) => scopedCurrentReportRows(services, ...args),
-    exportReportCSV: (...args) => scopedExportReportCSV(services, ...args),
-    humanCorrectionValue,
-    reportHelper,
-    shareReportView: (...args) => scopedShareReportView(services, ...args),
-    showSharedViews: (...args) => scopedShowSharedViews(services, ...args),
-    printReport: (...args) => scopedPrintReport(services, ...args),
-    daysBetween: (...args) => scopedDaysBetween(services, ...args),
-    median,
-    normStreet: (...args) => scopedNormStreet(services, ...args),
-    ownerKey: (...args) => addressOwnerKey(services, ...args),
-    ringHas,
-    polyHas,
-    detectField,
-    relativeDates: (...args) => scopedRelativeDates(services, ...args),
-    saveReportView: (...args) => scopedSaveReportView(services, ...args),
-    reportOrdinance,
-    applyReportView: (...args) => scopedApplyReportView(services, ...args),
-    deleteReportView: (...args) => scopedDeleteReportView(services, ...args),
-    reportsChannel: (...args) => scopedReportsChannel(services, ...args),
-    openInWriter: (...args) => scopedOpenInWriter(services, ...args),
-    getJSON,
-    loadAll,
-    buildModel,
-    ordSort,
-    areaKey,
-    areaSort,
-    caseOk,
-    versionAt,
-    noticeAt,
-    statusAt,
-    violationAt,
-    violOpenAt: (...args) => scopedViolOpenAt(services, ...args),
-    groupBy,
-    render,
-  };
+  return reportsOwnerAPI(services, { loadAll, buildModel, caseOk, render });
 }

@@ -28,33 +28,51 @@ function currentEditableAddress(services, c) {
   );
 }
 
+// The first ambiguous, unaccepted mailing address on the case (owner, copies, agent), as a focusable fault.
+function ambiguousAddressFault(k) {
+  const all = [
+    { parsed: k.ownerAddressParsed, lines: k.ownerAddr || [], scope: "owner", index: 0, selector: '[data-case="ownerBlock"]' },
+    ...ccList(k).map((c, index) => ({
+      parsed: c.addressParsed,
+      lines: [c.addr || "", c.city || ""],
+      scope: "copy",
+      index,
+      selector: '[data-cc="' + index + '|addr"]',
+    })),
+    {
+      parsed: k.agent?.addressParsed,
+      lines: [k.agent?.addr || "", k.agent?.city || ""],
+      scope: "agent",
+      index: 0,
+      selector: '[data-agent="addr"]',
+    },
+  ];
+  const bad = all.find((x) => x.parsed?.type === "ambiguous" && !x.parsed.accepted && x.lines.join("\n") === x.parsed.raw);
+  return bad
+    ? { ...bad, field: "addr", message: "Ambiguous mailing address: " + bad.parsed.raw + ". Edit the raw address before continuing." }
+    : null;
+}
+
+// The preview dialog body: the raw entry, the standardized lines and, unless ambiguous, the accept button.
+function addressPreviewHTML(c, parsed, token) {
+  return (
+    "<p>Entered exactly as supplied:</p><pre>" +
+    esc(c.raw) +
+    "</pre><p>" +
+    esc(parsed.warning || "Review the standardized mailing lines. Names remain as entered.") +
+    "</p><pre>" +
+    esc([parsed.recipientLine, ...parsed.standardized].filter(Boolean).join("\n")) +
+    "</pre>" +
+    (parsed.type === "ambiguous"
+      ? '<p role="alert">This address is ambiguous. Edit the raw text; no standardized guess is available.</p>'
+      : '<button class="btn btn-primary" data-accept-address="' + token + '">Accept standardized address</button>')
+  );
+}
+
 export function initAddressParser(services) {
   let pending = null,
     requestSeq = 0;
   const accepted = (parsed, lines) => !!parsed?.accepted && JSON.stringify(parsed.acceptedLines) === JSON.stringify(lines);
-  function fault(k) {
-    const all = [
-      { parsed: k.ownerAddressParsed, lines: k.ownerAddr || [], scope: "owner", index: 0, selector: '[data-case="ownerBlock"]' },
-      ...ccList(k).map((c, index) => ({
-        parsed: c.addressParsed,
-        lines: [c.addr || "", c.city || ""],
-        scope: "copy",
-        index,
-        selector: '[data-cc="' + index + '|addr"]',
-      })),
-      {
-        parsed: k.agent?.addressParsed,
-        lines: [k.agent?.addr || "", k.agent?.city || ""],
-        scope: "agent",
-        index: 0,
-        selector: '[data-agent="addr"]',
-      },
-    ];
-    const bad = all.find((x) => x.parsed?.type === "ambiguous" && !x.parsed.accepted && x.lines.join("\n") === x.parsed.raw);
-    return bad
-      ? { ...bad, field: "addr", message: "Ambiguous mailing address: " + bad.parsed.raw + ". Edit the raw address before continuing." }
-      : null;
-  }
   async function preview(scope, index = 0) {
     const c = addressContext(scope, index);
     if (!c || (c.d && (!c.d.draft || c.d.pendingAmendment)) || services.recordIntegrity.blocked(c.k.id)) return false;
@@ -78,19 +96,7 @@ export function initAddressParser(services) {
     const token = services.uid("a");
     pending = { token, context: c };
     c.parsed = parsed;
-    services.A11Y.utility(
-      "Mailing address preview",
-      "<p>Entered exactly as supplied:</p><pre>" +
-        esc(c.raw) +
-        "</pre><p>" +
-        esc(parsed.warning || "Review the standardized mailing lines. Names remain as entered.") +
-        "</p><pre>" +
-        esc([parsed.recipientLine, ...parsed.standardized].filter(Boolean).join("\n")) +
-        "</pre>" +
-        (parsed.type === "ambiguous"
-          ? '<p role="alert">This address is ambiguous. Edit the raw text; no standardized guess is available.</p>'
-          : '<button class="btn btn-primary" data-accept-address="' + token + '">Accept standardized address</button>'),
-    );
+    services.A11Y.utility("Mailing address preview", addressPreviewHTML(c, parsed, token));
     services.saveDrafts();
     return true;
   }
@@ -125,5 +131,5 @@ export function initAddressParser(services) {
       void preview(scope, +index || 0);
     }
   });
-  return { preview, accept, accepted, fault };
+  return { preview, accept, accepted, fault: ambiguousAddressFault };
 }
