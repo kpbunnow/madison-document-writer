@@ -17,6 +17,86 @@ function restoreRecordActionControls(origin, value, external) {
   if (ref) ref.value = external;
 }
 
+// Download a correction draft, its issued source and its listed changes for review.
+function correctionExportDraft(services, d) {
+  if (d && d.correction)
+    services.downloadFile(
+      kase(d.caseId).number + " - correction draft - " + d.id + ".json",
+      JSON.stringify(
+        {
+          format: "madison-correction-draft-review",
+          exported: nowISO(),
+          caseNumber: kase(d.caseId).number,
+          source: correctionSource(d),
+          draft: clone(d),
+          changes: services.correctionChanges(d),
+        },
+        null,
+        2,
+      ),
+    );
+  return;
+}
+
+// Withdraw an item entered in error (with its reason), or restore one withdrawn in this correction only.
+function correctionWithdrawItem(services, d, t) {
+  if (!d.correction || services.isLocked(d)) return;
+  const it = d.items.find((x) => x.id === t.dataset.withdraw);
+  if (!it) return;
+  if (it.withdrawn) {
+    const base = correctionSource(d).items.find((x) => x.id === it.id);
+    if (base.withdrawn) {
+      services.toast("This item was withdrawn in a prior revision. A newly observed violation needs a new case or notice.");
+      return;
+    }
+    delete it.withdrawn;
+    delete it.withdrawalReason;
+  } else {
+    const reason = prompt("Why was item " + it.no + " entered in error? This is not a finding of compliance.");
+    if (reason === null) return;
+    if (reason.trim().length < 10) {
+      services.toast("Provide a specific withdrawal reason of at least 10 characters.");
+      return;
+    }
+    it.withdrawn = true;
+    it.withdrawalReason = reason.trim();
+  }
+  d.correction.reviewed = false;
+  workspace.DIRTY = true;
+  services.saveDrafts();
+  services.render();
+  return;
+}
+
+// A changed correction document type or recorded visit outcome; either clears the review confirmation.
+function correctionChangeTypeOrOutcome(services, e) {
+  const d = doc(editor.state.docId);
+  if (!d || !d.correction || d.pendingAmendment) return;
+  if (e.target.id === "correction-type") {
+    const src = correctionSource(d);
+    if (!services.correctionTypeAllowed(src, e.target.value)) return;
+    d.type = e.target.value;
+    d.correction.body = d.type === src.type ? services.docBody(src) : DOCBODY[d.type] || DOCBODY.notice;
+    d.items.forEach((it) => {
+      if (isHistoryDoc(d))
+        it.hist = d.authoringVersion >= 14 ? it.hist || services.itemInspectionHistory(d, it) : services.itemHistory(d.caseId, it.no);
+    });
+  } else {
+    const it = d.items.find((x) => x.id === e.target.dataset.correctionOutcome);
+    if (it) {
+      d.correction.outcomes = d.correction.outcomes || {};
+      d.correction.outcomes[it.id] = e.target.value;
+      it.done = e.target.value === "corrected";
+      it.doneOn = it.done ? it.doneOn || d.inspDate || recordDay(today) : "";
+    }
+  }
+  d.correction.reviewed = false;
+  workspace.DIRTY = true;
+  services.saveDrafts();
+  services.render();
+  return;
+}
+
 export function createCorrectionEvents(services) {
   const resumeRecord = (t) => {
     const holder = editor.RECORD_ATTEMPTS[t.dataset.resumerecord];
@@ -30,25 +110,7 @@ export function createCorrectionEvents(services) {
     return;
   };
 
-  const exportCorrection = (d) => {
-    if (d && d.correction)
-      services.downloadFile(
-        kase(d.caseId).number + " - correction draft - " + d.id + ".json",
-        JSON.stringify(
-          {
-            format: "madison-correction-draft-review",
-            exported: nowISO(),
-            caseNumber: kase(d.caseId).number,
-            source: correctionSource(d),
-            draft: clone(d),
-            changes: services.correctionChanges(d),
-          },
-          null,
-          2,
-        ),
-      );
-    return;
-  };
+  const exportCorrection = (d) => correctionExportDraft(services, d);
 
   const retryCorrection = (d) => {
     services.issueCorrection(d);
@@ -84,34 +146,7 @@ export function createCorrectionEvents(services) {
     return;
   };
 
-  const withdrawItem = (d, t) => {
-    if (!d.correction || services.isLocked(d)) return;
-    const it = d.items.find((x) => x.id === t.dataset.withdraw);
-    if (!it) return;
-    if (it.withdrawn) {
-      const base = correctionSource(d).items.find((x) => x.id === it.id);
-      if (base.withdrawn) {
-        services.toast("This item was withdrawn in a prior revision. A newly observed violation needs a new case or notice.");
-        return;
-      }
-      delete it.withdrawn;
-      delete it.withdrawalReason;
-    } else {
-      const reason = prompt("Why was item " + it.no + " entered in error? This is not a finding of compliance.");
-      if (reason === null) return;
-      if (reason.trim().length < 10) {
-        services.toast("Provide a specific withdrawal reason of at least 10 characters.");
-        return;
-      }
-      it.withdrawn = true;
-      it.withdrawalReason = reason.trim();
-    }
-    d.correction.reviewed = false;
-    workspace.DIRTY = true;
-    services.saveDrafts();
-    services.render();
-    return;
-  };
+  const withdrawItem = (d, t) => correctionWithdrawItem(services, d, t);
 
   const editActionDate = (el) => {
     const d = doc(editor.state.docId);
@@ -135,33 +170,8 @@ export function createCorrectionEvents(services) {
     return;
   };
 
-  const changeCorrection = (e) => {
-    const d = doc(editor.state.docId);
-    if (!d || !d.correction || d.pendingAmendment) return;
-    if (e.target.id === "correction-type") {
-      const src = correctionSource(d);
-      if (!services.correctionTypeAllowed(src, e.target.value)) return;
-      d.type = e.target.value;
-      d.correction.body = d.type === src.type ? services.docBody(src) : DOCBODY[d.type] || DOCBODY.notice;
-      d.items.forEach((it) => {
-        if (isHistoryDoc(d))
-          it.hist = d.authoringVersion >= 14 ? it.hist || services.itemInspectionHistory(d, it) : services.itemHistory(d.caseId, it.no);
-      });
-    } else {
-      const it = d.items.find((x) => x.id === e.target.dataset.correctionOutcome);
-      if (it) {
-        d.correction.outcomes = d.correction.outcomes || {};
-        d.correction.outcomes[it.id] = e.target.value;
-        it.done = e.target.value === "corrected";
-        it.doneOn = it.done ? it.doneOn || d.inspDate || recordDay(today) : "";
-      }
-    }
-    d.correction.reviewed = false;
-    workspace.DIRTY = true;
-    services.saveDrafts();
-    services.render();
-    return;
-  };
+  const changeCorrection = (e) => correctionChangeTypeOrOutcome(services, e);
+
   return {
     resumeRecord,
     startCorrection,
