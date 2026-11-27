@@ -3,13 +3,16 @@ import { html as screen, raw } from "./screen_html.js";
 import { citSelector, esc as dep_esc } from "./presentation_format.js";
 
 import { doc } from "./writer_queries.js";
+import { validISO } from "./calendar.js";
 import { itemLibraryKey } from "./document_rules.js";
 import { CITATION_POLICY, assessmentCents, canonicalOrdinance, cents, courtCents, resolveCitationAmount } from "./citation_policy.js";
 import { workspaceState } from "./workspace_state.js";
 /* Required completion is stored as a request, never as a blank citation. */
 function applyApprovedDeposit(services, c, d) {
   if (!["base", "total"].includes(c.depositMode) || String(c.depositSource || "").trim().length < 10) return false;
-  c.cc = courtCents(services.citationPricingDate(c, d)) / 100;
+  const date = services.citationPricingDate(c, d);
+  if (!validISO(date)) return false;
+  c.cc = courtCents(date) / 100;
   if (c.depositMode === "base") {
     if (cents(c.base) === null || (cents(c.base) === 0 && !CITATION_POLICY.allowZeroBaseDeposits)) return false;
     const v = assessmentCents(cents(c.base), cents(c.cc), services.citationPricingDate(c, d));

@@ -7,6 +7,16 @@ import { clone } from "./record_values.js";
 import { DOCBODY } from "./document_types.js";
 import { isHistoryDoc } from "./document_rules.js";
 import { recordDay } from "../assets/shared.js";
+function restoreRecordActionControls(origin, value, external) {
+  if (editor.state.screen !== origin.screen || editor.state.docId !== origin.docId || editor.state.modal !== origin.modal) return;
+  const field = document.getElementById("record-action-text");
+  if (field) field.value = value;
+  const button = document.getElementById("record-action-go");
+  if (button) button.disabled = false;
+  const ref = document.getElementById("record-action-external");
+  if (ref) ref.value = external;
+}
+
 export function createCorrectionEvents(services) {
   const resumeRecord = (t) => {
     const holder = editor.RECORD_ATTEMPTS[t.dataset.resumerecord];
@@ -60,6 +70,7 @@ export function createCorrectionEvents(services) {
   const commitRecordAction = (t, d) => {
     const value = (document.getElementById("record-action-text") || {}).value || "",
       external = (document.getElementById("record-action-external") || {}).value || "";
+    const origin = { screen: editor.state.screen, docId: editor.state.docId, modal: editor.state.modal };
     const mode = editor.state.modal,
       actor = (document.getElementById("record-action-inspector") || {}).value || "";
     t.disabled = true;
@@ -69,14 +80,7 @@ export function createCorrectionEvents(services) {
         : mode === "reconcile"
           ? services.reconcileDocument(d.id, value, actor)
           : services.addRecordNote(d.id, value, actor);
-    Promise.resolve(action).finally(() => {
-      const field = document.getElementById("record-action-text");
-      if (field) field.value = value;
-      const button = document.getElementById("record-action-go");
-      if (button) button.disabled = false;
-      const ref = document.getElementById("record-action-external");
-      if (ref) ref.value = external;
-    });
+    Promise.resolve(action).finally(() => restoreRecordActionControls(origin, value, external));
     return;
   };
 

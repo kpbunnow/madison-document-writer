@@ -4,7 +4,7 @@ import { checkTarget, citSelector } from "./presentation_format.js";
 import { docInsp, docsFor } from "./writer_queries.js";
 import { clone, citationNumbersTaken } from "./record_values.js";
 import { courtTime } from "./document_types.js";
-import { canonicalOrdinance } from "./citation_policy.js";
+import { canonicalOrdinance, refreshDraftPricing } from "./citation_policy.js";
 /* Initial-visit notices and citations share one review and one atomic save. */
 export function initInitialCitations(services) {
   const enabled = (d) => !!d && d.type === "notice" && d.draft && !d.correction && d.items.some((i) => i.cite && !i.withdrawn);
@@ -48,7 +48,7 @@ export function initInitialCitations(services) {
       };
       services.applyDeposit(d, i.id, ord);
     }
-    services.citationPricing.refresh(d);
+    refreshDraftPricing(services.citationPricing, d);
   }
   function preview(d) {
     prepare(d);

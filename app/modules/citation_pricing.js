@@ -5,7 +5,7 @@ import { editorState as editor } from "./editor_state.js";
 import { normParcel } from "../assets/shared.js";
 
 import { correctionSource, doc, docCase } from "./writer_queries.js";
-import { daysBetween } from "./calendar.js";
+import { daysBetween, validISO } from "./calendar.js";
 import { itemLibraryKey } from "./document_rules.js";
 import {
   CITATION_POLICY,
@@ -71,7 +71,19 @@ function refreshPricingSiteMatch(d, c, f, respondent) {
   } else delete c.siteMatch;
 }
 
+// The lookup is read, and its arguments evaluated, in the original order; an incomplete pricing date resolves nothing.
+function draftPricingEntry(services, key, d, i, c) {
+  const lookup = services.lookupForf,
+    ordinances = [c.ord],
+    libraryKey = key(i),
+    entryId = c.scheduleEntryId,
+    date = services.citationPricingDate(c, d);
+  return validISO(date) ? lookup.call(services, ordinances, libraryKey, entryId, date) : null;
+}
+
 function refreshDraftPricingHistory(services, key, priorOffenses, d, i, c, respondent, staged) {
+  // An unreadable pricing date still refuses the refresh here ("Enter a valid pricing date."); Writer callers that must
+  // keep an incomplete draft editable handle that refusal (citation_workflow.js refreshDraftPricing).
   const f = services.lookupForf([c.ord], key(i), c.scheduleEntryId, services.citationPricingDate(c, d)),
     date = c.violDate || services.inspAt(d).date;
   const history = priorOffenses({
@@ -316,7 +328,7 @@ export function initCitationPricing(services) {
       ? "Shared citation history must finish checking. Use Refresh citation history; reconnect if it is unavailable."
       : "";
   function hint(d, i, c) {
-    const f = services.lookupForf([c.ord], key(i), c.scheduleEntryId, services.citationPricingDate(c, d)),
+    const f = draftPricingEntry(services, key, d, i, c),
       history = (c.countedOffenses || [])
         .map((x) => x.number + " (" + x.date + ", " + x.caseNumber + (x.prepared ? ", prepared in this issuance" : "") + ")")
         .join("; ");

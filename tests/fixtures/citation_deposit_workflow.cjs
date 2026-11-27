@@ -83,7 +83,12 @@ module.exports = async function createCitationDepositWorkflow() {
     snow,
   });
   const charges = a.createCitationCharges({ citationPricing: pricing, citationPricingDate, document });
-  const depositStep = a.initDepositStep({ citationPricing: pricing, citationPricingDate });
+  const depositStep = a.initDepositStep({
+    citationPricing: pricing,
+    citationPricingDate,
+    choosesCharge: a.choosesCharge,
+    chargeChoices: a.chargeChoices,
+  });
   const court = a.createCourtScheduling({ today, nowMillis: () => Date.now(), random: () => Math.random() });
   const history = a.createCitationHistory({ today }),
     drafts = a.createCitationDrafts({ priorCitations: history.priorCitations });

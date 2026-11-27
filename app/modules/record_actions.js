@@ -2,6 +2,12 @@ import { editorState as editor } from "./editor_state.js";
 import { isHistoryDoc, specialType } from "./document_rules.js";
 import { doc, kase, recordHead, recordNow } from "./writer_queries.js";
 
+const recordActionView = () => ({ screen: editor.state.screen, docId: editor.state.docId, modal: editor.state.modal });
+function confirmedRecordAction(services, origin) {
+  if (editor.state.screen === origin.screen && editor.state.docId === origin.docId && editor.state.modal === origin.modal) editor.state.modal = null;
+  services.render();
+}
+
 export function createRecordActions(services) {
   function runFinalize(d) {
     if (!d || !d.draft) return;
@@ -25,9 +31,9 @@ export function createRecordActions(services) {
       type: "document.voided",
       payload: { docId, reason: reason.trim(), externalReference, expectedHead: recordHead(d.caseId) },
     };
+    const origin = recordActionView();
     if (!(await commitRecordAttempt(d.caseId, attempt))) return false;
-    editor.state.modal = null;
-    services.render();
+    confirmedRecordAction(services, origin);
     services.toast("Document withdrawn. Its original and reason remain in the case history.");
     return true;
   }
@@ -45,9 +51,9 @@ export function createRecordActions(services) {
       type: "document.annotated",
       payload: { docId, text: text.trim() },
     };
+    const origin = recordActionView();
     if (!(await commitRecordAttempt(d.caseId, attempt))) return false;
-    editor.state.modal = null;
-    services.render();
+    confirmedRecordAction(services, origin);
     services.toast("Record note saved. The issued document is unchanged.");
     return true;
   }
@@ -65,9 +71,9 @@ export function createRecordActions(services) {
       type: "document.reconciled",
       payload: { docId, reference: reference.trim() },
     };
+    const origin = recordActionView();
     if (!(await commitRecordAttempt(d.caseId, attempt))) return false;
-    editor.state.modal = null;
-    services.render();
+    confirmedRecordAction(services, origin);
     services.toast("Follow-through recorded.");
     return true;
   }

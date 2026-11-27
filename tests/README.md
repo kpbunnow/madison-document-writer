@@ -598,6 +598,7 @@ Full Writer frame/modal/worksheet copy retirement preserves all seeded scenarios
 | `audit_helper_route_refusals.py` | Real helper status/body/refusal contracts and retained local work under subordinate failures. |
 | `audit_reports_startup.js` | Actual Reports composition, preferences, authenticated load refusal/retry and superseded reads in synthetic DOM. |
 | `audit_correction_event_outcomes.js` | Actual correction pending/withdrawal/review guards and replaced asynchronous controls. |
+| `audit_record_action_continuation.js` | Confirmed/refused withdrawals, notes and follow-through preserve a newer dialog and its unsent text. |
 | `audit_packaging_orchestration.py` | Original maintained packager against isolated synthetic evidence: all four archives, no native claim, stale/fast/missing/unclean refusal and malformed publication baseline. |
 | `audit_diagnostic_orchestration.py` | Actual diagnostic CLI/source binding, toolchain fields, byte/tree drift, isolated production/test copies, failed process/timeouts and complete scope refusal. |
 | `audit_editor_gesture_recovery.js` | Actual pointer/keyboard/paste/picker handlers: one registration, normal/cancel/live-lock order and refusal of stale document or detached DOM row order. |
@@ -615,3 +616,7 @@ Full Writer frame/modal/worksheet copy retirement preserves all seeded scenarios
 | `browser_recovery_selection.js` | Production Writer and real authenticated helper: equal-timestamp copies, imported selection, focus, one pressed row, no restoration on selection, numeric overflow refusal before backup writes, themes and axe. |
 
 The full-program review extends `audit_reporting_inputs.py` with deep-summary isolation, original-byte retention and secure context refusal checks, and `audit_shared_folder_damage.py` with valid BOM anchoring/reconstruction, tampered-BOM refusal and nonrecord/deep-case startup survival. Existing scenarios remain.
+
+| Suite | Coverage |
+| --- | --- |
+| `audit_draft_pricing_dates.js` | Actual citation edit, pricing, review and deposit owners: malformed calendar dates retain text and previous amounts, manual edits/rendering do not throw, incomplete completion preserves its request, and correcting the date restores readiness. |
