@@ -242,7 +242,7 @@ function editCitationDepositMode(services, d, id, c, value) {
   delete c.assessments;
   if (value === "schedule") services.applyDeposit(d, id, c.ord);
   else {
-    if (value === "base" && validMoney(c.base) && validMoney(c.cc)) {
+    if (value === "base" && validMoney(c.base) && validMoney(c.cc) && validISO(c.pricedOn || c.issued)) {
       const lines = services.feeLines(c.base, c.cc, c.pricedOn || c.issued);
       c.amount = money(lines.total);
       c.assessments = lines.cents;
@@ -253,7 +253,8 @@ function editCitationDepositMode(services, d, id, c, value) {
 
 function updateCitationFees(services, c, field) {
   if (["base", "cc"].includes(field) && c.depositMode !== "total") {
-    const lines = validMoney(c.base) && validMoney(c.cc) ? services.feeLines(c.base, c.cc, c.pricedOn || c.issued) : null;
+    const lines =
+      validMoney(c.base) && validMoney(c.cc) && validISO(c.pricedOn || c.issued) ? services.feeLines(c.base, c.cc, c.pricedOn || c.issued) : null;
     if (lines) {
       c.amount = money(lines.total);
       c.assessments = lines.cents;
@@ -654,7 +655,7 @@ function pricingDetails(services, d, i, c, mode, determined) {
       ? html`<button class="btn" data-confirm-deposit="${raw(esc(d.id))}|${raw(esc(i.id))}">Confirm current approved deposit</button>`
       : "",
   )}<p class="hint" data-deposit-schedule="${raw(esc(i.id))}">${raw(esc(services.citationPricing.hint(d, i, c)))}</p>${raw(chargeFactors(c))}<p class="hint" data-deposit-breakdown="${raw(esc(i.id))}">${raw(
-    mode !== "total" && validMoney(c.base)
+    mode !== "total" && validMoney(c.base) && validISO(c.pricedOn || c.issued)
       ? services
           .feeLines(c.base, c.cc, c.pricedOn || c.issued)
           .rows.map((row) => esc(row.k) + ": $" + money(row.v))

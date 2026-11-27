@@ -647,6 +647,8 @@ const scopedServices = {
     "./writer_queries.js",
   ],
   "deposit_step.js": [
+    // Incomplete draft dates use the established calendar validator before calculating a manual deposit.
+    "./calendar.js",
     "./screen_html.js",
     "./citation_policy.js",
     "./document_rules.js",

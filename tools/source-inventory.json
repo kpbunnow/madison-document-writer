@@ -933,6 +933,7 @@
     "tests/unit/audit_document_renderer.js",
     "tests/unit/audit_document_sources.js",
     "tests/unit/audit_draft_persistence_parity.js",
+    "tests/unit/audit_draft_pricing_dates.js",
     "tests/unit/audit_due_after_mailing.js",
     "tests/unit/audit_due_date_rules_helper.py",
     "tests/unit/audit_duplication_measurement.py",
