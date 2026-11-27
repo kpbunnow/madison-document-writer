@@ -276,7 +276,7 @@ function finalDocumentModal({ services }) {
         bad.length
           ? html`<div class="banner alert"><div><strong>${String(bad.length)} thing${raw(bad.length === 1 ? "" : "s")} to fix before this can be issued.</strong> Select a check below to go directly to the field that needs attention.</div></div>`
           : notes.length
-            ? html`<div class="banner warn"><div><strong>Ready to issue.</strong> One thing worth a second look, noted below.</div></div>`
+            ? html`<div class="banner warn"><div><strong>Ready to issue.</strong> ${notes.length === 1 ? "One thing" : String(notes.length) + " things"} worth a second look, noted below.</div></div>`
             : '<div class="banner ok"><div>Every check passed.</div></div>',
       )}
       ${raw(ch.map((c, ix) => (!c.ok ? services.checkRowHTML(c, ix) : "")).join(""))}

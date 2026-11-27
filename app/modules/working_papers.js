@@ -1,6 +1,6 @@
 import { editorState as editor } from "./editor_state.js";
 import { deliveredByCitation } from "./document_rules.js";
-import { doc, kase } from "./writer_queries.js";
+import { doc, docCase, kase } from "./writer_queries.js";
 import { emailList } from "./mailing_rules.js";
 import { esc } from "./presentation_format.js";
 import { clone } from "./record_values.js";
@@ -82,7 +82,8 @@ export function createWorkingPapers(services) {
       const d = doc(editor.state.docId),
         boxes = [...services.document.querySelectorAll("[data-finsend]")];
       if (d && d.draft && !d.pendingAmendment && boxes.length) {
-        const list = emailList(kase(d.caseId)).filter((e) => String(e.addr || "").trim());
+        // The same list the dialog offered: a correction lists its own edited recipients.
+        const list = emailList(d.correction ? docCase(d) : kase(d.caseId)).filter((e) => String(e.addr || "").trim());
         d.emailSelection = boxes
           .filter((b) => b.checked)
           .map((b) => list[+b.dataset.finsend])
