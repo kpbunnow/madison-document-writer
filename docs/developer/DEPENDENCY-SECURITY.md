@@ -4,6 +4,39 @@ Living record of dependency security reviews, advisory applicability and monitor
 commit it started from. Release and helper identities are unchanged by dependency maintenance until a release is
 separately assigned.
 
+## 2026-11-27 review
+
+Starting main: `68c5f0482d46a22dd6c9241b61d84b59591fa7cb`, after PR #564. All post-merge main checks (Program
+verification, Windows interruption and recovery, Push on main) had passed.
+
+Sources:
+- `npm outdated` and `npm audit` (with and without development dependencies): 0 vulnerabilities.
+- PyPI JSON: every pinned Python version, with the advisories PyPI records against it. None has any.
+- The Node.js release index.
+- CPython and `actions/python-versions` tags, read directly.
+- `tools/check_dependency_advisories.py`: no findings and no unavailable source. Dependabot alerts were not read,
+  because no repository token was provided; that is not an empty alert list.
+
+| Component | Before | After | Reason |
+| --- | --- | --- | --- |
+| coverage (analysis manifest) | 7.17.4 | 7.17.5 | Compatible patch release, published 2026-11-23. All 119 PyPI SHA-256 hashes are pinned, and a fresh `--require-hashes` install from `requirements-bootstrap.txt` then `tools/analysis-requirements.txt` succeeded. |
+
+Already current:
+- Node 24.22.3, the newest Node 24 release and a security release.
+- CPython 3.14.10 and its `actions/python-versions` build.
+- pip 26.3, Playwright 1.65.1 and its Chromium. Only 1.66 alphas are newer.
+- axe-core, esbuild, fast-check, globals, jsdom, Prettier and TypeScript.
+- Every pinned development and runtime Python package except Hypothesis.
+
+Deferred:
+- **ESLint 10.16.0:** published 2026-11-27 16:23 UTC, less than an hour before this review.
+- **Hypothesis 6.170.18 to 6.170.22:** all five were published 2026-11-27.
+
+Neither carries a security fix that applies here. Adopting a release only hours old is a supply-chain exposure for no
+benefit, so both are left for the next review.
+
+Unchanged: mando stays at 0.7.1, because Radon 6.0.1 requires `mando>=0.6,<0.8` (0.8.2 is available).
+
 ## 2026-11-22 review
 
 Starting main: `a4f25384d9ca63c4b6460a6d48de617095dc358c` (R85, helper 2026.11.16.86, build 86). All main checks had
