@@ -517,6 +517,26 @@ const copy = (v) => JSON.parse(JSON.stringify(v));
   resume();
   assert.equal(await first, true);
   assert.equal(calls.filter((c) => c[0] === "commit").length, 1);
+  for (const grouped of [false, true]) {
+    resetFlow();
+    wanted = grouped;
+    waitForCommit = new Promise((resolve) => {
+      resume = resolve;
+    });
+    const publishing = workflow.publishDocument(draft());
+    await new Promise(setImmediate);
+    Object.assign(state.state, { screen: "tools", docId: "another_document", modal: "another_dialog" });
+    resume();
+    assert.equal(await publishing, true);
+    assert.equal(state.state.screen, "tools", "save completion must preserve later navigation");
+    assert.equal(state.state.docId, "another_document");
+    assert.equal(state.state.modal, "another_dialog");
+    assert.equal(calls.filter((c) => c[0] === "file").length, grouped ? 2 : 1, "navigation does not cancel filing");
+    assert.equal(
+      calls.some((c) => c[0] === "workspace"),
+      false,
+    );
+  }
   resetFlow();
   renderFault = true;
   await assert.rejects(workflow.publishDocument(draft()), /catalog unavailable/);

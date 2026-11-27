@@ -84,6 +84,17 @@ function correctionDraft(services, src) {
   return d;
 }
 
+function showConfirmedCorrection(services, d, origin) {
+  if (editor.state.screen === origin.screen && editor.state.docId === origin.docId && editor.state.modal === origin.modal) {
+    editor.state.modal = null;
+    editor.state.amendmentError = "";
+    editor.state.docId = d.id;
+    editor.state.screen = "write";
+    services.render();
+    services.scrollTo(0, 0);
+  } else services.render();
+}
+
 // Opening and issuing corrections delegate preparation, confirmation and original PDF authority.
 export function createCorrectionWorkflow(services) {
   function startCorrection(docId) {
@@ -128,18 +139,14 @@ export function createCorrectionWorkflow(services) {
       services.toast("Review the changes and resolve the checks before issuing the correction.");
       return false;
     }
-    const attempt = d.pendingAmendment || services.makeCorrectionAttempt(d);
+    const attempt = d.pendingAmendment || services.makeCorrectionAttempt(d),
+      origin = { screen: editor.state.screen, docId: editor.state.docId, modal: editor.state.modal };
     if (!(await services.commitAmendment(d.caseId, attempt, d))) {
       editor.state.modal = null;
       services.render();
       return false;
     }
-    editor.state.modal = null;
-    editor.state.amendmentError = "";
-    editor.state.docId = d.id;
-    editor.state.screen = "write";
-    services.render();
-    services.scrollTo(0, 0);
+    showConfirmedCorrection(services, d, origin);
     const issued = doc(d.id),
       sendEmail = !!issued.emailedTo && issued.emailedTo.length > 0;
     try {

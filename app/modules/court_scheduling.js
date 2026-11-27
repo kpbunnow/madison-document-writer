@@ -2,6 +2,7 @@ import { recordDay } from "../assets/shared.js";
 import { iso } from "./calendar.js";
 import { CITEPOCH } from "./document_types.js";
 import { workspaceState } from "./workspace_state.js";
+import { citationNumberKey } from "./record_values.js";
 
 function nthWeekday(y, m, wd, n) {
   // n-th weekday of a month, 1-based
@@ -57,7 +58,7 @@ export function createCourtScheduling(services) {
     workspaceState.DOCS.forEach((d) =>
       Object.keys(d.cits || {}).forEach((x) => {
         const v = (d.cits[x] || {}).num;
-        if (v) used[v] = 1;
+        if (v) used[citationNumberKey(v)] = 1;
       }),
     );
     const base = Math.floor((services.nowMillis() - CITEPOCH) / 1000);

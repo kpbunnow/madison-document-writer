@@ -6,17 +6,31 @@ import { ccList } from "./mailing_rules.js";
 import { doc, docCase, kase } from "./writer_queries.js";
 import { esc } from "./presentation_format.js";
 /* Local preview and explicit acceptance; retained raw address never changes silently. */
+function addressContext(scope, index = 0) {
+  const d = doc(editor.state.docId),
+    k = d ? docCase(d) : kase(editor.state.caseId);
+  if (!k) return null;
+  const target = scope === "owner" ? k : scope === "agent" ? k.agent || {} : ccList(k)[index];
+  if (!target) return null;
+  const lines = scope === "owner" ? k.ownerAddr || [] : [target.addr || "", target.city || ""];
+  return { d, k, target, scope, index, lines, raw: lines.join("\n") };
+}
+
+function currentEditableAddress(services, c) {
+  const current = addressContext(c.scope, c.index);
+  return (
+    current?.d === c.d &&
+    current?.k === c.k &&
+    current?.target === c.target &&
+    current?.raw === c.raw &&
+    (!c.d || (c.d.draft && !c.d.pendingAmendment)) &&
+    !services.recordIntegrity.blocked(c.k.id)
+  );
+}
+
 export function initAddressParser(services) {
-  const pending = new Map();
-  function context(scope, index = 0) {
-    const d = doc(editor.state.docId),
-      k = d ? docCase(d) : kase(editor.state.caseId);
-    if (!k) return null;
-    const target = scope === "owner" ? k : scope === "agent" ? k.agent || {} : ccList(k)[index];
-    if (!target) return null;
-    const lines = scope === "owner" ? k.ownerAddr || [] : [target.addr || "", target.city || ""];
-    return { d, k, target, scope, index, lines, raw: lines.join("\n") };
-  }
+  let pending = null,
+    requestSeq = 0;
   const accepted = (parsed, lines) => !!parsed?.accepted && JSON.stringify(parsed.acceptedLines) === JSON.stringify(lines);
   function fault(k) {
     const all = [
@@ -42,9 +56,10 @@ export function initAddressParser(services) {
       : null;
   }
   async function preview(scope, index = 0) {
-    const c = context(scope, index);
+    const c = addressContext(scope, index);
     if (!c || (c.d && (!c.d.draft || c.d.pendingAmendment)) || services.recordIntegrity.blocked(c.k.id)) return false;
-    const signature = c.raw;
+    const request = ++requestSeq;
+    pending = null;
     let result;
     try {
       result = await services.helperJSON("/address/parse", { raw: c.raw });
@@ -52,7 +67,7 @@ export function initAddressParser(services) {
       services.toast("Address parser unavailable. The R19 address standardizer remains available.");
       return false;
     }
-    if (context(scope, index)?.raw !== signature || editor.state.docId !== c.d?.id) return false;
+    if (request !== requestSeq || !currentEditableAddress(services, c)) return false;
     if (!result.available) {
       services.toast("Address parser unavailable. The R19 address standardizer remains available.");
       return false;
@@ -61,7 +76,7 @@ export function initAddressParser(services) {
     if (scope === "owner") c.k.ownerAddressParsed = parsed;
     else c.target.addressParsed = parsed;
     const token = services.uid("a");
-    pending.set(token, c);
+    pending = { token, context: c };
     c.parsed = parsed;
     services.A11Y.utility(
       "Mailing address preview",
@@ -80,8 +95,8 @@ export function initAddressParser(services) {
     return true;
   }
   function accept(token) {
-    const c = pending.get(token);
-    if (!c || context(c.scope, c.index)?.raw !== c.raw) return false;
+    const c = pending?.token === token ? pending.context : null;
+    if (!c || !currentEditableAddress(services, c)) return false;
     const p = c.parsed;
     if (!["street", "po-box"].includes(p.type)) return false;
     const lines = [p.recipientLine, ...p.standardized].filter(Boolean);
@@ -95,7 +110,7 @@ export function initAddressParser(services) {
       p.acceptedLines = [c.target.addr, c.target.city];
     }
     workspace.DIRTY = true;
-    pending.delete(token);
+    pending = null;
     services.saveDrafts();
     document.getElementById("utility-dialog")?.close();
     services.render();
