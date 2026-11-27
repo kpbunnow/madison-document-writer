@@ -873,6 +873,8 @@
     "tests/unit/audit_case_store_port.js",
     "tests/unit/audit_case_work_actions.js",
     "tests/unit/audit_case_workspace.js",
+    "tests/unit/audit_catalog_device_cache.js",
+    "tests/unit/audit_catalog_history_damage.py",
     "tests/unit/audit_catalog_publication_rules.py",
     "tests/unit/audit_catalog_review_action_rules.js",
     "tests/unit/audit_catalog_review_panel_markup_rules.js",

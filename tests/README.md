@@ -155,6 +155,8 @@ covers, or a new suite under its feature.
 | `audit_imports_state.js` | Live Accela selection and request coordination state |
 | `audit_startup_state.js` | Live startup promise, lock and readiness state without initialization |
 | `audit_catalog_state.js` | Live six-field catalog authority boundary |
+| `audit_catalog_device_cache.js` | Damaged optional review caches remain unverified; unsubmitted forms and original browser data stay retained. |
+| `audit_catalog_history_damage.py` | Shared catalog reads/appends refuse malformed, excessively nested or nonfinite histories without changing their bytes. |
 | `audit_workspace_state.js` | Live workspace state boundary without initialization or captured references |
 | `audit_test_seams.js` | Read-only per-file seam/hook inventory; reject new application-bundle evaluation and lower migrated baselines |
 | `audit_safety_pending.js` | Independent pending-action seam: document focus, synchronous live amendment holder dispatch and absent holder |

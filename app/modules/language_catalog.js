@@ -296,7 +296,9 @@ function languageCatalogCatalogVisible(services, i, filter) {
 
 function languageCatalogCatalogForm(services, key, i, r) {
   return (
-    catalog.CATALOG_FORMS[key] || {
+    (catalog.CATALOG_FORMS[key] && typeof catalog.CATALOG_FORMS[key] === "object" && !Array.isArray(catalog.CATALOG_FORMS[key])
+      ? catalog.CATALOG_FORMS[key]
+      : null) || {
       reviewer: "",
       wording: r?.wording || i.a,
       ordinances: (r?.ordinances || i.s).join("; "),
