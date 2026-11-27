@@ -1239,6 +1239,7 @@
     "tests/unit/audit_staff_guides.py",
     "tests/unit/audit_start_correction_rules.js",
     "tests/unit/audit_start_screen.js",
+    "tests/unit/audit_startup_registry.py",
     "tests/unit/audit_startup_state.js",
     "tests/unit/audit_storage.js",
     "tests/unit/audit_storage_status_rules.js",

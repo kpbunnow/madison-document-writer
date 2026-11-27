@@ -402,22 +402,29 @@ def publish_record(folder, target, record, previous=None, recovery=False):
 
 
 def reconstruct_registry(folder):
-    """Only intact schema-5 files can bootstrap the upgrade registry."""
-    from case_store import case_json
+    """Only intact schema-5 cases can bootstrap the registry; reuse known registrations for this startup only."""
+    from case_store import case_json, validate_case
 
     root = Path(folder)
     if not root.is_dir():
         return
+    try:
+        retained = {e["caseNumber"].casefold(): e["genesisHash"] for e in registry(root)["entries"]}
+    except OSError, ValueError, RecursionError:
+        return  # reads expose damaged metadata; never replace it with a new baseline
     for path in sorted(plain_json_files(root)):
         try:
             record = case_json(read_plain_bytes(path))
-            if (
-                isinstance(record, dict)
-                and record.get("format") == "madison-case-file"
-                and record.get("schema") == 5
-                and verify_record(record)["valid"]
-            ):
+            if isinstance(record, dict) and record.get("format") == "madison-case-file" and record.get("schema") == 5:
+                validate_case(record, legacy=True)
+                if not verify_record(record)["valid"]:
+                    continue
+                number, genesis = record["case"]["number"].casefold(), record["integrity"]["genesis"]["hash"]
+                if retained.get(number) == genesis:
+                    continue
+                # New/conflicting evidence still goes through the original locked, fresh registry check.
                 register_migration(root, record, path.name, reconstructed=True)
+                retained[number] = genesis
         except OSError, ValueError, KeyError, TypeError, RecursionError:
             continue  # reads expose failures; never repair corrupt files
 
