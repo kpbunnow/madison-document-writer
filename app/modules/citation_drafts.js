@@ -6,6 +6,30 @@ import { courtTime } from "./document_types.js";
 import { doc, docInsp, docsFor, draftDocFor, draftReinspFor, recordHead } from "./writer_queries.js";
 import { workspaceState } from "./workspace_state.js";
 
+// A citation drafted from an issued notice item, with the notice's inspector, dates and the item's single charge.
+function noticeCitation(services, src, nd, i, sections, ord) {
+  return {
+    deptId: docInsp(src).badge || "",
+    num: services.citationNumber(),
+    courtTime: courtTime(),
+    comment:
+      "Inspection on " +
+      services.fmtDate(inspAt(src).date) +
+      " documented the following violation: " +
+      String(i.title || "").replace(/\.$/, "") +
+      ". This citation relates to the Official Notice dated " +
+      services.fmtDate(src.mailed) +
+      ".",
+    ord,
+    preparedSections: sections,
+    autoFilledCharge: !!ord,
+    desc: String(i.title || "").toUpperCase(),
+    issued: nd.mailed,
+    courtDate: services.nextCourtDate(nd.mailed),
+    depositMode: "schedule",
+  };
+}
+
 export function createCitationDrafts(services) {
   function citationTier(caseId, no) {
     const n = services.priorCitations(caseId, no);
@@ -50,26 +74,7 @@ export function createCitationDrafts(services) {
       .forEach((i) => {
         const sections = (i.sections || []).map(canonicalOrdinance),
           ord = sections.length === 1 ? sections[0] : "";
-        nd.cits[i.id] = {
-          deptId: docInsp(src).badge || "",
-          num: services.citationNumber(),
-          courtTime: courtTime(),
-          comment:
-            "Inspection on " +
-            services.fmtDate(inspAt(src).date) +
-            " documented the following violation: " +
-            String(i.title || "").replace(/\.$/, "") +
-            ". This citation relates to the Official Notice dated " +
-            services.fmtDate(src.mailed) +
-            ".",
-          ord,
-          preparedSections: sections,
-          autoFilledCharge: !!ord,
-          desc: String(i.title || "").toUpperCase(),
-          issued: nd.mailed,
-          courtDate: services.nextCourtDate(nd.mailed),
-          depositMode: "schedule",
-        };
+        nd.cits[i.id] = noticeCitation(services, src, nd, i, sections, ord);
         services.applyDeposit(nd, i.id, ord);
       });
     workspaceState.DIRTY = true;
