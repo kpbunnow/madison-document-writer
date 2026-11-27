@@ -622,3 +622,4 @@ The full-program review extends `audit_reporting_inputs.py` with deep-summary is
 | Suite | Coverage |
 | --- | --- |
 | `audit_draft_pricing_dates.js` | Actual citation edit, pricing, review and deposit owners: malformed calendar dates retain text and previous amounts, manual edits/rendering do not throw, incomplete completion preserves its request, and correcting the date restores readiness. |
+| `audit_shared_history_incomplete_date.js` | Shared citation history (background load and Refresh citation history) still loads while a citation issue date is incomplete, with no unhandled rejection; the entered text stays and remains a readiness fault |
