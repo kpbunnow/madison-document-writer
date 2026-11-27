@@ -3,7 +3,7 @@ import { caseNumberAllowed } from "./case_records.js";
 import { inspAt } from "./inspection_facts.js";
 import { normParcel, recordDay } from "../assets/shared.js";
 import { specialType, isHistoryDoc } from "./document_rules.js";
-import { checkTarget, citSelector, countBlanks, esc, itemSelector } from "./presentation_format.js";
+import { checkTarget, citSelector, countBlanks, esc, fmtDate, itemSelector } from "./presentation_format.js";
 import { docCase, docInsp } from "./writer_queries.js";
 import { validISO, parseTime, daysBetween } from "./calendar.js";
 import { defendantName, isLLC, violatorActive } from "./mailing_rules.js";
@@ -53,12 +53,39 @@ function readinessKeepsDates({ d }) {
   return d.type === "reinspectionNotice";
 }
 
-function readinessPast({ noDates, keepsDates, live, services, d }) {
+/* Also collects, from the same reads, the items due after today but on or before a mailing date later than today: the
+   helper refuses an outstanding due date that is not after the mailing date (publication_validation.py). */
+function readinessPast(context) {
+  const { noDates, keepsDates, live, services, d } = context;
+  context.beforeMailing = [];
   return noDates || keepsDates
     ? 0
-    : live.filter(
-        (i) => i.due && validISO(i.due) && !services.unchangedCorrectionValue(d, i.id, "due") && daysBetween(recordDay(services.today), i.due) < 1,
-      ).length;
+    : live.filter((i) => {
+        if (!(i.due && validISO(i.due) && !services.unchangedCorrectionValue(d, i.id, "due"))) return false;
+        const day = recordDay(services.today);
+        if (!d.correction && validISO(d.mailed) && d.mailed > day && i.due > day && i.due <= d.mailed) context.beforeMailing.push(i);
+        return daysBetween(day, i.due) < 1;
+      }).length;
+}
+
+// Only when it applies, so a document mailed today keeps exactly its earlier checks.
+function beforeMailingRows({ beforeMailing, d }) {
+  const n = beforeMailing.length;
+  return n
+    ? [
+        {
+          ok: false,
+          t:
+            n +
+            " due date" +
+            (n === 1 ? " is" : "s are") +
+            " on or before the mailing date (" +
+            fmtDate(d.mailed) +
+            "); a due date must come after the date the document is mailed",
+          targets: itemTargets(beforeMailing, "due"),
+        },
+      ]
+    : [];
 }
 
 function readinessBadDue({ noDates, live }) {
@@ -535,6 +562,7 @@ export function createDocumentReadiness(services) {
     forCit[5].targets = agentTargets(context);
     const forInsp = inspectionReadiness(context);
     return (special ? base.filter((c, n) => [0, 1, 3, base.length - 1].includes(n)) : noDates ? base.filter((c) => !/due date/i.test(c.t)) : base)
+      .concat(beforeMailingRows(context))
       .concat(comp ? forComp : [])
       .concat(d.type === "citation" ? forCit : [])
       .concat(forInsp)
