@@ -1170,6 +1170,7 @@
     "tests/unit/audit_release_inputs.py",
     "tests/unit/audit_repaint_keepers.js",
     "tests/unit/audit_report_catalog.js",
+    "tests/unit/audit_report_citation_closed.js",
     "tests/unit/audit_report_export_scope.js",
     "tests/unit/audit_report_facts.js",
     "tests/unit/audit_report_filter_events.js",
