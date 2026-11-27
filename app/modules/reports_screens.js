@@ -34,6 +34,10 @@ function reportAdvancedFilters(services, F, M, sel) {
 
 /* Named lazy dependencies keep this owner independent of Reports startup. */
 
+/* Open as Open violations by area counts it: on a case with an issued notice, not corrected, withdrawn or closed by its
+   citation (an initial citation-only item). A snow case has no notice. */
+const reportOpenViolationCount = (c) => (c.noticeIssued ? c.violations.filter((v) => !v.done && !v.withdrawn && !v.citationClosedOn).length : 0);
+
 function reportExportCaseRows(services, cases) {
   return [
     [
@@ -77,7 +81,7 @@ function reportExportCaseRows(services, cases) {
       c.ownerAddr.join(", "),
       services.facts.ownerKeyLabel(c.ownerKey),
       c.violations.filter((v) => !v.withdrawn).length,
-      c.violations.filter((v) => !v.done && !v.withdrawn).length,
+      reportOpenViolationCount(c),
       c.citations.length,
       c.referrals.length,
       c.lat,
@@ -439,9 +443,11 @@ function reportCaseViolationRowsHTML(services, c, outc) {
             ? "Withdrawn — entered in error"
             : v.done
               ? "Corrected " + services.esc(services.fmtDate(v.doneOn))
-              : v.lastOutcome
-                ? services.esc(outc[v.lastOutcome] || v.lastOutcome)
-                : "Open",
+              : v.citationClosedOn
+                ? "Closed by citation " + services.esc(services.fmtDate(v.citationClosedOn))
+                : v.lastOutcome
+                  ? services.esc(outc[v.lastOutcome] || v.lastOutcome)
+                  : "Open",
         )}</td><td class="n">${String(services.fmtNum(v.visits))}</td>
         <td>${raw(
           cits
