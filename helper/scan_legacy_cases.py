@@ -4,7 +4,8 @@ import argparse
 import json
 from pathlib import Path
 import re
-from case_store import case_number_key
+from case_store import case_json, case_number_key
+from plain_files import read_plain_bytes
 
 
 def scan(folder):
@@ -13,14 +14,14 @@ def scan(folder):
         if path.name.startswith("_"):
             continue
         try:
-            record = json.loads(path.read_text(encoding="utf-8"))
+            record = case_json(read_plain_bytes(path))
             number = record["case"]["number"]
             key = case_number_key(number)
             if not re.fullmatch(r"[A-Za-z0-9-]{3,80}", number):
                 rows.append({"file": path.name, "number": number, "key": key, "issue": "Legacy spelling; preserved"})
             else:
                 rows.append({"file": path.name, "number": number, "key": key, "issue": ""})
-        except OSError, ValueError, KeyError, TypeError:
+        except OSError, ValueError, KeyError, TypeError, RecursionError:
             rows.append({"file": path.name, "number": "", "key": "", "issue": "Unreadable record or invalid number; review required"})
     counts = {}
     for row in rows:

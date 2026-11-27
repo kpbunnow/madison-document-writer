@@ -850,6 +850,7 @@
     "tests/unit/audit_authoring.py",
     "tests/unit/audit_authoring_rules.py",
     "tests/unit/audit_automatic_recovery.js",
+    "tests/unit/audit_auxiliary_metadata.py",
     "tests/unit/audit_backup_integrity_records.js",
     "tests/unit/audit_backup_write_rules.py",
     "tests/unit/audit_benchmark_comparison.js",

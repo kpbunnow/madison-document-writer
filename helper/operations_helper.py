@@ -54,8 +54,8 @@ def health(server, probe=False):
         writable = _probe_health_writable(server, folder, share, reachable)
     try:
         manifest = json.loads(server.resource("catalog_manifest.json").read_text(encoding="utf-8"))
-        catalog = manifest.get("format") == "madison-catalog-manifest" and isinstance(manifest.get("items"), dict)
-    except OSError, ValueError:
+        catalog = isinstance(manifest, dict) and manifest.get("format") == "madison-catalog-manifest" and isinstance(manifest.get("items"), dict)
+    except OSError, ValueError, RecursionError:
         catalog = False
     try:
         case_lookup.settings(share)
@@ -124,8 +124,10 @@ def lock_status(folder, number="", resource=""):
         meta = json.loads(raw)
         host = str(meta.get("host", "Unknown computer"))[:200]
         pid = int(meta.get("pid", 0))
+        if not 0 <= pid <= (0xFFFFFFFF if os.name == "nt" else 0x7FFFFFFF):
+            raise ValueError("Invalid lock process identity")
         created = float(meta.get("at", stat.st_mtime))
-    except ValueError, TypeError, AttributeError:
+    except ValueError, TypeError, AttributeError, OverflowError, RecursionError:
         host, pid, created = "Unreadable lock metadata", 0, stat.st_mtime
     # The lock's age is the older of the time its writer recorded and the file's own time. A PC whose clock runs ahead
     # would otherwise make its abandoned lock look recent, and unreleasable, for as long as its clock is ahead.

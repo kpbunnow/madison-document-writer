@@ -435,7 +435,7 @@ def cache_path():
 
 def read_cache():
     try:
-        c = json.loads(cache_path().read_text(encoding="utf-8"))
+        c = finite_json(cache_path().read_text(encoding="utf-8"), "Parcel cache numbers must be finite")
         if isinstance(c, dict) and c.get("format") == "madison-parcel-cache" and all(isinstance(c.get(k, {}), dict) for k in ("parcels", "missing")):
             c.setdefault("parcels", {})
             c.setdefault("missing", {})
@@ -445,7 +445,7 @@ def read_cache():
                 if isinstance(entry, dict) and isinstance(entry.get("history"), list) and all(isinstance(h, dict) for h in entry["history"])
             }
             return c
-    except OSError, ValueError:
+    except OSError, ValueError, RecursionError:
         pass
     return {"format": "madison-parcel-cache", "parcels": {}, "missing": {}}
 
