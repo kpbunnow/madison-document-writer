@@ -242,7 +242,7 @@ def _index_read_input(path, inputs, files):
     # remain in their original order on this request's consuming thread.
     try:
         summary_raw, summary = inputs.read(path)
-    except (OSError, ValueError, TypeError, KeyError) as error:
+    except (OSError, ValueError, TypeError, KeyError, RecursionError) as error:
         return path, None, None, error
     if isinstance(summary, dict):
         summary["__raw_sha256"] = hashlib.sha256(summary_raw).hexdigest()
@@ -252,7 +252,7 @@ def _index_read_input(path, inputs, files):
             matches = files.get(case_number_key(summary["case"].get("number")), [])
             if len(matches) == 1:
                 raw = read_plain_bytes(matches[0])
-        except (OSError, ValueError, TypeError, KeyError) as problem:
+        except (OSError, ValueError, TypeError, KeyError, RecursionError) as problem:
             error = problem
     return path, summary, raw, error
 
@@ -435,7 +435,7 @@ def cache_path():
 
 def read_cache():
     try:
-        c = json.loads(cache_path().read_text(encoding="utf-8"))
+        c = finite_json(cache_path().read_text(encoding="utf-8"), "Parcel cache numbers must be finite")
         if isinstance(c, dict) and c.get("format") == "madison-parcel-cache" and all(isinstance(c.get(k, {}), dict) for k in ("parcels", "missing")):
             c.setdefault("parcels", {})
             c.setdefault("missing", {})
@@ -445,7 +445,7 @@ def read_cache():
                 if isinstance(entry, dict) and isinstance(entry.get("history"), list) and all(isinstance(h, dict) for h in entry["history"])
             }
             return c
-    except OSError, ValueError:
+    except OSError, ValueError, RecursionError:
         pass
     return {"format": "madison-parcel-cache", "parcels": {}, "missing": {}}
 

@@ -18,6 +18,40 @@ from plain_files import read_plain_bytes
 
 
 class SummaryInputTests(unittest.TestCase):
+    def test_deep_summary_is_excluded_without_aborting_healthy_reports(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            fixture(root, 3)
+            damaged = root / "Reporting Index/qa-1.json"
+            damaged.write_bytes(b"[" * 200000 + b"0" + b"]" * 200000)
+            before = {p.relative_to(root): p.read_bytes() for p in root.rglob("*") if p.is_file()}
+            for workers in [1, 4]:
+                with self.subTest(workers=workers), patch.object(server, "case_dir", return_value=root):
+                    out = server.read_index(read_workers=workers)
+                    self.assertTrue(out["ok"])
+                    self.assertEqual(len(out["summaries"]), 2)
+                    self.assertEqual(len(out["unreadable"]), 1)
+                    self.assertTrue(out["unreadable"][0].startswith("qa-1.json ("))
+                    self.assertIn("TEST - QA-1.json", out["missing"])
+            self.assertEqual({p.relative_to(root): p.read_bytes() for p in root.rglob("*") if p.is_file()}, before)
+
+    def test_deep_context_input_stays_unusable_without_losing_secure_refusal(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "deep.json"
+            raw = b"[" * 200000 + b"0" + b"]" * 200000
+            path.write_bytes(raw)
+            inputs = reporting_reads.SummaryInputs(read_plain_bytes)
+            self.assertIsNone(inputs.read_context(path))
+            with self.assertRaises(RecursionError):
+                inputs.read(path)
+            self.assertEqual(inputs.bytes, 0)
+            refused = reporting_reads.SummaryInputs(Mock(side_effect=ValueError("link refused")))
+            self.assertIsNone(refused.read_context(path))
+            self.assertNotIn(path, refused.values)
+            with self.assertRaisesRegex(ValueError, "link refused"):
+                refused.read(path)
+            self.assertEqual(path.read_bytes(), raw)
+
     def test_damaged_context_still_distinguishes_orphan_and_never_saved(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
