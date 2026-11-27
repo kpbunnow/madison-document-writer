@@ -70,7 +70,8 @@ function reportOpenViolations(services, cell, nos, count) {
     run(M, F) {
       const vs = [];
       M.counted.forEach((c) => {
-        if (!services.caseOk(c, F, { asOf: F.asOf }) || !(c.noticeIssued <= F.asOf)) return;
+        // A notice issued by then: an empty date (a snow case, which has no notice) would otherwise compare as earlier.
+        if (!services.caseOk(c, F, { asOf: F.asOf }) || !c.noticeIssued || !(c.noticeIssued <= F.asOf)) return;
         c.violations.forEach((v) => {
           const at = services.violationAt(v, F.asOf);
           if (at && services.violOk(at, F) && services.violOpenAt(v, F.asOf)) vs.push(at);
