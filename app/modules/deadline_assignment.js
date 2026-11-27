@@ -80,6 +80,67 @@ export function activeDueTarget() {
 }
 
 /* Dependencies and live workspace/browser state are read only when an operation is invoked. */
+// The batch due-date form: every outstanding item of each new, editable notice draft.
+function bulkDueFormHTML(services) {
+  return html`<p>Updates apply only to selected outstanding items in new editable notice drafts. All selected drafts are validated together before saving.</p><form id="batch-due-form"><label>New due date <input type="date" name="due" min="${raw(services.MINDUE())}" required></label>${raw(
+    "".concat(
+      workspace.DOCS.filter((d) => services.structEditable(d) && !d.pendingAmendment)
+        .map(
+          (d) =>
+            "<fieldset><legend>" +
+            `${dep_esc(kase(d.caseId).number)}` +
+            "</legend>" +
+            "".concat(
+              dueItems(d)
+                .map(
+                  (i) =>
+                    '<label><input type="checkbox" data-batch-doc="' +
+                    `${dep_esc(d.id)}` +
+                    '" data-batch-item="' +
+                    `${dep_esc(i.id)}` +
+                    '"> Item ' +
+                    `${dep_esc(i.no)}` +
+                    " · " +
+                    `${dep_esc(i.title)}` +
+                    " · " +
+                    `${dep_esc(i.due || "No deadline")}` +
+                    "</label>",
+                )
+                .join(""),
+            ) +
+            "</fieldset>",
+        )
+        .join("") || "<p>No eligible notice drafts.</p>",
+    ),
+  )}<button class="btn" type="submit">Validate and save selected deadlines</button></form>`;
+}
+
+// The reinspection worksheet's selectable item list for Assign due dates.
+function dueVisitItemsHTML(services, items, selected) {
+  return (
+    '<div class="deadline-items">' +
+    items
+      .map(
+        (i) =>
+          '<label class="deadline-item"><input type="checkbox" data-due-select="' +
+          `${dep_esc(i.id)}` +
+          '" ' +
+          `${selected.has(i.id) ? "checked" : ""}` +
+          "><span><strong>Item " +
+          `${dep_esc(i.no)}` +
+          "</strong> · " +
+          `${dep_esc(i.title || "Violation")}` +
+          '<small data-due-label="' +
+          `${dep_esc(i.id)}` +
+          '">' +
+          `${i.due ? dep_esc(services.fmtDate(i.due)) : "Date needed"}` +
+          "</small></span></label>",
+      )
+      .join("") +
+    "</div>"
+  );
+}
+
 export function createDeadlineAssignment(services) {
   function planBulkDue(changes, value) {
     if (!validISO(value) || value < services.MINDUE()) throw new Error("Choose a future due date");
@@ -104,40 +165,7 @@ export function createDeadlineAssignment(services) {
 
   function showBulkDue() {
     services.navigation.utilityContext();
-    services.A11Y.utility(
-      "Batch draft due dates",
-      html`<p>Updates apply only to selected outstanding items in new editable notice drafts. All selected drafts are validated together before saving.</p><form id="batch-due-form"><label>New due date <input type="date" name="due" min="${raw(services.MINDUE())}" required></label>${raw(
-        "".concat(
-          workspace.DOCS.filter((d) => services.structEditable(d) && !d.pendingAmendment)
-            .map(
-              (d) =>
-                "<fieldset><legend>" +
-                `${dep_esc(kase(d.caseId).number)}` +
-                "</legend>" +
-                "".concat(
-                  dueItems(d)
-                    .map(
-                      (i) =>
-                        '<label><input type="checkbox" data-batch-doc="' +
-                        `${dep_esc(d.id)}` +
-                        '" data-batch-item="' +
-                        `${dep_esc(i.id)}` +
-                        '"> Item ' +
-                        `${dep_esc(i.no)}` +
-                        " · " +
-                        `${dep_esc(i.title)}` +
-                        " · " +
-                        `${dep_esc(i.due || "No deadline")}` +
-                        "</label>",
-                    )
-                    .join(""),
-                ) +
-                "</fieldset>",
-            )
-            .join("") || "<p>No eligible notice drafts.</p>",
-        ),
-      )}<button class="btn" type="submit">Validate and save selected deadlines</button></form>`,
-    );
+    services.A11Y.utility("Batch draft due dates", bulkDueFormHTML(services));
   }
 
   function updateDueIndicators(d) {
@@ -165,28 +193,7 @@ export function createDeadlineAssignment(services) {
         ? "Select items that share a deadline and apply a date. Up to three distinct deadlines are allowed."
         : "Select items in the table above, then apply one date to them. Up to three distinct due dates are allowed.",
     )}</p>${raw(
-      visit
-        ? '<div class="deadline-items">' +
-            items
-              .map(
-                (i) =>
-                  '<label class="deadline-item"><input type="checkbox" data-due-select="' +
-                  `${dep_esc(i.id)}` +
-                  '" ' +
-                  `${selected.has(i.id) ? "checked" : ""}` +
-                  "><span><strong>Item " +
-                  `${dep_esc(i.no)}` +
-                  "</strong> · " +
-                  `${dep_esc(i.title || "Violation")}` +
-                  '<small data-due-label="' +
-                  `${dep_esc(i.id)}` +
-                  '">' +
-                  `${i.due ? dep_esc(services.fmtDate(i.due)) : "Date needed"}` +
-                  "</small></span></label>",
-              )
-              .join("") +
-            "</div>"
-        : "",
+      visit ? dueVisitItemsHTML(services, items, selected) : "",
     )}<div class="editor-tools"><span data-due-selected id="due-selected-text">${raw(dueSelectedText(items, selected))}</span><button class="btn btn-sm" data-due-all="1">Select all</button><button class="btn btn-sm" data-due-all="0">Clear selection</button><label for="bulk-due">Date for selected items</label><input type="date" id="bulk-due" value="${work.date || ""}" min="${raw(services.MINDUE())}"><button class="btn btn-primary" id="btn-bulkdue" aria-describedby="due-selected-text"${raw(items.some((i) => selected.has(i.id)) ? "" : " disabled")}>Apply date to selected items</button>${raw(!visit && services.structEditable(target) ? SORT_BUTTON : "")}</div></div></section>`;
   }
 
