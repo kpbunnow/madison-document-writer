@@ -33,8 +33,8 @@ function ambiguousAddressFault(k) {
   const all = [
     { parsed: k.ownerAddressParsed, lines: k.ownerAddr || [], scope: "owner", index: 0, selector: '[data-case="ownerBlock"]' },
     ...ccList(k).map((c, index) => ({
-      parsed: c.addressParsed,
-      lines: [c.addr || "", c.city || ""],
+      parsed: c?.addressParsed,
+      lines: [c?.addr || "", c?.city || ""],
       scope: "copy",
       index,
       selector: '[data-cc="' + index + '|addr"]',

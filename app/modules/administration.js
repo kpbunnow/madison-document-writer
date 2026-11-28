@@ -7,7 +7,7 @@ import { stableJSON } from "./record_values.js";
 import { docCase } from "./writer_queries.js";
 import { esc as dep_esc } from "./presentation_format.js";
 import { itemLibraryKey } from "./document_rules.js";
-import { canonicalOrdinance, cents, resolveCitationAmount, tierOrdinal } from "./citation_policy.js";
+import { canonicalOrdinance, cents, refreshDraftPricing, resolveCitationAmount, tierOrdinal } from "./citation_policy.js";
 import { html, raw } from "./screen_html.js";
 /* Administrative deposit exceptions and seasonal letter review live only in Tools. */
 // A confirmed decision by a named administrator, with its reason and source.
@@ -70,7 +70,7 @@ function scheduledDeposit(i, c) {
 function overrideTargets(services) {
   const targets = [];
   for (const d of workspace.DOCS.filter((x) => x.draft && !x.pendingAmendment && !services.isLocked(x))) {
-    services.citationPricing.refresh(d);
+    refreshDraftPricing(services.citationPricing, d);
     for (const i of d.items || []) {
       const c = d.cits?.[i.id];
       if (scheduledDeposit(i, c)) targets.push({ d, i, c });
@@ -141,6 +141,7 @@ function reviewedLetter(letter, v) {
 async function saveLetter(services, letter, e) {
   e.preventDefault();
   const form = e.target,
+    dialog = form.closest("dialog"),
     v = Object.fromEntries(new FormData(form));
   try {
     const updated = reviewedLetter(letter, v);
@@ -152,7 +153,7 @@ async function saveLetter(services, letter, e) {
       letter: updated,
     });
     services.snow.setLetter(result.letter);
-    document.getElementById("utility-dialog")?.close();
+    if (dialog?.isConnected && dialog.contains(form)) dialog.close();
     services.toast("Seasonal content updated for new snow citations.");
     services.render();
   } catch (error) {
