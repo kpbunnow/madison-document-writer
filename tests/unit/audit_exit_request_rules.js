@@ -8,7 +8,7 @@ const assert = require("node:assert/strict"),
   { JSDOM } = require("jsdom"),
   { prng } = require("../fixtures/equivalence_harness.cjs");
 
-process.on("unhandledRejection", () => {});
+const { observeRejections } = require("../fixtures/scenario_rejections.cjs");
 const { random, pick, chance } = prng(20261205);
 
 globalThis.document = { addEventListener: () => undefined };
@@ -216,7 +216,7 @@ async function run(api, sc) {
   const seen = new Set();
   for (let n = 0; n < 3000; n++) {
     const sc = scenario();
-    const [before, after] = [await run(legacy, sc), await run(current, sc)];
+    const [before, after] = [await observeRejections(() => run(legacy, sc)), await observeRejections(() => run(current, sc))];
     assert.equal(after, before, `exit request scenario ${n} differs from the retained module:\n${JSON.stringify(sc)}`);
     const parsed = JSON.parse(after);
     if (parsed.error || parsed.calls.some((c) => c.includes("interrupted:"))) interrupted++;

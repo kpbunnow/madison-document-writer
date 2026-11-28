@@ -4,7 +4,7 @@ const assert = require("node:assert/strict"),
   fs = require("node:fs"),
   { compile, prng, recorder, listenerTarget } = require("../fixtures/equivalence_harness.cjs");
 
-process.on("unhandledRejection", () => {});
+const { observeRejections } = require("../fixtures/scenario_rejections.cjs");
 const { random, pick, chance } = prng(20261201);
 
 const ATTRS = [
@@ -149,7 +149,7 @@ async function run(api, sc) {
     toasted = 0;
   for (let n = 0; n < 10000; n++) {
     const sc = scenario();
-    const [before, after] = [await run(legacy, sc), await run(current, sc)];
+    const [before, after] = [await observeRejections(() => run(legacy, sc)), await observeRejections(() => run(current, sc))];
     assert.equal(after, before, `safety scenario ${n} differs from the retained module:\n${JSON.stringify(sc)}`);
     const parsed = JSON.parse(after);
     if (parsed.error || parsed.calls.some((c) => c.includes("interrupted:"))) interrupted++;

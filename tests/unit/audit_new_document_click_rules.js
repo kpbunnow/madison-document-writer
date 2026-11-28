@@ -6,8 +6,8 @@ const assert = require("node:assert/strict"),
   path = require("node:path"),
   esbuild = require("esbuild");
 
-// Interrupted continuations of un-awaited saves reject after the comparison; the synchronous trace is what is compared.
-process.on("unhandledRejection", () => {});
+// Keep the original observations and also compare rejected asynchronous save continuations.
+const { observeRejections } = require("../fixtures/scenario_rejections.cjs");
 
 async function compile(contents) {
   const build = await esbuild.build({
@@ -310,7 +310,7 @@ function run(api, sc, call) {
   for (let n = 0; n < 8000; n++) {
     const sc = scenario(current.NEW_TYPES);
     sc.reins[0].followupIntent = sc.followup;
-    const [before, after] = [run(legacy, sc, call), run(current, sc, call)];
+    const [before, after] = [await observeRejections(() => run(legacy, sc, call)), await observeRejections(() => run(current, sc, call))];
     assert.equal(after, before, `click scenario ${n} differs from the retained module:\n${JSON.stringify(sc)}`);
     const parsed = JSON.parse(after);
     if (parsed.error) interrupted++;
