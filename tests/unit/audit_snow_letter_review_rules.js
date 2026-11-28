@@ -47,7 +47,7 @@ function scenario() {
 }
 
 function run(api, sc) {
-  const dom = new JSDOM('<body><dialog id="utility-dialog"></dialog><div id="host"></div></body>'),
+  const dom = new JSDOM('<body><div id="host"><dialog id="utility-dialog"></dialog></div></body>'),
     document = dom.window.document,
     calls = [];
   globalThis.document = document;
@@ -64,7 +64,7 @@ function run(api, sc) {
       if (x.postFails) throw new Error(x.postFails);
       return { letter: { ...body.letter, stored: true } };
     },
-    "A11Y.utility": (title, html) => (document.getElementById("host").innerHTML = html) && undefined,
+    "A11Y.utility": (title, html) => (document.getElementById("utility-dialog").innerHTML = html) && undefined,
   };
   const services = recorder(calls, returns, {}, x.fail);
   const owner = api.initAdministration(services);

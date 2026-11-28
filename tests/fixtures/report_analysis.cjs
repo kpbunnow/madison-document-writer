@@ -16,7 +16,8 @@ module.exports = function createReportAnalysis() {
     box = { exports: {} };
   new Function("module", "exports", result.outputFiles[0].text)(box, box.exports);
   const { facts, createReportsServices, createReportCatalog, createReportReturn, ReportsState } = box.exports,
-    TODAY = facts.iso(new Date());
+    currentDay = () => facts.iso(new Date()),
+    TODAY = currentDay();
   ReportsState.S = {
     phase: "loading",
     M: null,
@@ -53,7 +54,7 @@ module.exports = function createReportAnalysis() {
     get restoreReportReturn() {
       return restoreReportReturn;
     },
-    TODAY,
+    currentDay,
     REPORT_CHANNEL: "madison-writer-handoff-v1",
     iso: facts.iso,
     STREET_WORDS: facts.STREET_WORDS,
@@ -63,7 +64,7 @@ module.exports = function createReportAnalysis() {
     violOk: facts.violOk,
   });
   const areaLabel = facts.createReportAreaLabel(() => ReportsState.S.F);
-  reports = createReportCatalog({ ...facts, areaLabel, ...service, TODAY, openAt: (c, date) => facts.openAt(c, date, service) });
+  reports = createReportCatalog({ ...facts, areaLabel, ...service, currentDay, openAt: (c, date) => facts.openAt(c, date, service) });
   restoreReportReturn = createReportReturn({
     get state() {
       return ReportsState.S;
