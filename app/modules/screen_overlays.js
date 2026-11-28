@@ -60,6 +60,7 @@ function recipientCopiesHTML({ cc, invalid, services, snow }) {
     ? cc
         .map(
           (c, ix) =>
+            c &&
             html`<div class="rec">
         <div class="rec-n">${String(ix + 1)}</div>
         <div class="rec-f">

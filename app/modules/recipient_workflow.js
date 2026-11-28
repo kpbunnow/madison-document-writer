@@ -18,6 +18,7 @@ const blankViolatorFault = (ix) => ({
 function validateCopyAddresses(services, k, normalized, blank, normalize) {
   for (let ix = 0; ix < ccList(k).length; ix++) {
     const c = ccList(k)[ix];
+    if (!c) continue; // Retained null slots carry no contact; later selectors keep their original indices.
     if (emptyContact(c)) {
       if (c.kind !== "Violator") continue;
       if (!normalize) return blankViolatorFault(ix);
