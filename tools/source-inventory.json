@@ -1182,6 +1182,7 @@
     "tests/unit/audit_release_identity.py",
     "tests/unit/audit_release_inputs.py",
     "tests/unit/audit_repaint_keepers.js",
+    "tests/unit/audit_report_analysis_clock.js",
     "tests/unit/audit_report_catalog.js",
     "tests/unit/audit_report_citation_closed.js",
     "tests/unit/audit_report_export_scope.js",

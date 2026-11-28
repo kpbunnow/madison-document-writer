@@ -638,3 +638,5 @@ The full-program review extends `audit_reporting_inputs.py` with deep-summary is
 | `audit_admin_tool_continuation.js` | Real pricing: an incomplete citation date cannot block another eligible administrator target; delayed seasonal saves close only their original dialog. |
 
 | `audit_nullable_copy_recipients.js` | Supported retained null copy slots: readiness, Recipients rendering, unchanged case data and preserved later contact/fault indices. |
+
+| `audit_report_analysis_clock.js` | Isolated Reports analysis uses the production live-day adapter; open-item age advances when the City day changes. |
