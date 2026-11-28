@@ -39,6 +39,8 @@ A resumable file/hash/range ledger is retained in the execution workspace at `/w
 
 | FULL-024 | P2 | A batch-deadline save finishing after another utility dialog opens closes that newer dialog, hiding unsent work. | Capture the originating dialog before saving and close it only if it remains the current connected utility dialog. A deferred-save regression covers ordinary completion, replacement, removal and storage refusal. All 4,000 existing form comparisons and assertions remain unchanged. |
 
+| FULL-025 | P3 (test harness) | Extension and catalog browser suites wait only for globals/catalog metadata before injecting fixtures; startup can still restore over those fixtures or replace the editing DOM, making verification depend on timing. | Wait for `WRITER_READY` before initial fixture setup and fresh-profile catalog seeding/editing. A controlled real-startup-owner reproduction evaluates the actual predicates: before correction both pass during blocked restoration and the early fixture is discarded; corrected predicates refuse that state and pass after restoration. All scenarios and assertions remain unchanged. |
+
 ## Checkpoint 1: helper transport and integrity
 
 Completed reads cover the helper server, integrity/verification, summary/index readers, inspector lists, operational locks/health, session bootstrap, file containment, trust/CSP, value semantics, cash/admin validation, parcel history and shared workflow owners, plus selected regression sources. Remaining helper owners, application modules, build/update/CI, tests and data remain in the ledger for subsequent checkpoints.
@@ -125,3 +127,11 @@ FULL-023 is a test-harness wiring error, not an assertion of a production clock 
 PR #586 passed exact-head Full run [46093119644](https://github.com/kpbunnow/madison-document-writer/actions/runs/46093119644), Windows recovery, CodeQL and PR format at `a6b48c29f5deb3c82e2ce5a4c827615c778c1c8a`. Guarded normal merge `3565afd3870b0dbe9ba114a20aa5733f6a73fc81` preserves the verified tree and constituent source heads; GitHub also marked #585 merged. Main verification is separate.
 
 The remaining browser/test-harness review reproduced FULL-024 before its correction. No batch selection, deadline validation, durable save, document content or success/refusal reporting changes. The corrected continuation preserves the acknowledged save while leaving a later utility dialog open. The whole-program review remains in progress; unreviewed test and data ranges stay pending in the ledger.
+
+## Checkpoint 12: browser source review and restoration barriers
+
+PR #587 passed exact-head Full run [46094075009](https://github.com/kpbunnow/madison-document-writer/actions/runs/46094075009), Windows recovery, CodeQL and PR format at `15f04dcd9bb1fa258bb024cfe8ffa6cd01b72a74`, then normal merge `9e846a476f26810f18307924ec7236bfc537bf28`. The preceding main Full run [46093833234](https://github.com/kpbunnow/madison-document-writer/actions/runs/46093833234), Windows and security checks passed. Each merge retains its verified source tree.
+
+All maintained browser sources have now been read. FULL-025 is a test synchronization defect, not a claim that inspectors can edit during startup: the program already hides editing routes until restoration finishes. Existing startup tests separately verify that barrier in real Chromium with a held catalog read. Fixture setup now honors it too, retaining the full extension geometry/boundary and catalog approval/touch/recovery scenarios. Remaining active unit/fixture and input/documentation ranges stay pending in the full-program ledger.
+
+Targeted local execution of both unchanged scenario bodies passed: seven extension result groups (including all 34 editable/noneditable boundary pairs), catalog review/retirement/private-edit/touch recovery and all 32 axe screen/theme checks. The real startup-owner barrier/failure suite and full formatting also passed. This targeted run is not the complete GitHub gate; the new exact-head gate remains required before merge.

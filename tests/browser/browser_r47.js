@@ -20,7 +20,9 @@ module.exports = async function (browser, hostPage, OUT, axeScreen, axeThemes) {
   };
   try {
     await page.goto(new URL("/", hostPage.url()).href);
-    await page.waitForFunction(() => typeof WriterState.state !== "undefined" && IDB_OK && WriterState.CATALOG_VERIFIED);
+    await page.waitForFunction(
+      () => typeof WriterState !== "undefined" && WriterState.WRITER_READY === true && IDB_OK && WriterState.CATALOG_VERIFIED,
+    );
     await page.waitForTimeout(200);
     const entry = await page.evaluate(() => {
       const i = allItems().find((i) => i.catalogId === "EXT15"),
@@ -175,10 +177,12 @@ module.exports = async function (browser, hostPage, OUT, axeScreen, axeThemes) {
     restored = await browser.newContext({ timezoneId: "America/Chicago", viewport: { width: 390, height: 844 }, hasTouch: true });
     const touch = await restored.newPage();
     await touch.goto(page.url());
-    await touch.waitForFunction(() => typeof WriterState.state !== "undefined" && IDB_OK);
+    await touch.waitForFunction(() => typeof WriterState !== "undefined" && WriterState.WRITER_READY === true && IDB_OK);
     await touch.evaluate(async (b) => idbSet("drafts", b), bundle);
     await touch.reload();
-    await touch.waitForFunction(() => typeof WriterState !== "undefined" && WriterState.DOCS.some((d) => d.caseId === "r47-case"));
+    await touch.waitForFunction(
+      () => typeof WriterState !== "undefined" && WriterState.WRITER_READY === true && WriterState.DOCS.some((d) => d.caseId === "r47-case"),
+    );
     await touch.evaluate(() => {
       WriterState.state.docId = WriterState.DOCS.find((d) => d.caseId === "r47-case").id;
       WriterState.state.screen = "write";
