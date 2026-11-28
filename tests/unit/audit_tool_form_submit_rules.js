@@ -6,7 +6,7 @@ const assert = require("node:assert/strict"),
   { JSDOM } = require("jsdom"),
   { compile, prng, recorder, listenerTarget } = require("../fixtures/equivalence_harness.cjs");
 
-process.on("unhandledRejection", () => {});
+const { observeRejections } = require("../fixtures/scenario_rejections.cjs");
 globalThis.__TEST_BUILD__ = true;
 const { random, pick, chance } = prng(20262009);
 const dom = new JSDOM("<body></body>");
@@ -135,7 +135,7 @@ async function run(api, sc) {
   const seen = new Set();
   for (let n = 0; n < 4000; n++) {
     const sc = scenario();
-    const [before, after] = [await run(legacy, sc), await run(current, sc)];
+    const [before, after] = [await observeRejections(() => run(legacy, sc)), await observeRejections(() => run(current, sc))];
     assert.equal(after, before, `tool form scenario ${n} differs from the retained module:\n${JSON.stringify(sc)}`);
     for (const f of wanted) if (after.includes(f) || after.includes(f.replace(/&lt;/g, "<").replace(/&gt;/g, ">"))) seen.add(f);
   }

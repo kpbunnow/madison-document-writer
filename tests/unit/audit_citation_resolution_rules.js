@@ -39,6 +39,7 @@ const assert = require("node:assert/strict"),
   for (const [node, text] of [
     [fn, reference],
     [baseFn, baseReference],
+    [ordinanceFn, ordinanceReference],
   ].sort((a, b) => b[0].start - a[0].start))
     retained = retained.slice(0, node.start) + text + retained.slice(node.end);
   const [current, legacy] = await Promise.all([compile(source), compile(retained)]);
