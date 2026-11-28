@@ -1015,6 +1015,7 @@
     "tests/unit/audit_new_document_click_rules.js",
     "tests/unit/audit_new_document_rules.js",
     "tests/unit/audit_non_finite_json.py",
+    "tests/unit/audit_nullable_copy_recipients.js",
     "tests/unit/audit_open_case_inspector_busy.js",
     "tests/unit/audit_open_case_list.js",
     "tests/unit/audit_order_improvements.js",
