@@ -64,6 +64,91 @@ function adminSection(services) {
 }
 
 /* Main destinations and infrequent tools share safe, saved navigation. */
+// A navigation that could not first save device work stays put and offers a workspace backup.
+function navigationSaveFailure(services) {
+  services.toast("Your work could not be saved on this device. Keep this screen open and retry. Download a workspace backup to preserve it.", {
+    severity: "error",
+    key: "device-save",
+    inline: true,
+  });
+  const parent = document.querySelector('#overlay [role="dialog"]') || document.querySelector(".main .content") || document.querySelector(".main");
+  if (!parent) return;
+  let banner = document.getElementById("navigation-save-failure");
+  if (!banner) {
+    banner = document.createElement("div");
+    banner.id = "navigation-save-failure";
+    banner.className = "banner alert no-print";
+    banner.setAttribute("role", "alert");
+    banner.innerHTML =
+      '<div><strong>Work could not be saved on this device.</strong><p>Keep this screen open. Download a backup of your current work, then retry the navigation when device saving works.</p><button class="btn" data-workbackup>Download workspace backup</button></div>';
+  }
+  parent.prepend(banner);
+}
+
+// The Writer rail: Workspace, Order language, Reports and Tools & settings.
+function navigationRail(services, caseScreens) {
+  const entries = [
+    ["cases", "Workspace"],
+    ["library", "Order language"],
+  ];
+  const buttons = entries
+    .map(
+      ([route, label]) =>
+        '<button class="rail-item" data-nav="' +
+        `${route}` +
+        '" ' +
+        "".concat(editor.state.screen === route || (route === "cases" && caseScreens.has(editor.state.screen)) ? 'aria-current="page"' : "") +
+        ">" +
+        `${services.uiIcon(route)}` +
+        "<span>" +
+        `${label}` +
+        "</span></button>",
+    )
+    .join("");
+  const reports = startup.REPORT_RETURN
+    ? `<button class="rail-item" data-report-return>${services.uiIcon("reports")}<span>Back to Reports</span></button>`
+    : html`<a class="rail-item" href="madison-reports.html" target="_blank" rel="noopener" aria-label="Open Reports (opens in a new tab)">${raw(services.uiIcon("reports"))}<span>Open Reports</span><span class="nav-external" aria-hidden="true">↗</span></a>`;
+  return (
+    "" +
+    `${buttons}` +
+    "" +
+    `${reports}` +
+    '<button class="rail-item" data-nav="tools" ' +
+    `${editor.state.screen === "tools" ? 'aria-current="page"' : ""}` +
+    ">" +
+    `${services.uiIcon("tools")}` +
+    "<span>Tools &amp; settings</span></button>"
+  );
+}
+
+// The Tools & settings screen.
+function toolsScreen(services) {
+  const theme = document.documentElement.dataset.theme || "system";
+  return services.shell(
+    "Tools & settings",
+    "Building Inspection",
+    `<button class="btn" data-nav="cases">Back to Workspace</button>`,
+    html`<p class="tools-intro">Manage reminders, saved files and your connection. Daily case work stays in Workspace.</p>${raw(
+      "".concat(
+        TOOL_GROUPS.map(
+          ([title, items], index) =>
+            '<section class="tools-section" aria-labelledby="tools-group-' +
+            `${index}` +
+            '"><h2 id="tools-group-' +
+            `${index}` +
+            '">' +
+            `${title}` +
+            '</h2><div class="tools-grid">' +
+            "".concat(items.map((item) => toolButton(services, item)).join("")) +
+            "</div>" +
+            (title === "Saved work & connection" ? EXIT_WRITER : "") +
+            "</section>",
+        ).join(""),
+      ),
+    )}${raw(PROGRAM_MANUAL_SECTION)}${raw(displaySection(services, theme))}${raw(adminSection(services))}`,
+  );
+}
+
 export function initNavigation(services) {
   const routes = new Set(["import", "cases", "library", "tools"]);
   // Import inspection is opened from Workspace, so Workspace stays the current destination while importing.
@@ -85,25 +170,7 @@ export function initNavigation(services) {
       context.reinspId === editor.state.reinspId
     );
   }
-  function saveFailure() {
-    services.toast("Your work could not be saved on this device. Keep this screen open and retry. Download a workspace backup to preserve it.", {
-      severity: "error",
-      key: "device-save",
-      inline: true,
-    });
-    const parent = document.querySelector('#overlay [role="dialog"]') || document.querySelector(".main .content") || document.querySelector(".main");
-    if (!parent) return;
-    let banner = document.getElementById("navigation-save-failure");
-    if (!banner) {
-      banner = document.createElement("div");
-      banner.id = "navigation-save-failure";
-      banner.className = "banner alert no-print";
-      banner.setAttribute("role", "alert");
-      banner.innerHTML =
-        '<div><strong>Work could not be saved on this device.</strong><p>Keep this screen open. Download a backup of your current work, then retry the navigation when device saving works.</p><button class="btn" data-workbackup>Download workspace backup</button></div>';
-    }
-    parent.prepend(banner);
-  }
+  const saveFailure = () => navigationSaveFailure(services);
   async function leave(action) {
     const sequence = ++navigationSequence;
     if (!startup.WORKSPACE_RESTORED && !startup.WRITER_READY) {
@@ -148,66 +215,8 @@ export function initNavigation(services) {
       }
     });
   }
-  function rail() {
-    const entries = [
-      ["cases", "Workspace"],
-      ["library", "Order language"],
-    ];
-    const buttons = entries
-      .map(
-        ([route, label]) =>
-          '<button class="rail-item" data-nav="' +
-          `${route}` +
-          '" ' +
-          "".concat(editor.state.screen === route || (route === "cases" && caseScreens.has(editor.state.screen)) ? 'aria-current="page"' : "") +
-          ">" +
-          `${services.uiIcon(route)}` +
-          "<span>" +
-          `${label}` +
-          "</span></button>",
-      )
-      .join("");
-    const reports = startup.REPORT_RETURN
-      ? `<button class="rail-item" data-report-return>${services.uiIcon("reports")}<span>Back to Reports</span></button>`
-      : html`<a class="rail-item" href="madison-reports.html" target="_blank" rel="noopener" aria-label="Open Reports (opens in a new tab)">${raw(services.uiIcon("reports"))}<span>Open Reports</span><span class="nav-external" aria-hidden="true">↗</span></a>`;
-    return (
-      "" +
-      `${buttons}` +
-      "" +
-      `${reports}` +
-      '<button class="rail-item" data-nav="tools" ' +
-      `${editor.state.screen === "tools" ? 'aria-current="page"' : ""}` +
-      ">" +
-      `${services.uiIcon("tools")}` +
-      "<span>Tools &amp; settings</span></button>"
-    );
-  }
-  function screen() {
-    const theme = document.documentElement.dataset.theme || "system";
-    return services.shell(
-      "Tools & settings",
-      "Building Inspection",
-      `<button class="btn" data-nav="cases">Back to Workspace</button>`,
-      html`<p class="tools-intro">Manage reminders, saved files and your connection. Daily case work stays in Workspace.</p>${raw(
-        "".concat(
-          TOOL_GROUPS.map(
-            ([title, items], index) =>
-              '<section class="tools-section" aria-labelledby="tools-group-' +
-              `${index}` +
-              '"><h2 id="tools-group-' +
-              `${index}` +
-              '">' +
-              `${title}` +
-              '</h2><div class="tools-grid">' +
-              "".concat(items.map((item) => toolButton(services, item)).join("")) +
-              "</div>" +
-              (title === "Saved work & connection" ? EXIT_WRITER : "") +
-              "</section>",
-          ).join(""),
-        ),
-      )}${raw(PROGRAM_MANUAL_SECTION)}${raw(displaySection(services, theme))}${raw(adminSection(services))}`,
-    );
-  }
+  const rail = () => navigationRail(services, caseScreens);
+  const screen = () => toolsScreen(services);
   function helperVersion() {
     return HELPER_VERSION;
   }

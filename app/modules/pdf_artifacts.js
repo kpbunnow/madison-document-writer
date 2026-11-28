@@ -58,6 +58,88 @@ function selectedOutbox() {
 }
 
 /* Inert construction: dependencies and browser/state objects are read only by operations. */
+// The outbox dialog: each local PDF awaiting shared filing, with transfer and print.
+function outboxHTML() {
+  return html`<p>Select existing PDFs to file or open for printing. Conflicting shared copies stay in the outbox for review. Transferring or printing does not confirm mailing, email delivery or Accela recording.</p><button class="btn" data-sync-safety>Back to saved work &amp; connection</button><form id="outbox-form"><table><caption>Local PDFs awaiting shared filing</caption><thead><tr><th scope="col">Select</th><th scope="col">PDF</th><th scope="col">Bytes</th></tr></thead><tbody>${raw(
+    "".concat(
+      workspace.OUTBOX_FILES.map(
+        (file, n) =>
+          '<tr><td><input type="checkbox" name="pdf" value="' +
+          `${n}` +
+          '" aria-label="Select ' +
+          `${dep_esc(file.name)}` +
+          '"></td><th scope="row">' +
+          `${dep_esc(file.name)}` +
+          "</th><td>" +
+          `${file.size}` +
+          "</td></tr>",
+      ).join("") || '<tr><td colspan="3">No local outbox PDFs.</td></tr>',
+    ),
+  )}</tbody></table><button class="btn" type="submit">Transfer selected PDFs</button> <button class="btn" type="button" data-outbox-print>Print selected PDFs</button></form>`;
+}
+
+// One batch of filed-PDF location checks; a batch the helper refuses as malformed is split in half and retried.
+async function checkArtifactGroup(services, group, next, status) {
+  try {
+    const result = await services.helperJSON("/artifact/status", { items: group });
+    const wanted = new Map(group.map((x) => [x.docId, x]));
+    for (const row of result.items || []) {
+      const source = wanted.get(row.docId);
+      if (!source || !Array.isArray(row.locations) || (row.sha256 && row.sha256 !== source.sha256)) continue;
+      next[row.docId] = row.locations;
+      status[row.docId] = "verified";
+    }
+    for (const x of group) if (!status[x.docId]) status[x.docId] = "incomplete";
+  } catch (e) {
+    if (group.length > 1 && /invalid|limit|checksum|filename|item/i.test(e.message || "")) {
+      const middle = Math.floor(group.length / 2);
+      await checkArtifactGroup(services, group.slice(0, middle), next, status);
+      await checkArtifactGroup(services, group.slice(middle), next, status);
+    } else
+      for (const x of group) status[x.docId] = group.length === 1 && /invalid|checksum|filename/i.test(e.message || "") ? "invalid" : "unavailable";
+  }
+}
+
+// Hand one outbox PDF to its opened viewer, printing once it loads, or download it when no viewer opened.
+function showOutboxPdf(services, viewer, url, item) {
+  if (viewer) {
+    viewer.addEventListener(
+      "load",
+      () => {
+        setTimeout(() => {
+          try {
+            if (!viewer.closed) {
+              viewer.focus();
+              viewer.print();
+            }
+          } catch {
+            services.toast("Use the opened PDF viewer’s Print control.", { severity: "warning" });
+          }
+        }, 1200);
+      },
+      { once: true },
+    );
+    viewer.location.href = url;
+  } else {
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = item.name;
+    link.click();
+  }
+}
+
+// A document whose filed PDF changed while its location was checked keeps no location from that check.
+function dropChangedArtifacts(items, ids, next, status) {
+  for (const x of items) {
+    const current = workspace.DOCS.find((d) => d.id === x.docId)?.filedArtifact;
+    if (!current || current.filename + "|" + current.sha256 !== ids[x.docId]) {
+      delete next[x.docId];
+      status[x.docId] = "incomplete";
+      delete workspace.ARTIFACT_IDENTITY[x.docId];
+    }
+  }
+}
+
 export function createPdfArtifacts(services) {
   async function showOutbox() {
     const context = services.navigation.utilityContext(),
@@ -65,25 +147,7 @@ export function createPdfArtifacts(services) {
     if (!services.navigation.utilityCurrent(context)) return false;
     workspace.OUTBOX_FILES = result.files;
     if (startup.HELPER) startup.HELPER.outbox = result.files.length;
-    services.A11Y.utility(
-      "PDF outbox",
-      html`<p>Select existing PDFs to file or open for printing. Conflicting shared copies stay in the outbox for review. Transferring or printing does not confirm mailing, email delivery or Accela recording.</p><button class="btn" data-sync-safety>Back to saved work &amp; connection</button><form id="outbox-form"><table><caption>Local PDFs awaiting shared filing</caption><thead><tr><th scope="col">Select</th><th scope="col">PDF</th><th scope="col">Bytes</th></tr></thead><tbody>${raw(
-        "".concat(
-          workspace.OUTBOX_FILES.map(
-            (file, n) =>
-              '<tr><td><input type="checkbox" name="pdf" value="' +
-              `${n}` +
-              '" aria-label="Select ' +
-              `${dep_esc(file.name)}` +
-              '"></td><th scope="row">' +
-              `${dep_esc(file.name)}` +
-              "</th><td>" +
-              `${file.size}` +
-              "</td></tr>",
-          ).join("") || '<tr><td colspan="3">No local outbox PDFs.</td></tr>',
-        ),
-      )}</tbody></table><button class="btn" type="submit">Transfer selected PDFs</button> <button class="btn" type="button" data-outbox-print>Print selected PDFs</button></form>`,
-    );
+    services.A11Y.utility("PDF outbox", outboxHTML());
   }
 
   async function printOutbox() {
@@ -103,30 +167,7 @@ export function createPdfArtifacts(services) {
         const blob = await response.blob(),
           viewer = viewers[n];
         url = URL.createObjectURL(blob);
-        if (viewer) {
-          viewer.addEventListener(
-            "load",
-            () => {
-              setTimeout(() => {
-                try {
-                  if (!viewer.closed) {
-                    viewer.focus();
-                    viewer.print();
-                  }
-                } catch {
-                  services.toast("Use the opened PDF viewer’s Print control.", { severity: "warning" });
-                }
-              }, 1200);
-            },
-            { once: true },
-          );
-          viewer.location.href = url;
-        } else {
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = item.name;
-          link.click();
-        }
+        showOutboxPdf(services, viewer, url, item);
         const retainedUrl = url;
         setTimeout(() => URL.revokeObjectURL(retainedUrl), 120000);
       } catch (error) {
@@ -161,45 +202,17 @@ export function createPdfArtifacts(services) {
     const next = { ...workspace.ARTIFACT_LOCATIONS },
       status = {};
     for (const id of Object.keys(next)) if (!ids[id]) delete next[id];
-    async function check(group) {
-      try {
-        const result = await services.helperJSON("/artifact/status", { items: group });
-        const wanted = new Map(group.map((x) => [x.docId, x]));
-        for (const row of result.items || []) {
-          const source = wanted.get(row.docId);
-          if (!source || !Array.isArray(row.locations) || (row.sha256 && row.sha256 !== source.sha256)) continue;
-          next[row.docId] = row.locations;
-          status[row.docId] = "verified";
-        }
-        for (const x of group) if (!status[x.docId]) status[x.docId] = "incomplete";
-      } catch (e) {
-        if (group.length > 1 && /invalid|limit|checksum|filename|item/i.test(e.message || "")) {
-          const middle = Math.floor(group.length / 2);
-          await check(group.slice(0, middle));
-          await check(group.slice(middle));
-        } else
-          for (const x of group)
-            status[x.docId] = group.length === 1 && /invalid|checksum|filename/i.test(e.message || "") ? "invalid" : "unavailable";
-      }
-    }
     let cursor = 0;
     await Promise.all(
       Array.from({ length: Math.min(3, batches.length) }, async () => {
         while (cursor < batches.length) {
           const batch = batches[cursor++];
-          await check(batch);
+          await checkArtifactGroup(services, batch, next, status);
         }
       }),
     );
     if (token !== workspace.ARTIFACT_SEQ) return;
-    for (const x of items) {
-      const current = workspace.DOCS.find((d) => d.id === x.docId)?.filedArtifact;
-      if (!current || current.filename + "|" + current.sha256 !== ids[x.docId]) {
-        delete next[x.docId];
-        status[x.docId] = "incomplete";
-        delete workspace.ARTIFACT_IDENTITY[x.docId];
-      }
-    }
+    dropChangedArtifacts(items, ids, next, status);
     workspace.ARTIFACT_LOCATIONS = next;
     workspace.ARTIFACT_VERIFY = status;
     if (editor.state.screen === "cases") services.render();

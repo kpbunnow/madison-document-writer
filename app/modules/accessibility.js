@@ -419,6 +419,148 @@ function utilityMessageStack(dialog) {
   return local;
 }
 
+// The stored message history and theme; on any storage failure the defaults passed in remain (each read is kept
+// in its original order, so a history read before a theme failure is kept).
+function loadMessagePreferences(historyKey, history, theme) {
+  try {
+    const stored = JSON.parse(localStorage.getItem(historyKey) || "[]");
+    if (Array.isArray(stored)) history = stored.filter((m) => m && typeof m.text === "string").slice(-200);
+    theme = localStorage.getItem("madison-theme-v1") || "system";
+  } catch {
+    /* Optional local message history and theme may be unavailable; defaults remain usable. */
+  }
+  return { history, theme };
+}
+
+function a11yPause(m) {
+  if (!m) return;
+  clearTimeout(m.timer);
+  if (m.started) m.remaining = Math.max(0, m.remaining - (Date.now() - m.started));
+  m.started = 0;
+}
+function a11yResume(m, dismiss) {
+  if (!m || m.severity === "progress" || m.started) return;
+  if (m.remaining <= 0) {
+    dismiss(m.id);
+    return;
+  }
+  m.started = Date.now();
+  m.timer = setTimeout(() => dismiss(m.id), m.remaining);
+}
+
+// Paint the page's message stack and the open utility dialog's own stack, keeping focus in the same message.
+function paintMessageStack(messages, callbacks, pause, resume) {
+  const active = document.activeElement,
+    focusedMessage = active?.closest?.("[data-message]"),
+    focusedAction = messageFocusAction(active);
+  const host = messageHost();
+  if (!host) return;
+  const dialog = document.getElementById("utility-dialog"),
+    title = dialog?.querySelector("#utility-title")?.textContent;
+  const local = utilityMessageStack(dialog);
+  const markup = (m) => messageMarkup(m, callbacks, safe);
+  const visible = messages.filter((m) => !m.inline);
+  host.innerHTML = visible
+    .filter((m) => !title || m.scope !== title)
+    .map(markup)
+    .join("");
+  if (local)
+    local.innerHTML = visible
+      .filter((m) => m.scope === title)
+      .map(markup)
+      .join("");
+  // Adding or repeating another message repaints the stack. Keep keyboard focus in the same message,
+  // otherwise its paused timer would lose its focusout event and remain paused indefinitely.
+  restoreMessageFocus(focusedMessage, focusedAction);
+  a11yBindMessageTimers(messages, pause, resume);
+}
+
+// The control to return focus to after a page dialog closes; null while a dialog is open or nothing is focused.
+function focusedInvoker() {
+  if (document.querySelector('#overlay [role="dialog"]')) return null;
+  const el = document.activeElement;
+  return el && el !== document.body ? { element: el, id: el.id, dataset: { ...el.dataset } } : null;
+}
+// Focus the remembered control, or its re-rendered replacement (same id or data attributes), else the main content.
+function focusInvoker(invoker) {
+  let el = invoker.element;
+  if (!el.isConnected) {
+    el = invoker.id ? document.getElementById(invoker.id) : null;
+    if (!el && Object.keys(invoker.dataset).length)
+      el = [...document.querySelectorAll("button,a,input,select,[tabindex]")].find((n) =>
+        Object.entries(invoker.dataset).every(([k, v]) => n.dataset[k] === v),
+      );
+  }
+  (el || document.getElementById("main-content"))?.focus?.({ preventScroll: true });
+}
+
+// The skip link, main landmark and program rail tools (message history, shortcuts, theme).
+function enhancePageLandmarks(theme) {
+  if (!document.querySelector(".skip-link")) {
+    const link = document.createElement("a");
+    link.href = "#main-content";
+    link.className = "skip-link";
+    link.textContent = "Skip to main content";
+    document.body.prepend(link);
+  }
+  document.querySelectorAll(".main").forEach((el) => {
+    el.id = "main-content";
+    el.setAttribute("role", "main");
+    el.tabIndex = -1;
+  });
+  document.querySelectorAll(".rail nav").forEach((nav) => {
+    if (nav.classList.contains("writer-navigation")) return;
+    nav.setAttribute("aria-label", "Program navigation");
+    if (!nav.querySelector("[data-a11y-history]"))
+      nav.insertAdjacentHTML(
+        "beforeend",
+        html`<button class="rail-item" data-a11y-history>Message history</button><button class="rail-item" data-a11y-help>Keyboard shortcuts (?)</button><label class="rail-theme">Theme <select data-a11y-theme aria-label="Colour theme">${raw(
+          "".concat(
+            [
+              ["system", "Use device setting"],
+              ["light", "Light"],
+              ["dark", "Dark"],
+              ["high", "High contrast"],
+            ]
+              .map(([value, label]) => `<option value="${value}" ${theme === value ? "selected" : ""}>${label}</option>`)
+              .join(""),
+          ),
+        )}</select></label>`,
+      );
+  });
+}
+
+// Add one entry to the latest 200 messages and store them; the message was already shown if storage fails.
+function rememberedHistory(historyKey, history, entry) {
+  history.push(entry);
+  history = history.slice(-200);
+  try {
+    localStorage.setItem(historyKey, JSON.stringify(history));
+  } catch {
+    /* Optional local message history; the message itself was already shown and announced. */
+  }
+  return history;
+}
+// Apply a colour theme to this page and remember it in the browser profile.
+function appliedTheme(value) {
+  const theme = ["system", "light", "dark", "high"].includes(value) ? value : "system";
+  if (document.documentElement) document.documentElement.dataset.theme = theme;
+  try {
+    localStorage.setItem("madison-theme-v1", theme);
+  } catch {
+    /* The selected theme applies to this tab even if storing the preference is unavailable. */
+  }
+  return theme;
+}
+function removeMessage(messages, callbacks, requestPaint, id) {
+  const index = messages.findIndex((m) => m.id === id);
+  if (index < 0) return;
+  clearTimeout(messages[index].timer);
+  messages.splice(index, 1);
+  callbacks.delete(id);
+  requestPaint();
+}
+
 export function createAccessibility() {
   const messages = [],
     callbacks = new Map(),
@@ -430,22 +572,10 @@ export function createAccessibility() {
     hadDialog = false,
     paintQueued = false;
   const dismissedKeys = new Set();
-  try {
-    const stored = JSON.parse(localStorage.getItem(historyKey) || "[]");
-    if (Array.isArray(stored)) history = stored.filter((m) => m && typeof m.text === "string").slice(-200);
-    theme = localStorage.getItem("madison-theme-v1") || "system";
-  } catch {
-    /* Optional local message history and theme may be unavailable; defaults remain usable. */
-  }
+  ({ history, theme } = loadMessagePreferences(historyKey, history, theme));
   // Message state handed to the module-level message and dialog helpers (explicit fields, not a registry).
   function remember(entry) {
-    history.push(entry);
-    history = history.slice(-200);
-    try {
-      localStorage.setItem(historyKey, JSON.stringify(history));
-    } catch {
-      /* Optional local message history; the message itself was already shown and announced. */
-    }
+    history = rememberedHistory(historyKey, history, entry);
   }
   const messageState = {
     messages,
@@ -459,33 +589,14 @@ export function createAccessibility() {
     dismiss: (id) => dismiss(id),
   };
   function setTheme(value) {
-    theme = ["system", "light", "dark", "high"].includes(value) ? value : "system";
-    if (document.documentElement) document.documentElement.dataset.theme = theme;
-    try {
-      localStorage.setItem("madison-theme-v1", theme);
-    } catch {
-      /* The selected theme applies to this tab even if storing the preference is unavailable. */
-    }
+    theme = appliedTheme(value);
   }
-  function pause(m) {
-    if (!m) return;
-    clearTimeout(m.timer);
-    if (m.started) m.remaining = Math.max(0, m.remaining - (Date.now() - m.started));
-    m.started = 0;
-  }
+  const pause = a11yPause;
   /* R59: success messages keep their own duration; warnings and errors clear 15 seconds after each time they
      are shown or shown again; progress messages stay until their operation replaces them. Hover and keyboard
      focus pause every timer. Message history keeps every message, and clearing a message never clears the
      condition it reports (blocking checks stay in Review and inline, and issuance stays blocked). */
-  function resume(m) {
-    if (!m || m.severity === "progress" || m.started) return;
-    if (m.remaining <= 0) {
-      dismiss(m.id);
-      return;
-    }
-    m.started = Date.now();
-    m.timer = setTimeout(() => dismiss(m.id), m.remaining);
-  }
+  const resume = (m) => a11yResume(m, dismiss);
   function requestPaint() {
     if (paintQueued) return;
     paintQueued = true;
@@ -495,37 +606,10 @@ export function createAccessibility() {
     });
   }
   function dismiss(id) {
-    const index = messages.findIndex((m) => m.id === id);
-    if (index < 0) return;
-    clearTimeout(messages[index].timer);
-    messages.splice(index, 1);
-    callbacks.delete(id);
-    requestPaint();
+    removeMessage(messages, callbacks, requestPaint, id);
   }
   function paint() {
-    const active = document.activeElement,
-      focusedMessage = active?.closest?.("[data-message]"),
-      focusedAction = messageFocusAction(active);
-    const host = messageHost();
-    if (!host) return;
-    const dialog = document.getElementById("utility-dialog"),
-      title = dialog?.querySelector("#utility-title")?.textContent;
-    const local = utilityMessageStack(dialog);
-    const markup = (m) => messageMarkup(m, callbacks, safe);
-    const visible = messages.filter((m) => !m.inline);
-    host.innerHTML = visible
-      .filter((m) => !title || m.scope !== title)
-      .map(markup)
-      .join("");
-    if (local)
-      local.innerHTML = visible
-        .filter((m) => m.scope === title)
-        .map(markup)
-        .join("");
-    // Adding or repeating another message repaints the stack. Keep keyboard focus in the same message,
-    // otherwise its paused timer would lose its focusout event and remain paused indefinitely.
-    restoreMessageFocus(focusedMessage, focusedAction);
-    a11yBindMessageTimers(messages, pause, resume);
+    paintMessageStack(messages, callbacks, pause, resume);
   }
 
   function resolve(key) {
@@ -540,57 +624,16 @@ export function createAccessibility() {
   const shortcuts = () => a11yShortcutSheet(utility);
   const showHistory = () => a11yHistorySheet(utility, history);
   function rememberFocus() {
-    if (document.querySelector('#overlay [role="dialog"]')) return;
-    const el = document.activeElement;
-    if (el && el !== document.body) invoker = { element: el, id: el.id, dataset: { ...el.dataset } };
+    invoker = focusedInvoker() || invoker;
   }
   function returnFocus() {
     if (!invoker) return;
-    let el = invoker.element;
-    if (!el.isConnected) {
-      el = invoker.id ? document.getElementById(invoker.id) : null;
-      if (!el && Object.keys(invoker.dataset).length)
-        el = [...document.querySelectorAll("button,a,input,select,[tabindex]")].find((n) =>
-          Object.entries(invoker.dataset).every(([k, v]) => n.dataset[k] === v),
-        );
-    }
-    (el || document.getElementById("main-content"))?.focus?.({ preventScroll: true });
+    focusInvoker(invoker);
     invoker = null;
   }
   function enhance(repaint = true) {
     if (!document.body || typeof document.body.prepend !== "function") return;
-    if (!document.querySelector(".skip-link")) {
-      const link = document.createElement("a");
-      link.href = "#main-content";
-      link.className = "skip-link";
-      link.textContent = "Skip to main content";
-      document.body.prepend(link);
-    }
-    document.querySelectorAll(".main").forEach((el) => {
-      el.id = "main-content";
-      el.setAttribute("role", "main");
-      el.tabIndex = -1;
-    });
-    document.querySelectorAll(".rail nav").forEach((nav) => {
-      if (nav.classList.contains("writer-navigation")) return;
-      nav.setAttribute("aria-label", "Program navigation");
-      if (!nav.querySelector("[data-a11y-history]"))
-        nav.insertAdjacentHTML(
-          "beforeend",
-          html`<button class="rail-item" data-a11y-history>Message history</button><button class="rail-item" data-a11y-help>Keyboard shortcuts (?)</button><label class="rail-theme">Theme <select data-a11y-theme aria-label="Colour theme">${raw(
-            "".concat(
-              [
-                ["system", "Use device setting"],
-                ["light", "Light"],
-                ["dark", "Dark"],
-                ["high", "High contrast"],
-              ]
-                .map(([value, label]) => `<option value="${value}" ${theme === value ? "selected" : ""}>${label}</option>`)
-                .join(""),
-            ),
-          )}</select></label>`,
-        );
-    });
+    enhancePageLandmarks(theme);
     enhanceDocumentControls();
 
     const dialog = document.querySelector('#overlay [role="dialog"]');

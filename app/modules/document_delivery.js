@@ -121,41 +121,91 @@ const inspectorSignature = (i) => [i.name || "", i.title || "", i.phone || "", i
 const emailNotReady = (d) => !d || d.draft || d.pendingAmendment;
 const emailFileName = (services, d, jb) => (jb && jb.name) || services.documentFileName(d) + ".pdf";
 
-export function createDocumentDelivery(services) {
-  async function checkHelper() {
-    try {
-      const r = await services.authFetch("/dw-status", { cache: "no-store" });
-      if (!r.ok) throw 0;
-      startup.HELPER = await r.json();
-    } catch {
-      startup.HELPER = null;
+function deliveryEmailSubject(d) {
+  const k = docCase(d),
+    ty = (DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type;
+  return "City of Madison Building Inspection — " + ty + " — " + (k.address || "") + " — " + (k.number || "");
+}
+
+function deliveryEmailBody(services, d) {
+  const k = docCase(d),
+    i = docInsp(d),
+    ty = emailTypeLabel(d);
+  return [
+    "Attached is a " + ty.toLowerCase() + " for " + (k.address || "the property above") + ".",
+    "",
+    "Case number: " + (k.number || ""),
+    "Property: " + (k.address || ""),
+    "Date mailed: " + services.fmtDate(d.mailed || recordDay(services.today)),
+    "",
+    "Please contact the inspector below with any questions.",
+    "",
+    ...inspectorSignature(i),
+  ].join("\r\n");
+}
+
+function chooseEmailRecipients(services, d, jb, useFiled) {
+  editor.state.modal = "sendto";
+  editor.state.sendDoc = d.id;
+  editor.state.sendJob = jb;
+  editor.state.sendReuse = useFiled;
+  services.render();
+  return false;
+}
+
+// Opens a compose window with the filed PDF attached; that is not confirmation of delivery.
+async function sendDocumentEmail(services, d, jb, artifact, to, useFiled) {
+  services.toastHold("Preparing the email — this takes a few seconds");
+  editor.FILING_ACTIVE = (editor.FILING_ACTIVE || 0) + 1;
+  try {
+    const r = await services.authFetch("/email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        filename: emailFileName(services, d, jb),
+        html: "",
+        reuse: useFiled,
+        sha256: artifact.sha256,
+        docId: d.id,
+        to: to.map((e) => e.addr).join("; "),
+        subject: deliveryEmailSubject(d),
+        body: deliveryEmailBody(services, d),
+      }),
+    });
+    const j = await r.json();
+    if (j && j.ok) {
+      // Opening a compose window is not confirmation of delivery.
+      // Do not alter an issued snapshot or its filed PDF here.
+      services.toast(
+        j.via === "outlook"
+          ? "Outlook is opening with " + j.name + " attached"
+          : "Outlook was not found — your mail program is opening without the attachment",
+      );
+      return true;
     }
-    return startup.HELPER;
+    services.toast("Could not open the email — " + ((j && j.error) || "unknown reason"));
+    return false;
+  } catch {
+    services.toast("Could not reach the local helper to send the email");
+    return false;
+  } finally {
+    editor.FILING_ACTIVE -= 1;
   }
+}
 
-  function emailSubject(d) {
-    const k = docCase(d),
-      ty = (DOC_TYPES.find((t) => t.id === d.type) || {}).label || d.type;
-    return "City of Madison Building Inspection — " + ty + " — " + (k.address || "") + " — " + (k.number || "");
+// The local helper's status, or null when it cannot be reached.
+async function checkDeliveryHelper(services) {
+  try {
+    const r = await services.authFetch("/dw-status", { cache: "no-store" });
+    if (!r.ok) throw 0;
+    startup.HELPER = await r.json();
+  } catch {
+    startup.HELPER = null;
   }
+  return startup.HELPER;
+}
 
-  function emailBody(d) {
-    const k = docCase(d),
-      i = docInsp(d),
-      ty = emailTypeLabel(d);
-    return [
-      "Attached is a " + ty.toLowerCase() + " for " + (k.address || "the property above") + ".",
-      "",
-      "Case number: " + (k.number || ""),
-      "Property: " + (k.address || ""),
-      "Date mailed: " + services.fmtDate(d.mailed || recordDay(services.today)),
-      "",
-      "Please contact the inspector below with any questions.",
-      "",
-      ...inspectorSignature(i),
-    ].join("\r\n");
-  }
-
+export function createDocumentDelivery(services) {
   async function emailDocument(d, picked, reuse, job) {
     if (emailNotReady(d)) {
       services.toast("Issue and confirm the document before preparing an email.");
@@ -175,62 +225,13 @@ export function createDocumentDelivery(services) {
     }
     const jb = job && job.docId === d.id ? job : { docId: d.id, name: artifact.filename, html: "" };
     const useFiled = true;
-    if (!picked && list.length) return chooseEmailRecipients(d, jb, useFiled);
+    if (!picked && list.length) return chooseEmailRecipients(services, d, jb, useFiled);
     const to = (picked || []).filter((e) => String(e.addr || "").trim());
     if (!startup.HELPER) {
       services.toast("Emailing needs Document Writer started from the Document Writer icon on the desktop");
       return false;
     }
-    return sendDocumentEmail(d, jb, artifact, to, useFiled);
-  }
-
-  function chooseEmailRecipients(d, jb, useFiled) {
-    editor.state.modal = "sendto";
-    editor.state.sendDoc = d.id;
-    editor.state.sendJob = jb;
-    editor.state.sendReuse = useFiled;
-    services.render();
-    return false;
-  }
-
-  // Opens a compose window with the filed PDF attached; that is not confirmation of delivery.
-  async function sendDocumentEmail(d, jb, artifact, to, useFiled) {
-    services.toastHold("Preparing the email — this takes a few seconds");
-    editor.FILING_ACTIVE = (editor.FILING_ACTIVE || 0) + 1;
-    try {
-      const r = await services.authFetch("/email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          filename: emailFileName(services, d, jb),
-          html: "",
-          reuse: useFiled,
-          sha256: artifact.sha256,
-          docId: d.id,
-          to: to.map((e) => e.addr).join("; "),
-          subject: emailSubject(d),
-          body: emailBody(d),
-        }),
-      });
-      const j = await r.json();
-      if (j && j.ok) {
-        // Opening a compose window is not confirmation of delivery.
-        // Do not alter an issued snapshot or its filed PDF here.
-        services.toast(
-          j.via === "outlook"
-            ? "Outlook is opening with " + j.name + " attached"
-            : "Outlook was not found — your mail program is opening without the attachment",
-        );
-        return true;
-      }
-      services.toast("Could not open the email — " + ((j && j.error) || "unknown reason"));
-      return false;
-    } catch {
-      services.toast("Could not reach the local helper to send the email");
-      return false;
-    } finally {
-      editor.FILING_ACTIVE -= 1;
-    }
+    return sendDocumentEmail(services, d, jb, artifact, to, useFiled);
   }
 
   async function openIssuedCopy(d) {
@@ -283,5 +284,5 @@ export function createDocumentDelivery(services) {
       editor.FILING_ACTIVE -= 1;
     }
   }
-  return { checkHelper, emailDocument, openIssuedCopy, filePdf };
+  return { checkHelper: () => checkDeliveryHelper(services), emailDocument, openIssuedCopy, filePdf };
 }
