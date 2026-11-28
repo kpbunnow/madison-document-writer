@@ -79,6 +79,19 @@ function overrideTargets(services) {
   return targets;
 }
 
+// A delayed authorization may only update the unchanged draft and citation it was requested for.
+function overrideTargetCurrent(services, x, basis) {
+  return (
+    !!x &&
+    workspace.DOCS.includes(x.d) &&
+    x.d.draft &&
+    !x.d.pendingAmendment &&
+    !services.isLocked(x.d) &&
+    x.d.cits?.[x.i.id] === x.c &&
+    stableJSON({ caseNumber: docCase(x.d).number, citation: x.c }) === basis
+  );
+}
+
 function actorFields() {
   return '<label class="f"><span>Named administrator</span><input name="administrator" required minlength="2"></label><label class="f"><span>Reason (at least 20 characters)</span><textarea name="reason" required minlength="20" rows="3"></textarea></label><label class="f"><span>Court / division source reference</span><input name="sourceReference" required></label><label><input type="checkbox" name="confirmed" required> I confirm this administrative decision and its source.</label>';
 }
@@ -147,6 +160,53 @@ async function saveLetter(services, letter, e) {
   }
 }
 
+async function submitOverride(services, targets, e) {
+  e.preventDefault();
+  const form = e.target,
+    v = Object.fromEntries(new FormData(form)),
+    x = targets[Number(v.target)],
+    dialog = form.closest("dialog"),
+    basis = x && stableJSON({ caseNumber: docCase(x.d).number, citation: x.c });
+  try {
+    if (!overrideTargetCurrent(services, x, basis)) {
+      services.toast("The draft changed. Reopen the administrator override and review the current citation.");
+      return;
+    }
+    const result = await services.helperJSON("/administration/deposit-override", {
+      caseNumber: docCase(x.d).number,
+      citationNumber: x.c.num,
+      ordinance: x.c.ord,
+      pricingDate: x.c.pricedOn || x.c.issued,
+      tier: x.c.computedTier || x.c.tier,
+      scheduleEntryId: x.c.scheduleEntryId || "",
+      measurements: x.c.measurements || {},
+      mode: v.mode,
+      amount: v.amount,
+      administrator: v.administrator,
+      reason: v.reason,
+      sourceReference: v.sourceReference,
+      confirmed: v.confirmed === "on",
+    });
+    if (!overrideTargetCurrent(services, x, basis)) {
+      services.toast("The draft changed while authorization was pending. Reopen the administrator override and review the current citation.");
+      return;
+    }
+    Object.assign(x.c, result);
+    delete x.c.ok;
+    if (v.mode === "total") delete x.c.assessments;
+    delete x.c.reconfirmDeposit;
+    x.c.pricedOn = x.c.overrideBasis.pricingDate;
+    x.c.policyVersionHash = x.c.overrideBasis.policyVersionHash;
+    workspace.DIRTY = true;
+    await services.saveDrafts();
+    if (dialog?.isConnected && dialog.contains(form)) dialog.close();
+    services.toast("Administrator override recorded. Review the citation before issuance.");
+    services.render();
+  } catch (error) {
+    form.querySelector("[role=alert]").textContent = error.message;
+  }
+}
+
 export function initAdministration(services) {
   const esc = (value) => dep_esc(value);
   function overrideFault(c, d) {
@@ -169,42 +229,7 @@ export function initAdministration(services) {
       "Administrator deposit override",
       html`<form id="admin-deposit-form"><p>Authorize a single exceptional deposit from a court or division instruction. The citation retains the administrator, reason, source and authorization receipt.</p><label class="f"><span>Draft citation</span><select name="target">${raw(targets.map((x, n) => '<option value="' + n + '">' + esc(docCase(x.d).number + " · " + x.c.ord + " · " + x.c.num) + "</option>").join(""))}</select></label><label class="f"><span>Approved method</span><select name="mode"><option value="total">Approved total, including assessments</option><option value="base">Approved base plus scheduled assessments</option></select></label><label class="f"><span>Approved amount</span><input type="number" name="amount" min="0.01" step="0.01" required></label>${raw(actorFields())}<p role="alert"></p><button class="btn btn-primary">Record administrator override</button></form>`,
     );
-    document.getElementById("admin-deposit-form").onsubmit = async (e) => {
-      e.preventDefault();
-      const form = e.target,
-        v = Object.fromEntries(new FormData(form)),
-        x = targets[Number(v.target)];
-      try {
-        const result = await services.helperJSON("/administration/deposit-override", {
-          caseNumber: docCase(x.d).number,
-          citationNumber: x.c.num,
-          ordinance: x.c.ord,
-          pricingDate: x.c.pricedOn || x.c.issued,
-          tier: x.c.computedTier || x.c.tier,
-          scheduleEntryId: x.c.scheduleEntryId || "",
-          measurements: x.c.measurements || {},
-          mode: v.mode,
-          amount: v.amount,
-          administrator: v.administrator,
-          reason: v.reason,
-          sourceReference: v.sourceReference,
-          confirmed: v.confirmed === "on",
-        });
-        Object.assign(x.c, result);
-        delete x.c.ok;
-        if (v.mode === "total") delete x.c.assessments;
-        delete x.c.reconfirmDeposit;
-        x.c.pricedOn = x.c.overrideBasis.pricingDate;
-        x.c.policyVersionHash = x.c.overrideBasis.policyVersionHash;
-        workspace.DIRTY = true;
-        await services.saveDrafts();
-        document.getElementById("utility-dialog")?.close();
-        services.toast("Administrator override recorded. Review the citation before issuance.");
-        services.render();
-      } catch (error) {
-        form.querySelector("[role=alert]").textContent = error.message;
-      }
-    };
+    document.getElementById("admin-deposit-form").onsubmit = (e) => submitOverride(services, targets, e);
   }
   async function openLetter() {
     if (!startup.HELPER?.ok || !workspace.CASEDIR?.helper) {
