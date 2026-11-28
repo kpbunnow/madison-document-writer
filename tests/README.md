@@ -633,4 +633,4 @@ The full-program review extends `audit_reporting_inputs.py` with deep-summary is
 
 | Suite | Coverage |
 | --- | --- |
-| `browser_pagination_progress.js` | Real Chromium: oversized fixed cells cannot create endless identical history continuations; the remaining note appears exactly once. Original native pagination comparisons are retained separately. |
+| `audit_pagination_progress.js` | Real Chromium: oversized fixed cells cannot create endless identical history continuations; the remaining note appears exactly once. Original native pagination comparisons are retained separately. |
