@@ -342,6 +342,12 @@ export function createCaseRecovery(services) {
       requireCompatibleLocalHistory(b, k, current);
       const local = current && services.caseUnsaved(current);
       if (current && !(await confirmRecoveryReplacement(services, b, k, local, selection))) return;
+      // A pending save can confirm new history while the replacement safety copy is written.
+      requireCompatibleLocalHistory(
+        b,
+        k,
+        workspace.CASES.find((c) => c.id === k.id || c.number === k.number),
+      );
       const staged = stageRecoveredCase(services, b, k);
       const pending = workspace.PENDING.filter((p) => p.cid !== k.id).concat(clone(b.pending));
       if (!(await persistCaseRecovery(services, staged, pending)))
