@@ -84,8 +84,12 @@ function correctionDraft(services, src) {
   return d;
 }
 
+function correctionViewCurrent(origin) {
+  return editor.state.screen === origin.screen && editor.state.docId === origin.docId && editor.state.modal === origin.modal;
+}
+
 function showConfirmedCorrection(services, d, origin) {
-  if (editor.state.screen === origin.screen && editor.state.docId === origin.docId && editor.state.modal === origin.modal) {
+  if (correctionViewCurrent(origin)) {
     editor.state.modal = null;
     editor.state.amendmentError = "";
     editor.state.docId = d.id;
@@ -142,7 +146,7 @@ export function createCorrectionWorkflow(services) {
     const attempt = d.pendingAmendment || services.makeCorrectionAttempt(d),
       origin = { screen: editor.state.screen, docId: editor.state.docId, modal: editor.state.modal };
     if (!(await services.commitAmendment(d.caseId, attempt, d))) {
-      editor.state.modal = null;
+      if (correctionViewCurrent(origin)) editor.state.modal = null;
       services.render();
       return false;
     }

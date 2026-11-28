@@ -468,6 +468,29 @@ const copy = (v) => JSON.parse(JSON.stringify(v));
     calls.some((c) => c[0] === "scroll"),
     false,
   );
+  for (const laterView of [false, true]) {
+    reset();
+    d = open();
+    commitOK = false;
+    waitForCommit = new Promise((resolve) => {
+      resume = resolve;
+    });
+    const refusing = workflow.issueCorrection(d);
+    await new Promise(setImmediate);
+    if (laterView) Object.assign(state.state, { screen: "tools", docId: "later_document", modal: "unsent_note" });
+    resume();
+    assert.equal(await refusing, false);
+    assert.ok(d.pendingAmendment, "refusal keeps the exact retry attempt");
+    assert.equal(state.state.modal, laterView ? "unsent_note" : null, "failed confirmation respects the current view");
+    if (laterView) {
+      assert.equal(state.state.screen, "tools");
+      assert.equal(state.state.docId, "later_document");
+    }
+    assert.equal(
+      calls.some((c) => ["file", "email", "scroll"].includes(c[0])),
+      false,
+    );
+  }
   console.log(
     JSON.stringify({
       passed: true,
