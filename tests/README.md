@@ -630,3 +630,7 @@ The full-program review extends `audit_reporting_inputs.py` with deep-summary is
 | Suite | Coverage |
 | --- | --- |
 | `audit_report_property_refresh.js` | Real Reports model/screen composition: refreshed property facts and new matches, excluded records removed, unsubmitted search preserved. |
+
+| Suite | Coverage |
+| --- | --- |
+| `browser_pagination_progress.js` | Real Chromium: oversized fixed cells cannot create endless identical history continuations; the remaining note appears exactly once. Original native pagination comparisons are retained separately. |

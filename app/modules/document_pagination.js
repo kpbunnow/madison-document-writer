@@ -69,25 +69,35 @@ function prepareHistoryContinuation({ continuation, r, restNotes, rest }) {
   continuation.querySelector(".visit-list")?.replaceChildren(...rest);
 }
 
+// Move overflowing notes in order; split one note into the available space without dropping characters.
+function overflowHistoryNotes(current, p, over, notesOf) {
+  const restNotes = [];
+  while (over(p) && notesOf().length) {
+    const note = notesOf().at(-1);
+    restNotes.unshift(note);
+    note.remove();
+  }
+  if (restNotes.length && !over(p)) splitHistoryNote({ current, p, over, restNotes });
+  return restNotes;
+}
+
 function paginateRowHistory({ r, p, over, newPage }) {
-  let current = r;
+  let current = r,
+    previous = null;
   while (over(p)) {
+    // An unbreakable cell (for example a long section list) can overflow every continuation. Keep its complete
+    // remaining content on that page instead of creating identical pages forever.
+    const progress = current.innerHTML;
+    if (progress === previous) break;
+    previous = progress;
     const history = current.querySelector(".visit-list"),
       notesOf = () => [...current.querySelectorAll(".corr [data-history-note]")];
     if ((!history || !history.children.length) && !notesOf().length) break;
     const continuation = current.cloneNode(true),
-      rest = [],
-      restNotes = [];
+      rest = [];
     // R62: authoring-16 notes sit under the violation; later notes continue on the next page, and one note
     // that does not fit is split at a word boundary, every character printed once.
-    while (over(p) && notesOf().length) {
-      const note = notesOf().at(-1);
-      restNotes.unshift(note);
-      note.remove();
-    }
-    if (restNotes.length && !over(p)) {
-      splitHistoryNote({ current, p, over, restNotes });
-    }
+    const restNotes = overflowHistoryNotes(current, p, over, notesOf);
     while (history && over(p) && history.children.length > 1) {
       rest.unshift(history.lastElementChild);
       history.lastElementChild.remove();

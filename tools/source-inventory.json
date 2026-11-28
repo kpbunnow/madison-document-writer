@@ -1316,6 +1316,7 @@
     "tests/unit/audit_writer_startup.js",
     "tests/unit/audit_writer_utilities.js",
     "tests/unit/audit_writer_view_contexts.js",
+    "tests/unit/browser_pagination_progress.js",
     "tests/windows/browser_recovery.cjs",
     "tests/windows/interruption_recovery.py",
     "tools/analysis-requirements.txt",
