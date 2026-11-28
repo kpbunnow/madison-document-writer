@@ -444,10 +444,10 @@ function noticeMailRows(d, k) {
   const sent = d.emailedTo || [],
     draftMail = d.draft
       ? emailList(k).filter(
-          (e) => e.on !== false && (!Array.isArray(d.emailSelection) || d.emailSelection.includes(e.addr + "|" + (e.kind || "Other"))),
+          (e) => e && e.on !== false && (!Array.isArray(d.emailSelection) || d.emailSelection.includes(e.addr + "|" + (e.kind || "Other"))),
         )
       : [];
-  return (d.draft ? draftMail : sent).filter((e) => String(e.addr || "").trim());
+  return (d.draft ? draftMail : sent).filter((e) => String(e?.addr || "").trim());
 }
 
 function noticeMailRowHTML(d, mailRows) {

@@ -640,4 +640,6 @@ The full-program review extends `audit_reporting_inputs.py` with deep-summary is
 
 | `audit_nullable_copy_recipients.js` | Supported retained null copy slots: readiness, Recipients rendering, unchanged case data and preserved later contact/fault indices. |
 
+| `audit_retained_email_slots.js` | Empty retained email slots cannot crash Recipients, draft/issued display, reminders, correction preparation or send/final selections; stored contact indices and facts remain intact. |
+
 | `audit_report_analysis_clock.js` | Isolated Reports analysis uses the production live-day adapter; open-item age advances when the City day changes. |

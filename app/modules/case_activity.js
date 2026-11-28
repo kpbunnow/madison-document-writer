@@ -45,7 +45,7 @@ function reminderSettingsHTML(services, prefs) {
 
 // The reminder email draft to review before Outlook opens.
 function reminderDraftHTML(k, subject, body) {
-  return html`<form id="reminder-email"><label>Recipient <input type="email" name="to" required list="reminder-recipients" value="${k.emails?.[0]?.addr || ""}"><datalist id="reminder-recipients">${raw((k.emails || []).map((e) => `<option value="${dep_esc(e.addr)}">`).join(""))}</datalist></label><label>Subject <input name="subject" maxlength="200" required value="${subject}"></label><label>Message <textarea name="body" required maxlength="12000" rows="8">${body}</textarea></label><button class="btn" type="submit">Open Outlook draft</button></form>`;
+  return html`<form id="reminder-email"><label>Recipient <input type="email" name="to" required list="reminder-recipients" value="${k.emails?.[0]?.addr || ""}"><datalist id="reminder-recipients">${raw((k.emails || []).map((e) => e && `<option value="${dep_esc(e.addr)}">`).join(""))}</datalist></label><label>Subject <input name="subject" maxlength="200" required value="${subject}"></label><label>Message <textarea name="body" required maxlength="12000" rows="8">${body}</textarea></label><button class="btn" type="submit">Open Outlook draft</button></form>`;
 }
 
 // The read-only case event log, filtered, with its export buttons.

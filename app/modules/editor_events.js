@@ -516,7 +516,7 @@ function editorFinalizeDocument(services, d, t) {
     return;
   }
   if (d.correction) {
-    const list = emailList(docCase(d)).filter((e) => String(e.addr || "").trim());
+    const list = emailList(docCase(d)).filter((e) => String(e?.addr || "").trim());
     const picked = list.filter((_, ix) => {
       const b = document.querySelector('[data-finsend="' + ix + '"]');
       return b && b.checked;
@@ -529,7 +529,7 @@ function editorFinalizeDocument(services, d, t) {
   // still counts it as one; asking later gets refused without explanation
   // record who it goes to before it is frozen, so the filed copy, the
   // attachment and the record all say the same thing
-  const list = emailList(kase(d.caseId)).filter((e) => String(e.addr || "").trim());
+  const list = emailList(kase(d.caseId)).filter((e) => String(e?.addr || "").trim());
   const picked = list.filter((_, ix) => {
     const b = document.querySelector('[data-finsend="' + ix + '"]');
     return b && b.checked;

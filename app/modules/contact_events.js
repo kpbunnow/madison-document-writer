@@ -66,7 +66,7 @@ function changeCopyOwnerFor(services, e) {
 function contactSendDocument(services, t) {
   const dd = doc(editor.state.sendDoc) || doc(editor.state.docId);
   const k = dd ? kase(dd.caseId) : null;
-  const list = k ? emailList(k).filter((e) => String(e.addr || "").trim()) : [];
+  const list = k ? emailList(k).filter((e) => String(e?.addr || "").trim()) : [];
   const picked =
     t.id === "btn-sendnone"
       ? []
