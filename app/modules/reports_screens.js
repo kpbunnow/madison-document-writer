@@ -901,8 +901,10 @@ function reportsScreenOpenCase(services, no) {
 }
 
 function reportsScreenPropertyView(services) {
-  const p = ReportsState.S.prop,
-    hits = p.hits;
+  const p = ReportsState.S.prop;
+  // Search results belong to the current verified model; a refresh can change facts, add matches or exclude records.
+  if (p.hits != null) p.hits = reportsScreenPropertyHits(services, p.q);
+  const hits = p.hits;
   return screen`<div class="panel"><div class="panel-b"><div class="search">
       <input id="pv-q" type="search" value="${raw(services.esc(p.q))}" placeholder="Parcel number, address or case number" aria-label="Parcel number, address or case number">
       <button class="btn btn-primary" data-act="propGo">Find</button></div></div></div>
