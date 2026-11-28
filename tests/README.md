@@ -626,3 +626,7 @@ The full-program review extends `audit_reporting_inputs.py` with deep-summary is
 | `audit_admin_draft_continuation.js` | Real administration owner: unchanged draft authorization, refusal after issuance/confirmation/lock/replacement/edit, incomplete draft eligibility and preservation of a later utility dialog. |
 | `audit_shared_history_incomplete_date.js` | Shared citation history (background load and Refresh citation history) still loads while a citation issue date is incomplete, with no unhandled rejection; the entered text stays and remains a readiness fault |
 | `audit_prior_citation_warning_days.js` | The recent prior-citation warning names the schedule's own warning period; the shipped 90-day text is unchanged |
+
+| Suite | Coverage |
+| --- | --- |
+| `audit_report_property_refresh.js` | Real Reports model/screen composition: refreshed property facts and new matches, excluded records removed, unsubmitted search preserved. |
