@@ -46,6 +46,47 @@ function createCheckLinkHandler(services) {
   };
 }
 
+// Tab stays inside an open dialog; Ctrl+S / Command+S saves Writer work on this device.
+function utilityDialogKeys(services, e) {
+  const box = document.querySelector('[role="dialog"]');
+  if (e.key === "Tab" && box) {
+    const nodes = Array.from(
+      box.querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href],[tabindex="0"]'),
+    ).filter((el) => !el.hidden && el.style.display !== "none");
+    const first = nodes[0],
+      last = nodes[nodes.length - 1];
+    if (!first) {
+      e.preventDefault();
+      box.focus();
+    } else if (e.shiftKey && (document.activeElement === first || document.activeElement === box)) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+    e.preventDefault();
+    services.saveDrafts().then((ok) => services.toast(ok ? "Saved on this device" : "Could not save — keep this tab open"));
+  }
+}
+
+// Escape closes the picker or a dialog unless a save, lookup or resolution is running.
+function utilityDismissKey(services, e) {
+  if (
+    e.key === "Escape" &&
+    (editor.state.picker || editor.state.modal) &&
+    !editor.AMENDMENT_BUSY &&
+    !imports.LOOKUP_BUSY &&
+    !editor.RESOLUTION_BUSY
+  ) {
+    editor.state.picker = false;
+    editor.state.modal = null;
+    services.render();
+  }
+}
+
 export function createUtilityEvents(services) {
   const checkLinkHandler = createCheckLinkHandler(services);
   function registerHelpClicks(target = document) {
@@ -85,46 +126,11 @@ export function createUtilityEvents(services) {
   }
 
   function registerDialogKeys(target = document) {
-    return registerEventOnce(target, "utility.registerDialogKeys", "keydown", (e) => {
-      const box = document.querySelector('[role="dialog"]');
-      if (e.key === "Tab" && box) {
-        const nodes = Array.from(
-          box.querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href],[tabindex="0"]'),
-        ).filter((el) => !el.hidden && el.style.display !== "none");
-        const first = nodes[0],
-          last = nodes[nodes.length - 1];
-        if (!first) {
-          e.preventDefault();
-          box.focus();
-        } else if (e.shiftKey && (document.activeElement === first || document.activeElement === box)) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
-        e.preventDefault();
-        services.saveDrafts().then((ok) => services.toast(ok ? "Saved on this device" : "Could not save — keep this tab open"));
-      }
-    });
+    return registerEventOnce(target, "utility.registerDialogKeys", "keydown", (e) => utilityDialogKeys(services, e));
   }
 
   function registerDismissKey(target = document) {
-    return registerEventOnce(target, "utility.registerDismissKey", "keydown", (e) => {
-      if (
-        e.key === "Escape" &&
-        (editor.state.picker || editor.state.modal) &&
-        !editor.AMENDMENT_BUSY &&
-        !imports.LOOKUP_BUSY &&
-        !editor.RESOLUTION_BUSY
-      ) {
-        editor.state.picker = false;
-        editor.state.modal = null;
-        services.render();
-      }
-    });
+    return registerEventOnce(target, "utility.registerDismissKey", "keydown", (e) => utilityDismissKey(services, e));
   }
   return {
     registerHelpClicks,

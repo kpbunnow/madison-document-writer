@@ -1695,6 +1695,127 @@ function scopedActionScreen(nd) {
     : services.screenCases();
 }
 
+// A special document's due dates restored from its extension choices (or source deadlines).
+function newDocRestoreDues(d) {
+  syncAffected(d);
+  const s = d.special || {},
+    dated = d.type === "bestInterestExtension" || (d.type === "vacancyExtension" && s.deadlineMode === "dated");
+  if (simpleVacancy(d)) {
+    // Uncorrected items print no due date; their source deadlines stay in originalDues.
+    d.items.forEach((i) => (i.due = !i.done && !i.withdrawn && !citationOnlyItem(i) ? "" : (s.originalDues?.[i.no] ?? i.due)));
+    return;
+  }
+  d.items.forEach((i) => {
+    i.due = dated && (s.affected || []).includes(String(i.no)) && s.extendedDues?.[i.no] ? s.extendedDues[i.no] : (s.originalDues?.[i.no] ?? i.due);
+  });
+}
+
+// Repaint after a details edit, keeping the details panel open and focus on the edited control.
+function newDocRefreshControls(services, el) {
+  const attr = [...el.attributes].find((a) => a.name.startsWith("data-")),
+    selector = attr ? "[" + attr.name + '="' + checkAttr(attr.value) + '"]' : null,
+    wasOpen = !!document.querySelector("#r26-details details[open]");
+  services.renderKeep();
+  if (wasOpen) {
+    const details = document.querySelector("#r26-details details");
+    if (details) details.open = true;
+  }
+  if (selector) document.querySelector(selector)?.focus({ preventScroll: true });
+}
+
+// The printed narrative of a Best Interest, Vacancy or other special document.
+function newDocSpecialBody(services, date, d) {
+  syncAffected(d);
+  const s = d.special || {},
+    type = d.type,
+    at = services.inspAt(d),
+    address = scope(d, s),
+    items = selected(d, s);
+  const refs = items.map((i) => i.no).join(", ") || "◯";
+  const context = { d, s, type, at, address, items, refs, date };
+  const build = NARRATIVE_BUILDERS.find(([applies]) => applies(context));
+  const paras = build ? build[1](context) : [];
+  if (alignedExtension(d)) return narrativeParagraphs(paras);
+  itemReferenceParagraphs(context, paras);
+  closingParagraphs(context, paras);
+  return narrativeParagraphs(paras);
+}
+
+// Readiness checks for a special document; each failed check targets the field or items it concerns.
+function newDocSpecialChecks(services, rowAffectedSelection, day, d) {
+  if (!specialType(d.type)) return [];
+  syncAffected(d);
+  const s = d.special || {},
+    out = [],
+    // Affected items are checkboxes (data-special-item), not data-special fields: beside each due date in the items
+    // table for an editable authoring-13 draft, otherwise in the Affected outstanding items fieldset.
+    outstanding = d.items.some((i) => !i.done && !i.withdrawn && !citationOnlyItem(i)),
+    affectedTarget = rowAffectedSelection(d)
+      ? outstanding
+        ? ".desk [data-special-item]"
+        : ".desk table.notice"
+      : outstanding
+        ? "#r26-details [data-special-item]"
+        : "#r26-details fieldset.r26-items",
+    add = (ok, t, key, targets) =>
+      out.push({
+        ok: !!ok,
+        t,
+        targets: targets?.length ? targets : key ? [checkTarget(key === "affected" ? affectedTarget : '[data-special="' + key + '"]', t)] : [],
+      });
+  const need = (k, label) => add(text(s[k]) && !/◯|\(\s{0,8}\)/.test(s[k]), "Enter " + label + ".", k);
+  const context = { d, s, out, add, need, services, selected, day, text };
+  specialScopeReadiness(context);
+  if (!d.correction && isReferredCase(d.caseId)) add(false, REFERRED_MESSAGE);
+  specialFamilyReadiness(context);
+  add(!/◯|\(\s{0,8}\)|class="blank"/.test(services.docBody(d)), "Fill every placeholder in the printed document before issuance.");
+  return out;
+}
+
+// Keep a follow-up's special details on its reinspection worksheet.
+function newDocCacheDetails(d) {
+  const r = reinsp(d.fromReinspId);
+  if (r) {
+    r.actionDetails = r.actionDetails || {};
+    r.actionDetails[d.type] = clone(d.special || {});
+  }
+}
+
+// Editing items clears a simplified Best Interest no-safety confirmation.
+function newDocInvalidateSafety(d) {
+  if (simplifiedBestInterest(d)) {
+    (d.special ||= {}).noSafety = false;
+    const box = document.querySelector('[data-special="noSafety"]');
+    if (box) box.checked = false;
+  }
+  if (d.selectionCache?.bestInterestExtension) d.selectionCache.bestInterestExtension.noSafety = false;
+}
+
+// Changed items clear the item review confirmation everywhere it is kept.
+function newDocInvalidateItemReview(d) {
+  newDocInvalidateSafety(d);
+  const s = d.special || (d.special = {});
+  s.reviewed = false;
+  document.querySelectorAll('[data-special="reviewed"]').forEach((box) => (box.checked = false));
+  Object.values(d.selectionCache || {}).forEach((details) => (details.reviewed = false));
+  if (d.selectionCache?.[d.type]) d.selectionCache[d.type] = clone(s);
+  newDocCacheDetails(d);
+}
+
+// A changed extended due date for one item.
+function newDocSetSpecialDue(services, d, item, value) {
+  const s = d.special || (d.special = {});
+  if (item) {
+    item.due = value;
+    s.extendedDues = s.extendedDues || {};
+    s.extendedDues[item.no] = value;
+    document.querySelectorAll('[data-special-due="' + checkAttr(String(item.no)) + '"]').forEach((input) => (input.value = value));
+  }
+  newDocInvalidateItemReview(d);
+  services.scheduleDraftSave();
+  services.refreshSheet();
+}
+
 export function initNewDocuments(services) {
   /* R56 usability: an editable authoring-13 Best Interest or Vacancy draft selects its affected items in the items
    table, beside each due date (data-special-item); special.affected remains the source of truth. */
@@ -1704,82 +1825,11 @@ export function initNewDocuments(services) {
   function continuingItems(source, visits = reinspFor(source.caseId)) {
     return continuingItemsForVisits(source, visits);
   }
-  function restoreDues(d) {
-    syncAffected(d);
-    const s = d.special || {},
-      dated = d.type === "bestInterestExtension" || (d.type === "vacancyExtension" && s.deadlineMode === "dated");
-    if (simpleVacancy(d)) {
-      // Uncorrected items print no due date; their source deadlines stay in originalDues.
-      d.items.forEach((i) => (i.due = !i.done && !i.withdrawn && !citationOnlyItem(i) ? "" : (s.originalDues?.[i.no] ?? i.due)));
-      return;
-    }
-    d.items.forEach((i) => {
-      i.due = dated && (s.affected || []).includes(String(i.no)) && s.extendedDues?.[i.no] ? s.extendedDues[i.no] : (s.originalDues?.[i.no] ?? i.due);
-    });
-  }
-  function refreshControls(el) {
-    const attr = [...el.attributes].find((a) => a.name.startsWith("data-")),
-      selector = attr ? "[" + attr.name + '="' + checkAttr(attr.value) + '"]' : null,
-      wasOpen = !!document.querySelector("#r26-details details[open]");
-    services.renderKeep();
-    if (wasOpen) {
-      const details = document.querySelector("#r26-details details");
-      if (details) details.open = true;
-    }
-    if (selector) document.querySelector(selector)?.focus({ preventScroll: true });
-  }
-  function specialBody(d) {
-    syncAffected(d);
-    const s = d.special || {},
-      type = d.type,
-      at = services.inspAt(d),
-      address = scope(d, s),
-      items = selected(d, s);
-    const refs = items.map((i) => i.no).join(", ") || "◯";
-    const context = { d, s, type, at, address, items, refs, date };
-    const build = NARRATIVE_BUILDERS.find(([applies]) => applies(context));
-    const paras = build ? build[1](context) : [];
-    if (alignedExtension(d)) return narrativeParagraphs(paras);
-    itemReferenceParagraphs(context, paras);
-    closingParagraphs(context, paras);
-    return narrativeParagraphs(paras);
-  }
-  function specialChecks(d) {
-    if (!specialType(d.type)) return [];
-    syncAffected(d);
-    const s = d.special || {},
-      out = [],
-      // Affected items are checkboxes (data-special-item), not data-special fields: beside each due date in the items
-      // table for an editable authoring-13 draft, otherwise in the Affected outstanding items fieldset.
-      outstanding = d.items.some((i) => !i.done && !i.withdrawn && !citationOnlyItem(i)),
-      affectedTarget = rowAffectedSelection(d)
-        ? outstanding
-          ? ".desk [data-special-item]"
-          : ".desk table.notice"
-        : outstanding
-          ? "#r26-details [data-special-item]"
-          : "#r26-details fieldset.r26-items",
-      add = (ok, t, key, targets) =>
-        out.push({
-          ok: !!ok,
-          t,
-          targets: targets?.length ? targets : key ? [checkTarget(key === "affected" ? affectedTarget : '[data-special="' + key + '"]', t)] : [],
-        });
-    const need = (k, label) => add(text(s[k]) && !/◯|\(\s{0,8}\)/.test(s[k]), "Enter " + label + ".", k);
-    const context = { d, s, out, add, need, services, selected, day, text };
-    specialScopeReadiness(context);
-    if (!d.correction && isReferredCase(d.caseId)) add(false, REFERRED_MESSAGE);
-    specialFamilyReadiness(context);
-    add(!/◯|\(\s{0,8}\)|class="blank"/.test(services.docBody(d)), "Fill every placeholder in the printed document before issuance.");
-    return out;
-  }
-  function cacheDetails(d) {
-    const r = reinsp(d.fromReinspId);
-    if (r) {
-      r.actionDetails = r.actionDetails || {};
-      r.actionDetails[d.type] = clone(d.special || {});
-    }
-  }
+  const restoreDues = newDocRestoreDues;
+  const refreshControls = (el) => newDocRefreshControls(services, el);
+  const specialBody = (d) => newDocSpecialBody(services, date, d);
+  const specialChecks = (d) => newDocSpecialChecks(services, rowAffectedSelection, day, d);
+  const cacheDetails = newDocCacheDetails;
   function editEvent(ev) {
     const el = ev.target,
       d = doc(editor.state.docId),
@@ -1800,35 +1850,9 @@ export function initNewDocuments(services) {
     }
     return false;
   }
-  function invalidateSafety(d) {
-    if (simplifiedBestInterest(d)) {
-      (d.special ||= {}).noSafety = false;
-      const box = document.querySelector('[data-special="noSafety"]');
-      if (box) box.checked = false;
-    }
-    if (d.selectionCache?.bestInterestExtension) d.selectionCache.bestInterestExtension.noSafety = false;
-  }
-  function invalidateItemReview(d) {
-    invalidateSafety(d);
-    const s = d.special || (d.special = {});
-    s.reviewed = false;
-    document.querySelectorAll('[data-special="reviewed"]').forEach((box) => (box.checked = false));
-    Object.values(d.selectionCache || {}).forEach((details) => (details.reviewed = false));
-    if (d.selectionCache?.[d.type]) d.selectionCache[d.type] = clone(s);
-    cacheDetails(d);
-  }
-  function setSpecialDue(d, item, value) {
-    const s = d.special || (d.special = {});
-    if (item) {
-      item.due = value;
-      s.extendedDues = s.extendedDues || {};
-      s.extendedDues[item.no] = value;
-      document.querySelectorAll('[data-special-due="' + checkAttr(String(item.no)) + '"]').forEach((input) => (input.value = value));
-    }
-    invalidateItemReview(d);
-    services.scheduleDraftSave();
-    services.refreshSheet();
-  }
+  const invalidateSafety = newDocInvalidateSafety;
+  const invalidateItemReview = newDocInvalidateItemReview;
+  const setSpecialDue = (d, item, value) => newDocSetSpecialDue(services, d, item, value);
   function clickEvent(ev) {
     const el = ev.target.closest(CLICK_TARGETS);
     if (!el) return false;

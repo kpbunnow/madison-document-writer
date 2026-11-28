@@ -186,63 +186,173 @@ async function pickLibraryItem(services, d, t) {
   afterPick(services, d, picked.src, added, again);
 }
 
+function catalogClosePickerBackground(services) {
+  editor.state.picker = false;
+  services.render();
+  return;
+}
+
+function catalogClosePicker(services) {
+  editor.state.picker = false;
+  services.render();
+  window.scrollTo(0, 0);
+  return;
+}
+
+function catalogSelectChecklist(services, t) {
+  editor.state.libCl = +t.dataset.libcl;
+  services.render();
+  return;
+}
+
+function catalogSelectGroup(services, t) {
+  const [ci, gi] = t.dataset.grp.split(":").map(Number);
+  editor.state.cl = ci;
+  editor.state.grp = gi;
+  editor.state.q = "";
+  services.refreshOverlay();
+  return;
+}
+
+function catalogAdoptReview(services, d, t) {
+  const it = d?.items.find((x) => x.id === t.dataset.adoptCatalog);
+  if (services.adoptCatalogReview(d, it)) services.toast("Reviewed catalog version applied to this draft item.");
+  return;
+}
+
+function catalogOpenPicker(services, d) {
+  if (!services.structEditable(d)) return;
+  if (editor.state.pickerDoc !== d.id) {
+    editor.state.pickerStatus = "usable";
+    editor.state.cl = -1;
+    editor.state.grp = 0;
+    editor.state.pickerDoc = d.id;
+  }
+  Object.assign(editor.state, { picker: true, pickerList: "" });
+  editor.state.q = "";
+  services.render();
+  return;
+}
+
+function catalogEditPickerSearch(services, el) {
+  editor.state.q = el.value;
+  services.refreshOverlay();
+  return;
+}
+
+function catalogEditLibrarySearch(services, el) {
+  const p = el.selectionStart;
+  editor.state.libFilter = el.value;
+  services.render();
+  const f = document.getElementById("lib-filter");
+  if (f) {
+    f.focus();
+    f.setSelectionRange(p, p);
+  }
+  return;
+}
+
+function catalogChangeLibraryStatus(services, e) {
+  editor.state[e.target.id === "lib-status" ? "libStatus" : "pickerStatus"] = e.target.value;
+  if (e.target.id === "lib-status") services.render();
+  else services.refreshOverlay();
+  return;
+}
+
+function catalogChangePickerGroup(services, e) {
+  const [ci, gi] = e.target.value.split(":").map(Number);
+  editor.state.cl = ci;
+  editor.state.grp = gi;
+  editor.state.q = "";
+  services.refreshOverlay();
+  return;
+}
+
+// Opening a review's guidance keeps its form open and fills the replacement choices.
+function catalogGuidanceToggle(services, e) {
+  const details = e.target.closest?.(".lib-guidance");
+  if (!details) return;
+  const key = details.querySelector("[data-catalog-key]")?.dataset.catalogKey;
+  if (!key) return;
+  catalog.CATALOG_FORMS[key] = { ...services.catalogForm(key, services.catalogItem(key), services.catalogReview(key)), open: details.open };
+  services.keepCatalogForms();
+  if (details.open) {
+    const selector = details.querySelector('[data-catalog-field="replaces"]');
+    if (selector)
+      selector.innerHTML = services.catalogReplacementOptions(key, catalog.CATALOG_FORMS[key].replaces, catalog.CATALOG_FORMS[key].replacementQuery);
+  }
+}
+
+// Typed review fields are kept for the open catalog form.
+function catalogReviewInput(services, e) {
+  const el = e.target.closest?.("[data-catalog-field]");
+  if (!el) return;
+  const key = el.dataset.catalogKey;
+  catalog.CATALOG_FORMS[key] = {
+    ...services.catalogForm(key, services.catalogItem(key), services.catalogReview(key)),
+    ...catalog.CATALOG_FORMS[key],
+    [el.dataset.catalogField]: el.value,
+    open: true,
+  };
+  services.keepCatalogForms();
+}
+
+// Searching for a replacement entry narrows the replacement choices in place.
+function catalogReplacementQuery(services, e) {
+  const el = e.target.closest?.("[data-catalog-replacement-query]");
+  if (!el) return;
+  const key = el.dataset.catalogReplacementQuery;
+  catalog.CATALOG_FORMS[key] = {
+    ...services.catalogForm(key, services.catalogItem(key), services.catalogReview(key)),
+    ...catalog.CATALOG_FORMS[key],
+    replacementQuery: el.value,
+    open: true,
+  };
+  services.keepCatalogForms();
+  const selector = el.closest("details")?.querySelector('[data-catalog-field="replaces"]');
+  if (selector) selector.innerHTML = services.catalogReplacementOptions(key, catalog.CATALOG_FORMS[key].replaces, el.value);
+}
+
+// Rebase or save a catalog review; saving asks for confirmation and keeps the form if the save is not confirmed.
+async function catalogReviewAction(services, e) {
+  const rebase = e.target.closest?.("[data-catalog-rebase]");
+  if (rebase) {
+    rebaseReviewBasis(services, rebase);
+    return;
+  }
+  const t = e.target.closest?.("[data-catalog-save]");
+  if (!t) return;
+  const key = t.dataset.catalogSave,
+    i = services.catalogItem(key);
+  if (!i) return;
+  const review = readReview(services, t, key, i);
+  const message = reviewFault(services, review.data, key);
+  if (message) {
+    failReview(services, review, message);
+    return;
+  }
+  if (!confirm("Record " + review.data.status + " review for " + i.t + " by " + review.data.reviewer + "? This adds a permanent catalog version."))
+    return;
+  t.disabled = true;
+  try {
+    await recordReview(services, review);
+  } catch (err) {
+    t.disabled = false;
+    failReview(services, review, "Review save was not confirmed: " + err.message + ". Your form is retained. Refresh review status before retrying.");
+  }
+}
+
 export function createCatalogEvents(services) {
   function registerGuidanceToggle(target = document) {
-    return registerEventOnce(
-      target,
-      "catalog.registerGuidanceToggle",
-      "toggle",
-      (e) => {
-        const details = e.target.closest?.(".lib-guidance");
-        if (!details) return;
-        const key = details.querySelector("[data-catalog-key]")?.dataset.catalogKey;
-        if (!key) return;
-        catalog.CATALOG_FORMS[key] = { ...services.catalogForm(key, services.catalogItem(key), services.catalogReview(key)), open: details.open };
-        services.keepCatalogForms();
-        if (details.open) {
-          const selector = details.querySelector('[data-catalog-field="replaces"]');
-          if (selector)
-            selector.innerHTML = services.catalogReplacementOptions(
-              key,
-              catalog.CATALOG_FORMS[key].replaces,
-              catalog.CATALOG_FORMS[key].replacementQuery,
-            );
-        }
-      },
-      true,
-    );
+    return registerEventOnce(target, "catalog.registerGuidanceToggle", "toggle", (e) => catalogGuidanceToggle(services, e), true);
   }
 
   function registerReviewInput(target = document) {
-    return registerEventOnce(target, "catalog.registerReviewInput", "input", (e) => {
-      const el = e.target.closest?.("[data-catalog-field]");
-      if (!el) return;
-      const key = el.dataset.catalogKey;
-      catalog.CATALOG_FORMS[key] = {
-        ...services.catalogForm(key, services.catalogItem(key), services.catalogReview(key)),
-        ...catalog.CATALOG_FORMS[key],
-        [el.dataset.catalogField]: el.value,
-        open: true,
-      };
-      services.keepCatalogForms();
-    });
+    return registerEventOnce(target, "catalog.registerReviewInput", "input", (e) => catalogReviewInput(services, e));
   }
 
   function registerReplacementQuery(target = document) {
-    return registerEventOnce(target, "catalog.registerReplacementQuery", "input", (e) => {
-      const el = e.target.closest?.("[data-catalog-replacement-query]");
-      if (!el) return;
-      const key = el.dataset.catalogReplacementQuery;
-      catalog.CATALOG_FORMS[key] = {
-        ...services.catalogForm(key, services.catalogItem(key), services.catalogReview(key)),
-        ...catalog.CATALOG_FORMS[key],
-        replacementQuery: el.value,
-        open: true,
-      };
-      services.keepCatalogForms();
-      const selector = el.closest("details")?.querySelector('[data-catalog-field="replaces"]');
-      if (selector) selector.innerHTML = services.catalogReplacementOptions(key, catalog.CATALOG_FORMS[key].replaces, el.value);
-    });
+    return registerEventOnce(target, "catalog.registerReplacementQuery", "input", (e) => catalogReplacementQuery(services, e));
   }
 
   function registerReviewChange(target = document) {
@@ -252,124 +362,30 @@ export function createCatalogEvents(services) {
   }
 
   function registerReviewActions(target = document) {
-    return registerEventOnce(target, "catalog.registerReviewActions", "click", async (e) => {
-      const rebase = e.target.closest?.("[data-catalog-rebase]");
-      if (rebase) {
-        rebaseReviewBasis(services, rebase);
-        return;
-      }
-      const t = e.target.closest?.("[data-catalog-save]");
-      if (!t) return;
-      const key = t.dataset.catalogSave,
-        i = services.catalogItem(key);
-      if (!i) return;
-      const review = readReview(services, t, key, i);
-      const message = reviewFault(services, review.data, key);
-      if (message) {
-        failReview(services, review, message);
-        return;
-      }
-      if (
-        !confirm("Record " + review.data.status + " review for " + i.t + " by " + review.data.reviewer + "? This adds a permanent catalog version.")
-      )
-        return;
-      t.disabled = true;
-      try {
-        await recordReview(services, review);
-      } catch (err) {
-        t.disabled = false;
-        failReview(
-          services,
-          review,
-          "Review save was not confirmed: " + err.message + ". Your form is retained. Refresh review status before retrying.",
-        );
-      }
-    });
+    return registerEventOnce(target, "catalog.registerReviewActions", "click", (e) => catalogReviewAction(services, e));
   }
 
-  const closePickerBackground = () => {
-    editor.state.picker = false;
-    services.render();
-    return;
-  };
+  const closePickerBackground = () => catalogClosePickerBackground(services);
 
-  const closePicker = () => {
-    editor.state.picker = false;
-    services.render();
-    window.scrollTo(0, 0);
-    return;
-  };
+  const closePicker = () => catalogClosePicker(services);
 
-  const selectChecklist = (t) => {
-    editor.state.libCl = +t.dataset.libcl;
-    services.render();
-    return;
-  };
+  const selectChecklist = (t) => catalogSelectChecklist(services, t);
 
-  const selectGroup = (t) => {
-    const [ci, gi] = t.dataset.grp.split(":").map(Number);
-    editor.state.cl = ci;
-    editor.state.grp = gi;
-    editor.state.q = "";
-    services.refreshOverlay();
-    return;
-  };
+  const selectGroup = (t) => catalogSelectGroup(services, t);
 
-  const adoptReview = (d, t) => {
-    const it = d?.items.find((x) => x.id === t.dataset.adoptCatalog);
-    if (services.adoptCatalogReview(d, it)) services.toast("Reviewed catalog version applied to this draft item.");
-    return;
-  };
+  const adoptReview = (d, t) => catalogAdoptReview(services, d, t);
 
   const pickItem = (d, t) => pickLibraryItem(services, d, t);
 
-  const openPicker = (d) => {
-    if (!services.structEditable(d)) return;
-    if (editor.state.pickerDoc !== d.id) {
-      editor.state.pickerStatus = "usable";
-      editor.state.cl = -1;
-      editor.state.grp = 0;
-      editor.state.pickerDoc = d.id;
-    }
-    Object.assign(editor.state, { picker: true, pickerList: "" });
-    editor.state.q = "";
-    services.render();
-    return;
-  };
+  const openPicker = (d) => catalogOpenPicker(services, d);
 
-  const editPickerSearch = (el) => {
-    editor.state.q = el.value;
-    services.refreshOverlay();
-    return;
-  };
+  const editPickerSearch = (el) => catalogEditPickerSearch(services, el);
 
-  const editLibrarySearch = (el) => {
-    const p = el.selectionStart;
-    editor.state.libFilter = el.value;
-    services.render();
-    const f = document.getElementById("lib-filter");
-    if (f) {
-      f.focus();
-      f.setSelectionRange(p, p);
-    }
-    return;
-  };
+  const editLibrarySearch = (el) => catalogEditLibrarySearch(services, el);
 
-  const changeLibraryStatus = (e) => {
-    editor.state[e.target.id === "lib-status" ? "libStatus" : "pickerStatus"] = e.target.value;
-    if (e.target.id === "lib-status") services.render();
-    else services.refreshOverlay();
-    return;
-  };
+  const changeLibraryStatus = (e) => catalogChangeLibraryStatus(services, e);
 
-  const changePickerGroup = (e) => {
-    const [ci, gi] = e.target.value.split(":").map(Number);
-    editor.state.cl = ci;
-    editor.state.grp = gi;
-    editor.state.q = "";
-    services.refreshOverlay();
-    return;
-  };
+  const changePickerGroup = (e) => catalogChangePickerGroup(services, e);
 
   function registerLanguageActions(target = document) {
     return registerEventOnce(target, "catalog.registerLanguageActions", "click", (e) => services.languageClick(e));

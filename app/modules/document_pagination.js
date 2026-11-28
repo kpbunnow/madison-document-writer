@@ -294,85 +294,86 @@ function paginateNotice(services, desk, src, d) {
   numberPages(layout.pages);
 }
 
+// A snow citation's pages: the cover's site table splits between rows, each continued page repeats its heading.
+function paginateSnowCitation(services, desk, src, d) {
+  const body = src.querySelector(".snow-cover"),
+    foot = src.querySelector(".n-foot");
+  if (!body || !foot) return;
+  const kids = [...src.children],
+    at = kids.indexOf(body),
+    pre = kids.slice(0, at),
+    post = kids.slice(at + 1).filter((n) => n !== foot),
+    pages = [];
+  let page,
+    container,
+    contentCount = 0;
+  function fresh() {
+    page = document.createElement("div");
+    page.className = "sheet snow-sheet" + (pages.length ? " cont" : "");
+    page.style.setProperty("min-height", "0", "important");
+    if (pages.length) page.appendChild(contHead(d));
+    else pre.forEach((n) => page.appendChild(n));
+    container = body.cloneNode(false);
+    page.appendChild(container);
+    page._foot = foot.cloneNode(true);
+    page.appendChild(page._foot);
+    pages.push(page);
+    desk.insertBefore(page, src);
+    contentCount = 0;
+  }
+  const over = () => page.scrollHeight > pageLimitFor(services, d);
+  function put(node, destination = container) {
+    destination.appendChild(node);
+    if (over() && contentCount) {
+      node.remove();
+      fresh();
+      container.appendChild(node);
+    }
+    contentCount++;
+  }
+  fresh();
+  for (const node of [...body.children]) {
+    if (!node.matches("table.snow-sites")) {
+      put(node);
+      continue;
+    }
+    const rows = [...node.querySelector("tbody").children];
+    let table = node.cloneNode(false),
+      tb = document.createElement("tbody");
+    table.appendChild(node.querySelector("thead").cloneNode(true));
+    table.appendChild(tb);
+    container.appendChild(table);
+    for (const row of rows) {
+      tb.appendChild(row);
+      if (over() && (contentCount || tb.children.length > 1)) {
+        row.remove();
+        if (!tb.children.length) table.remove();
+        fresh();
+        table = node.cloneNode(false);
+        table.appendChild(node.querySelector("thead").cloneNode(true));
+        tb = document.createElement("tbody");
+        table.appendChild(tb);
+        container.appendChild(table);
+        tb.appendChild(row);
+      }
+      contentCount++;
+    }
+  }
+  for (const node of post) {
+    page.insertBefore(node, page._foot);
+    if (over() && contentCount) {
+      node.remove();
+      fresh();
+      page.insertBefore(node, page._foot);
+    }
+    contentCount++;
+  }
+  src.remove();
+  numberSnowPages(pages);
+}
+
 export function createDocumentPagination(services) {
   const pageLimit = (d) => pageLimitFor(services, d);
-
-  function paginateSnow(desk, src, d) {
-    const body = src.querySelector(".snow-cover"),
-      foot = src.querySelector(".n-foot");
-    if (!body || !foot) return;
-    const kids = [...src.children],
-      at = kids.indexOf(body),
-      pre = kids.slice(0, at),
-      post = kids.slice(at + 1).filter((n) => n !== foot),
-      pages = [];
-    let page,
-      container,
-      contentCount = 0;
-    function fresh() {
-      page = document.createElement("div");
-      page.className = "sheet snow-sheet" + (pages.length ? " cont" : "");
-      page.style.setProperty("min-height", "0", "important");
-      if (pages.length) page.appendChild(contHead(d));
-      else pre.forEach((n) => page.appendChild(n));
-      container = body.cloneNode(false);
-      page.appendChild(container);
-      page._foot = foot.cloneNode(true);
-      page.appendChild(page._foot);
-      pages.push(page);
-      desk.insertBefore(page, src);
-      contentCount = 0;
-    }
-    const over = () => page.scrollHeight > pageLimit(d);
-    function put(node, destination = container) {
-      destination.appendChild(node);
-      if (over() && contentCount) {
-        node.remove();
-        fresh();
-        container.appendChild(node);
-      }
-      contentCount++;
-    }
-    fresh();
-    for (const node of [...body.children]) {
-      if (!node.matches("table.snow-sites")) {
-        put(node);
-        continue;
-      }
-      const rows = [...node.querySelector("tbody").children];
-      let table = node.cloneNode(false),
-        tb = document.createElement("tbody");
-      table.appendChild(node.querySelector("thead").cloneNode(true));
-      table.appendChild(tb);
-      container.appendChild(table);
-      for (const row of rows) {
-        tb.appendChild(row);
-        if (over() && (contentCount || tb.children.length > 1)) {
-          row.remove();
-          if (!tb.children.length) table.remove();
-          fresh();
-          table = node.cloneNode(false);
-          table.appendChild(node.querySelector("thead").cloneNode(true));
-          tb = document.createElement("tbody");
-          table.appendChild(tb);
-          container.appendChild(table);
-          tb.appendChild(row);
-        }
-        contentCount++;
-      }
-    }
-    for (const node of post) {
-      page.insertBefore(node, page._foot);
-      if (over() && contentCount) {
-        node.remove();
-        fresh();
-        page.insertBefore(node, page._foot);
-      }
-      contentCount++;
-    }
-    src.remove();
-    numberSnowPages(pages);
-  }
 
   function paginate(deskOverride, documentOverride) {
     const desk = deskOverride || document.querySelector(".desk");
@@ -387,7 +388,7 @@ export function createDocumentPagination(services) {
       return;
     }
     if (services.snow.is(d) && d.authoringVersion >= 9) {
-      paginateSnow(desk, src, d);
+      paginateSnowCitation(services, desk, src, d);
       return;
     }
     paginateNotice(services, desk, src, d);

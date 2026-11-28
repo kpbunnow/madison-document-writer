@@ -259,6 +259,15 @@ function finalRecipientsHTML({ d }) {
           <p class="hint">Selected recipients are listed on the document. An email draft opens for you to review and send.${raw(startup.HELPER.outlook === false ? " Outlook was not found, so your default mail program will open without the attachment." : "")}</p></div>`;
 }
 
+// Blockers first; otherwise the advisory notes, counted; otherwise every check passed.
+function finalBannerHTML(bad, notes) {
+  if (bad.length)
+    return html`<div class="banner alert"><div><strong>${String(bad.length)} thing${raw(bad.length === 1 ? "" : "s")} to fix before this can be issued.</strong> Select a check below to go directly to the field that needs attention.</div></div>`;
+  if (notes.length)
+    return html`<div class="banner warn"><div><strong>Ready to issue.</strong> ${notes.length === 1 ? "One thing" : String(notes.length) + " things"} worth a second look, noted below.</div></div>`;
+  return '<div class="banner ok"><div>Every check passed.</div></div>';
+}
+
 function finalDocumentModal({ services }) {
   const d = doc(editor.state.docId),
     ch = services.checks(d),
@@ -272,13 +281,7 @@ function finalDocumentModal({ services }) {
           ? html`<p><strong>Reason:</strong> ${raw(esc(d.correction.reason))}</p>${raw(services.correctionDiffHTML(d))}<p class="hint">Changed case details will also update future documents and current reports. No new visit or enforcement action is counted. The previous version remains in history.</p><label class="correction-option"><input type="checkbox" id="correction-reviewed" ${raw(d.correction.reviewed ? "checked" : "")}> I reviewed the changes, dates and affected recipients.</label>`
           : "",
       )}
-      ${raw(
-        bad.length
-          ? html`<div class="banner alert"><div><strong>${String(bad.length)} thing${raw(bad.length === 1 ? "" : "s")} to fix before this can be issued.</strong> Select a check below to go directly to the field that needs attention.</div></div>`
-          : notes.length
-            ? html`<div class="banner warn"><div><strong>Ready to issue.</strong> One thing worth a second look, noted below.</div></div>`
-            : '<div class="banner ok"><div>Every check passed.</div></div>',
-      )}
+      ${raw(finalBannerHTML(bad, notes))}
       ${raw(ch.map((c, ix) => (!c.ok ? services.checkRowHTML(c, ix) : "")).join(""))}
       <label class="f" style="margin-top:16px"><span>Mailed date</span><input type="date" id="fin-mailed" value="${raw(esc(d.mailed || recordDay(services.today)))}" max="${String(mailingMaxDay(services.initialCitations.enabled(d) ? "citation" : d.type))}" ${raw(d.correction ? "disabled" : "")}></label>
       ${raw(finalRecipientsHTML({ d }))}

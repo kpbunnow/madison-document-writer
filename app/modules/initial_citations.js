@@ -4,7 +4,125 @@ import { checkTarget, citSelector } from "./presentation_format.js";
 import { docInsp, docsFor } from "./writer_queries.js";
 import { clone, citationNumbersTaken } from "./record_values.js";
 import { courtTime } from "./document_types.js";
-import { canonicalOrdinance } from "./citation_policy.js";
+import { canonicalOrdinance, refreshDraftPricing } from "./citation_policy.js";
+// Bring one review node up to date in place; a focused text control keeps its node so typing is not interrupted.
+function patchReviewNode(old, next, active) {
+  if (old.nodeType !== next.nodeType || old.nodeName !== next.nodeName || old.dataset?.reviewCit !== next.dataset?.reviewCit) {
+    old.replaceWith(next);
+    return;
+  }
+  if (old.nodeType === 3) {
+    if (old.nodeValue !== next.nodeValue) old.nodeValue = next.nodeValue;
+    return;
+  }
+  if (old.nodeType !== 1) return;
+  for (const attr of [...old.attributes]) if (!next.hasAttribute(attr.name)) old.removeAttribute(attr.name);
+  for (const attr of next.attributes) if (old.getAttribute(attr.name) !== attr.value) old.setAttribute(attr.name, attr.value);
+  if (old === active) {
+    old.readOnly = next.readOnly;
+    old.disabled = next.disabled;
+    return;
+  }
+  const children = [...next.childNodes];
+  children.forEach((child, index) => {
+    if (old.childNodes[index]) patchReviewNode(old.childNodes[index], child, active);
+    else old.append(child);
+  });
+  while (old.childNodes.length > children.length) old.lastChild.remove();
+  if (/^(INPUT|SELECT|TEXTAREA)$/.test(old.tagName)) old.value = next.value;
+}
+
+// The initial citation's deposit checks and distinct, unused citation numbers.
+function initialCitationChecks(services, enabled, preview, d) {
+  if (!enabled(d)) return [];
+  const p = preview(d),
+    out = services.dep_checks(p).filter((c) => !c.ok);
+  const numbers = p.items
+    .filter((i) => i.cite && !i.withdrawn)
+    .map((i) => p.cits[i.id]?.num)
+    .filter(Boolean);
+  if (citationNumbersTaken(docsFor(d.caseId), numbers))
+    out.push({
+      ok: false,
+      t: "Each selected initial citation needs a distinct, unused citation number.",
+      targets: p.items.filter((i) => i.cite).map((i) => checkTarget(citSelector(i.id, "num"), "Item " + i.no + " · citation number")),
+    });
+  return out;
+}
+
+// The notice's issued event is joined by the citation's own event, frozen from the same sources.
+function groupInitialCitation(services, preview, d, noticeEvent) {
+  const p = preview(d);
+  p.initialPreview = false;
+  p.authoringVersion = Math.max(11, p.authoringVersion || 0);
+  p.status = "Final";
+  p.items = p.items.map((i) => ({ ...i, id: services.uid("x"), srcItemId: i.id }));
+  p.cits = Object.fromEntries(p.items.filter((i) => i.cite && !i.withdrawn).map((i) => [i.id, clone(d.cits[i.srcItemId])]));
+  for (const key of [
+    "draft",
+    "pendingAmendment",
+    "publicationEvents",
+    "expectedHead",
+    "publicationError",
+    "emailSelection",
+    "selectionCache",
+    "dueWork",
+    "initialCitationId",
+    "initialPreview",
+  ])
+    delete p[key];
+  const identity = { id: noticeEvent.id, noticeId: d.id, citationId: p.id };
+  p.issuanceGroup = identity; // set before freezing so the replacing citation freezes the notice's order furniture
+  p.frozen = services.freezeSources(p);
+  noticeEvent.payload.snapshot.issuanceGroup = identity;
+  noticeEvent.payload.snapshot.authoringVersion = Math.max(11, noticeEvent.payload.snapshot.authoringVersion || 0);
+  noticeEvent.payload.snapshot.cits = {};
+  delete noticeEvent.payload.snapshot.initialCitationId;
+  p.issuanceGroup = identity;
+  const event = {
+    id: services.evid(),
+    at: new Date(Date.parse(noticeEvent.at) + 1).toISOString(),
+    by: noticeEvent.by,
+    type: "citation.issued",
+    payload: {
+      docId: p.id,
+      snapshot: p,
+      fromDocId: d.id,
+      fromReinspId: "",
+      expectedHead: noticeEvent.payload.expectedHead.concat(noticeEvent.id).sort(),
+      lifecycle: 1,
+    },
+  };
+  d.publicationEvents = [noticeEvent];
+  return event;
+}
+
+// Repaint the open citation review's charge cards in place and refresh the initial citation previews.
+function refreshInitialCitationReview(services, enabled, preview, d) {
+  const panel = document.getElementById("citation-review");
+  if (!panel) return;
+  const container = document.createElement("div");
+  container.innerHTML = services.citationReview(d);
+  for (const old of panel.querySelectorAll("[data-charge]")) {
+    const replacement = [...container.querySelectorAll("[data-charge]")].find((el) => el.dataset.charge === old.dataset.charge);
+    if (!replacement) continue;
+    for (const detail of old.querySelectorAll("[data-review-details]")) {
+      const next = replacement.querySelector('[data-review-details="' + detail.dataset.reviewDetails + '"]');
+      if (next) next.open = detail.open;
+    }
+    // Never detach a focused text control: native blur would commit a half-typed ordinance.
+    const active = document.activeElement,
+      focused = old.contains(active);
+    patchReviewNode(old, replacement, active);
+    if (focused && !active.isConnected) old.querySelector("input:not([disabled]),summary")?.focus({ preventScroll: true });
+  }
+  const copies = document.querySelector(".initial-citation-previews");
+  if (copies && enabled(d)) {
+    copies.innerHTML = services.citationFaces(preview(d), true);
+    services.editorSync();
+  }
+}
+
 /* Initial-visit notices and citations share one review and one atomic save. */
 export function initInitialCitations(services) {
   const enabled = (d) => !!d && d.type === "notice" && d.draft && !d.correction && d.items.some((i) => i.cite && !i.withdrawn);
@@ -48,7 +166,7 @@ export function initInitialCitations(services) {
       };
       services.applyDeposit(d, i.id, ord);
     }
-    services.citationPricing.refresh(d);
+    refreshDraftPricing(services.citationPricing, d);
   }
   function preview(d) {
     prepare(d);
@@ -67,120 +185,13 @@ export function initInitialCitations(services) {
       cits: d.cits || {},
     };
   }
-  function checks(d) {
-    if (!enabled(d)) return [];
-    const p = preview(d),
-      out = services.dep_checks(p).filter((c) => !c.ok);
-    const numbers = p.items
-      .filter((i) => i.cite && !i.withdrawn)
-      .map((i) => p.cits[i.id]?.num)
-      .filter(Boolean);
-    if (citationNumbersTaken(docsFor(d.caseId), numbers))
-      out.push({
-        ok: false,
-        t: "Each selected initial citation needs a distinct, unused citation number.",
-        targets: p.items.filter((i) => i.cite).map((i) => checkTarget(citSelector(i.id, "num"), "Item " + i.no + " · citation number")),
-      });
-    return out;
-  }
+  const checks = (d) => initialCitationChecks(services, enabled, preview, d);
   function mailed(d, value) {
     const old = d.mailed;
     d.mailed = value;
     if (enabled(d)) for (const c of Object.values(d.cits || {})) if (c.issuedAutomatic && c.issued === old) c.issued = value;
   }
-  function group(d, noticeEvent) {
-    const p = preview(d);
-    p.initialPreview = false;
-    p.authoringVersion = Math.max(11, p.authoringVersion || 0);
-    p.status = "Final";
-    p.items = p.items.map((i) => ({ ...i, id: services.uid("x"), srcItemId: i.id }));
-    p.cits = Object.fromEntries(p.items.filter((i) => i.cite && !i.withdrawn).map((i) => [i.id, clone(d.cits[i.srcItemId])]));
-    for (const key of [
-      "draft",
-      "pendingAmendment",
-      "publicationEvents",
-      "expectedHead",
-      "publicationError",
-      "emailSelection",
-      "selectionCache",
-      "dueWork",
-      "initialCitationId",
-      "initialPreview",
-    ])
-      delete p[key];
-    const identity = { id: noticeEvent.id, noticeId: d.id, citationId: p.id };
-    p.issuanceGroup = identity; // set before freezing so the replacing citation freezes the notice's order furniture
-    p.frozen = services.freezeSources(p);
-    noticeEvent.payload.snapshot.issuanceGroup = identity;
-    noticeEvent.payload.snapshot.authoringVersion = Math.max(11, noticeEvent.payload.snapshot.authoringVersion || 0);
-    noticeEvent.payload.snapshot.cits = {};
-    delete noticeEvent.payload.snapshot.initialCitationId;
-    p.issuanceGroup = identity;
-    const event = {
-      id: services.evid(),
-      at: new Date(Date.parse(noticeEvent.at) + 1).toISOString(),
-      by: noticeEvent.by,
-      type: "citation.issued",
-      payload: {
-        docId: p.id,
-        snapshot: p,
-        fromDocId: d.id,
-        fromReinspId: "",
-        expectedHead: noticeEvent.payload.expectedHead.concat(noticeEvent.id).sort(),
-        lifecycle: 1,
-      },
-    };
-    d.publicationEvents = [noticeEvent];
-    return event;
-  }
-  function refresh(d) {
-    const panel = document.getElementById("citation-review");
-    if (!panel) return;
-    const container = document.createElement("div");
-    container.innerHTML = services.citationReview(d);
-    function patch(old, next, active) {
-      if (old.nodeType !== next.nodeType || old.nodeName !== next.nodeName || old.dataset?.reviewCit !== next.dataset?.reviewCit) {
-        old.replaceWith(next);
-        return;
-      }
-      if (old.nodeType === 3) {
-        if (old.nodeValue !== next.nodeValue) old.nodeValue = next.nodeValue;
-        return;
-      }
-      if (old.nodeType !== 1) return;
-      for (const attr of [...old.attributes]) if (!next.hasAttribute(attr.name)) old.removeAttribute(attr.name);
-      for (const attr of next.attributes) if (old.getAttribute(attr.name) !== attr.value) old.setAttribute(attr.name, attr.value);
-      if (old === active) {
-        old.readOnly = next.readOnly;
-        old.disabled = next.disabled;
-        return;
-      }
-      const children = [...next.childNodes];
-      children.forEach((child, index) => {
-        if (old.childNodes[index]) patch(old.childNodes[index], child, active);
-        else old.append(child);
-      });
-      while (old.childNodes.length > children.length) old.lastChild.remove();
-      if (/^(INPUT|SELECT|TEXTAREA)$/.test(old.tagName)) old.value = next.value;
-    }
-    for (const old of panel.querySelectorAll("[data-charge]")) {
-      const replacement = [...container.querySelectorAll("[data-charge]")].find((el) => el.dataset.charge === old.dataset.charge);
-      if (!replacement) continue;
-      for (const detail of old.querySelectorAll("[data-review-details]")) {
-        const next = replacement.querySelector('[data-review-details="' + detail.dataset.reviewDetails + '"]');
-        if (next) next.open = detail.open;
-      }
-      // Never detach a focused text control: native blur would commit a half-typed ordinance.
-      const active = document.activeElement,
-        focused = old.contains(active);
-      patch(old, replacement, active);
-      if (focused && !active.isConnected) old.querySelector("input:not([disabled]),summary")?.focus({ preventScroll: true });
-    }
-    const copies = document.querySelector(".initial-citation-previews");
-    if (copies && enabled(d)) {
-      copies.innerHTML = services.citationFaces(preview(d), true);
-      services.editorSync();
-    }
-  }
+  const group = (d, noticeEvent) => groupInitialCitation(services, preview, d, noticeEvent);
+  const refresh = (d) => refreshInitialCitationReview(services, enabled, preview, d);
   return { enabled, prepare, preview, checks, mailed, group, refresh };
 }

@@ -31,6 +31,7 @@ covers, or a new suite under its feature.
 | `audit_citation_number_uniqueness.py` | A number already in force on another shared case is refused before writes; orphaned citation fields do not reserve it, existing item reservations survive deselection/withdrawal, and ordinary resaves retain their numbers |
 | `audit_citation_number_case.js` | Writer publication checks refuse a new citation number that matches an issued one, or repeats on the same citation, in another letter case; the retained module accepted it |
 | `audit_code_review_helper.py` | Code review fixes: a NaN summary is refused and named while the Reports index stays readable; citation numbers compare without letter case for new citations only; a lock from a PC whose clock runs ahead is aged by its file time |
+| `audit_summary_lock_name.py` | A summary write takes the same case lock as the case save and the administrator lock tools, including for legacy case numbers whose casefold differs |
 | `audit_auxiliary_metadata.py` | Damaged parcel-cache JSON remains browser-readable over HTTP; valid historical parcels and original bytes stay intact; case-number inventory accepts supported encoding and names bad/link entries; malformed lock/catalog metadata cannot crash diagnostics; recent/live locks remain protected |
 | `audit_case_recovery_integrity.js` | Individual recovery persists/restores scoped proofs after durable acknowledgment, retains invalid read-only verdicts and unrelated proofs, refuses malformed evidence before writes, and supports older backups and local case-ID aliases |
 | `audit_startup_registry.py` | One operation-local startup registry inventory still verifies every case; missing-registry rebuild, latest/concurrent genesis conflicts, concurrent evidence retention, damaged metadata refusal, fresh tamper detection and malformed identity refusal |
@@ -451,6 +452,8 @@ covers, or a new suite under its feature.
 | `audit_due_after_mailing.js` | A due date after today but on or before a future mailing date is flagged with its due field before issuance (the helper refuses it); documents mailed today, corrections, Reinspection Notices and undated documents keep their checks |
 | `audit_report_open_violations.js` | Open violations by area counts only cases whose notice was issued by the as-of date; a snow case (no notice) is no longer counted as an open violation forever |
 | `audit_report_citation_closed.js` | An item closed by its initial citation, and a snow case item, are not counted as open in the workbook's per-case Open violations; the property card shows "Closed by citation" |
+| `audit_final_dialog_review.js` | Finalize dialog: a correction's email selection is saved against the correction's own recipients, not the live case's; the advisory banner counts its notes |
+| `audit_open_case_inspector_busy.js` | Open cases by inspector: the inspector menu is disabled while that inspector's list loads, and available before, after and after a failed load |
 | `audit_document_sources.js` | Independent notification/undo/placeholder and approved-source owners; stale edit guards, text/event/focus order, source precedence/cloning, approved blocks and historical signer/court defaults |
 | `audit_citation_charges.js` | Independent court scheduling/numbering and charge/deposit editing; holiday/day/clock/collision behavior, currency, basis clearing and retained correction metadata |
 | `audit_document_delivery.js` | Independent printing/delivery owners; frame/packet guards, archived original and email identity/reuse, snapshot-bound filing, receipts/outbox, fallback and counter failures; 200 refused viewer opens each release their allocated blob |
@@ -620,7 +623,6 @@ The full-program review extends `audit_reporting_inputs.py` with deep-summary is
 | Suite | Coverage |
 | --- | --- |
 | `audit_draft_pricing_dates.js` | Actual citation edit, pricing, review and deposit owners: malformed calendar dates retain text and previous amounts, manual edits/rendering do not throw, incomplete completion preserves its request, and correcting the date restores readiness. |
-
-| Suite | Coverage |
-| --- | --- |
 | `audit_admin_draft_continuation.js` | Real administration owner: unchanged draft authorization, refusal after issuance/confirmation/lock/replacement/edit, incomplete draft eligibility and preservation of a later utility dialog. |
+| `audit_shared_history_incomplete_date.js` | Shared citation history (background load and Refresh citation history) still loads while a citation issue date is incomplete, with no unhandled rejection; the entered text stays and remains a readiness fault |
+| `audit_prior_citation_warning_days.js` | The recent prior-citation warning names the schedule's own warning period; the shipped 90-day text is unchanged |

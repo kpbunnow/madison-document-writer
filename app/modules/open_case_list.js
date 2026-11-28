@@ -97,11 +97,12 @@ export function openCaseCountText(state) {
   );
 }
 
+// While a list loads the inspector cannot change: the answer would be shown under a choice it does not belong to.
 function openCasePickerHTML(state, busy) {
   const options = state.inspectors
     .map((p) => html`<option value="${p.id}" ${raw(p.id === state.selected ? "selected" : "")}>${p.name} (${p.openCases})</option>`)
     .join("");
-  return html`<form id="open-cases-form" class="lookup-row"><label class="f"><span>Inspector</span><select id="open-cases-inspector" required><option value="">Choose an inspector</option>${raw(options)}</select></label><button class="btn btn-primary" type="submit" ${raw(busy ? "disabled" : "")}>${state.casesLoading ? "Loading open cases…" : "Show open cases"}</button><button class="btn" type="button" id="open-cases-refresh" ${raw(busy || !state.selected ? "disabled" : "")}>Refresh open cases</button><button class="btn" type="button" id="open-cases-refresh-inspectors" ${raw(busy ? "disabled" : "")}>Refresh inspector list</button></form>`;
+  return html`<form id="open-cases-form" class="lookup-row"><label class="f"><span>Inspector</span><select id="open-cases-inspector" required ${raw(busy ? "disabled" : "")}><option value="">Choose an inspector</option>${raw(options)}</select></label><button class="btn btn-primary" type="submit" ${raw(busy ? "disabled" : "")}>${state.casesLoading ? "Loading open cases…" : "Show open cases"}</button><button class="btn" type="button" id="open-cases-refresh" ${raw(busy || !state.selected ? "disabled" : "")}>Refresh open cases</button><button class="btn" type="button" id="open-cases-refresh-inspectors" ${raw(busy ? "disabled" : "")}>Refresh inspector list</button></form>`;
 }
 
 function openCaseListHTML(state) {

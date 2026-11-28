@@ -11,6 +11,7 @@ import {
   CITATION_POLICY,
   canonicalOrdinance,
   cents,
+  refreshDraftPricing,
   resolveCitationAmount,
   defendantKey,
   sameSite,
@@ -48,11 +49,12 @@ function refreshDraftDepositRequests(services, key, d) {
   }
 }
 
-function refreshPricingWarning(c, f, date, history) {
+// The warning names the schedule's own warning period (90 days for every current schedule).
+export function refreshPricingWarning(c, f, date, history) {
   c.pricingWarning = history.some((x) => x.differentOwner)
     ? "Prior citation at this property was issued to a different owner"
     : f?.rule?.priorCitationWarningDays && history.some((x) => daysBetween(x.date, date) < f.rule.priorCitationWarningDays)
-      ? "A prior " + c.ord + " citation for this respondent is under 90 days old."
+      ? "A prior " + c.ord + " citation for this respondent is under " + f.rule.priorCitationWarningDays + " days old."
       : "";
 }
 
@@ -71,13 +73,20 @@ function refreshPricingSiteMatch(d, c, f, respondent) {
   } else delete c.siteMatch;
 }
 
+// The lookup is read, and its arguments evaluated, in the original order; an incomplete pricing date resolves nothing.
 function draftPricingEntry(services, key, d, i, c) {
-  const date = services.citationPricingDate(c, d);
-  return validISO(date) ? services.lookupForf([c.ord], key(i), c.scheduleEntryId, date) : null;
+  const lookup = services.lookupForf,
+    ordinances = [c.ord],
+    libraryKey = key(i),
+    entryId = c.scheduleEntryId,
+    date = services.citationPricingDate(c, d);
+  return validISO(date) ? lookup.call(services, ordinances, libraryKey, entryId, date) : null;
 }
 
 function refreshDraftPricingHistory(services, key, priorOffenses, d, i, c, respondent, staged) {
-  const f = draftPricingEntry(services, key, d, i, c),
+  // An unreadable pricing date still refuses the refresh here ("Enter a valid pricing date."); Writer callers that must
+  // keep an incomplete draft editable handle that refusal (citation_policy.js refreshDraftPricing).
+  const f = services.lookupForf([c.ord], key(i), c.scheduleEntryId, services.citationPricingDate(c, d)),
     date = c.violDate || services.inspAt(d).date;
   const history = priorOffenses({
     ordinanceEntry: f,
@@ -192,54 +201,137 @@ function appendPriorCitations(services, key, record, query, out, seen) {
   }
 }
 
+// Counted prior citations: shared and local issued citations for the respondent or site, then this issuance's earlier ones.
+function pricingPriorOffenses(services, key, shared, { ordinanceEntry, respondent, violationDate, excludeId = "", staged = [] }) {
+  if (!ordinanceEntry) return [];
+  const records = shared
+      .filter((x) => x.case.number !== respondent.number)
+      .concat(
+        workspace.DOCS.filter((d) => !d.draft && !d.void && !d.superseded && d.type === "citation" && d.id !== excludeId).map((d) => ({
+          case: docCase(d),
+          document: d,
+        })),
+      ),
+    out = [],
+    seen = new Set();
+  const query = { ordinanceEntry, respondent, violationDate };
+  for (const record of records) appendPriorCitations(services, key, record, query, out, seen);
+  return out.concat(
+    staged
+      .filter((s) => s.entryId === ordinanceEntry.id && withinWindow(s.date, violationDate, ordinanceEntry.window))
+      .map((s) => ({ number: s.number, date: s.date, caseNumber: respondent.number, prepared: true })),
+  );
+}
+
+// An unchanged charge on a correction keeps its original deposit.
+function pricingUnchangedCorrection(d, i, c) {
+  const original = correctionSource(d)?.cits?.[i.id];
+  return original &&
+    canonicalOrdinance(original.ord) === canonicalOrdinance(c.ord) &&
+    !(d.authoringVersion >= 9 && c.overrideBasis && c.overrideBasis.authorizationId !== original.overrideBasis?.authorizationId)
+    ? original
+    : null;
+}
+
+// Whether an issued citation's charge resolves to a priced schedule amount.
+function pricingDetermined(d, i, c) {
+  return (
+    d?.authoringVersion >= 8 &&
+    !c.historicalDeposit &&
+    resolveCitationAmount({
+      ordinance: c.ord,
+      libraryItem: itemLibraryKey(i) || "",
+      entryId: c.scheduleEntryId,
+      tier: c.tier || 1,
+      date: c.pricedOn || c.issued,
+      measurements: c.measurements || {},
+    }).kind === "priced"
+  );
+}
+
+// A charge outside the item's current sections needs its approved source.
+function pricingChargeFault(d, i, c) {
+  if (!c.preparedSections) return "";
+  const sections = (i.sections || []).map(canonicalOrdinance).filter(Boolean);
+  if (sections.includes(canonicalOrdinance(c.ord))) return "";
+  return String(c.differentChargeSource || "").trim().length >= 10
+    ? ""
+    : "Choose a charge from the item’s current sections, or confirm a different charge with its approved source.";
+}
+
+// The charge card's pricing explanation: schedule basis, computed tier and counted citations.
+function citationPricingHint(services, key, d, i, c) {
+  const f = draftPricingEntry(services, key, d, i, c),
+    history = (c.countedOffenses || [])
+      .map((x) => x.number + " (" + x.date + ", " + x.caseNumber + (x.prepared ? ", prepared in this issuance" : "") + ")")
+      .join("; ");
+  return (
+    (i.citationReviewNotice ? i.citationReviewNotice + ". " : "") +
+    (c.rowSelectionNotice ? c.rowSelectionNotice + ". " : "") +
+    (c.pricingWarning ? c.pricingWarning + " " : "") +
+    (c.historicalDeposit
+      ? "Retained original citation deposit."
+      : f
+        ? f.why + " [" + f.resolvedVia + "]. " + f.raw
+        : "No matching verified schedule. Choose an approved base or total and record its source.") +
+    " Computed tier: " +
+    (c.tier || "1st") +
+    ". Counted citations: " +
+    (history || "none") +
+    "."
+  );
+}
+
+// Refresh citation history (button) reloads shared history for the open draft.
+function registerCitationHistoryRefresh(services, loadShared) {
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest?.("[data-refresh-citation-history]")) return;
+    const d = doc(editor.state.docId);
+    if (!d || !d.draft || d.pendingAmendment) return;
+    void loadShared(d, true).then((ok) => {
+      if (editor.state.docId !== d.id) return;
+      if (!ok) services.toast("Shared citation history is unavailable. Reconnect and try Refresh citation history.");
+      services.renderKeep();
+    });
+  });
+}
+
+// Re-price each cited item of a draft in order; earlier items in the same issuance count toward later ones.
+function refreshDraftCitations(services, key, priorOffenses, unchangedCorrection, d) {
+  const respondent = docCase(d),
+    staged = [];
+  for (const i of d.items.filter((i) => i.cite && !i.withdrawn)) {
+    const c = d.cits?.[i.id];
+    if (!c || Object.hasOwn(c, "ordEditingFrom")) continue;
+    const original = unchangedCorrection(d, i, c);
+    if (original) {
+      c.historicalDeposit = true;
+      continue;
+    }
+    delete c.historicalDeposit;
+    const { f, date } = refreshDraftPricingHistory(services, key, priorOffenses, d, i, c, respondent, staged);
+    refreshDraftManualPrice(services, d, c);
+    refreshDraftScheduledPrice(services, key, d, i, c, f);
+
+    if (f && c.ord) staged.push({ entryId: f.id, date, number: c.num });
+  }
+}
+
+// Loading shared history only re-prices the draft: an issue date still being typed stays a readiness fault, not a failed load.
+const refreshForSharedHistory = (refresh, d) => refreshDraftPricing({ refresh }, d);
+
 export function initCitationPricing(services) {
   let shared = [],
     busy = null,
     loadedAt = 0,
     localHistorySignature = "";
   const key = (i) => itemLibraryKey(i) || "";
-  function priorOffenses({ ordinanceEntry, respondent, violationDate, excludeId = "", staged = [] }) {
-    if (!ordinanceEntry) return [];
-    const records = shared
-        .filter((x) => x.case.number !== respondent.number)
-        .concat(
-          workspace.DOCS.filter((d) => !d.draft && !d.void && !d.superseded && d.type === "citation" && d.id !== excludeId).map((d) => ({
-            case: docCase(d),
-            document: d,
-          })),
-        ),
-      out = [],
-      seen = new Set();
-    const query = { ordinanceEntry, respondent, violationDate };
-    for (const record of records) appendPriorCitations(services, key, record, query, out, seen);
-    return out.concat(
-      staged
-        .filter((s) => s.entryId === ordinanceEntry.id && withinWindow(s.date, violationDate, ordinanceEntry.window))
-        .map((s) => ({ number: s.number, date: s.date, caseNumber: respondent.number, prepared: true })),
-    );
+  // Spliced by name in the prior-history reference; the body reads `shared` at each call.
+  function priorOffenses(query) {
+    return pricingPriorOffenses(services, key, shared, query);
   }
-  function unchangedCorrection(d, i, c) {
-    const original = correctionSource(d)?.cits?.[i.id];
-    return original &&
-      canonicalOrdinance(original.ord) === canonicalOrdinance(c.ord) &&
-      !(d.authoringVersion >= 9 && c.overrideBasis && c.overrideBasis.authorizationId !== original.overrideBasis?.authorizationId)
-      ? original
-      : null;
-  }
-  function determined(d, i, c) {
-    return (
-      d?.authoringVersion >= 8 &&
-      !c.historicalDeposit &&
-      resolveCitationAmount({
-        ordinance: c.ord,
-        libraryItem: key(i),
-        entryId: c.scheduleEntryId,
-        tier: c.tier || 1,
-        date: c.pricedOn || c.issued,
-        measurements: c.measurements || {},
-      }).kind === "priced"
-    );
-  }
+  const unchangedCorrection = pricingUnchangedCorrection;
+  const determined = pricingDetermined;
   function refresh(d) {
     if (!d || !d.draft || d.pendingAmendment || services.isLocked(d)) return;
     services.libraryReview.refresh(d);
@@ -249,37 +341,14 @@ export function initCitationPricing(services) {
     localHistorySignature = current;
     d.authoringVersion = Math.max(11, d.authoringVersion || 0);
     refreshDraftDepositRequests(services, key, d);
-    const respondent = docCase(d),
-      staged = [];
-    for (const i of d.items.filter((i) => i.cite && !i.withdrawn)) {
-      const c = d.cits?.[i.id];
-      if (!c || Object.hasOwn(c, "ordEditingFrom")) continue;
-      const original = unchangedCorrection(d, i, c);
-      if (original) {
-        c.historicalDeposit = true;
-        continue;
-      }
-      delete c.historicalDeposit;
-      const { f, date } = refreshDraftPricingHistory(services, key, priorOffenses, d, i, c, respondent, staged);
-      refreshDraftManualPrice(services, d, c);
-      refreshDraftScheduledPrice(services, key, d, i, c, f);
-
-      if (f && c.ord) staged.push({ entryId: f.id, date, number: c.num });
-    }
+    refreshDraftCitations(services, key, priorOffenses, unchangedCorrection, d);
   }
-  function chargeFault(d, i, c) {
-    if (!c.preparedSections) return "";
-    const sections = (i.sections || []).map(canonicalOrdinance).filter(Boolean);
-    if (sections.includes(canonicalOrdinance(c.ord))) return "";
-    return String(c.differentChargeSource || "").trim().length >= 10
-      ? ""
-      : "Choose a charge from the item’s current sections, or confirm a different charge with its approved source.";
-  }
+  const chargeFault = pricingChargeFault;
   async function loadShared(d, force = false) {
     if (!d || d.pendingAmendment || !startup.HELPER?.ok || !workspace.CASEDIR?.helper) return true;
-    refresh(d);
+    refreshForSharedHistory(refresh, d);
     if (!force && Date.now() - loadedAt < 15000) {
-      refresh(d);
+      refreshForSharedHistory(refresh, d);
       return true;
     }
     if (!busy)
@@ -300,7 +369,7 @@ export function initCitationPricing(services) {
     const before = signature(d),
       ok = await busy;
     if (ok) {
-      refresh(d);
+      refreshForSharedHistory(refresh, d);
       if (before !== signature(d)) services.toast("Citation history changed. Review the updated offense tiers and deposits before issuance.");
     }
     return ok;
@@ -320,36 +389,7 @@ export function initCitationPricing(services) {
     d?.items.some((i) => i.cite && (d.cits?.[i.id]?.depositMode || "schedule") === "schedule")
       ? "Shared citation history must finish checking. Use Refresh citation history; reconnect if it is unavailable."
       : "";
-  function hint(d, i, c) {
-    const f = draftPricingEntry(services, key, d, i, c),
-      history = (c.countedOffenses || [])
-        .map((x) => x.number + " (" + x.date + ", " + x.caseNumber + (x.prepared ? ", prepared in this issuance" : "") + ")")
-        .join("; ");
-    return (
-      (i.citationReviewNotice ? i.citationReviewNotice + ". " : "") +
-      (c.rowSelectionNotice ? c.rowSelectionNotice + ". " : "") +
-      (c.pricingWarning ? c.pricingWarning + " " : "") +
-      (c.historicalDeposit
-        ? "Retained original citation deposit."
-        : f
-          ? f.why + " [" + f.resolvedVia + "]. " + f.raw
-          : "No matching verified schedule. Choose an approved base or total and record its source.") +
-      " Computed tier: " +
-      (c.tier || "1st") +
-      ". Counted citations: " +
-      (history || "none") +
-      "."
-    );
-  }
-  document.addEventListener("click", (e) => {
-    if (!e.target.closest?.("[data-refresh-citation-history]")) return;
-    const d = doc(editor.state.docId);
-    if (!d || !d.draft || d.pendingAmendment) return;
-    void loadShared(d, true).then((ok) => {
-      if (editor.state.docId !== d.id) return;
-      if (!ok) services.toast("Shared citation history is unavailable. Reconnect and try Refresh citation history.");
-      services.renderKeep();
-    });
-  });
+  const hint = (d, i, c) => citationPricingHint(services, key, d, i, c);
+  registerCitationHistoryRefresh(services, loadShared);
   return { refresh, determined, priorOffenses, chargeFault, loadShared, ensureShared, signature, historyFault, hint, unchangedCorrection };
 }
