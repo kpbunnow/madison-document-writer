@@ -1268,6 +1268,7 @@
     "tests/unit/audit_summary_lock_name.py",
     "tests/unit/audit_summary_projection_rules.js",
     "tests/unit/audit_test_seams.js",
+    "tests/unit/audit_tool_dialog_continuation.js",
     "tests/unit/audit_tool_form_submit_rules.js",
     "tests/unit/audit_tools_screen_markup_rules.js",
     "tests/unit/audit_ui_timer_settlement.js",
