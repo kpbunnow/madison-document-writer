@@ -52,6 +52,12 @@ async function build(api) {
   return record;
 }
 
+function nonFinitePaths(value, at = "") {
+  if (typeof value === "number" && !Number.isFinite(value)) return [at];
+  if (!value || typeof value !== "object") return [];
+  return Object.entries(value).flatMap(([key, item]) => nonFinitePaths(item, at + "/" + key));
+}
+
 const TAMPERS = [
   (r) => (r.integrity.genesis.hash = "0".repeat(64)),
   (r) => (r.integrity.genesis.historyHash = "f".repeat(64)),
@@ -107,9 +113,9 @@ const TAMPERS = [
     }
     const text = JSON.stringify(record, (_, v) => (typeof v === "number" && !Number.isFinite(v) ? "<nonfinite>" : v));
     const outcome = async (api) => {
-      const copy = JSON.parse(text, (_, v) => v);
-      // restore tampers JSON cannot carry
-      if (picks.includes(22) && copy.events?.[0]?.payload) copy.events[0].payload.n = NaN;
+      // Restore the generated NaN at its encoded position, including after another tamper reorders events.
+      const copy = JSON.parse(text, (_, v) => (v === "<nonfinite>" ? NaN : v));
+      assert.deepEqual(nonFinitePaths(copy), nonFinitePaths(record), "the test clone retains nonfinite mutations at their original paths");
       try {
         return JSON.stringify(await api.verifyIntegrity(copy));
       } catch (e) {
