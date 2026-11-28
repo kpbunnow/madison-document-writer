@@ -37,6 +37,8 @@ A resumable file/hash/range ledger is retained in the execution workspace at `/w
 
 | FULL-023 | P3 (test harness) | The isolated Reports analysis fixture supplies the obsolete `TODAY` value instead of `currentDay`, so exercising an open item in Days to compliance throws and future scenario development cannot use the real owner reliably. | Supply the production live-day interface to both Reports owners. New independent regression reproduces the missing-function error and checks that an existing fixture advances open-item age across a City-day rollover. Existing scenario assertions are retained. |
 
+| FULL-024 | P2 | A batch-deadline save finishing after another utility dialog opens closes that newer dialog, hiding unsent work. | Capture the originating dialog before saving and close it only if it remains the current connected utility dialog. A deferred-save regression covers ordinary completion, replacement, removal and storage refusal. All 4,000 existing form comparisons and assertions remain unchanged. |
+
 ## Checkpoint 1: helper transport and integrity
 
 Completed reads cover the helper server, integrity/verification, summary/index readers, inspector lists, operational locks/health, session bootstrap, file containment, trust/CSP, value semantics, cash/admin validation, parcel history and shared workflow owners, plus selected regression sources. Remaining helper owners, application modules, build/update/CI, tests and data remain in the ledger for subsequent checkpoints.
@@ -117,3 +119,9 @@ PR #583 passed Full run [46090811308](https://github.com/kpbunnow/madison-docume
 PR #585 Full run [46092284680](https://github.com/kpbunnow/madison-document-writer/actions/runs/46092284680) failed the seasonal-letter comparison; browser, Windows and security checks passed. The comparison mock mounted its form beside an empty dialog, unlike the production utility dialog. It now mounts the submitted form inside that dialog. All 1,500 seeded scenarios, exact output/effect/error assertions and retained reference bytes remain unchanged. The new delayed-dialog regression independently requires preserving later unsent work. This fixture correction must pass the combined full gate; the failed constituent run is not passing evidence.
 
 FULL-023 is a test-harness wiring error, not an assertion of a production clock defect. Its new rollover regression and existing Reports ordinance/usability scenarios pass with the real owners. The whole-program review remains in progress while active test and data ranges are completed.
+
+## Checkpoint 11: delivery and continued interruption review
+
+PR #586 passed exact-head Full run [46093119644](https://github.com/kpbunnow/madison-document-writer/actions/runs/46093119644), Windows recovery, CodeQL and PR format at `a6b48c29f5deb3c82e2ce5a4c827615c778c1c8a`. Guarded normal merge `3565afd3870b0dbe9ba114a20aa5733f6a73fc81` preserves the verified tree and constituent source heads; GitHub also marked #585 merged. Main verification is separate.
+
+The remaining browser/test-harness review reproduced FULL-024 before its correction. No batch selection, deadline validation, durable save, document content or success/refusal reporting changes. The corrected continuation preserves the acknowledged save while leaving a later utility dialog open. The whole-program review remains in progress; unreviewed test and data ranges stay pending in the ledger.

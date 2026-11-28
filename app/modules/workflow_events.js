@@ -36,6 +36,7 @@ async function submitReminderEmail(services, form, data) {
 }
 
 async function submitBatchDue(services, form, data) {
+  const dialog = document.getElementById("utility-dialog");
   const changes = [...form.querySelectorAll("[data-batch-item]:checked")].map((el) => ({
     docId: el.dataset.batchDoc,
     itemId: el.dataset.batchItem,
@@ -50,7 +51,7 @@ async function submitBatchDue(services, form, data) {
       workspace.DOCS = workspace.DOCS.map((d) => copies.get(d.id) || d);
     },
   );
-  document.getElementById("utility-dialog")?.close();
+  if (dialog?.isConnected && document.getElementById("utility-dialog") === dialog) dialog.close();
   services.render();
   services.toast("Saved selected draft deadlines", { severity: "success" });
 }

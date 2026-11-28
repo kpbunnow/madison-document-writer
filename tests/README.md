@@ -363,6 +363,7 @@ covers, or a new suite under its feature.
 | `audit_reports_clock_wiring.js` | Every Reports service getter named TODAY reads the current day through `currentDay()` when asked, not the page-load day. |
 | `audit_markup_inventory.js` | Split-literal ratchet: screen modules may not gain adjacent string pieces joined with +; print/issued and approved-wording modules are classified, not ratcheted. |
 | `audit_tool_form_submit_rules.js` | Tool form submits in real forms: search markup, reminder preferences, batch deadlines, outbox sync and failure handling against the retained module. |
+| `audit_tool_dialog_continuation.js` | Delayed batch-deadline saves close only their originating current dialog; newer unsent work, acknowledged updates and failure recovery are preserved. |
 | `audit_violator_contact.js` | Violator contact rules in the Writer: the Copies type, one Violator per case, snow exclusion, defendant lines, owner copy choice, company rule and pricing respondent from the shared cases. |
 | `audit_start_correction_rules.js` | Opening a correction: existing-draft shortcut, refusals, dropped fields, recipient merge and stored record against the retained module. |
 | `audit_snow_letter_review_rules.js` | Seasonal letter review form, submit rewriting and failure display against the retained module. |
