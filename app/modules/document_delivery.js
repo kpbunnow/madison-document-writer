@@ -212,7 +212,7 @@ export function createDocumentDelivery(services) {
       return false;
     }
     const k = kase(d.caseId),
-      list = emailList(k).filter((e) => String(e.addr || "").trim());
+      list = emailList(k).filter((e) => String(e?.addr || "").trim());
     // An issued document has already been filed. The email attaches that same
     // file; the page travels with the request only as a fallback for when it
     // is not there, so a second render can never replace what was filed.
@@ -226,7 +226,7 @@ export function createDocumentDelivery(services) {
     const jb = job && job.docId === d.id ? job : { docId: d.id, name: artifact.filename, html: "" };
     const useFiled = true;
     if (!picked && list.length) return chooseEmailRecipients(services, d, jb, useFiled);
-    const to = (picked || []).filter((e) => String(e.addr || "").trim());
+    const to = (picked || []).filter((e) => String(e?.addr || "").trim());
     if (!startup.HELPER) {
       services.toast("Emailing needs Document Writer started from the Document Writer icon on the desktop");
       return false;

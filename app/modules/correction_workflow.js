@@ -31,18 +31,18 @@ function recipientRows(src) {
   const savedEmails = (Array.isArray(kase(src.caseId).emails) ? kase(src.caseId).emails : []).concat(
     Array.isArray(docCase(src).emails) ? docCase(src).emails : [],
   );
-  const issuedEmails = Array.isArray(src.emailedTo) ? src.emailedTo : [];
+  const issuedEmails = Array.isArray(src.emailedTo) ? src.emailedTo.filter(Boolean) : [];
   const allEmails = savedEmails.concat(issuedEmails.map((e) => ({ addr: e.addr, kind: e.kind || "Other", on: true })));
   const emailMap = new Map();
   allEmails.forEach((e) => {
-    const addr = String(e.addr || "").trim();
+    const addr = String(e?.addr || "").trim();
     if (addr) {
       const key = emailKey(e, addr);
       if (!emailMap.has(key)) emailMap.set(key, Object.assign({}, e, { addr }));
     }
   });
   issuedEmails.forEach((e) => {
-    const addr = String(e.addr || "").trim();
+    const addr = String(e?.addr || "").trim();
     if (addr) emailMap.set(emailKey(e, addr), { addr, kind: e.kind || "Other", on: true });
   });
   return Array.from(emailMap.values());

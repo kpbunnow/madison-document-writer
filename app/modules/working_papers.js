@@ -83,7 +83,7 @@ export function createWorkingPapers(services) {
         boxes = [...services.document.querySelectorAll("[data-finsend]")];
       if (d && d.draft && !d.pendingAmendment && boxes.length) {
         // The same list the dialog offered: a correction lists its own edited recipients.
-        const list = emailList(d.correction ? docCase(d) : kase(d.caseId)).filter((e) => String(e.addr || "").trim());
+        const list = emailList(d.correction ? docCase(d) : kase(d.caseId)).filter((e) => String(e?.addr || "").trim());
         d.emailSelection = boxes
           .filter((b) => b.checked)
           .map((b) => list[+b.dataset.finsend])

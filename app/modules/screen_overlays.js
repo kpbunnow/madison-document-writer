@@ -13,7 +13,7 @@ function sendRecipientModal() {
   const d = doc(editor.state.sendDoc) || doc(editor.state.docId);
   if (!d) return "";
   const k = kase(d.caseId),
-    list = emailList(k).filter((e) => String(e.addr || "").trim());
+    list = emailList(k).filter((e) => String(e?.addr || "").trim());
   return html`<div class="modal"><div class="modal-box" role="dialog" aria-modal="true">
       <div class="modal-h"><h2>Send this document to</h2></div><div class="modal-b">
       <p class="hint">Choose recipients for the email draft. Review and send it in your mail application. The issued document stays unchanged.</p>
@@ -81,6 +81,7 @@ function recipientEmailHTML({ em }) {
     ? em
         .map(
           (e, ix) =>
+            e &&
             html`<div class="rec">
         <div class="rec-n">${String(ix + 1)}</div>
         <div class="rec-f rec-mail">
@@ -240,7 +241,7 @@ function folderModal() {
 
 function finalRecipientsHTML({ d }) {
   if (!startup.HELPER || !startup.HELPER.chrome) return "";
-  const list = emailList(d.correction ? docCase(d) : kase(d.caseId)).filter((e) => String(e.addr || "").trim());
+  const list = emailList(d.correction ? docCase(d) : kase(d.caseId)).filter((e) => String(e?.addr || "").trim());
   if (!list.length)
     return html`<p class="hint" style="margin-top:14px">No email recipients on this case. Add them under <strong>Recipients</strong> if you want this sent as well as filed.</p>`;
   return html`<div class="fin-send"><div class="flab">Email this document to</div>
